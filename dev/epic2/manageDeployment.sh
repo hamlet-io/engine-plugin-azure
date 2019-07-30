@@ -80,7 +80,7 @@ function wait_for_deployment_execution() {
 
   # Assign the object path to the deployment state.
   status_attribute='.properties.provisioningState'
-  
+
   info "Watching deployment execution..."
 
   while true; do
@@ -140,7 +140,50 @@ function wait_for_deployment_execution() {
 
 }
 
-function process_deployment() {}
+function process_deployment() {
+
+  local stripped_template_file="${tmp_dir}/stripped_template"
+
+  local exit_status=0
+
+  if [[ "${DEPLOYMENT_INITIATE}" = "true" ]]; then
+
+    case ${DEPLOYMENT_OPERATION} in
+      create)
+
+      ;;
+      update)
+        # Compress the template
+        jq -c '.' < ${TEMPLATE} > "${stripped_template_file}"
+
+        # Check if the resource group needs to be created
+        info "Check if the ${DEPLOYMENT_NAME} resource group is already present..."
+        az group exists --resource-group "${DEPLOYMENT_NAME}" > ${DEPLOYMENT_GROUP_EXISTS}
+
+        if [[ ${DEPLOYMENT_GROUP_EXISTS} = "false" ]]; then
+          az group create --resource-group "${DEPLOYMENT_NAME}" --location "${REGION}"
+        fi
+
+        
+        
+
+      ;;
+      delete)
+        # Delete the resource group
+        info "Deleting the ${DEPLOYMENT_NAME} resource group"
+        az group delete --resource-group "${DEPLOYMENT_NAME}" --no-wait --yes
+
+        # Delete the deployment instance
+        info "Deleting the ${DEPLOYMENT_NAME} deployment..."
+        az group deployment delete --resource-group "${DEPLOYMENT_NAME}" --name "${DEPLOYMENT_NAME}" --no-wait
+
+        wait_for_deployment_execution
+      ;;
+    esac
+
+  fi
+
+}
 
 function main() {}
 
