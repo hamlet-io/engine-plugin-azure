@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# TODO(rossmurr4y):These variables have been created because they are unique to Azure
-#   They need to be implimented into the setContext + setStackContext scripts accordingly.
-#   They are listed here for testing purposes only.
-DEPLOYMENT_TEMPLATE='C:/dev/CodeOnTap/plugins/azure/gen3-azure/dev/epic0/template.json'
-DEPLOYMENT_TEMPLATE_PARAMETERS='C:/dev/CodeOnTap/plugins/azure/gen3-azure/dev/epic0/testparameters.json'
-AZ_DIR="C:/dev/CodeOnTap/plugins/azure/gen3-azure/dev/epic0/"
-
 [[ -n "${GENERATION_DEBUG}" ]] && set ${GENERATION_DEBUG}
 trap '. ${GENERATION_DIR}/cleanupContext.sh' EXIT SIGHUP SIGINT SIGTERM
 . "${GENERATION_DIR}/common.sh"
@@ -97,25 +90,27 @@ function wait_for_deployment_execution() {
   while true; do
 
     case ${DEPLOYMENT_OPERATION} in
-      update | create) 
-        DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_NAME} --name ${DEPLOYMENT_NAME})
+      update | create)
+        if [[ ${DEPLOYMENT_SCOPE} == "resourceGroup" ]]; then
+          DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_NAME} --name ${DEPLOYMENT_NAME})
+        else
+          DEPLOYMENT=$(az deployment show --name ${DEPLOYMENT_NAME})
+        fi
       ;;
       delete) 
-        DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_NAME} --name ${DEPLOYMENT_NAME})
+        # Delete the group not the deployment. Deleting a deployment has no impact on deployed resources in Azure.
+        DEPLOYMENT=$(az group show --resource-group ${DEPLOYMENT_NAME} 2>/dev/null) 
       ;;
       *)
         fatal "\"${DEPLOYMENT_OPERATION}\" is not one of the known stack operations."; return 1
       ;;
     esac
 
-    [[ ("${DEPLOYMENT_OPERATION}" == "delete" ) && ("${exit_status}" -eq 255) ]] &&
-      { exit_status=0; break; }
-
     if [[ "${DEPLOYMENT_MONITOR}" = "true" ]]; then
 
       DEPLOYMENT_STATE="$(echo "${DEPLOYMENT}" | jq -r "${status_attribute}")"
 
-      info "Provisioning State is \"${DEPLOYMENT_STATE}\""
+      debug "Provisioning State is \"${DEPLOYMENT_STATE}\""
 
       case ${DEPLOYMENT_STATE} in
         Failed) 
@@ -126,12 +121,20 @@ function wait_for_deployment_execution() {
           sleep ${DEPLOYMENT_WAIT} 
         ;;
         Succeeded) 
+          # Retreive the deployment
+          echo ${DEPLOYMENT} | jq '.' > ${STACK} || return $?
           exit_status=0
           break
         ;;
         *)
-          fatal "Unexpected deployment state of \"${DEPLOYMENT_STATE}\" "
-          exit_status=255
+          if [[ ${DEPLOYMENT_OPERATION} == "delete" ]]; then
+            # deletion successful
+            exit_status=0
+            break
+          else
+            fatal "Unexpected deployment state of \"${DEPLOYMENT_STATE}\" "
+            exit_status=255
+          fi
         ;;
       esac
 
@@ -167,14 +170,14 @@ function process_deployment() {
   fi
 
   # Strip excess from the template + parameters
-  jq -c '.' < ${DEPLOYMENT_TEMPLATE} > "${stripped_template_file}"
-  jq -c '.' < ${DEPLOYMENT_TEMPLATE_PARAMETERS} > "${stripped_parameter_file}"
+  jq -c '.' < ${TEMPLATE} > "${stripped_template_file}"
+  jq -c '.' < ${CONFIG} > "${stripped_parameter_file}"
 
   local exit_status=0
   # Check resource group status
   info "Checking if the ${DEPLOYMENT_NAME} resource group exists..."
-  DEPLOYMENT_GROUP_EXISTS="$(az group exists --resource-group "${DEPLOYMENT_NAME}")"
-  info "${DEPLOYMENT_NAME} exists: ${DEPLOYMENT_GROUP_EXISTS}"
+  DEPLOYMENT_GROUP_EXISTS=$(az group exists --resource-group "${DEPLOYMENT_NAME}")
+  debug "${DEPLOYMENT_NAME} exists: ${DEPLOYMENT_GROUP_EXISTS}"
 
   if [[ "${DEPLOYMENT_INITIATE}" = "true" ]]; then
 
@@ -220,12 +223,6 @@ function process_deployment() {
 
         if [[ "${DEPLOYMENT_GROUP_EXISTS}" = "true" ]]; then
 
-          # Delete the deployment instance
-          info "Deleting the ${DEPLOYMENT_NAME} deployment..."
-          az group deployment delete --resource-group "${DEPLOYMENT_NAME}" \
-            --name "${DEPLOYMENT_NAME}" \
-            --no-wait
-
           # Delete the resource group
           info "Deleting the ${DEPLOYMENT_NAME} resource group"
           az group delete --resource-group "${DEPLOYMENT_NAME}" --no-wait --yes
@@ -255,7 +252,7 @@ function main() {
   pushTempDir "manage_deployment_XXXXXX"
   tmp_dir="$(getTopTempDir)"
 
-  pushd ${AZ_DIR} > /dev/null 2>&1
+  pushd ${CF_DIR} > /dev/null 2>&1
 
   # TODO(rossmurr4y): impliment prologue script when necessary.
 
@@ -272,6 +269,8 @@ function main() {
       fatal "There was an issue during deployment."
       return ${process_deployment_status}
   esac
+
+  assemble_composite_stack_outputs || return $?
 
   # TODO(rossmurr4y): deleting an identity through resource group deletion does not
   #                   delete the subscription-level role assignments. Microsoft claim
