@@ -80,6 +80,57 @@ function options() {
   return 0
 }
 
+function composite_outputs_to_template_inputs() {
+
+  # if composites haven't run yet, do so
+  [[ ! -e ${COMPOSITE_STACK_OUTPUTS} ]] &&
+    assemble_composite_stack_outputs || $?
+
+  # Merge Composite Outputs + Template Config Files + Parameter Defaults into one lookup library
+  # Precedence: Composite Outputs > Template Configs > Default Values
+  composite_stack_outputs=$(jq 'to_entries | map({(.key): (.value.value)}) | .[]' < ${COMPOSITE_STACK_OUTPUTS} | jq -s 'add')
+  template_parameter_defaults=$(jq '.parameters | map_values(select(has("defaultValue"))) | \
+    if . == null then {} else . end' < ${TEMPLATE} | \
+    jq 'to_entries | map({(.key): (.value.defaultValue)}) | .[]' | \
+    jq -s 'add')
+  [[ -f ${CONFIG} ]] &&
+    template_configs=$(jq '.parameters | to_entries | map({(.key): (.value.value)}) | .[]' < ${CONFIG} | jq -s 'add')
+
+  if [[ -f ${template_configs} ]]; do
+    parameter_library=$(jq -n \
+      --argjson defaults "${template_parameter_defaults}" \
+      --argjson configs "${template_configs}" \
+      --argjson outputs "${composite_stack_outputs}" \
+      '$defaults * $configs * $outputs')
+  else
+    parameter_library=$(jq -n \
+      --argjson defaults "${template_parameter_defaults}" \
+      --argjson outputs "${composite_stack_outputs}" \
+      '$defaults * $outputs')
+  fi
+
+  # Iterate over template parameters + retreive from assembled outputs/defaults
+  arrayFromList template_required_parameters "$(jq '.parameters | keys | .[]' ${TEMPLATE})"
+
+  local output_parameter_json
+
+  for parameter in ${template_required_parameters[@]}; do 
+
+    #if parameter exists in the parameter library, format it for the final output.
+    #output_parameter=$(echo ${parameter_library} | jq --argjson parameter ${parameter} 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}')
+
+    output_parameter_json+=$(echo ${parameter_library} | jq --argjson parameter ${parameter} 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}' )
+
+    #output_parameter_json=$(jq -s --argjson output ${output_parameter_json} --argjson newparameter ${output_parameter} '$output * $newparameter'  )
+
+  done
+  template_inputs=$(echo ${output_parameter_json} | jq -s 'add')
+
+  # TODO(rossmurr4y): compare the template_required_parameters length with template_inputs keys if some params are missing, throw.
+
+  return ${template_inputs}
+}
+
 function wait_for_deployment_execution() {
 
   # Assign the object path to the deployment state.
@@ -109,15 +160,16 @@ function wait_for_deployment_execution() {
     if [[ "${DEPLOYMENT_MONITOR}" = "true" ]]; then
 
       DEPLOYMENT_STATE="$(echo "${DEPLOYMENT}" | jq -r "${status_attribute}")"
+      NOW=$( date '+%F_%H:%M:%S' )
 
-      debug "Provisioning State is \"${DEPLOYMENT_STATE}\""
+      info "[${NOW}] Provisioning State is \"${DEPLOYMENT_STATE}\"."
 
       case ${DEPLOYMENT_STATE} in
         Failed) 
           exit_status=255
         ;;
         Running | Accepted | Deleting)
-          info "Retry in ${DEPLOYMENT_WAIT} seconds..."
+          info "    Retry in ${DEPLOYMENT_WAIT} seconds..."
           sleep ${DEPLOYMENT_WAIT} 
         ;;
         Succeeded) 
@@ -229,6 +281,11 @@ function process_deployment() {
 
           wait_for_deployment_execution
 
+          # Clean up the stack if required
+          if [[ ("${exit_status}" -eq 0) || !( -s "${STACK}" ) ]]; then
+            rm -f "${STACK}"
+          fi
+
         else
           info "No Resource Group found for: ${DEPLOYMENT_NAME}. Nothing to do."
           return 0
@@ -258,6 +315,7 @@ function main() {
 
   process_deployment_status=0
   # Process the deployment
+  info "processing the deployment"
   process_deployment || process_deployment_status=$?
 
   # Check for completion
@@ -270,7 +328,7 @@ function main() {
       return ${process_deployment_status}
   esac
 
-  assemble_composite_stack_outputs || return $?
+  assemble_composite_stack_outputs
 
   # TODO(rossmurr4y): deleting an identity through resource group deletion does not
   #                   delete the subscription-level role assignments. Microsoft claim
