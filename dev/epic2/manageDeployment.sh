@@ -80,55 +80,68 @@ function options() {
   return 0
 }
 
-function composite_outputs_to_template_inputs() {
+function construct_parameter_inputs() {
 
   # if composites haven't run yet, do so
   [[ ! -e ${COMPOSITE_STACK_OUTPUTS} ]] &&
-    assemble_composite_stack_outputs || $?
+    assemble_composite_stack_outputs
+
+  # temp files
+  arm_composite_stack_outputs="${tmp_dir}/arm_composite_stack_outputs"
+  #template_parameter_defaults="${tmp_dir}/template_parameter_defaults"
+  template_configs="${tmp_dir}/template_configs"
+  parameter_library="${tmp_dir}/parameter_library"
 
   # Merge Composite Outputs + Template Config Files + Parameter Defaults into one lookup library
   # Precedence: Composite Outputs > Template Configs > Default Values
-  composite_stack_outputs=$(jq 'to_entries | map({(.key): (.value.value)}) | .[]' < ${COMPOSITE_STACK_OUTPUTS} | jq -s 'add')
-  template_parameter_defaults=$(jq '.parameters | map_values(select(has("defaultValue"))) | \
-    if . == null then {} else . end' < ${TEMPLATE} | \
-    jq 'to_entries | map({(.key): (.value.defaultValue)}) | .[]' | \
-    jq -s 'add')
+  jq 'to_entries | map({(.key): (.value.value)}) | .[]' < ${COMPOSITE_STACK_OUTPUTS} | jq -s 'add' > ${arm_composite_stack_outputs}
+  #jq '.parameters | map_values(select(has("defaultValue"))) | if . == null then {} else . end' < ${TEMPLATE} | jq 'to_entries | map({(.key): (.value.defaultValue)}) | .[]' | jq -s 'add' > ${template_parameter_defaults}
   [[ -f ${CONFIG} ]] &&
-    template_configs=$(jq '.parameters | to_entries | map({(.key): (.value.value)}) | .[]' < ${CONFIG} | jq -s 'add')
+    jq '.parameters | to_entries | map({(.key): (.value.value)}) | .[]' < ${CONFIG} | jq -s 'add' > ${template_configs}
 
-  if [[ -f ${template_configs} ]]; do
-    parameter_library=$(jq -n \
-      --argjson defaults "${template_parameter_defaults}" \
-      --argjson configs "${template_configs}" \
-      --argjson outputs "${composite_stack_outputs}" \
-      '$defaults * $configs * $outputs')
-  else
-    parameter_library=$(jq -n \
-      --argjson defaults "${template_parameter_defaults}" \
-      --argjson outputs "${composite_stack_outputs}" \
-      '$defaults * $outputs')
-  fi
+  # Construct filter multiplier args
+  merge_filter_files=()
+  if [[ -f ${arm_composite_stack_outputs} && $(cat "${arm_composite_stack_outputs}") != "null" && $(cat "${arm_composite_stack_outputs}") != "[]" ]]; then
+   merge_filter_files+=("${arm_composite_stack_outputs}")
+  fi 
+  if [[ -f ${template_configs}  && $(cat "${template_configs}") != "null" && $(cat "${template_configs}") != "{}" ]]; then 
+    merge_filter_files+=("${template_configs}")
+  fi 
+
+  #if [[ -f ${template_parameter_defaults}  && $(cat "${template_parameter_defaults}") != "null" && $(cat "${template_parameter_defaults}") != "{}" ]]; then  
+  #  merge_filter_files+=("${template_parameter_defaults}")
+  #fi
+
+  jqMerge "${merge_filter_files[@]}" > ${parameter_library}
 
   # Iterate over template parameters + retreive from assembled outputs/defaults
-  arrayFromList template_required_parameters "$(jq '.parameters | keys | .[]' ${TEMPLATE})"
-
-  local output_parameter_json
-
+  arrayFromList template_required_parameters "$(jq '.parameters | keys | .[]' < ${TEMPLATE})"
+  output_parameter_json=('{"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": {}}')
   for parameter in ${template_required_parameters[@]}; do 
-
-    #if parameter exists in the parameter library, format it for the final output.
-    #output_parameter=$(echo ${parameter_library} | jq --argjson parameter ${parameter} 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}')
-
-    output_parameter_json+=$(echo ${parameter_library} | jq --argjson parameter ${parameter} 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}' )
-
-    #output_parameter_json=$(jq -s --argjson output ${output_parameter_json} --argjson newparameter ${output_parameter} '$output * $newparameter'  )
-
+    output_parameter_json+=$(cat "${parameter_library}" | jq --argjson parameter "${parameter}" 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}' )
   done
-  template_inputs=$(echo ${output_parameter_json} | jq -s 'add')
+  template_inputs=$(echo "${output_parameter_json}" | jq -s 'add')
 
-  # TODO(rossmurr4y): compare the template_required_parameters length with template_inputs keys if some params are missing, throw.
+  # Compare the template_required_parameters length with template_inputs keys, return if same
+  #number_of_compiled_inputs=$(echo ${template_inputs} | jq '. | keys | length')
+  #number_of_required_inputs=$(echo ${#template_required_parameters[@]})
+  #if [[ ${number_of_compiled_inputs} -ne ${number_of_required_inputs} ]]; then
 
-  return ${template_inputs}
+    #debug "Template inputs: ${template_inputs}"
+    #debug "Required inputs: ${template_required_parameters[@]}"
+
+    #if [[ -f ${CONFIG} ]]; then
+    #  fatal "Incorrect number of compiled inputs. Provide missing parameters in the config file: ${CONFIG}"
+    #  break
+    #else
+    #  fatal "Incorrect number of compiled inputs. Are you missing a config file?"
+     # break
+    #fi
+
+ # else
+    echo "${template_inputs}"
+    return 0
+  #fi
 }
 
 function wait_for_deployment_execution() {
@@ -209,8 +222,8 @@ function wait_for_deployment_execution() {
 
 function process_deployment() {
 
-  local stripped_template_file="${tmp_dir}/stripped_template"
-  local stripped_parameter_file="${tmp_dir}/stripped_parameters"
+  stripped_template_file="${tmp_dir}/stripped_template"
+  stripped_parameter_file="${tmp_dir}/stripped_parameters"
 
   # Determine template scope. https://tinyurl.com/y6do25ng
   if [[ -z ${SCOPE} ]]; then
@@ -223,9 +236,10 @@ function process_deployment() {
 
   # Strip excess from the template + parameters
   jq -c '.' < ${TEMPLATE} > "${stripped_template_file}"
-  jq -c '.' < ${CONFIG} > "${stripped_parameter_file}"
+  stripped_parameters="$(construct_parameter_inputs)"
+  echo "${stripped_parameters}" | jq -c '.' > "${stripped_parameter_file}"
 
-  local exit_status=0
+  exit_status=0
   # Check resource group status
   info "Checking if the ${DEPLOYMENT_NAME} resource group exists..."
   DEPLOYMENT_GROUP_EXISTS=$(az group exists --resource-group "${DEPLOYMENT_NAME}")
@@ -244,14 +258,16 @@ function process_deployment() {
 
           # validate deployment (resource group must exist for validation though no action taken)
           info "Validating template syntax..."
-          az group deployment validate --resource-group "${DEPLOYMENT_NAME}" \
+          az group deployment validate \
+            --resource-group "${DEPLOYMENT_NAME}" \
             --template-file "${stripped_template_file}" \
             --parameters @"${stripped_parameter_file}" > /dev/null || return $?
           info "Template is valid."
 
           # Execute the deployment to the resource group
           info "Starting deployment of ${DEPLOYMENT_NAME} to the resource group."
-          az group deployment create --resource-group "${DEPLOYMENT_NAME}" \
+          az group deployment create \
+            --resource-group "${DEPLOYMENT_NAME}" \
             --name "${DEPLOYMENT_NAME}" \
             --template-file "${stripped_template_file}" \
             --parameters @"${stripped_parameter_file}" \
@@ -307,7 +323,7 @@ function main() {
   options "$@" || return $?
 
   pushTempDir "manage_deployment_XXXXXX"
-  tmp_dir="$(getTopTempDir)"
+  export tmp_dir="$(getTopTempDir)"
 
   pushd ${CF_DIR} > /dev/null 2>&1
 
