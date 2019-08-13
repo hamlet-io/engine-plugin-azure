@@ -16,8 +16,7 @@ function usage() {
 
   Manage an Azure Resource Manager (ARM) deployment
 
-  # TODO(rossmurr4y): add usage example on completion
-  Usage:
+  Usage: $(basename $0) -l LEVEL -r REGION -s DEPLOYMENT_SCOPE -u DEPLOYMENT_UNIT -n DEPLOYMENT_NAME
 
   where
 
@@ -41,6 +40,7 @@ function usage() {
   DEPLOYMENT_MONITOR   = ${DEPLOYMENT_MONITOR_DEFAULT}
   DEPLOYMENT_OPERATION = ${DEPLOYMENT_OPERATION_DEFAULT}
   DEPLOYMENT_WAIT      = ${DEPLOYMENT_WAIT_DEFAULT} seconds
+  DEPLOYMENT_SCOPE     = ${DEPLOYMENT_SCOPE_DEFAULT}
 
 EOF
 }
@@ -91,6 +91,7 @@ function construct_parameter_inputs() {
 
   # temp files
   arm_composite_stack_outputs="${tmp_dir}/arm_composite_stack_outputs"
+  #TODO(rossmurr4y): template parameter defaults - account for defaults using ARM functions.
   #template_parameter_defaults="${tmp_dir}/template_parameter_defaults"
   template_configs="${tmp_dir}/template_configs"
   parameter_library="${tmp_dir}/parameter_library"
@@ -98,12 +99,14 @@ function construct_parameter_inputs() {
   # Merge Composite Outputs + Template Config Files + Parameter Defaults into one lookup library
   # Precedence: Composite Outputs > Template Configs > Default Values
   jq 'to_entries | map({(.key): (.value.value)}) | .[]' < ${COMPOSITE_STACK_OUTPUTS} | jq -s 'add' > ${arm_composite_stack_outputs}
+  #TODO(rossmurr4y): template parameter defaults - account for defaults using ARM functions.
   #jq '.parameters | map_values(select(has("defaultValue"))) | if . == null then {} else . end' < ${TEMPLATE} | jq 'to_entries | map({(.key): (.value.defaultValue)}) | .[]' | jq -s 'add' > ${template_parameter_defaults}
   [[ -f ${CONFIG} ]] &&
     jq '.parameters | to_entries | map({(.key): (.value.value)}) | .[]' < ${CONFIG} | jq -s 'add' > ${template_configs}
 
   # Construct filter multiplier args
   merge_filter_files=()
+  #TODO(rossmurr4y): template parameter defaults - account for defaults using ARM functions.
   #if [[ -f ${template_parameter_defaults}  && $(cat "${template_parameter_defaults}") != "null" && $(cat "${template_parameter_defaults}") != "{}" ]]; then  
   #  merge_filter_files+=("${template_parameter_defaults}")
   #fi
@@ -113,41 +116,23 @@ function construct_parameter_inputs() {
   if [[ -f ${arm_composite_stack_outputs} && $(cat "${arm_composite_stack_outputs}") != "null" && $(cat "${arm_composite_stack_outputs}") != "[]" ]]; then
    merge_filter_files+=("${arm_composite_stack_outputs}")
   fi 
-
-
-
-
   jqMerge "${merge_filter_files[@]}" > ${parameter_library}
 
-  # Iterate over template parameters + retreive from assembled outputs/defaults
+  # from the parameter library, return only the ones required by template
   arrayFromList template_required_parameters "$(jq '.parameters | keys | .[]' < ${TEMPLATE})"
-  #output_parameter_json=('{"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": {}}')
   output_parameter_json=('{}')
   for parameter in ${template_required_parameters[@]}; do 
     output_parameter_json+=$(cat "${parameter_library}" | jq --argjson parameter "${parameter}" 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}' )
   done
   template_inputs=$(echo "${output_parameter_json}" | jq -s 'add')
 
-  # Compare the template_required_parameters length with template_inputs keys, return if same
-  #number_of_compiled_inputs=$(echo ${template_inputs} | jq '. | keys | length')
-  #number_of_required_inputs=$(echo ${#template_required_parameters[@]})
-  #if [[ ${number_of_compiled_inputs} -ne ${number_of_required_inputs} ]]; then
+  #TODO(rossmurr4y): template parameter defaults - once parameter defaults are implimented
+  #                  we can compare the template required parameter count (minus any using
+  #                  ARM functions) with the with the number of items in template_inputs to
+  #                  provide more helpful error handling.
 
-    #debug "Template inputs: ${template_inputs}"
-    #debug "Required inputs: ${template_required_parameters[@]}"
-
-    #if [[ -f ${CONFIG} ]]; then
-    #  fatal "Incorrect number of compiled inputs. Provide missing parameters in the config file: ${CONFIG}"
-    #  break
-    #else
-    #  fatal "Incorrect number of compiled inputs. Are you missing a config file?"
-     # break
-    #fi
-
- # else
-    echo "${template_inputs}"
-    return 0
-  #fi
+  echo "${template_inputs}"
+  return 0
 }
 
 function wait_for_deployment_execution() {
@@ -161,15 +146,15 @@ function wait_for_deployment_execution() {
 
     case ${DEPLOYMENT_OPERATION} in
       update | create)
-        if [[ ${DEPLOYMENT_SCOPE} == "resourceGroup" ]]; then
-          DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_GROUP_NAME} --name ${DEPLOYMENT_GROUP_NAME})
+        if [[" ${DEPLOYMENT_SCOPE}" == "resourceGroup" ]]; then
+          DEPLOYMENT=$(az group deployment show --resource-group "${DEPLOYMENT_GROUP_NAME}" --name "${DEPLOYMENT_GROUP_NAME}")
         else
-          DEPLOYMENT=$(az deployment show --name ${DEPLOYMENT_GROUP_NAME})
+          DEPLOYMENT=$(az deployment show --name "${DEPLOYMENT_GROUP_NAME}")
         fi
       ;;
       delete) 
         # Delete the group not the deployment. Deleting a deployment has no impact on deployed resources in Azure.
-        DEPLOYMENT=$(az group show --resource-group ${DEPLOYMENT_GROUP_NAME} 2>/dev/null) 
+        DEPLOYMENT=$(az group show --resource-group "${DEPLOYMENT_GROUP_NAME}" 2>/dev/null) 
       ;;
       *)
         fatal "\"${DEPLOYMENT_OPERATION}\" is not one of the known stack operations."; return 1
@@ -231,9 +216,6 @@ function process_deployment() {
   stripped_template_file="${tmp_dir}/stripped_template"
   stripped_parameter_file="${tmp_dir}/stripped_parameters"
 
-  debug "DEPLOYMENT SCOPE = ${DEPLOYMENT_SCOPE}"
-  debug "TEMPLATE = $(echo ${TEMPLATE})"
-
   # Strip excess from the template + parameters
   jq -c '.' < ${TEMPLATE} > "${stripped_template_file}"
   stripped_parameters="$(construct_parameter_inputs)"
@@ -250,15 +232,13 @@ function process_deployment() {
 
           # Check resource group status
           info "Checking if the ${DEPLOYMENT_GROUP_NAME} resource group exists..."
-          DEPLOYMENT_GROUP_EXISTS=$(az group exists --resource-group "${DEPLOYMENT_GROUP_NAME}")
-          debug "${DEPLOYMENT_GROUP_NAME} exists: ${DEPLOYMENT_GROUP_EXISTS}"
-
-          if [[ ${DEPLOYMENT_GROUP_EXISTS} = "false" ]]; then
+          deployment_group_exists=$(az group exists --resource-group "${DEPLOYMENT_GROUP_NAME}")
+          if [[ ${deployment_group_exists} = "false" ]]; then
             az group create --resource-group "${DEPLOYMENT_GROUP_NAME}" --location "${REGION}"
           fi
 
-          # validate deployment (resource group must exist for validation though no action taken)
-          info "Validating template syntax (resource group deployment)..."
+          # validate resource group level deployment
+          info "Validating template..."
           az group deployment validate \
             --resource-group "${DEPLOYMENT_GROUP_NAME}" \
             --template-file "${stripped_template_file}" \
@@ -276,12 +256,8 @@ function process_deployment() {
         
         elif [[ "${DEPLOYMENT_SCOPE}" == "subscription" ]]; then
 
-          # validate deployment (resource group must exist for validation though no action taken)
-          info "Validating template syntax (subscription deployment)..."
-
-          debug "template: $(cat "${stripped_template_file}")"
-          debug "para: $(cat "${stripped_parameter_file}")"
-
+          # validate subscription level deployment
+          info "Validating template..."
           az deployment validate \
             --location "${REGION}" \
             --template-file "${stripped_template_file}" \
@@ -303,7 +279,7 @@ function process_deployment() {
       ;;
       delete)
 
-        if [[ "${DEPLOYMENT_GROUP_EXISTS}" = "true" ]]; then
+        if [[ "${deployment_group_exists}" = "true" ]]; then
 
           # Delete the resource group
           info "Deleting the ${DEPLOYMENT_GROUP_NAME} resource group"
@@ -359,21 +335,6 @@ function main() {
   esac
 
   assemble_composite_stack_outputs
-
-  # TODO(rossmurr4y): deleting an identity through resource group deletion does not
-  #                   delete the subscription-level role assignments. Microsoft claim
-  #                   its safe to leave them, but we should tidy them up.
-  #                   https://tinyurl.com/y38rfoyb
-  #              
-  # Delete any newly vacant role assignments
-  #if [[ ${DEPLOYMENT_OPERATION} == "delete" ]]; then
-  #  info "Tidying up any unused role assignments..."
-  #  empty_servicePrincipalIds=$(az role assignment list --query "[?principalName=='']" -o json | jq -r '.[]["principalId"]')
-  #  
-  #  if [[ -n ${empty_servicePrincipals} ]]; then 
-  #    az role assignment delete --ids ${empty_servicePrincipalIds}
-  #  fi
-  #fi
 
   # TODO(rossmurr4y): impliment epilogue script when necessary.
 
