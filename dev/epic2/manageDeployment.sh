@@ -73,6 +73,9 @@ function options() {
   DEPLOYMENT_MONITOR=${DEPLOYMENT_MONITOR:-${DEPLOYMENT_MONITOR_DEFAULT}}
   DEPLOYMENT_SCOPE=${DEPLOYMENT_SCOPE:-${DEPLOYMENT_SCOPE_DEFAULT}}
 
+  # Add component suffix to the deployment name.
+  DEPLOYMENT_GROUP_NAME="${DEPLOYMENT_NAME}-${DEPLOYMENT_UNIT}"
+
   # Set up the context
   info "Preparing the context..."
   . "${GENERATION_DIR}/setStackContext.sh"
@@ -101,22 +104,25 @@ function construct_parameter_inputs() {
 
   # Construct filter multiplier args
   merge_filter_files=()
-  if [[ -f ${arm_composite_stack_outputs} && $(cat "${arm_composite_stack_outputs}") != "null" && $(cat "${arm_composite_stack_outputs}") != "[]" ]]; then
-   merge_filter_files+=("${arm_composite_stack_outputs}")
-  fi 
-  if [[ -f ${template_configs}  && $(cat "${template_configs}") != "null" && $(cat "${template_configs}") != "{}" ]]; then 
-    merge_filter_files+=("${template_configs}")
-  fi 
-
   #if [[ -f ${template_parameter_defaults}  && $(cat "${template_parameter_defaults}") != "null" && $(cat "${template_parameter_defaults}") != "{}" ]]; then  
   #  merge_filter_files+=("${template_parameter_defaults}")
   #fi
+  if [[ -f ${template_configs}  && $(cat "${template_configs}") != "null" && $(cat "${template_configs}") != "{}" ]]; then 
+    merge_filter_files+=("${template_configs}")
+  fi 
+  if [[ -f ${arm_composite_stack_outputs} && $(cat "${arm_composite_stack_outputs}") != "null" && $(cat "${arm_composite_stack_outputs}") != "[]" ]]; then
+   merge_filter_files+=("${arm_composite_stack_outputs}")
+  fi 
+
+
+
 
   jqMerge "${merge_filter_files[@]}" > ${parameter_library}
 
   # Iterate over template parameters + retreive from assembled outputs/defaults
   arrayFromList template_required_parameters "$(jq '.parameters | keys | .[]' < ${TEMPLATE})"
-  output_parameter_json=('{"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": {}}')
+  #output_parameter_json=('{"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#", "contentVersion": "1.0.0.0", "parameters": {}}')
+  output_parameter_json=('{}')
   for parameter in ${template_required_parameters[@]}; do 
     output_parameter_json+=$(cat "${parameter_library}" | jq --argjson parameter "${parameter}" 'to_entries[] | select( .key == $parameter ) | { (.key) : {"value": (.value)}}' )
   done
@@ -156,14 +162,14 @@ function wait_for_deployment_execution() {
     case ${DEPLOYMENT_OPERATION} in
       update | create)
         if [[ ${DEPLOYMENT_SCOPE} == "resourceGroup" ]]; then
-          DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_NAME} --name ${DEPLOYMENT_NAME})
+          DEPLOYMENT=$(az group deployment show --resource-group ${DEPLOYMENT_GROUP_NAME} --name ${DEPLOYMENT_GROUP_NAME})
         else
-          DEPLOYMENT=$(az deployment show --name ${DEPLOYMENT_NAME})
+          DEPLOYMENT=$(az deployment show --name ${DEPLOYMENT_GROUP_NAME})
         fi
       ;;
       delete) 
         # Delete the group not the deployment. Deleting a deployment has no impact on deployed resources in Azure.
-        DEPLOYMENT=$(az group show --resource-group ${DEPLOYMENT_NAME} 2>/dev/null) 
+        DEPLOYMENT=$(az group show --resource-group ${DEPLOYMENT_GROUP_NAME} 2>/dev/null) 
       ;;
       *)
         fatal "\"${DEPLOYMENT_OPERATION}\" is not one of the known stack operations."; return 1
@@ -187,12 +193,12 @@ function wait_for_deployment_execution() {
         ;;
         Succeeded) 
           # Retreive the deployment
-          echo ${DEPLOYMENT} | jq '.' > ${STACK} || return $?
+          echo "${DEPLOYMENT}" | jq '.' > ${STACK} || return $?
           exit_status=0
           break
         ;;
         *)
-          if [[ ${DEPLOYMENT_OPERATION} == "delete" ]]; then
+          if [[ "${DEPLOYMENT_OPERATION}" == "delete" ]]; then
             # deletion successful
             exit_status=0
             break
@@ -209,7 +215,7 @@ function wait_for_deployment_execution() {
       0)
       ;;
       255) 
-        fatal "Deployment \"${DEPLOYMENT_NAME}\" failed, fix deployment before retrying"
+        fatal "Deployment \"${DEPLOYMENT_GROUP_NAME}\" failed, fix deployment before retrying"
         break
       ;;
       *)
@@ -225,14 +231,8 @@ function process_deployment() {
   stripped_template_file="${tmp_dir}/stripped_template"
   stripped_parameter_file="${tmp_dir}/stripped_parameters"
 
-  # Determine template scope. https://tinyurl.com/y6do25ng
-  if [[ -z ${SCOPE} ]]; then
-    # set scope to resource group level
-    DEPLOYMENT_SCOPE="resourceGroup"
-  else
-    # set scope to subscription level
-    DEPLOYMENT_SCOPE="subscription"
-  fi
+  debug "DEPLOYMENT SCOPE = ${DEPLOYMENT_SCOPE}"
+  debug "TEMPLATE = $(echo ${TEMPLATE})"
 
   # Strip excess from the template + parameters
   jq -c '.' < ${TEMPLATE} > "${stripped_template_file}"
@@ -240,10 +240,6 @@ function process_deployment() {
   echo "${stripped_parameters}" | jq -c '.' > "${stripped_parameter_file}"
 
   exit_status=0
-  # Check resource group status
-  info "Checking if the ${DEPLOYMENT_NAME} resource group exists..."
-  DEPLOYMENT_GROUP_EXISTS=$(az group exists --resource-group "${DEPLOYMENT_NAME}")
-  debug "${DEPLOYMENT_NAME} exists: ${DEPLOYMENT_GROUP_EXISTS}"
 
   if [[ "${DEPLOYMENT_INITIATE}" = "true" ]]; then
 
@@ -252,33 +248,51 @@ function process_deployment() {
 
         if [[ "${DEPLOYMENT_SCOPE}" == "resourceGroup" ]]; then
 
+          # Check resource group status
+          info "Checking if the ${DEPLOYMENT_GROUP_NAME} resource group exists..."
+          DEPLOYMENT_GROUP_EXISTS=$(az group exists --resource-group "${DEPLOYMENT_GROUP_NAME}")
+          debug "${DEPLOYMENT_GROUP_NAME} exists: ${DEPLOYMENT_GROUP_EXISTS}"
+
           if [[ ${DEPLOYMENT_GROUP_EXISTS} = "false" ]]; then
-            az group create --resource-group "${DEPLOYMENT_NAME}" --location "${REGION}"
+            az group create --resource-group "${DEPLOYMENT_GROUP_NAME}" --location "${REGION}"
           fi
 
           # validate deployment (resource group must exist for validation though no action taken)
-          info "Validating template syntax..."
+          info "Validating template syntax (resource group deployment)..."
           az group deployment validate \
-            --resource-group "${DEPLOYMENT_NAME}" \
+            --resource-group "${DEPLOYMENT_GROUP_NAME}" \
             --template-file "${stripped_template_file}" \
             --parameters @"${stripped_parameter_file}" > /dev/null || return $?
           info "Template is valid."
 
           # Execute the deployment to the resource group
-          info "Starting deployment of ${DEPLOYMENT_NAME} to the resource group."
+          info "Starting deployment of ${DEPLOYMENT_GROUP_NAME} to the resource group."
           az group deployment create \
-            --resource-group "${DEPLOYMENT_NAME}" \
-            --name "${DEPLOYMENT_NAME}" \
+            --resource-group "${DEPLOYMENT_GROUP_NAME}" \
+            --name "${DEPLOYMENT_GROUP_NAME}" \
             --template-file "${stripped_template_file}" \
             --parameters @"${stripped_parameter_file}" \
             --no-wait > /dev/null || return $?
         
         elif [[ "${DEPLOYMENT_SCOPE}" == "subscription" ]]; then
 
+          # validate deployment (resource group must exist for validation though no action taken)
+          info "Validating template syntax (subscription deployment)..."
+
+          debug "template: $(cat "${stripped_template_file}")"
+          debug "para: $(cat "${stripped_parameter_file}")"
+
+          az deployment validate \
+            --location "${REGION}" \
+            --template-file "${stripped_template_file}" \
+            --parameters @"${stripped_parameter_file}" > /dev/null || return $?
+          info "Template is valid."
+
           # Execute the deployment to the subscription
-          info "Starting deployment of ${DEPLOYMENT_NAME} to the subscription."
-          az deployment create --location "${REGION}" \
-            --name "${DEPLOYMENT_NAME}" \
+          info "Starting deployment of ${DEPLOYMENT_GROUP_NAME} to the subscription."
+          az deployment create \
+            --location "${REGION}" \
+            --name "${DEPLOYMENT_GROUP_NAME}" \
             --template-file "${stripped_template_file}" \
             --parameters @"${stripped_parameter_file}" \
             --no-wait > /dev/null || return $?
@@ -292,8 +306,8 @@ function process_deployment() {
         if [[ "${DEPLOYMENT_GROUP_EXISTS}" = "true" ]]; then
 
           # Delete the resource group
-          info "Deleting the ${DEPLOYMENT_NAME} resource group"
-          az group delete --resource-group "${DEPLOYMENT_NAME}" --no-wait --yes
+          info "Deleting the ${DEPLOYMENT_GROUP_NAME} resource group"
+          az group delete --resource-group "${DEPLOYMENT_GROUP_NAME}" --no-wait --yes
 
           wait_for_deployment_execution
 
@@ -303,7 +317,7 @@ function process_deployment() {
           fi
 
         else
-          info "No Resource Group found for: ${DEPLOYMENT_NAME}. Nothing to do."
+          info "No Resource Group found for: ${DEPLOYMENT_GROUP_NAME}. Nothing to do."
           return 0
         fi
 
@@ -337,7 +351,7 @@ function main() {
   # Check for completion
   case ${process_deployment_status} in
     0)
-      info "${DEPLOYMENT_OPERATION} completed for ${DEPLOYMENT_NAME}."
+      info "${DEPLOYMENT_OPERATION} completed for ${DEPLOYMENT_GROUP_NAME}."
     ;;
     *)
       fatal "There was an issue during deployment."

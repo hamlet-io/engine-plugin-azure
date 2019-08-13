@@ -46,7 +46,7 @@
         "storageAccountName": {
             "type": "string"
         },
-        "vmIdentityName": {
+        "identityName": {
             "type": "string"
         },
         "vmIdentityResourceGroup": {
@@ -135,7 +135,7 @@
             "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                    "[resourceID(parameters('vmIdentityResourceGroup'),'Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('vmIdentityName'))]": {}
+                    "[resourceID(parameters('vmIdentityResourceGroup'),'Microsoft.ManagedIdentity/userAssignedIdentities/', parameters('identityName'))]": {}
                 }
             },
             "properties": {

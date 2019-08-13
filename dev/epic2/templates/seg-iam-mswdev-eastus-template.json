@@ -33,6 +33,10 @@
         "identityResourceGroup": {
             "type": "string",
             "value": "[resourceGroup().name]"
+        },
+        "vmIdentityResourceGroup": {
+            "type": "string",
+            "value": "[resourceGroup().name]"
         }
     }
 }
