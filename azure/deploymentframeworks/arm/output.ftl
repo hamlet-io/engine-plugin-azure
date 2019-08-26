@@ -95,7 +95,7 @@
     /]
 
     [#list outputs as outputType,outputValue]
-        [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
+        [#if outputValue.UseRef!false]
         [#-- the resourceId Azure template function requires a varying number of arguments 
         based on how many "segments" there are in the resource type namespace. --]
             [#local resourceIdParameters=[]]
