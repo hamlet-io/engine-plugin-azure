@@ -1,37 +1,17 @@
 [#ftl]
 
 [#-- TODO(rossmurr4y): determine appropriate output mappings --]
-[#assign STORAGE_OUTPUT_MAPPINGS =
+[#assign STORAGE_ACCOUNT_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
-            "Property" : "id"
+            "UseRef" : true
         },
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"
         },
-        formatId("blob", URL_ATTRIBUTE_TYPE) : {
-            "Property" : "properties.primaryEndpoints.blob"
-        },
-        formatId("dfs", URL_ATTRIBUTE_TYPE) : {
-            "Property" : "properties.primaryEndpoints.dfs"
-        },
-        formatId("file", URL_ATTRIBUTE_TYPE) : {
-            "Property" : "properties.primaryEndpoints.file"
-        },
-        formatId("queue", URL_ATTRIBUTE_TYPE) : {
-            "Property" : "properties.primaryEndpoints.queue"
-        },
-        formatId("table", URL_ATTRIBUTE_TYPE) : {
-            "Property" : "properties.primaryEndpoints.table"
-        },
-        formatId("web", URL_ATTRIBUTE_TYPE) : {
+        URL_ATTRIBUTE_TYPE : {
             "Property" : "properties.primaryEndpoints.web"
         }
-    }
-]
-[#assign outputMappings +=
-    {
-        AZURE_STORAGE_RESOURCE_TYPE : STORAGE_OUTPUT_MAPPINGS
     }
 ]
 
@@ -42,11 +22,6 @@
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"
         }
-]
-[#assign outputMappings +=
-    {
-        AZURE_STORAGE_BLOB_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS
-    }
 ]
 
 [#assign STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS = 
@@ -59,7 +34,9 @@
 ]
 [#assign outputMappings += 
     {
-        AZURE_STORAGE_BLOB_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS
+        AZURE_STORAGE_BLOB_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
+        AZURE_STORAGE_BLOB_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
+        AZURE_STORAGE_RESOURCE_TYPE : STORAGE_OUTPUT_MAPPINGS
     }
 ]
  
@@ -183,7 +160,7 @@
         tags=tags
         identity={ "type" : "SystemAssigned" }
         sku={ "name" : sku }
-        outputs=STORAGE_OUTPUT_MAPPINGS
+        outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
             {
                 attributeIfContent("customDomain", customDomain) +
