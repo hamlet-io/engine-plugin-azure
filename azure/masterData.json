@@ -1,0 +1,11 @@
+{
+    "Storage": {
+      "default": {
+        "StorageAccount": {
+          "Tier": "Standard",
+          "Replication": "LRS"
+        }
+      }
+    }
+  }
+  
