@@ -11,6 +11,9 @@
         },
         URL_ATTRIBUTE_TYPE : {
             "Property" : "properties.primaryEndpoints.web"
+        },
+        REGION_ATTRIBUTE_TYPE : {
+            "Property" : "properties.location"
         }
     }
 ]
@@ -39,7 +42,16 @@
         AZURE_STORAGE_RESOURCE_TYPE : STORAGE_OUTPUT_MAPPINGS
     }
 ]
- 
+
+[#function getStorageSku tier replication reasonCodes...]
+    [#return
+        {
+            "name" : [tier, replication]?join("_")
+        } +
+        attributeIfContent("restrictions", asArray(reasonCodes))
+    ]
+[/#function]
+
 [#function getStorageCustomDomain name useSubDomainName=false]
     [#return
         {
@@ -159,7 +171,7 @@
         location=location
         tags=tags
         identity={ "type" : "SystemAssigned" }
-        sku={ "name" : sku }
+        sku=sku
         outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
             {
