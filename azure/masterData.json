@@ -1,11 +1,19 @@
 {
-    "Storage": {
-      "default": {
-        "StorageAccount": {
-          "Tier": "Standard",
-          "Replication": "LRS"
-        }
+  "Regions": {
+    "eastus": {
+      "Partitian": "azure",
+      "Locality": "UnitedStates",
+      "Zones": {},
+      "Accounts": {}
+    }
+  },
+  "Storage": {
+    "default": {
+      "StorageAccount": {
+        "Tier": "Standard",
+        "Replication": "LRS"
       }
     }
   }
+}
   
