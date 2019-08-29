@@ -20,7 +20,7 @@
     },
     "Storage": {
       "default": {
-        "StorageAccount": {
+        "storageAccount": {
           "Tier": "Standard",
           "Replication": "LRS"
         }
