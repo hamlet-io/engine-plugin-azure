@@ -13,15 +13,15 @@
     [#local resources = occurrence.State.Resources ]
     [#local links = getLinkTargets(occurrence )]
 
-    [#local accountId = resources["storageAccount"].id]
-    [#local blobId = resources["blobService"].id]
-    [#local containerId = resources["container"].id]
+    [#local accountId = resources["storageAccount"].Id]
+    [#local blobId = resources["blobService"].Id]
+    [#local containerId = resources["container"].Id]
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
-    [#-- Baseline component lookup --]
+    [#-- Baseline component lookup 
     [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
-    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)]
+    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)] --]
 
     [#if deploymentSubsetRequired("s3", true)]
 
@@ -42,7 +42,7 @@
             [#-- supportsHttpsTrafficOnly= TODO --]
             [#-- isHnsEnabled= TODO --]
             [#-- dependsOn= TODO --]
-        ]
+        /]
 
         [#-- TODO  
         [@createBlobServic]  

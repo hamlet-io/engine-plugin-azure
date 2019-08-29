@@ -85,7 +85,7 @@
             } +
             attributeIfContent("location", location) +
             attributeIfContent("dependsOn", dependsOn) +
-            attributeIfContent("tags", tags)) +
+            attributeIfContent("tags", tags) +
             attributeIfContent("comments", comments) +
             attributeIfContent("copy", copy) +
             attributeIfContent("sku", sku) +

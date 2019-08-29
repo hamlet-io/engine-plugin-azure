@@ -18,28 +18,32 @@
     }
 ]
 
-[#assign STORAGE_BLOB_OUTPUT_MAPPINGS = 
+[#assign STORAGE_BLOB_OUTPUT_MAPPINGS =
+    {
         REFERENCE_ATTRIBUTE_TYPE : {
             "Property" : "id"
         },
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"
         }
+    }
 ]
 
-[#assign STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS = 
+[#assign STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS =
+    {
         REFERENCE_ATTRIBUTE_TYPE : {
             "Property" : "id"
         },
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"
         }
+    }
 ]
 [#assign outputMappings += 
     {
-        AZURE_STORAGE_BLOB_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
-        AZURE_STORAGE_BLOB_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
-        AZURE_STORAGE_RESOURCE_TYPE : STORAGE_OUTPUT_MAPPINGS
+        AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
+        AZURE_BLOBSERVICE_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
+        AZURE_STORAGEACCOUNT_RESOURCE_TYPE : STORAGE_ACCOUNT_OUTPUT_MAPPINGS
     }
 ]
 
@@ -80,7 +84,7 @@
 [#function getStorageEncryption keySource services={} keyvaultproperties={}]
     [#return
         {
-            "keySource": keySource,
+            "keySource": keySource
         } +
         attributeIfContent("services", services) +
         attributeIfContent("keyvaultproperties", keyvaultproperties)
@@ -174,17 +178,16 @@
         sku=sku
         outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
-            {
-                attributeIfContent("customDomain", customDomain) +
-                attributeIfContent("encryption", encryption) +
-                attributeIfContent("networkAcls", networkAcls) +
-                attributeIfContent("accessTier", accessTier) +
-                attributeIfContent("azureFilesIdentityBasedAuthentication", azureFilesIdentityBasedAuthentication) +
-                attributeIfTrue("supportsHttpsTrafficOnly", !supportsHttpsTrafficOnly, false) +
-                attributeIfTrue("isHnsEnabled", isHnsEnabled, true)
-            }
+            {} +
+            attributeIfContent("customDomain", customDomain) +
+            attributeIfContent("encryption", encryption) +
+            attributeIfContent("networkAcls", networkAcls) +
+            attributeIfContent("accessTier", accessTier) +
+            attributeIfContent("azureFilesIdentityBasedAuthentication", azureFilesIdentityBasedAuthentication) +
+            attributeIfTrue("supportsHttpsTrafficOnly", !supportsHttpsTrafficOnly, false) +
+            attributeIfTrue("isHnsEnabled", isHnsEnabled, true)
         dependsOn=dependsOn
-    ]
+    /]
 [/#macro]
 
 [#macro createBlobService
@@ -209,7 +212,7 @@
             attributeIfContent("corsRules", asArray(corsRules)) +
             attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) + 
             attributeIfTrue("automaticSnapshotPolicyEnabled", automaticSnapshotPolicyEnabled, automaticSnapshotPolicyEnabled)
-    ]
+    /]
 [/#macro]
 
 [#macro createBlobServiceContainer
@@ -231,5 +234,5 @@
                 "publicAccess": publicAccess
             } +
             attributeIfContent("metadata", metadata)
-    ]
+    /]
 [/#macro]
