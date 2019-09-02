@@ -107,7 +107,7 @@
                 name=name
                 type="string"
                 value="[resourceId(" + resourceIdParameters?join(", ") + ")]"
-            ]
+            /]
         [#else]
        
             [@armOutput
@@ -115,7 +115,7 @@
                 type="string",
                 value="[reference(name, apiVersion, 'Full')" + outputValue.Property?ensure_starts_with(".") + "]",
                 (outputValue.condition)?has_content?then(condition=outputValue.condition,condition="")          
-            ]
+            /]
 
         [/#if]
     [/#list]
