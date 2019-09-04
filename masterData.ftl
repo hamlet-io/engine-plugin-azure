@@ -22,7 +22,29 @@
       "default": {
         "storageAccount": {
           "Tier": "Standard",
-          "Replication": "LRS"
+          "Replication": "LRS",
+          "Type": "BlobStorage"
+        }
+      }
+      "Blob": {
+        "storageAccount" : {
+          "Tier" : "Standard",
+          "Replication" : "LRS",
+          "Type" : "BlobStorage"
+        }
+      },
+      "File": {
+        "storageAccount" : {
+          "Tier" : "Standard",
+          "Replication" : "LRS",
+          "Type" : "FileStorage"
+        }
+      },
+      "Block": {
+        "storageAccount" : {
+          "Tier" : "Standard",
+          "Replication" : "LRS",
+          "Type" : "BlockBlobStorage"
         }
       }
     },

@@ -1,6 +1,5 @@
 [#ftl]
 
-[#-- TODO(rossmurr4y): determine appropriate output mappings --]
 [#assign STORAGE_ACCOUNT_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
@@ -56,7 +55,7 @@
     ]
 [/#function]
 
-[#function getStorageCustomDomain name useSubDomainName=false]
+[#function getStorageCustomDomain name useSubDomainName=true]
     [#return
         {
             "name": name,
@@ -66,10 +65,11 @@
 [/#function]
 
 [#function getStorageEncryptionServices blob=false file=false]
-    {
+    [#return
+        {} +
         attributeIfTrue("blob", blob, { "enabled" : true }) + 
         attributeIfTrue("file", file, { "enabled" : true })
-    }
+    ]
 [/#function]
 
 [#function getStorageEncryptionKeyvaultproperties name="" keyversion="" uri=""]
@@ -158,6 +158,7 @@
     name
     sku
     location
+    kind
     tags={}
     customDomain={}
     encryption={}
@@ -172,6 +173,7 @@
         name=name
         type="Microsoft.Storage/storageAccounts"
         apiVersion="2019-04-01"
+        kind=kind
         location=location
         tags=tags
         identity={ "type" : "SystemAssigned" }

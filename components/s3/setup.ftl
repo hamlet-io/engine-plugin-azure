@@ -23,20 +23,74 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)] --]
 
+    [#-- Add Encryption Configuration --]
+    [#if solution.Encryption.Enabled]
+        [#local encryptionConfiguration =
+            getStorageEncryption(
+                solution.Encryption.KeySource, 
+                (getStorageEncryptionServices(
+                    blob=(solution.Encryption.Services?contains("blob")),
+                    file=(solution.Encryption.Services?contains("file"))
+                )),
+                (solution.Encryption.KeySource)?contains("Keyvault")?then(
+                    getStorageEncryptionKeyvaultproperties(
+                        name=(solution.Secrets.KeyName!""),
+                        keyversion=(solution.Secrets.KeyVersion!""),
+                        uri=(solution.Secrets.KeyUri?url!"")
+                    ),
+                    {}
+                )
+            )
+        ]
+    [#else]
+        [#local encryptionConfiguration = {}]
+    [/#if]
+
+    [#-- Add NetworkACL Configuration --]
+    [#local virtualNetworkRulesConfiguration = []]
+    [#list solution.Access.SubnetIds as subnet]
+        [#local virtualNetworkRulesConfiguration += getStorageNetworkAclsVirtualNetworkRules(
+            id=subnet
+            action="Allow"
+        )]
+    [/#list]
+    [#local ipRulesConfiguration = []]
+    [#list solution.Access.IPAddressRanges as ip]
+        [#local ipRulesConfiguration += getStorageNetworkAclsIpRules(
+            value=ip
+            action="Allow"
+        )]
+    [/#list]
+    [#local networkAclsConfiguration = getStorageNetworkAcls(
+        defaultAction="Deny"
+        ipRules=ipRulesConfiguration
+        virtualNetworkRules=virtualNetworkRulesConfiguration
+        bypass="None"
+    )]
+
+    [#-- TODO(rm): Add accessTier --]
+    [#-- TODO(rm): Add azureFilesIdentityBasedAuthentication --]
+    [#-- TODO(rm): Add supportHttpsTrafficOnly --]
+    [#-- TODO(rm): Add isHnsEnabled --]
+    [#-- TODO(rm): Add dependsOn --]
+
     [#if deploymentSubsetRequired("s3", true)]
 
         [#-- TODO(rossmurr4y): Impliment tags. Currently the shared function getOccurrenceCoreTags
         in gen3\engine\common.ftl just formats a call to the function getCfTemplateCoreTags, which is aws
         provider specific. --]
-        [#-- TODO(rossmurr4y): Impliment customDomain. Already have written the function getStorageCustomDomain
-        however it requires a domain URL to be passed to it. --]
         [@createStorageAccount
             name=accountId
+            kind=storageProfile.Type
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
             location=regionId
-            [#--customDomain=(isPresent(solution.Website))?then(getStorageCustomDomain(  ), {}) TODO --]
-            [#-- encryption= TODO --]
-            [#-- networkAcls= TODO --]
+            customDomain=
+                (solution.Website.CustomDomain)?has_content?then(
+                    getStorageCustomDomain(solution.Website.CustomDomain),
+                    {}
+                )
+            encryption=encryptionConfiguration
+            networkAcls=networkAclsConfiguration
             [#-- accessTier= TODO --]
             [#-- azureFilesIdentityBasedAuthentication= TODO --]
             [#-- supportsHttpsTrafficOnly= TODO --]
@@ -44,13 +98,13 @@
             [#-- dependsOn= TODO --]
         /]
 
-        [#-- TODO  
-        [@createBlobServic]  
-        --]
+        [@createBlobService
+            name=
+        /]  
 
-        [#-- TODO 
-        [@createBlobServiceContainer]
-        --]
+        [@createBlobServiceContainer
+            name=
+        /]
 
     [/#if]
 
