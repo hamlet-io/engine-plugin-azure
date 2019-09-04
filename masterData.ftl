@@ -23,28 +23,34 @@
         "storageAccount": {
           "Tier": "Standard",
           "Replication": "LRS",
-          "Type": "BlobStorage"
+          "Type": "BlobStorage",
+          "AccessTier" : "Cool",
+          "HnsEnabled" : false
         }
       }
       "Blob": {
         "storageAccount" : {
           "Tier" : "Standard",
           "Replication" : "LRS",
-          "Type" : "BlobStorage"
+          "Type" : "BlobStorage",
+          "AccessTier" : "Cool",
+          "HnsEnabled" : false
         }
       },
       "File": {
         "storageAccount" : {
           "Tier" : "Standard",
           "Replication" : "LRS",
-          "Type" : "FileStorage"
+          "Type" : "FileStorage",
+          "HnsEnabled" : false
         }
       },
       "Block": {
         "storageAccount" : {
           "Tier" : "Standard",
           "Replication" : "LRS",
-          "Type" : "BlockBlobStorage"
+          "Type" : "BlockBlobStorage",
+          "HnsEnabled" : false
         }
       }
     },

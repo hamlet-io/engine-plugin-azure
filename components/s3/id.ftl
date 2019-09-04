@@ -4,12 +4,33 @@
     attributes=
         [
             {
+                "Names" : "Lifecycle",
+                "Children" : [
+                    {
+                        "Names" : "BlobRetentionDays",
+                        "Type" : INTEGER_TYPE,
+                        "Default" : ""
+                    },
+                    {
+                        "Names" : "BlobAutoSnapshots",
+                        "Type" : BOOLEAN_TYPE,
+                        "Default" : false
+                    }
+                ]
+            },
+            {
                 "Names" : "Website",
                 "Children" : [
                     {
                         "Names" : "CustomDomain",
                         "Type" : STRING_TYPE,
                         "Default" : ""
+                    },
+                    {
+                        "Names" : "HttpsOnly",
+                        "Description" : "Support Only Https traffic?",
+                        "Type" : BOOLEAN_TYPE,
+                        "Default" : true
                     }
                 ]
             },
@@ -69,7 +90,50 @@
                         "Description: "A list of IP ranges to grant Allow permission.",
                         "Type" : ARRAY_OF_STRING_TYPE,
                         "Default" : [ "" ]
+                    },
+                    {
+                        "Names" : "DirectoryService",
+                        "Description" : "The directory service that is used for authentication. 'None' or 'AADDS'.",
+                        "Type" : STRING_TYPE,
+                        "Default" : ""
+                    },
+                    {
+                        "Names" : "PublicAccess",
+                        "Type" : STRING_TYPE,
+                        "Values" : [ "Container", "Blob", "None" ]
+                        "Default" : "None"
                     }
+                ]
+            },
+            {
+                "Names" : "CORSBehaviours",
+                "Children" : [
+                    {
+                        "Names" : "AllowedOrigins",
+                        "Type" : ARRAY_OF_STRING_TYPE,
+                        "Default" : [ "" ]
+                    },
+                    {
+                        "Names" : "AllowedMethods",
+                        "Type" : ARRAY_OF_STRING_TYPE,
+                        "Default" : [ "" ]
+                    },
+                    {
+                        "Names" : "MaxAge",
+                        "Type" : INTEGER_TYPE,
+                        "Description" : "The max age, in seconds.",
+                        "Default" : ""
+                    },
+                    {
+                        "Names" : "ExposedHeaders",
+                        "Type" : ARRAY_OF_STRING_TYPE,
+                        "Default" : [ "" ]
+                    },
+                    {
+                        "Names" : "AllowedHeaders",
+                        "Type" : ARRAY_OF_STRING_TYPE,
+                        "Default" : [ "" ]
+                    },
                 ]
             }
         ]

@@ -126,8 +126,8 @@
     ]
 [/#function]
 
-[#function getStorageAzureFilesIdentityBasedAuthentication options]
-    [#return { "directoryServiceOptions" : options } ]
+[#function getStorageAzureFilesIdentityBasedAuthentication service]
+    [#return { "directoryServiceOptions" : service } ]
 [/#function]
 
 [#-- all attributes are mandatory on CorsRules object --]

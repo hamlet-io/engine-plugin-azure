@@ -23,6 +23,8 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)] --]
 
+   [#local dependencies = [] ]
+
     [#-- Add Encryption Configuration --]
     [#if solution.Encryption.Enabled]
         [#local encryptionConfiguration =
@@ -68,11 +70,18 @@
         bypass="None"
     )]
 
-    [#-- TODO(rm): Add accessTier --]
-    [#-- TODO(rm): Add azureFilesIdentityBasedAuthentication --]
-    [#-- TODO(rm): Add supportHttpsTrafficOnly --]
-    [#-- TODO(rm): Add isHnsEnabled --]
-    [#-- TODO(rm): Add dependsOn --]
+    [#-- Add Container CORS Rules --]
+    [#if solution.CORSBehaviours]
+        [#local containerCorsRulesConfiguration = getStorageBlobServiceCorsRules(
+            solution.CORSBehaviours.AllowedOrigins
+            solution.CORSBehaviours.AllowedMethods
+            solution.CORSBehaviours.MaxAge
+            solution.CORSBehaviours.ExposedHeaders
+            solution.CORSBehaviours.AllowedHeaders
+        )]
+    [#else]
+        [#local containerCorsRulesConfiguration = {}]
+    [/#if]
 
     [#if deploymentSubsetRequired("s3", true)]
 
@@ -91,19 +100,34 @@
                 )
             encryption=encryptionConfiguration
             networkAcls=networkAclsConfiguration
-            [#-- accessTier= TODO --]
-            [#-- azureFilesIdentityBasedAuthentication= TODO --]
-            [#-- supportsHttpsTrafficOnly= TODO --]
-            [#-- isHnsEnabled= TODO --]
-            [#-- dependsOn= TODO --]
+            accessTier=(storageProfile.AccessTier!{})
+            azureFilesIdentityBasedAuthentication=
+                (solution.Access.DirectoryService)?has_content?then(
+                    getStorageAzureFilesIdentityBasedAuthentication(solution.Access.DirectoryService),
+                    {}
+                )
+            supportsHttpsTrafficOnly=(solution.Website.HttpsOnly!"")
+            isHnsEnabled=(storageProfile.HnsEnabled!false)
+            dependsOn=dependencies
         /]
 
-        [@createBlobService
-            name=
-        /]  
+        [@createBlobService 
+            name=blobId
+            corsRules=containerCorsRulesConfiguration
+            deleteRetentionPolicy=
+                (solution.Lifecycle.BlobRetentionDays)?has_content?then(
+                    getStorageBlobServiceDeleteRetentionPolicy(solution.Lifecycle.BlobRetentionDays),
+                    {}
+                )
+            automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots!false)
+            resources=[]
+            dependsOn=dependencies
+        /]
 
-        [@createBlobServiceContainer
-            name=
+        [@createBlobServiceContainer 
+            name=containerId
+            publicAccess=solution.Access.PublicAccess
+            dependsOn=dependencies        
         /]
 
     [/#if]
