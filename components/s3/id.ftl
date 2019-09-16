@@ -8,7 +8,7 @@
                 "Children" : [
                     {
                         "Names" : "BlobRetentionDays",
-                        "Type" : INTEGER_TYPE,
+                        "Type" : NUMBER_TYPE,
                         "Default" : ""
                     },
                     {
@@ -45,14 +45,14 @@
                     {
                         "Names" : "KeySource",
                         "Type" : STRING_TYPE,
-                        "Values" : [ "Microsoft.Storage", "Microsoft.Keyvault" ]
+                        "Values" : [ "Microsoft.Storage", "Microsoft.Keyvault" ],
                         "Default" : "Microsoft.Keyvault"
                     },
                     {
                         "Names" : "Services",
                         "Type" : ARRAY_OF_STRING_TYPE,
                         "Description" : "The Services to enable encryption for. Valid values are 'blob' and/or 'file'.",
-                        "Default" : [ ]
+                        "Default" : [ "" ]
                     }
                 ]
             },
@@ -87,7 +87,7 @@
                     },
                     {
                         "Names" : "IPAddressRanges",
-                        "Description: "A list of IP ranges to grant Allow permission.",
+                        "Description" : "A list of IP ranges to grant Allow permission.",
                         "Type" : ARRAY_OF_STRING_TYPE,
                         "Default" : [ "" ]
                     },
@@ -100,7 +100,7 @@
                     {
                         "Names" : "PublicAccess",
                         "Type" : STRING_TYPE,
-                        "Values" : [ "Container", "Blob", "None" ]
+                        "Values" : [ "Container", "Blob", "None" ],
                         "Default" : "None"
                     }
                 ]
@@ -120,7 +120,7 @@
                     },
                     {
                         "Names" : "MaxAge",
-                        "Type" : INTEGER_TYPE,
+                        "Type" : NUMBER_TYPE,
                         "Description" : "The max age, in seconds.",
                         "Default" : ""
                     },
@@ -133,7 +133,7 @@
                         "Names" : "AllowedHeaders",
                         "Type" : ARRAY_OF_STRING_TYPE,
                         "Default" : [ "" ]
-                    },
+                    }
                 ]
             }
         ]

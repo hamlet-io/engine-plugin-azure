@@ -27,7 +27,7 @@
           "AccessTier" : "Cool",
           "HnsEnabled" : false
         }
-      }
+      },
       "Blob": {
         "storageAccount" : {
           "Tier" : "Standard",
