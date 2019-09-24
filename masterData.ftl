@@ -2,7 +2,7 @@
 [#ftl]
 [@addMasterData
   [#-- TODO(rossmurr4y): make this variable name provider independent --]
-  provider=AWS_PROVIDER
+  provider=AZURE_PROVIDER
   data=
   {
     "Regions": {
