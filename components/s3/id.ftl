@@ -26,18 +26,6 @@
                 "Names" : "Access",
                 "Children" : [
                     {
-                        "Names" : "SubnetIds",
-                        "Description" : "A list of the subnet Ids to grant Allow permission.",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    },
-                    {
-                        "Names" : "IPAddressRanges",
-                        "Description" : "A list of IP ranges to grant Allow permission.",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    },
-                    {
                         "Names" : "DirectoryService",
                         "Description" : "The directory service that is used for authentication. 'None' or 'AADDS'.",
                         "Type" : STRING_TYPE,

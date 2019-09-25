@@ -19,24 +19,28 @@
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
-    [#-- Baseline component lookup 
+    [#-- Baseline component lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
-    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)] --]
+    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)]
 
    [#local dependencies = [] ]
 
     [#-- Add NetworkACL Configuration --]
     [#local virtualNetworkRulesConfiguration = []]
-    [#list solution.Access.SubnetIds as subnet]
-        [#local virtualNetworkRulesConfiguration += getStorageNetworkAclsVirtualNetworkRules(
-            id=subnet
+    [#local storageCIDRs = getGroupCIDRs(solution.IPAddressGroups)]
+
+    [#list solution.IPAddressGroups as subnet]
+      [#local virtualNetworkRulesConfiguration += getStorageNetworkAclsVirtualNetworkRules(
+            id=(getExistingReference(formatResourceId(AZURE_NETWORK_RESOURCE_TYPE, subnet)).id)
             action="Allow"
         )]
     [/#list]
+
+    [/#list]
     [#local ipRulesConfiguration = []]
-    [#list solution.Access.IPAddressRanges as ip]
+    [#list storageCIDRs as cidr]
         [#local ipRulesConfiguration += getStorageNetworkAclsIpRules(
-            value=ip
+            value=cidr
             action="Allow"
         )]
     [/#list]
