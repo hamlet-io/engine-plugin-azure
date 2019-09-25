@@ -64,33 +64,6 @@
     ]
 [/#function]
 
-[#function getStorageEncryptionServices blob=false file=false]
-    [#return
-        {} +
-        attributeIfTrue("blob", blob, { "enabled" : true }) + 
-        attributeIfTrue("file", file, { "enabled" : true })
-    ]
-[/#function]
-
-[#function getStorageEncryptionKeyvaultproperties name="" keyversion="" uri=""]
-    [#return
-        {} +
-        attributeIfContent("keyname", name) +
-        attributeIfContent("keyversion", keyversion) +
-        attributeIfContent("keyvaulturi", keyvaulturi)
-    ]
-[/#function]
-
-[#function getStorageEncryption keySource services={} keyvaultproperties={}]
-    [#return
-        {
-            "keySource": keySource
-        } +
-        attributeIfContent("services", services) +
-        attributeIfContent("keyvaultproperties", keyvaultproperties)
-    ]
-[/#function]
-
 [#function getStorageNetworkAcls 
     defaultAction 
     ipRules=[]
@@ -161,11 +134,9 @@
     kind
     tags={}
     customDomain={}
-    encryption={}
     networkAcls={}
     accessTier=""
     azureFilesIdentityBasedAuthentication={}
-    supportsHttpsTrafficOnly=true
     isHnsEnabled=false
     dependsOn=[]]
 
@@ -180,13 +151,13 @@
         sku=sku
         outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
-            {} +
+            {
+                "supportsHttpsTrafficOnly" : true
+            } +
             attributeIfContent("customDomain", customDomain) +
-            attributeIfContent("encryption", encryption) +
             attributeIfContent("networkAcls", networkAcls) +
             attributeIfContent("accessTier", accessTier) +
             attributeIfContent("azureFilesIdentityBasedAuthentication", azureFilesIdentityBasedAuthentication) +
-            attributeIfTrue("supportsHttpsTrafficOnly", !supportsHttpsTrafficOnly, false) +
             attributeIfTrue("isHnsEnabled", isHnsEnabled, true)
         dependsOn=dependsOn
     /]

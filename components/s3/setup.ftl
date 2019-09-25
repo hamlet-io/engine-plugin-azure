@@ -25,29 +25,6 @@
 
    [#local dependencies = [] ]
 
-    [#-- Add Encryption Configuration --]
-    [#if solution.Encryption.Enabled]
-        [#local encryptionConfiguration =
-            getStorageEncryption(
-                solution.Encryption.KeySource, 
-                (getStorageEncryptionServices(
-                    blob=(solution.Encryption.Services?contains("blob")),
-                    file=(solution.Encryption.Services?contains("file"))
-                )),
-                (solution.Encryption.KeySource)?contains("Keyvault")?then(
-                    getStorageEncryptionKeyvaultproperties(
-                        name=(solution.Secrets.KeyName!""),
-                        keyversion=(solution.Secrets.KeyVersion!""),
-                        uri=(solution.Secrets.KeyUri?url!"")
-                    ),
-                    {}
-                )
-            )
-        ]
-    [#else]
-        [#local encryptionConfiguration = {}]
-    [/#if]
-
     [#-- Add NetworkACL Configuration --]
     [#local virtualNetworkRulesConfiguration = []]
     [#list solution.Access.SubnetIds as subnet]
@@ -94,11 +71,10 @@
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
             location=regionId
             customDomain=
-                (solution.Website.CustomDomain)?has_content?then(
-                    getStorageCustomDomain(solution.Website.CustomDomain),
+                (solution.Website.Namespace)?has_content?then(
+                    getStorageCustomDomain(solution.Website.Namespace.Domain),
                     {}
                 )
-            encryption=encryptionConfiguration
             networkAcls=networkAclsConfiguration
             accessTier=(storageProfile.AccessTier!{})
             azureFilesIdentityBasedAuthentication=
@@ -106,7 +82,6 @@
                     getStorageAzureFilesIdentityBasedAuthentication(solution.Access.DirectoryService),
                     {}
                 )
-            supportsHttpsTrafficOnly=(solution.Website.HttpsOnly!"")
             isHnsEnabled=(storageProfile.HnsEnabled!false)
             dependsOn=dependencies
         /]

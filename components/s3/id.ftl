@@ -23,36 +23,7 @@
                 "Children" : [
                     {
                         "Names" : "CustomDomain",
-                        "Type" : STRING_TYPE,
-                        "Default" : ""
-                    },
-                    {
-                        "Names" : "HttpsOnly",
-                        "Description" : "Support Only Https traffic?",
-                        "Type" : BOOLEAN_TYPE,
-                        "Default" : true
-                    }
-                ]
-            },
-            {
-                "Names" : "Encryption",
-                "Children" : [
-                    {
-                        "Names" : "Enabled",
-                        "Type" : BOOLEAN_TYPE,
-                        "Default" : false
-                    },
-                    {
-                        "Names" : "KeySource",
-                        "Type" : STRING_TYPE,
-                        "Values" : [ "Microsoft.Storage", "Microsoft.Keyvault" ],
-                        "Default" : "Microsoft.Keyvault"
-                    },
-                    {
-                        "Names" : "Services",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Description" : "The Services to enable encryption for. Valid values are 'blob' and/or 'file'.",
-                        "Default" : [ "" ]
+                        "Children" : domainNameChildConfiguration
                     }
                 ]
             },
