@@ -165,11 +165,29 @@
 
 [#macro createBlobService
     name
-    corsRules=[]
+    CORSBehaviours=[]
     deleteRetentionPolicy={}
     automaticSnapshotPolicyEnabled=false
     resources=[]
     dependsOn=[]]
+
+    [#assign CORSRules = []]
+    [#list CORSBehaviours as behaviour]
+        [#assign CORSBehaviour = CORSProfiles[behaviour]]
+        [#if CORSBehaviour?has_content]
+            [#assign CORSRules += [
+                {
+                    "allowedHeaders": CORSBehaviour.AllowedHeaders,
+                    "allowedMethods": CORSBehaviour.AllowedMethods,
+                    "allowedOrigins": CORSBehaviour.AllowedOrigins,
+                    "exposedHeaders": CORSBehaviour.ExposedHeaders,
+                    "maxAgeInSeconds": (CORSBehaviour.MaxAge)?c
+                }
+            ]
+            
+            ]
+        [/#if]
+    [/#list]
 
     [@armResource
         name=name
@@ -182,7 +200,7 @@
             {
                 "defaultServiceVersion": "2019-04-01"
             } + 
-            attributeIfContent("corsRules", asArray(corsRules)) +
+            attributeIfContent("CORSRules", asArray(CORSRules)) +
             attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) + 
             attributeIfTrue("automaticSnapshotPolicyEnabled", automaticSnapshotPolicyEnabled, automaticSnapshotPolicyEnabled)
     /]

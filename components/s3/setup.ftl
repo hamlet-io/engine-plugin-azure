@@ -51,19 +51,6 @@
         bypass="None"
     )]
 
-    [#-- Add Container CORS Rules --]
-    [#if solution.CORSBehaviours]
-        [#local containerCorsRulesConfiguration = getStorageBlobServiceCorsRules(
-            solution.CORSBehaviours.AllowedOrigins
-            solution.CORSBehaviours.AllowedMethods
-            solution.CORSBehaviours.MaxAge
-            solution.CORSBehaviours.ExposedHeaders
-            solution.CORSBehaviours.AllowedHeaders
-        )]
-    [#else]
-        [#local containerCorsRulesConfiguration = {}]
-    [/#if]
-
     [#-- Retrieve Certificate Information --]
     [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
     [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
@@ -93,7 +80,7 @@
 
         [@createBlobService 
             name=blobId
-            corsRules=containerCorsRulesConfiguration
+            CORSBehaviours=solution.CORSBehaviours
             deleteRetentionPolicy=
                 (solution.Lifecycle.BlobRetentionDays)?has_content?then(
                     getStorageBlobServiceDeleteRetentionPolicy(solution.Lifecycle.BlobRetentionDays),

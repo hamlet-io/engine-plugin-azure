@@ -62,7 +62,30 @@
     "LogFileProfiles": {
       "default": {}
     },
-    "CORSProfiles": {},
+    "CORSProfiles": {
+      "S3Write": {
+        "AllowedHeaders": [
+          "Content-Length",
+          "Content-Type",
+          "Content-MD5",
+          "Authorization",
+          "Expect",
+          "x-amz-content-sha256",
+          "x-amz-security-token"
+        ]
+      },
+      "S3Delete": {
+        "AllowedHeaders": [
+          "Content-Length",
+          "Content-Type",
+          "Content-MD5",
+          "Authorization",
+          "Expect",
+          "x-amz-content-sha256",
+          "x-amz-security-token"
+        ]
+      }
+    },
     "ScriptStores": {},
     "Bootstraps": {},
     "BootstrapProfiles": {
