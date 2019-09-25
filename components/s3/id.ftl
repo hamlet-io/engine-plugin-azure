@@ -19,13 +19,8 @@
                 ]
             },
             {
-                "Names" : "Website",
-                "Children" : [
-                    {
-                        "Names" : "CustomDomain",
-                        "Children" : domainNameChildConfiguration
-                    }
-                ]
+                "Names" : "Certificate",
+                "Children" : certificateChildConfiguration                
             },
             {
                 "Names" : "Access",

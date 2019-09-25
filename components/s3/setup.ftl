@@ -60,6 +60,11 @@
         [#local containerCorsRulesConfiguration = {}]
     [/#if]
 
+    [#-- Retrieve Certificate Information --]
+    [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
+    [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
+    [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
+
     [#if deploymentSubsetRequired("s3", true)]
 
         [#-- TODO(rossmurr4y): Impliment tags. Currently the shared function getOccurrenceCoreTags
@@ -70,11 +75,7 @@
             kind=storageProfile.Type
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
             location=regionId
-            customDomain=
-                (solution.Website.Namespace)?has_content?then(
-                    getStorageCustomDomain(solution.Website.Namespace.Domain),
-                    {}
-                )
+            customDomain=getStorageCustomDomain(fqdn)
             networkAcls=networkAclsConfiguration
             accessTier=(storageProfile.AccessTier!{})
             azureFilesIdentityBasedAuthentication=
