@@ -1,6 +1,5 @@
 [#ftl]
 
-[#-- TODO(rossmurr4y): make this variable name provider independent --]
 [#assign AZURE_PROVIDER = "azure"]
 
 
