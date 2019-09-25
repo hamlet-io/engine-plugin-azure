@@ -28,26 +28,6 @@
                 ]
             },
             {
-                "Names" : "Secrets",
-                "Children" : [
-                    {
-                        "Names" : "KeyName",
-                        "Type" : STRING_TYPE,
-                        "Default" : ""
-                    },
-                    {
-                        "Names" : "KeyVersion",
-                        "Type" : STRING_TYPE,
-                        "Default" : ""
-                    },
-                    {
-                        "Names" : "KeyUri",
-                        "Type" : STRING_TYPE,
-                        "Default" : ""
-                    }
-                ]
-            },
-            {
                 "Names" : "Access",
                 "Children" : [
                     {
