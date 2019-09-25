@@ -137,6 +137,7 @@
     networkAcls={}
     accessTier=""
     azureFilesIdentityBasedAuthentication={}
+    supportHttpsTrafficOnly=true
     isHnsEnabled=false
     dependsOn=[]]
 
@@ -152,7 +153,7 @@
         outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
             {
-                "supportsHttpsTrafficOnly" : true
+                "supportsHttpsTrafficOnly" : supportHttpsTrafficOnly
             } +
             attributeIfContent("customDomain", customDomain) +
             attributeIfContent("networkAcls", networkAcls) +
