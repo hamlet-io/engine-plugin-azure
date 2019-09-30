@@ -17,10 +17,19 @@
   }
 ]
 
+[#assign AZURE_KEYVAULT_ACCESS_POLICY_OUTPUT_MAPPINGS =
+  {
+    REFERENCE_ATTRIBUTE_TYPE : {
+      "Property" : "id"
+    }
+  }
+]
+
 [#assign outputMappings +=
   {
     AZURE_KEYVAULT_RESOURCE_TYPE : AZURE_KEYVAULT_OUTPUT_MAPPINGS,
-    AZURE_KEYVAULT_SECRET_RESOURCE_TYPE : AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS
+    AZURE_KEYVAULT_SECRET_RESOURCE_TYPE : AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS,
+    AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE : AZURE_KEYVAULT_ACCESS_POLICY_OUTPUT_MAPPINGS
   }
 ]
 
@@ -130,8 +139,6 @@ convention ("object" suffix) is used to easily distinguish the two. --]
 [#macro createKeyVault
   name
   location
-  tenantId
-  sku
   properties
   tags={}
   resources=[]
@@ -144,7 +151,6 @@ convention ("object" suffix) is used to easily distinguish the two. --]
     location=location
     properties=properties
     tags=tags
-    sku=sku
     resources=resources
     outputs=AZURE_KEYVAULT_OUTPUT_MAPPINGS
     dependsOn=dependsOn
