@@ -38,37 +38,6 @@
                         "Default" : "None"
                     }
                 ]
-            },
-            {
-                "Names" : "CORSBehaviours",
-                "Children" : [
-                    {
-                        "Names" : "AllowedOrigins",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    },
-                    {
-                        "Names" : "AllowedMethods",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    },
-                    {
-                        "Names" : "MaxAge",
-                        "Type" : NUMBER_TYPE,
-                        "Description" : "The max age, in seconds.",
-                        "Default" : ""
-                    },
-                    {
-                        "Names" : "ExposedHeaders",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    },
-                    {
-                        "Names" : "AllowedHeaders",
-                        "Type" : ARRAY_OF_STRING_TYPE,
-                        "Default" : [ "" ]
-                    }
-                ]
             }
         ]
     provider=AZURE_PROVIDER
