@@ -2,7 +2,6 @@
 ]
 [#-- Structure --]
 
-[#-- TODO(rossmurr4y): ensure Storage service is using this. --]
 [#function getNetworkAcls 
     defaultAction 
     ipRules=[]
@@ -16,5 +15,24 @@
         attributeIfContent("ipRules", asArray(ipRules)) +
         attributeIfContent("virtualNetworkRules", asArray(virtualNetworkRules)) +
         attributeIfContent("bypass", bypass)
+    ]
+[/#function]
+
+[#function getNetworkAclsVirtualNetworkRules id action="" state=""]
+   [#return
+        {
+            "id" : id
+        } +
+        attributeIfContent("action", action) +
+        attributeIfContent("state", state)
+    ]
+[/#function]
+
+[#function getNetworkAclsIpRules value action=""]
+    [#return
+        {
+            "value" : value
+        } + 
+        attributeIfContent("action", action)
     ]
 [/#function]
