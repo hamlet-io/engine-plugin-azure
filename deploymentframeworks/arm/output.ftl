@@ -44,6 +44,34 @@
     /]
 [/#macro]
 
+[#function pseudoARMStackOutputScript description outputs filesuffix="" ]
+    [#local outputString = ""]
+
+    [#list getARMTemplateCoreOutputs() as  key,value ]
+        [#if value?is_hash ]
+            [#local outputs += { key, value.Value } ]
+        [#else ]
+            [#local outputs += { key, value } ]
+        [/#if]
+    [/#list]
+
+    [#list outputs as key,value ]
+        [#local outputString +=
+          "\"" + key + "\" \"" + value + "\" "
+        ]
+    [/#list]
+
+    [#return
+        [
+            "create_pseudo_stack" + " " +
+            "\"" + description + "\"" + " " +
+            "\"$\{CF_DIR}/$(fileBase \"$\{BASH_SOURCE}\")" + (filesuffix?has_content)?then("-" + filesuffix, "") + "-pseudo-stack.json\" " +
+            outputString + " || return $?"
+        ]
+    ]
+
+[/#function]
+
 [#macro armResource
     id
     name
