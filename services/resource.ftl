@@ -1,5 +1,34 @@
 [#ftl]
 
+
+[#-- Formats a given resourceId into an azure resourceId lookup function.
+The scope of the lookup is dependant on the attributes provided. For the
+Id of a resource within the same template, only the resourceId is necessary.
+ --]
+[#function formatAzureResourceIdReference
+    resourceId
+    resourceType=""
+    subscriptionId=""
+    resourceGroupName=""
+    resourceNames...]
+    
+    [#if ! resourceType?has_content]
+        [#local resourceType = getResourceType(resourceId)]
+    [/#if]
+
+    [#local args = []]
+    [#list [subscriptionId, resourceGroupName, resourceType, resourceId, resourceNames] as arg]
+
+        [#if arg?has_content]
+            [#local args += arg]
+        [/#if]
+
+        [#return
+            "[resourceId(" + args?join(", ") + ")]"
+        ]
+    [/#list]
+[/#function]
+
 [#-- Get stack output --]
 [#function getStackOutputObject id deploymentUnit="" region="" account=(accountObject.AZUREId)!""]
     [#list stackOutputsList as stackOutputs]
@@ -70,9 +99,10 @@
                 [#local mapping = outputMappings[getResourceType(resourceId)][attributeType] ]
                 [#if (mapping.Attribute)?has_content]
                     [#return
-                        {
-                            "Fn::GetAtt" : [resourceId, mapping.Attribute]
-                        }
+                        formatAzureResourceIdReference(
+                            resourceId,
+                            resourceType            
+                        )
                     ]
                 [/#if]
             [#else]
@@ -86,9 +116,9 @@
             [/#if]
         [/#if]
         [#return
-            {
-                "Ref" : resourceId
-            }
+            formatAzureResourceIdReference(
+                resourceId=resourceId           
+            )
         ]
     [/#if]
     [#return

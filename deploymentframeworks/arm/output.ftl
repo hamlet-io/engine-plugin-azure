@@ -106,7 +106,10 @@
             [@armOutput
                 name=name
                 type="string"
-                value="[resourceId(" + resourceIdParameters?join(", ") + ")]"
+                value=formatAzureResourceIdReference(
+                        resourceId=name
+                        resourceType=type
+                    )
             /]
         [#else]
        
