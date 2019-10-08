@@ -1,7 +1,6 @@
 
 [#ftl]
 [@addMasterData
-  [#-- TODO(rossmurr4y): make this variable name provider independent --]
   provider=AZURE_PROVIDER
   data=
   {
@@ -86,6 +85,70 @@
         ]
       }
     },
+    "ResourceProfiles": {
+      "azure" : {
+        "microsoft.network" : { 
+          "applicationSecurityGroups" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Network/applicationSecurityGroups"
+          },
+          "routeTables" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/routeTables"
+          },
+          "routes" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/routeTables/routes"
+          },
+          "serviceEndpointPolicies" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/serviceEndpointPolicies"
+          },
+          "serviceEndpointPolicyDefinitions" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions"
+          },
+          "subnets" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/virtualNetworks/subnets"
+          },
+          "virtualNetworks" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/virtualNetworks"
+          },
+          "virtualNetworkPeerings" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+          },
+          "networkSecurityGroups" : {
+            "apiVersion" : "2019-02-01",
+            "type" : "Microsoft.Network/networkSecurityGroups"
+          },
+          "securityRules" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Network/networkSecurityGroups/securityRules"
+          },
+          "networkWatchers" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Network/networkWatchers"
+          }
+        },
+        "microsoft.storage" : {
+          "account" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts"
+          },
+          "blob" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts/blobServices"
+          },
+          "container" : {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts/blobServices/containers"
+          }
+        }
+      }
+    }
     "ScriptStores": {},
     "Bootstraps": {},
     "BootstrapProfiles": {

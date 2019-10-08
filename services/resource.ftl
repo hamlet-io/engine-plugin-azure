@@ -29,6 +29,77 @@ Id of a resource within the same template, only the resourceId is necessary.
     [/#list]
 [/#function]
 
+[#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
+a resource, be it previously deployed or within current template. This differs from
+the previous function as the ARM function will return a full object, from which attributes
+can be referenced via dot notation. --]
+[#function formatAzureResourceReference(
+    resourceId
+    resourceType=""
+    serviceType=""
+    attributes...)]
+
+    [#if ! resourceType?has_content]
+        [#local resourceType = getResourceType(resourceId)]
+    [/#if]
+
+    [#if serviceType?has_content]
+        [#local resourceProfile = getAzureResourceProfile(resourceType, serviceType)]
+    [#else]
+        [#local resourceProfile = getAzureResourceProfile(resourceType)]
+    [/#if]
+
+    [#local apiVersion = resourceProfile.apiVersion]
+    [#local typeFull = resourceProfile.type]
+
+    [#if attributes?has_content]
+        [#-- Example: "[reference(typeFull/resourceId, "2019-09-09", 'Full').properties.attribute]"  --]
+        [#return
+            "[reference(" + typeFull + "/" + resourceId + ", " + apiVersion + ", 'Full')." + attributes?join(".") + "]"
+        ]
+    [#/else]
+        [#-- Example: "[reference(typeFull/resourceId, "2019-09-09", 'Full')]"  --]
+        [#return
+             "[reference(" + typeFull + "/" + resourceId + ", " + apiVersion + ", 'Full')]"
+        ]
+    [/#if]
+[/#function]
+
+[#function getAzureResourceProfile(resourceType, serviceType="")]
+
+    [#local profileObj = {}]
+
+    [#-- Service has been provided, so lookup can be specific --]
+    [#if serviceType?has_content]
+        [#list blueprintObject.ResourceProfiles["azure"][serviceType] as resource, attr]
+            [#if resource == resourceType]
+                [#local profileObj = blueprintObject.ResourceProfiles["azure"][serviceType][resource]]
+            [/#if]
+        [/#list]
+    [#else]
+        [#-- Service has not been specific, check all Services for the resourceType --]
+        [#list blueprintObject.ResourceProfiles["azure"] as service, resources]
+            [#list resources as resource]
+                [#if resource == resourceType]
+                    [#local profileObj = blueprintObject.ResourceProfiles["azure"][service][resource]]
+                [/#if]
+            [/#list]
+        [/#list]
+    [/#if]
+
+    [#if profile?has_content]
+        [#return profileObj]
+    [#else]
+        [#return
+            {
+                "Mapping" : "COTFatal: ResourceProfile not found.",
+                "ResourceId" : resourceId,
+                "ResourceType" : resourceType
+            }
+        ]
+    [/#if]
+[/#function]
+
 [#-- Get stack output --]
 [#function getStackOutputObject id deploymentUnit="" region="" account=(accountObject.AZUREId)!""]
     [#list stackOutputsList as stackOutputs]
@@ -94,14 +165,14 @@ Id of a resource within the same template, only the resourceId is necessary.
     [#if ((!(inRegion?has_content)) || (inRegion == region)) &&
         isPartOfCurrentDeploymentUnit(resourceId)]
         [#if attributeType?has_content]
-            [#local resourceType = getResourceType(resourceId) ]
+            [#local resourceType = getResourceType(resourceId)]
             [#if outputMappings[resourceType]?? ]
-                [#local mapping = outputMappings[getResourceType(resourceId)][attributeType] ]
+                [#local mapping = outputMappings[resourceType][attributeType] ]
                 [#if (mapping.Attribute)?has_content]
                     [#return
-                        formatAzureResourceIdReference(
+                        formatAzureResourceReference(
                             resourceId,
-                            resourceType            
+                            resourceType         
                         )
                     ]
                 [/#if]
@@ -116,7 +187,7 @@ Id of a resource within the same template, only the resourceId is necessary.
             [/#if]
         [/#if]
         [#return
-            formatAzureResourceIdReference(
+            formatAzureResourceReference(
                 resourceId=resourceId           
             )
         ]
