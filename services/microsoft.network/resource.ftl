@@ -1,5 +1,56 @@
 [#ftl]
 
+[#assign azureResourceProfiles +=
+  {
+    AZURE_NETWORK_SERVICE : {
+      AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE : {
+        "apiVersion" : "2019-04-01",
+        "type" : "Microsoft.Network/applicationSecurityGroups"
+      },
+      AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/routeTables"
+      },
+      AZURE_ROUTE_TABLE_ROUTE_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/routeTables/routes"
+      },
+      AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/serviceEndpointPolicies"
+      },
+      AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions"
+      },
+      AZURE_SUBNET_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/virtualNetworks/subnets"
+      },
+      AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/virtualNetworks"
+      },
+      AZURE_VIRTUAL_NETWORK_PEERING_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+      },
+      AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE : {
+        "apiVersion" : "2019-02-01",
+        "type" : "Microsoft.Network/networkSecurityGroups"
+      },
+      AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE : {
+        "apiVersion" : "2019-04-01",
+        "type" : "Microsoft.Network/networkSecurityGroups/securityRules"
+      },
+      AZURE_NETWORK_WATCHER_RESOURCE_TYPE : {
+        "apiVersion" : "2019-04-01",
+        "type" : "Microsoft.Network/networkWatchers"
+      }
+    }
+  }
+]
+
 [#assign VIRTUAL_NETWORK_OUTPUT_MAPPINGS = 
   {
     REFERENCE_ATTRIBUTE_TYPE : {
@@ -26,8 +77,7 @@
 [#macro createApplicationSecurityGroup name location tags={}]
   [@armResource
     name=name
-    type="Microsoft.Network/applicationSecurityGroups"
-    apiVersion="2019-04-01"
+    profile=AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE
     location=location
     tags=tags
   /]
@@ -56,8 +106,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/networkSecurityGroups/securityRules"
-    apiVersion="2019-04-01"
+    profile=AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE
     dependsOn=dependsOn
     properties=  
       {
@@ -94,8 +143,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/routeTables/routes"
-    apiVersion="2019-02-01"
+    profile=AZURE_ROUTE_TABLE_ROUTE_RESOURCE_TYPE
     properties=
       {
         "nextHopType" : nextHopType
@@ -120,8 +168,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/routeTables"
-    apiVersion="2019-02-01"
+    profile=AZURE_ROUTE_TABLE_RESOURCE_TYPE
     location=location
     tags=tags
     properties=
@@ -145,8 +192,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/networkSecurityGroups"
-    apiVersion="2019-02-01"
+    profile=AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE
     location=location
     tags=tags
     resources=resources
@@ -165,8 +211,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions"
-    apiVersion="2019-02-01"
+    profile=AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE
     properties=
       {} +
       attributeIfContent("description", description) +
@@ -185,9 +230,8 @@
 
   [@armResource 
     name=name
-    type="Microsoft.Network/serviceEndpointPolicies"
+    profile=AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE
     location=location
-    apiVersion="2019-02-01"
     dependsOn=dependsOn
     tags=tags
   /]
@@ -259,8 +303,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/virtualNetworks/subnets"
-    apiVersion="2019-02-01"
+    profile=AZURE_SUBNET_RESOURCE_TYPE
     properties=
       {} +
       attributeIfContent("addressPrefix", addressPrefix) +
@@ -290,8 +333,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
-    apiVersion="2019-02-01"
+    profile=AZURE_VIRTUAL_NETWORK_PEERING_RESOURCE_TYPE
     properties=
       {} +
       attributeIfTrue("allowVNetAccess", allowVNetAccess, allowVNetAccess) +
@@ -316,8 +358,7 @@
 
   [@armResource
     name=name
-    type="Microsoft.Network/virtualNetworks"
-    apiVersion="2019-02-01"
+    profile=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
     location=location
     outputs=outputs
     dependsOn=dependsOn
@@ -388,8 +429,7 @@ https://feedback.azure.com/forums/217313-networking/suggestions/37713784-arm-tem
 
   [@armResource
     name=name
-    type="Microsoft.Network/networkWatchers"
-    apiVersion="2019-04-01"
+    profile=AZURE_NETWORK_WATCHER_RESOURCE_TYPE
     properties=
       { "enabled" : true } +
       attributeIfContent("targetResourceId", getReference(targetResourceId)) +
