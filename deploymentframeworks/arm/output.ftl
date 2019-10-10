@@ -44,8 +44,7 @@
 
 [#macro armResource
     name
-    type
-    apiVersion
+    profile
     location=""
     dependsOn=[]
     properties={}
@@ -74,13 +73,21 @@
         [/#list]
     --]
 
+    [#local resourceProfile = getAzureResourceProfile(profile)]
+    [#if ! (resourceProfile?contains("type") || resourceProfile?contains("apiVersion"))]
+        [@fatal
+            message="Azure Resource Profile is incomplete. Requires 'type' and 'apiVersion' attributes for all resources."
+            context=core
+        /]
+    [/#if]
+
     [@addToJsonOutput 
         name="resources"
         content=
             {
                 "name": name,
-                "type": type,
-                "apiVersion": apiVersion
+                "type": resourceProfile.Type,
+                "apiVersion": resourceProfile.apiVersion
                 "properties": properties
             } +
             attributeIfContent("location", location) +

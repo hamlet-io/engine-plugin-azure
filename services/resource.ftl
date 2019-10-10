@@ -1,5 +1,7 @@
 [#ftl]
 
+[#-- Azure Resource Profiles --]
+[#assign azureResourceProfiles = {}]
 
 [#-- Formats a given resourceId into an azure resourceId lookup function.
 The scope of the lookup is dependant on the attributes provided. For the
@@ -67,21 +69,23 @@ can be referenced via dot notation. --]
 
 [#function getAzureResourceProfile(resourceType, serviceType="")]
 
+    [@debug message="azureResourceProfiles" context=azureResourceProfiles enabled=false /]
+    
     [#local profileObj = {}]
 
     [#-- Service has been provided, so lookup can be specific --]
     [#if serviceType?has_content]
-        [#list blueprintObject.ResourceProfiles["azure"][serviceType] as resource, attr]
+        [#list azureResourceProfiles[serviceType] as resource, attr]
             [#if resource == resourceType]
-                [#local profileObj = blueprintObject.ResourceProfiles["azure"][serviceType][resource]]
+                [#local profileObj = azureResourceProfiles[serviceType][resource]]
             [/#if]
         [/#list]
     [#else]
         [#-- Service has not been specific, check all Services for the resourceType --]
-        [#list blueprintObject.ResourceProfiles["azure"] as service, resources]
+        [#list azureResourceProfiles as service, resources]
             [#list resources as resource]
                 [#if resource == resourceType]
-                    [#local profileObj = blueprintObject.ResourceProfiles["azure"][service][resource]]
+                    [#local profileObj = azureResourceProfiles[service][resource]]
                 [/#if]
             [/#list]
         [/#list]
