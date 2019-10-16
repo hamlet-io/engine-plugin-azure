@@ -44,6 +44,14 @@
   AZURE_NETWORK_WATCHER_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
     "type" : "Microsoft.Network/networkWatchers"
+  },
+  AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE : {
+    "apiVersion" : "2018-09-01",
+    "type" : "Microsoft.Network/privateDnsZones"
+  },
+  AZURE_PRIVATE_DNS_ZONE_VNET_LINK_RESOURCE_TYPE : {
+    "apiVersion" : "2018-09-01",
+    "type" : "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
   }
 }]
 
@@ -456,6 +464,47 @@
     outputs=outputs
     dependsOn=dependsOn
   /]
+[/#macro]
+
+[#macro createPrivateDnsZone
+  id
+  name
+  location]
+  
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE
+    location=location
+    properties={}
+  /]
+[/#macro]
+
+[#macro createPrivateDnsZoneVnetLink
+  id
+  name
+  location
+  vnetId
+  autoRegistrationEnabled=false]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_PRIVATE_DNS_ZONE_VNET_LINK_RESOURCE_TYPE
+    location=location
+    properties=
+      {
+        "virtualNetwork" : {
+          "id" : vnetId
+        } +
+        attributeIfTrue(
+          "registrationEnabled",
+          autoRegistrationEnabled,
+          autoRegistrationEnabled
+        )
+      }
+  /]
+
 [/#macro]
 
 [#-- 
