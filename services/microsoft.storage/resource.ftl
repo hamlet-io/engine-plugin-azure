@@ -57,13 +57,21 @@
         }
     }
 ]
-[#assign outputMappings += 
+[#local mappings = 
     {
         AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
         AZURE_BLOBSERVICE_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
         AZURE_STORAGEACCOUNT_RESOURCE_TYPE : STORAGE_ACCOUNT_OUTPUT_MAPPINGS
     }
 ]
+
+[#list mappings as type, mappings]
+    [@addOutputMapping 
+        provider=AZURE_PROVIDER
+        resourceType=type
+        mappings=mappings
+    /]
+[/#list]
 
 [#function getStorageSku tier replication reasonCodes...]
     [#return
