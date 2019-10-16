@@ -57,7 +57,7 @@
         }
     }
 ]
-[#local mappings = 
+[#assign storageMappings = 
     {
         AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
         AZURE_BLOBSERVICE_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
@@ -65,7 +65,7 @@
     }
 ]
 
-[#list mappings as type, mappings]
+[#list storageMappings as type, mappings]
     [@addOutputMapping 
         provider=AZURE_PROVIDER
         resourceType=type
