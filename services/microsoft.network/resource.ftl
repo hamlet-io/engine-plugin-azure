@@ -67,12 +67,17 @@
   }
 ]
 
-[#assign outputMappings += 
-  {
-    AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE : VIRTUAL_NETWORK_OUTPUT_MAPPINGS,
-    AZURE_SUBNET_RESOURCE_TYPE : SUBNET_OUTPUT_MAPPINGS
-  }
-]
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
+  mappings=VIRTUAL_NETWORK_OUTPUT_MAPPINGS
+/]
+
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_SUBNET_RESOURCE_TYPE
+  mappings=SUBNET_OUTPUT_MAPPINGS
+/]
 
 [#macro createApplicationSecurityGroup name location tags={}]
   [@armResource
