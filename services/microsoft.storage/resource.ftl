@@ -196,7 +196,8 @@
     deleteRetentionPolicy={}
     automaticSnapshotPolicyEnabled=false
     resources=[]
-    dependsOn=[]]
+    dependsOn=[]
+    parentNames=[]]
 
     [#assign CORSRules = []]
     [#list CORSBehaviours as behaviour]
@@ -218,6 +219,7 @@
 
     [@armResource
         name=name
+        parentNames=parentNames
         profile=AZURE_BLOBSERVICE_RESOURCE_TYPE
         dependsOn=dependsOn
         resources=resources
@@ -237,10 +239,12 @@
     publicAccess=false
     metadata={}
     resources=[]
-    dependsOn=[]]
+    dependsOn=[]
+    parentNames=[]]
 
     [@armResource
         name=name
+        parentNames=parentNames
         profile=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         resources=resources
         dependsOn=dependsOn
