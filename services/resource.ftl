@@ -44,17 +44,13 @@ Id of a resource within the same template, only the resourceId is necessary.
  --]
 [#function formatAzureResourceIdReference
     resourceId
-    resourceType=""
     subscriptionId=""
     resourceGroupName=""
     resourceNames...]
     
-    [#if ! resourceType?has_content]
-        [#local resourceType = getResourceType(resourceId)]
-    [/#if]
-
+    [#local resourceType = getAzureResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local conditions = resourceProfile.conditions]
+    [#local conditions = resourceProfile.conditions![]]
 
     [#-- resource conditions processing --]
     [#if conditions?has_content]
@@ -127,13 +123,7 @@ Id of a resource within the same template, only the resourceId is necessary.
             (this is typically 1 for the child, and 1 per parent resource.)
 --]
 [#function formatAzureResourceName name parentNames=[]]
-
-    [#if parentNames?has_content]
-        [#return formatRelativePath( (parentNames![]), name) ]
-    [#else]
-        [#return name]
-    [/#if]
-
+    [#return formatRelativePath( (parentNames![]), name) ]
 [/#function]
 
 [#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
@@ -142,25 +132,13 @@ the previous function as the ARM function will return a full object, from which 
 can be referenced via dot notation. --]
 [#function formatAzureResourceReference
     resourceId
-    resourceType=""
     serviceType=""
     parentNames=[]
     attributes... 
     ]
 
-    [#if ! resourceType?has_content]
-        [#local resourceType = getResourceType(resourceId)]
-    [/#if]
+    [#local resourceType = getAzureResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
-
-    [#-- Type/ApiVersion are Mandatory for all Azure Resources, so validate they exist. --]
-    [#if ! (resourceProfile["type"]?has_content || resourceProfile["apiVersion"]?has_content || resourceProfile["conditions"]?has_content)]
-        [@fatal
-            message="Azure Resource Profile is incomplete. Requires 'type', 'apiVersion' and 'conditions' attributes for all resources."
-            context=resourceProfile
-        /]
-    [/#if]
-
     [#local apiVersion = resourceProfile.apiVersion]
     [#local typeFull = resourceProfile.type]
     [#local conditions = resourceProfile.conditions]
@@ -189,39 +167,14 @@ can be referenced via dot notation. --]
         [/#list]
     [/#if]
 
-    [#local azureResourceIdentifier = formatAzureResourceIdReference(resourceId, resourceType)]
-    [#local segmentedName = formatAzureResourceName(resourceId, parentNames)]
-
-    [#if attributes?has_content && isPartOfCurrentDeploymentUnit(resourceId)]
         [#-- Listed in current deployment /w attr, use shorthand reference() call --]
         [#-- Example: "[reference(resourceId, 'Full').properties.attribute]"  --]
         [#return
-            "[reference('" + segmentedName + "', 'Full')." + attributes?join(".") + "]"
+            "[reference(resourceId('" + typeFull + "', '" + (parentNames?has_content)?then(parentNames?join("', '") + "', '", "") + resourceId + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
         ]
-    [#elseif attributes?has_content]
-        [#-- In another deployment unit /w attr, use long form reference() call --]
-        [#-- Example: "[reference(typeFull/resourceId, "2019-09-09", 'Full').properties.attribute]"  --]
-        [#return
-            "[reference(resourceId('" + azureResourceIdentifier + "'), " + apiVersion + ", 'Full')." + attributes?join(".") + "]"
-        ]
-    [#elseif isPartOfCurrentDeploymentUnit(resourceId)!false]
-        [#-- Listed in current deployment w/o attr, use shorthand reference() call --]
-        [#-- Example: "[reference(resourceId, 'Full')]"  --]
-        [#return 
-            "[reference(concat('" + typeFull + "/', '" + segmentedName + "'), '" + apiVersion + "', 'Full')]"
-        ]
-    [#else]
-        [#-- In another deployment unit w/o attr, use long form reference() call --]
-        [#-- Example: "[reference(resourceId(resourceType, resourceName), '2018-07-01', 'Full)]" --]
-        [#return
-            "[reference(resourceId('" + azureResourceIdentifier +  + "'), " + apiVersion + ", 'Full')]"
-        ]
-    [/#if]
 [/#function]
 
 [#function getAzureResourceProfile resourceType serviceType=""]
-
-    [#local profileObj = {}]
 
     [#-- Service has been provided, so lookup can be specific --]
     [#if serviceType?has_content]
@@ -273,7 +226,7 @@ can be referenced via dot notation. --]
     [#if ((!(inRegion?has_content)) || (inRegion == region)) &&
         isPartOfCurrentDeploymentUnit(resourceId)]
         [#if attributeType?has_content]
-            [#local resourceType = getResourceType(resourceId)]
+            [#local resourceType = getAzureResourceType(resourceId)]
             [#local mapping = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType)]
             [#if (mapping.Attribute)?has_content]
                 [#return
@@ -301,6 +254,12 @@ can be referenced via dot notation. --]
     ]
 [/#function]
 
+[#-- Due to azure resource names having multiple segments, Azure requires
+its own function to return the first split of the last segment --]
+[#function getAzureResourceType resourceId]
+    [#return resourceId?split("/")?last?split("X")[0]]
+[/#function]
+
 [#-------------------------------------------------------
 -- Internal support functions for resource processing --
 ---------------------------------------------------------]
@@ -310,10 +269,14 @@ can be referenced via dot notation. --]
         [#assign azureResourceProfiles = 
             mergeObjects(
                 azureResourceProfiles,
-                { service : { resource : getCompositeObject(
-                    azureResourceProfilesConfiguration.Attributes,
-                    profile
-                )}} 
+                { 
+                    service : {
+                        resource : getCompositeObject(
+                            azureResourceProfilesConfiguration.Attributes,
+                            profile
+                        )
+                    }
+                } 
             )
         ]
     [/#if]

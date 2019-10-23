@@ -102,7 +102,7 @@
             resources=[]
             dependsOn=
                 [
-                    formatAzureResourceIdReference(accountId, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)
+                    formatAzureResourceIdReference(accountId)
                 ]
         /]
 
@@ -113,8 +113,8 @@
             publicAccess=solution.PublicAccess.Enabled
             dependsOn=
                 [
-                    formatAzureResourceIdReference(accountId, AZURE_STORAGEACCOUNT_RESOURCE_TYPE),
-                    formatAzureResourceIdReference(blobId, AZURE_BLOBSERVICE_RESOURCE_TYPE, "", "", accountId)
+                    formatAzureResourceIdReference(accountId),
+                    formatAzureResourceIdReference(blobId, "", "", accountId)
                 ]      
         /]
 

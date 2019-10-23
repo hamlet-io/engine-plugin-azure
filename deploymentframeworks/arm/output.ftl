@@ -83,45 +83,29 @@
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local conditions = resourceProfile.conditions]
+    [#-- we always want to apply the right number of segments to a 
+    resource name, but only after other conditional changes --]
     [#local conditions += ["segment_out_names"]]
 
-    [#-- Resource Profile Conditions Processing --]
-    [#local resourceContent = 
-        {
-            "name": name,
-            "type": resourceProfile.type,
-            "apiVersion": resourceProfile.apiVersion,
-            "properties": properties
-        } +
-        attributeIfContent("identity", identity) +
-        attributeIfContent("location", location) +
-        attributeIfContent("dependsOn", dependsOn) +
-        attributeIfContent("tags", tags) +
-        attributeIfContent("comments", comments) +
-        attributeIfContent("copy", copy) +
-        attributeIfContent("sku", sku) +
-        attributeIfContent("kind", kind) +
-        attributeIfContent("plan", plan) +
-        attributeIfContent("resources", resources)
-    ]
+    [#-- Keep a copy of the original resource name for lookups before its altered --]
+    [#local lookupName = name]
 
     [#list conditions as condition]
         [#switch condition]
             [#case "name_to_lower"]
-                [#local resourceContent = mergeObjects(
-                    resourceContent,
-                    { "name" : name?lower_case }
-                )]
+                [#local name = name?lower_case]
                 [#break]
             [#case "parent_to_lower"]
+                [#local newParentNames = []]
+                [#list parentNames as parent]
+                    [#local newParentNames += [parent?lower_case]]
+                [/#list]
+                [#local parentNames = newParentNames]
                 [#break]
             [#case "segment_out_names"]
                 [#-- This will always happen last --]
                 [#local outputName = formatAzureResourceName(name, parentNames)]
-                 [#local resourceContent = mergeObjects(
-                    resourceContent,
-                    { "name" : outputName }
-                )]
+                 [#local name = outputName]
                 [#break]
             [#default]
                 [@fatal message="Azure Resource Profile Condition does not exist." context=condition /]
@@ -131,14 +115,31 @@
 
     [@addToJsonOutput 
         name="resources"
-        content=[resourceContent]
+        content=[
+            {
+                "name": name,
+                "type": resourceProfile.type,
+                "apiVersion": resourceProfile.apiVersion,
+                "properties": properties
+            } +
+            attributeIfContent("identity", identity) +
+            attributeIfContent("location", location) +
+            attributeIfContent("dependsOn", dependsOn) +
+            attributeIfContent("tags", tags) +
+            attributeIfContent("comments", comments) +
+            attributeIfContent("copy", copy) +
+            attributeIfContent("sku", sku) +
+            attributeIfContent("kind", kind) +
+            attributeIfContent("plan", plan) +
+            attributeIfContent("resources", resources)
+        ]
     /]
 
     [#list outputs as outputType,outputValue]
         [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
 
             [#-- format the ARM function: resourceId() --]
-            [#local reference=formatAzureResourceIdReference(outputName, type)]
+            [#local reference=formatAzureResourceIdReference(lookupName)]
 
             [@armOutput
                 name=name
@@ -150,16 +151,14 @@
 
             [#-- format the ARM function: reference() --] 
             [#local reference=formatAzureResourceReference(
-                outputName,
-                type,
+                lookupName,
                 "",
                 parentNames,
                 outputValue.Property!""
             )]
     
             [@armOutput
-                name=formatAttributeId(name, outputType)
-                type="string"
+                name=formatAttributeId(lookupName, outputType)
                 type=((outputValue.Property?has_content)!false)?then(
                     "string",
                     "object"
@@ -190,7 +189,8 @@
                 "outputs":
                     getOutputContent("outputs") +
                     getArmTemplateCoreOutputs()
-            }
+            } [#-- +
+            attributeIfContent("COTMessages", logMessages) --]
         /]
     [/#if]
 [/#macro]

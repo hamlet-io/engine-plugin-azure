@@ -18,7 +18,7 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts/blobServices",
-            "conditions" : [ "parent_to_lower" ]
+            "conditions" : [ "name_to_lower", "parent_to_lower" ]
         }
 /]
 
@@ -29,7 +29,7 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "conditions" : [ "parent_to_lower" ]
+            "conditions" : [ "name_to_lower", "parent_to_lower" ]
         }
 /]
 
