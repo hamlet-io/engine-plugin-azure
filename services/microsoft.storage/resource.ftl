@@ -206,12 +206,12 @@
 
 [#macro createBlobService
     name
+    accountId
     CORSBehaviours=[]
     deleteRetentionPolicy={}
     automaticSnapshotPolicyEnabled=false
     resources=[]
-    dependsOn=[]
-    parentNames=[]]
+    dependsOn=[]]
 
     [#assign CORSRules = []]
     [#list CORSBehaviours as behaviour]
@@ -233,7 +233,7 @@
 
     [@armResource
         name=name
-        parentNames=parentNames
+        parentNames=[accountId]
         profile=AZURE_BLOBSERVICE_RESOURCE_TYPE
         dependsOn=dependsOn
         resources=resources
@@ -250,15 +250,16 @@
 
 [#macro createBlobServiceContainer
     name
+    accountId
+    blobId
     publicAccess=false
     metadata={}
     resources=[]
-    dependsOn=[]
-    parentNames=[]]
+    dependsOn=[]]
 
     [@armResource
         name=name
-        parentNames=parentNames
+        parentNames=[accountId, blobId]
         profile=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         resources=resources
         dependsOn=dependsOn
