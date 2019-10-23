@@ -79,15 +79,41 @@ can be referenced via dot notation. --]
     [/#if]
 
     [#-- Type/ApiVersion are Mandatory for all Azure Resources, so validate they exist. --]
-    [#if ! (resourceProfile["type"]?has_content || resourceProfile["apiVersion"]?has_content)]
+    [#if ! (resourceProfile["type"]?has_content || resourceProfile["apiVersion"]?has_content || resourceProfile["conditions"]?has_content)]
         [@fatal
-            message="Azure Resource Profile is incomplete. Requires 'type' and 'apiVersion' attributes for all resources."
+            message="Azure Resource Profile is incomplete. Requires 'type', 'apiVersion' and 'conditions' attributes for all resources."
             context=resourceProfile
         /]
     [/#if]
 
     [#local apiVersion = resourceProfile.apiVersion]
     [#local typeFull = resourceProfile.type]
+    [#local conditions = resourceProfile.conditions]
+
+    [#-- Resource Profile Conditions handling --]
+    [#if conditions?size gt 0]
+        [#list conditions as condition]
+            [#switch condition]
+                [#case "name_to_lower"]
+                    [#local resourceId = resourceId?lower_case]
+                    [#break]
+                [#case "parent_to_lower"]
+                    [#local parentNamesLower = []]
+                    [#list parentNames as parent]
+                        [#local parentNamesLower += [parent?lower_case] ]
+                    [/#list]
+                    [#local parentNames = parentNamesLower]
+                    [#break]
+                [#default]
+                    [@fatal
+                        message="Azure Resource Profile Condition does not exist."
+                        context=condition
+                    /]
+                    [#break]
+            [/#switch]
+        [/#list]
+    [/#if]
+
     [#local azureResourceIdentifier = formatAzureResourceIdReference(resourceId, resourceType)]
     [#local segmentedName = formatAzureResourceName(resourceId, parentNames)]
 
@@ -107,7 +133,7 @@ can be referenced via dot notation. --]
         [#-- Listed in current deployment w/o attr, use shorthand reference() call --]
         [#-- Example: "[reference(resourceId, 'Full')]"  --]
         [#return 
-            "[reference(concat('" + typeFull + "/', '" + segmentedName?lower_case + "'), '" + apiVersion + "', 'Full')]"
+            "[reference(concat('" + typeFull + "/', '" + segmentedName + "'), '" + apiVersion + "', 'Full')]"
         ]
     [#else]
         [#-- In another deployment unit w/o attr, use long form reference() call --]

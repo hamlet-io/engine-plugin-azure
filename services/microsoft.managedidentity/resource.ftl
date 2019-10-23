@@ -5,7 +5,8 @@
         AZURE_IAM_SERVICE : {
             AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE : {
                 "apiVersion" : "2018-11-30",
-                "type" : "Microsoft.ManagedIdentity/userAssignedIdentities"
+                "type" : "Microsoft.ManagedIdentity/userAssignedIdentities",
+                "conditions" : []
             }
         }
     }

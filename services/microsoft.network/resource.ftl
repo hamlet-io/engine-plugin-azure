@@ -5,47 +5,58 @@
     AZURE_NETWORK_SERVICE : {
       AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE : {
         "apiVersion" : "2019-04-01",
-        "type" : "Microsoft.Network/applicationSecurityGroups"
+        "type" : "Microsoft.Network/applicationSecurityGroups",
+        "conditions" : []
       },
       AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/routeTables"
+        "type" : "Microsoft.Network/routeTables",
+        "conditions" : []
       },
       AZURE_ROUTE_TABLE_ROUTE_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/routeTables/routes"
+        "type" : "Microsoft.Network/routeTables/routes",
+        "conditions" : []
       },
       AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/serviceEndpointPolicies"
+        "type" : "Microsoft.Network/serviceEndpointPolicies",
+        "conditions" : []
       },
       AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions"
+        "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions",
+        "conditions" : []
       },
       AZURE_SUBNET_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/virtualNetworks/subnets"
+        "type" : "Microsoft.Network/virtualNetworks/subnets",
+        "conditions" : []
       },
       AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/virtualNetworks"
+        "type" : "Microsoft.Network/virtualNetworks",
+        "conditions" : []
       },
       AZURE_VIRTUAL_NETWORK_PEERING_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+        "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+        "conditions" : []
       },
       AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE : {
         "apiVersion" : "2019-02-01",
-        "type" : "Microsoft.Network/networkSecurityGroups"
+        "type" : "Microsoft.Network/networkSecurityGroups",
+        "conditions" : []
       },
       AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE : {
         "apiVersion" : "2019-04-01",
-        "type" : "Microsoft.Network/networkSecurityGroups/securityRules"
+        "type" : "Microsoft.Network/networkSecurityGroups/securityRules",
+        "conditions" : []
       },
       AZURE_NETWORK_WATCHER_RESOURCE_TYPE : {
         "apiVersion" : "2019-04-01",
-        "type" : "Microsoft.Network/networkWatchers"
+        "type" : "Microsoft.Network/networkWatchers",
+        "conditions" : []
       }
     }
   }
