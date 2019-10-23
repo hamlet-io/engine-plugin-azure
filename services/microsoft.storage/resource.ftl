@@ -1,26 +1,37 @@
 [#ftl]
 
-[#assign azureResourceProfiles +=
-    {
-        AZURE_STORAGE_SERVICE : {
-            AZURE_STORAGEACCOUNT_RESOURCE_TYPE : {
-                "apiVersion" : "2019-04-01",
-                "type" : "Microsoft.Storage/storageAccounts",
-                "conditions" : [ "name_to_lower" ] [#-- TODO: Impliment conditions, and add resourceId() functionality --]
-            },
-            AZURE_BLOBSERVICE_RESOURCE_TYPE : {
-                "apiVersion" : "2019-04-01",
-                "type" : "Microsoft.Storage/storageAccounts/blobServices",
-                "conditions" : [ "parent_to_lower" ]
-            },
-            AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE : {
-                "apiVersion" : "2019-04-01",
-                "type" : "Microsoft.Storage/storageAccounts/blobServices/containers",
-                "conditions" : [ "parent_to_lower" ]
-            }
+[@addResourceProfile
+    service=AZURE_STORAGE_SERVICE
+    resource=AZURE_STORAGEACCOUNT_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts",
+            "conditions" : [ "name_to_lower" ]
         }
-    }
-]
+/]
+
+[@addResourceProfile
+    service=AZURE_STORAGE_SERVICE
+    resource=AZURE_BLOBSERVICE_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts/blobServices",
+            "conditions" : [ "parent_to_lower" ]
+        }
+/]
+
+[@addResourceProfile
+    service=AZURE_STORAGE_SERVICE
+    resource=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2019-04-01",
+            "type" : "Microsoft.Storage/storageAccounts/blobServices/containers",
+            "conditions" : [ "parent_to_lower" ]
+        }
+/]
 
 [#assign STORAGE_ACCOUNT_OUTPUT_MAPPINGS =
     {

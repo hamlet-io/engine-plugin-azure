@@ -2,6 +2,41 @@
 
 [#-- Azure Resource Profiles --]
 [#assign azureResourceProfiles = {}]
+[#assign azureResourceProfilesConfiguration = 
+    {
+        "Properties" : [
+            {
+                "Type" : "",
+                "Value" : "Attributes of a Resource Profile."
+            }
+        ],
+        "Attributes" : [
+            {
+                "Names" : "type",
+                "Type" : STRING_TYPE,
+                "Mandatory" : true
+            },
+            {
+                "Names" : "apiVersion",
+                "Type" : STRING_TYPE,
+                "Mandatory" : true
+            },
+            {
+                "Names" : "conditions",
+                "Type" : ARRAY_OF_STRING_TYPE,
+                "Default" : []
+            }
+        ]
+    }
+]
+
+[#macro addResourceProfile service resource profile]
+    [@internalMergeResourceProfiles
+        service=service
+        resource=resource
+        profile=profile
+    /]
+[/#macro]
 
 [#-- Formats a given resourceId into an azure resourceId lookup function.
 The scope of the lookup is dependant on the attributes provided. For the
@@ -225,3 +260,21 @@ can be referenced via dot notation. --]
             inRegion)
     ]
 [/#function]
+
+[#-------------------------------------------------------
+-- Internal support functions for resource processing --
+---------------------------------------------------------]
+
+[#macro internalMergeResourceProfiles service resource profile]
+    [#if profile?has_content ]
+        [#assign azureResourceProfiles = 
+            mergeObjects(
+                azureResourceProfiles,
+                { service : { resource : getCompositeObject(
+                    azureResourceProfilesConfiguration.Attributes,
+                    profile
+                )}} 
+            )
+        ]
+    [/#if]
+[/#macro]
