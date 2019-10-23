@@ -119,6 +119,8 @@
                     { "name" : segmentedName?lower_case }
                 )]
                 [#break]
+            [#case "parent_to_lower"]
+                [#break]
             [#default]
                 [@fatal
                     message="Azure Resource Profile Condition does not exist."
