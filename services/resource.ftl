@@ -76,15 +76,8 @@ Id of a resource within the same template, only the resourceId is necessary.
 --]
 [#function formatAzureResourceName name parentNames=[]]
 
-    [#local nameSegments = []]
-    
-    [#list parentNames as segment]
-        [#local nameSegments += [segment]]
-    [/#list]
-    [#local nameSegments += [name]]
-
-    [#if nameSegments?size gt 1]
-        [#return nameSegments?join("/")]
+    [#if parentNames?has_content]
+        [#return formatRelativePath( (parentNames![]), name) ]
     [#else]
         [#return name]
     [/#if]
