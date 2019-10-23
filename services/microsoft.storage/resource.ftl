@@ -92,7 +92,7 @@
         {
             "name" : [tier, replication]?join("_")
         } +
-        attributeIfContent("restrictions", asArray(reasonCodes))
+        attributeIfContent("restrictions", reasonCodes)
     ]
 [/#function]
 
@@ -115,8 +115,8 @@
         {
             "defaultAction": defaultAction
         } +
-        attributeIfContent("ipRules", asArray(ipRules)) +
-        attributeIfContent("virtualNetworkRules", asArray(virtualNetworkRules)) +
+        attributeIfContent("ipRules", ipRules) +
+        attributeIfContent("virtualNetworkRules", virtualNetworkRules) +
         attributeIfContent("bypass", bypass)
     ]
 [/#function]
@@ -155,11 +155,11 @@
 
     [#return
         {
-            "allowedOrigins": asArray(allowedOrigins),
-            "allowedMethods": asArray(allowedMethods),
+            "allowedOrigins": allowedOrigins,
+            "allowedMethods": allowedMethods,
             "maxAgeInSeconds": maxAgeInSeconds,
-            "exposedHeaders": asArray(exposedHeaders),
-            "allowedHeaders": asArray(allowedHeaders)
+            "exposedHeaders": exposedHeaders,
+            "allowedHeaders": allowedHeaders
         }
     ]
 [/#function]
@@ -181,7 +181,6 @@
     supportHttpsTrafficOnly=true
     isHnsEnabled=false
     dependsOn=[]]
-
     [@armResource
         name=name
         profile=AZURE_STORAGEACCOUNT_RESOURCE_TYPE
@@ -242,7 +241,7 @@
             {
                 "defaultServiceVersion": "2019-04-01"
             } + 
-            attributeIfContent("CORSRules", asArray(CORSRules)) +
+            attributeIfContent("CORSRules", CORSRules) +
             attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) + 
             attributeIfTrue("automaticSnapshotPolicyEnabled", automaticSnapshotPolicyEnabled, automaticSnapshotPolicyEnabled)
     /]

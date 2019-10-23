@@ -53,17 +53,69 @@ Id of a resource within the same template, only the resourceId is necessary.
         [#local resourceType = getResourceType(resourceId)]
     [/#if]
 
-    [#local args = []]
-    [#list [subscriptionId, resourceGroupName, resourceType, resourceId, resourceNames] as arg]
+    [#local resourceProfile = getAzureResourceProfile(resourceType)]
+    [#local conditions = resourceProfile.conditions]
 
+    [#-- resource conditions processing --]
+    [#if conditions?has_content]
+        [#list conditions as condition]
+            [#switch condition]
+                [#case "name_to_lower"]
+                    [#local resourceId = resourceId?lower_case]
+                    [#break]
+                [#case "parent_to_lower"]
+                    [#local parentNamesLower = []]
+                    [#list resourceNames as parent]
+                        [#local parentNamesLower += [parent?lower_case] ]
+                    [/#list]
+                    [#local resourceNames = parentNamesLower]
+                    [#break]
+                [#default]
+                    [@fatal
+                        message="Error formatting Resource Id Reference: Azure Resource Profile Condition does not exist."
+                        context=condition
+                    /]
+                    [#break]
+            [/#switch]
+        [/#list]
+    [/#if]
+
+    [#local args = []]
+    [#list [subscriptionId, resourceGroupName, resourceProfile.type] as arg]
         [#if arg?has_content]
             [#local args += [arg]]
         [/#if]
-
-        [#return
-            "[resourceId(" + args?join(", ") + ")]"
-        ]
     [/#list]
+
+    [#list resourceNames as nameSegment]
+        [#local args += [nameSegment]]
+    [/#list]
+
+    [#-- Ensure the resource Id comes after the parent names --]
+    [#local args += [resourceId]]
+
+    [#return
+        "[resourceId('" + args?join("', '") + "')]"
+    ]
+
+[/#function]
+
+[#-- 
+    Azure has strict rules around resource name "segments" (parts seperated by a '/'). 
+    The rules that must be adhered to are:
+        - A root level resource must have one less segment in the name than the 
+            resource type (typically just the 1 segment).
+        - Child resources must have the same number of segments as the child type.
+            (this is typically 1 for the child, and 1 per parent resource.)
+--]
+[#function formatAzureResourceName name parentNames=[]]
+
+    [#if parentNames?has_content]
+        [#return formatRelativePath( (parentNames![]), name) ]
+    [#else]
+        [#return name]
+    [/#if]
+
 [/#function]
 
 [#-- 
@@ -99,12 +151,7 @@ can be referenced via dot notation. --]
     [#if ! resourceType?has_content]
         [#local resourceType = getResourceType(resourceId)]
     [/#if]
-
-    [#if serviceType?has_content]
-        [#local resourceProfile = getAzureResourceProfile(resourceType, serviceType)]
-    [#else]
-        [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [/#if]
+    [#local resourceProfile = getAzureResourceProfile(resourceType)]
 
     [#-- Type/ApiVersion are Mandatory for all Azure Resources, so validate they exist. --]
     [#if ! (resourceProfile["type"]?has_content || resourceProfile["apiVersion"]?has_content || resourceProfile["conditions"]?has_content)]
@@ -134,7 +181,7 @@ can be referenced via dot notation. --]
                     [#break]
                 [#default]
                     [@fatal
-                        message="Azure Resource Profile Condition does not exist."
+                        message="Error formatting resource reference: Azure Resource Profile Condition does not exist."
                         context=condition
                     /]
                     [#break]

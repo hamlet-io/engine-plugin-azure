@@ -6,6 +6,7 @@
         [@addDefaultGenerationPlan subsets="template" /]
         [#return]
     [/#if]
+
     [#local core = occurrence.Core ]
     [#local solution = occurrence.Configuration.Solution ]
     [#local resources = occurrence.State.Resources ]
@@ -21,8 +22,6 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)]
     --]
-
-    [#local dependencies = [] ]
 
     [#-- Add NetworkACL Configuration --]
     [#local virtualNetworkRulesConfiguration = []]
@@ -53,13 +52,11 @@
     [#list storageCIDRs as cidr]
         [#local ipRulesConfiguration += asArray(getStorageNetworkAclsIpRules(cidr, "Allow"))]
     [/#list]
-    [#local networkAclsConfiguration = getStorageNetworkAcls(
-                                        "Deny",
-                                        ipRulesConfiguration,
-                                        virtualNetworkRulesConfiguration,
-                                        "None")
-    ]
 
+
+    [#local ipRulesConfiguration = []]
+    [#local networkAclsConfiguration = getStorageNetworkAcls("Deny", ipRulesConfiguration, virtualNetworkRulesConfiguration, "None")]
+    
     [#-- Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
         [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
@@ -90,7 +87,6 @@
                     {}
                 )
             isHnsEnabled=(storageProfile.HnsEnabled!false)
-            dependsOn=dependencies
         /]
 
         [@createBlobService 
@@ -104,7 +100,10 @@
                 )
             automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots!false)
             resources=[]
-            dependsOn=dependencies
+            dependsOn=
+                [
+                    formatAzureResourceIdReference(accountId, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)
+                ]
         /]
 
         [@createBlobServiceContainer 
@@ -112,7 +111,11 @@
             accountId=accountId
             blobId=blobId
             publicAccess=solution.PublicAccess.Enabled
-            dependsOn=dependencies        
+            dependsOn=
+                [
+                    formatAzureResourceIdReference(accountId, AZURE_STORAGEACCOUNT_RESOURCE_TYPE),
+                    formatAzureResourceIdReference(blobId, AZURE_BLOBSERVICE_RESOURCE_TYPE, "", "", accountId)
+                ]      
         /]
 
     [/#if]

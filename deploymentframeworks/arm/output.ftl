@@ -82,19 +82,13 @@
     --]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
-    [#if ! (resourceProfile["type"]?has_content || resourceProfile["apiVersion"]?has_content || resourceProfile["conditions"]?has_content)]
-        [@fatal
-            message="Azure Resource Profile is incomplete. Requires 'type' and 'apiVersion' attributes for all resources."
-            context=resourceProfile
-        /]
-    [/#if]
-    
-    [#local segmentedName = formatAzureResourceName(name, parentNames)]
+    [#local conditions = resourceProfile.conditions]
+    [#local conditions += ["segment_out_names"]]
 
     [#-- Resource Profile Conditions Processing --]
     [#local resourceContent = 
         {
-            "name": segmentedName,
+            "name": name,
             "type": resourceProfile.type,
             "apiVersion": resourceProfile.apiVersion,
             "properties": properties
@@ -111,21 +105,26 @@
         attributeIfContent("resources", resources)
     ]
 
-    [#list resourceProfile.conditions as condition]
+    [#list conditions as condition]
         [#switch condition]
             [#case "name_to_lower"]
                 [#local resourceContent = mergeObjects(
                     resourceContent,
-                    { "name" : segmentedName?lower_case }
+                    { "name" : name?lower_case }
                 )]
                 [#break]
             [#case "parent_to_lower"]
                 [#break]
+            [#case "segment_out_names"]
+                [#-- This will always happen last --]
+                [#local outputName = formatAzureResourceName(name, parentNames)]
+                 [#local resourceContent = mergeObjects(
+                    resourceContent,
+                    { "name" : outputName }
+                )]
+                [#break]
             [#default]
-                [@fatal
-                    message="Azure Resource Profile Condition does not exist."
-                    context=condition
-                /]
+                [@fatal message="Azure Resource Profile Condition does not exist." context=condition /]
                 [#break]
         [/#switch]
     [/#list]
@@ -139,7 +138,7 @@
         [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
 
             [#-- format the ARM function: resourceId() --]
-            [#local reference=formatAzureResourceIdReference(segmentedName, type)]
+            [#local reference=formatAzureResourceIdReference(outputName, type)]
 
             [@armOutput
                 name=name
@@ -148,27 +147,25 @@
             /]
             
         [#else]
-            [#if outputValue.Property?has_content!false]
 
-                [#-- format the ARM function: reference() --] 
-                [#local reference=formatAzureResourceReference(
-                    segmentedName,
-                    type,
-                    "",
-                    parentNames,
-                    outputValue.Property!""
-                )]
-        
-                [@armOutput
-                    name=formatAttributeId(name, outputType)
-                    type="string"
-                    type=((value.Property)!false)?then(
-                        "string",
-                        "object"
-                    )
-                    value=reference
-                /] 
-            [/#if]
+            [#-- format the ARM function: reference() --] 
+            [#local reference=formatAzureResourceReference(
+                outputName,
+                type,
+                "",
+                parentNames,
+                outputValue.Property!""
+            )]
+    
+            [@armOutput
+                name=formatAttributeId(name, outputType)
+                type="string"
+                type=((outputValue.Property?has_content)!false)?then(
+                    "string",
+                    "object"
+                )
+                value=reference
+            /] 
         [/#if]
     [/#list]
 [/#macro]
