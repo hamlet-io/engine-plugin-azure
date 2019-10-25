@@ -45,6 +45,7 @@
 [/#macro]
 
 [#macro armResource
+    id
     name
     profile
     identity={}
@@ -75,43 +76,13 @@
     [#-- 
         [#local localDependencies = [] ]
         [#list asArray(dependencies) as resourceId]
-            [#if getReference(resourceId)?is_hash]
+            [#if getReference(id, name)?is_hash]
                 [#local localDependencies += [resourceId] ]
             [/#if]
         [/#list]
     --]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
-    [#local conditions = resourceProfile.conditions]
-    [#-- we always want to apply the right number of segments to a 
-    resource name, but only after other conditional changes --]
-    [#local conditions += ["segment_out_names"]]
-
-    [#-- Keep a copy of the original resource name for lookups before its altered --]
-    [#local lookupName = name]
-
-    [#list conditions as condition]
-        [#switch condition]
-            [#case "name_to_lower"]
-                [#local name = name?lower_case]
-                [#break]
-            [#case "parent_to_lower"]
-                [#local newParentNames = []]
-                [#list parentNames as parent]
-                    [#local newParentNames += [parent?lower_case]]
-                [/#list]
-                [#local parentNames = newParentNames]
-                [#break]
-            [#case "segment_out_names"]
-                [#-- This will always happen last --]
-                [#local outputName = formatAzureResourceName(name, parentNames)]
-                 [#local name = outputName]
-                [#break]
-            [#default]
-                [@fatal message="Azure Resource Profile Condition does not exist." context=condition /]
-                [#break]
-        [/#switch]
-    [/#list]
 
     [@addToJsonOutput 
         name="resources"
@@ -139,10 +110,16 @@
         [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
 
             [#-- format the ARM function: resourceId() --]
-            [#local reference=formatAzureResourceIdReference(lookupName)]
+            [#local reference=formatAzureResourceIdReference(
+                id,
+                name,
+                "",
+                "",
+                parentNames
+            )]
 
             [@armOutput
-                name=name
+                name=id
                 type="string"
                 value=reference
             /]
@@ -151,14 +128,15 @@
 
             [#-- format the ARM function: reference() --] 
             [#local reference=formatAzureResourceReference(
-                lookupName,
+                id,
+                name,
                 "",
                 parentNames,
                 outputValue.Property!""
             )]
     
             [@armOutput
-                name=formatAttributeId(lookupName, outputType)
+                name=formatAttributeId(id, outputType)
                 type=((outputValue.Property?has_content)!false)?then(
                     "string",
                     "object"

@@ -16,6 +16,15 @@
     [#local blobId = resources["blobService"].Id]
     [#local containerId = resources["container"].Id]
 
+    [#local accountName = resources["storageAccount"].Name]
+    [#local blobName = resources["blobService"].Name]
+    [#local containerName = resources["container"].Name]
+
+    [#-- Process Resource Naming Conditions --]
+    [#local accountNameConfig = processResourceNameConditions(accountName, getResourceType(accountId))]
+    [#local blobNameConfig = processResourceNameConditions(blobName, getResourceType(blobId), accountNameConfig.fullName)]
+    [#local containerNameConfig = processResourceNameConditions(containerName, getResourceType(containerId), accountNameConfig.fullName, blobNameConfig.fullName)]
+
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
     [#-- Baseline component lookup 
@@ -72,7 +81,8 @@
         in gen3\engine\common.ftl just formats a call to the function getCfTemplateCoreTags, which is aws
         provider specific. --]
         [@createStorageAccount
-            name=accountId
+            id=accountId
+            name=accountNameConfig.fullName
             kind=storageProfile.Type
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
             location=regionId
@@ -90,8 +100,9 @@
         /]
 
         [@createBlobService 
-            name=blobId
-            accountId=accountId
+            id=blobId
+            name=blobNameConfig.fullName
+            accountName=accountNameConfig.fullName
             CORSBehaviours=solution.CORSBehaviours
             deleteRetentionPolicy=
                 (solution.Lifecycle.BlobRetentionDays)?has_content?then(
@@ -102,19 +113,20 @@
             resources=[]
             dependsOn=
                 [
-                    formatAzureResourceIdReference(accountId)
+                    formatAzureResourceIdReference(accountId, accountNameConfig.fullName)
                 ]
         /]
 
         [@createBlobServiceContainer 
-            name=containerId
-            accountId=accountId
-            blobId=blobId
+            id=containerId
+            name=containerNameConfig.fullName
+            accountName=accountNameConfig.fullName
+            blobName=blobName
             publicAccess=solution.PublicAccess.Enabled
             dependsOn=
                 [
-                    formatAzureResourceIdReference(accountId),
-                    formatAzureResourceIdReference(blobId, "", "", accountId)
+                    formatAzureResourceIdReference(accountId, accountNameConfig.fullName),
+                    formatAzureResourceIdReference(blobId, blobNameConfig.fullName, "", "", [accountNameConfig.fullName, blobNameConfig.fullName])
                 ]      
         /]
 

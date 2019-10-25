@@ -38,43 +38,61 @@
     /]
 [/#macro]
 
+[#function processResourceNameConditions name profile parents...]
+
+    [#local conditions = getAzureResourceProfile(profile).conditions]
+    [#local conditions += ["segment_out_names"]]
+    [#list conditions as condition]
+        [#switch condition]
+            [#case "alphanumeric_only"]
+                [#local name = name?split("-")?join("")]
+                [#break]
+            [#case "name_to_lower"]
+                [#local name = name?lower_case]
+                [#break]
+            [#case "parent_to_lower"]
+                [#local parentNamesLower = []]
+                [#list asFlattenedArray(parents) as parent]
+                    [#local parentNamesLower += [parent?lower_case] ]
+                [/#list]
+                [#local parents = parentNamesLower]
+                [#break]
+            [#case "segment_out_names"]
+                [#-- This will always happen last --]
+                [#local fullName = formatAzureResourceName(name, parents)]
+                [#break]
+            [#default]
+                [@fatal
+                    message="Error formatting Resource Id Reference: Azure Resource Profile Condition does not exist."
+                    context=condition
+                /]
+                [#break]
+        [/#switch]
+    [/#list]
+
+    [#return 
+        {
+            "name" : name,
+            "fullName" : fullName,
+            "parents" : parents
+        }
+    ]
+
+[/#function]
+
 [#-- Formats a given resourceId into an azure resourceId lookup function.
 The scope of the lookup is dependant on the attributes provided. For the
 Id of a resource within the same template, only the resourceId is necessary.
  --]
 [#function formatAzureResourceIdReference
     resourceId
+    resourceName
     subscriptionId=""
     resourceGroupName=""
-    resourceNames...]
+    parentNames=[]]
     
-    [#local resourceType = getAzureResourceType(resourceId)]
+    [#local resourceType = getResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local conditions = resourceProfile.conditions![]]
-
-    [#-- resource conditions processing --]
-    [#if conditions?has_content]
-        [#list conditions as condition]
-            [#switch condition]
-                [#case "name_to_lower"]
-                    [#local resourceId = resourceId?lower_case]
-                    [#break]
-                [#case "parent_to_lower"]
-                    [#local parentNamesLower = []]
-                    [#list resourceNames as parent]
-                        [#local parentNamesLower += [parent?lower_case] ]
-                    [/#list]
-                    [#local resourceNames = parentNamesLower]
-                    [#break]
-                [#default]
-                    [@fatal
-                        message="Error formatting Resource Id Reference: Azure Resource Profile Condition does not exist."
-                        context=condition
-                    /]
-                    [#break]
-            [/#switch]
-        [/#list]
-    [/#if]
 
     [#local args = []]
     [#list [subscriptionId, resourceGroupName, resourceProfile.type] as arg]
@@ -83,15 +101,15 @@ Id of a resource within the same template, only the resourceId is necessary.
         [/#if]
     [/#list]
 
-    [#list resourceNames as nameSegment]
-        [#local args += [nameSegment]]
+    [#list parentNames as parent]
+        [#local args += [parent]]
     [/#list]
 
-    [#-- Ensure the resource Id comes after the parent names --]
-    [#local args += [resourceId]]
+    [#-- Ensure the post-processing resource name is included in argsnames --]
+    [#local args += [resourceName]]
 
     [#return
-        "[resourceId('" + args?join("', '") + "')]"
+        "[resourceId('" + concatenate(args, "', '") + "')]"
     ]
 
 [/#function]
@@ -132,46 +150,22 @@ the previous function as the ARM function will return a full object, from which 
 can be referenced via dot notation. --]
 [#function formatAzureResourceReference
     resourceId
+    resourceName
     serviceType=""
     parentNames=[]
     attributes... 
     ]
 
-    [#local resourceType = getAzureResourceType(resourceId)]
+    [#local resourceType = getResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
     [#local apiVersion = resourceProfile.apiVersion]
     [#local typeFull = resourceProfile.type]
     [#local conditions = resourceProfile.conditions]
 
-    [#-- Resource Profile Conditions handling --]
-    [#if conditions?size gt 0]
-        [#list conditions as condition]
-            [#switch condition]
-                [#case "name_to_lower"]
-                    [#local resourceId = resourceId?lower_case]
-                    [#break]
-                [#case "parent_to_lower"]
-                    [#local parentNamesLower = []]
-                    [#list parentNames as parent]
-                        [#local parentNamesLower += [parent?lower_case] ]
-                    [/#list]
-                    [#local parentNames = parentNamesLower]
-                    [#break]
-                [#default]
-                    [@fatal
-                        message="Error formatting resource reference: Azure Resource Profile Condition does not exist."
-                        context=condition
-                    /]
-                    [#break]
-            [/#switch]
-        [/#list]
-    [/#if]
-
-        [#-- Listed in current deployment /w attr, use shorthand reference() call --]
-        [#-- Example: "[reference(resourceId, 'Full').properties.attribute]"  --]
-        [#return
-            "[reference(resourceId('" + typeFull + "', '" + (parentNames?has_content)?then(parentNames?join("', '") + "', '", "") + resourceId + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
-        ]
+    [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+    [#return
+        "[reference(resourceId('" + typeFull + "', '" + concatenate(parentNames, "', '") + resourceName + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+    ]
 [/#function]
 
 [#function getAzureResourceProfile resourceType serviceType=""]
@@ -212,7 +206,7 @@ can be referenced via dot notation. --]
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 
-[#function getReference resourceId attributeType="" inRegion=""]
+[#function getReference resourceId resourceName attributeType="" inRegion=""]
     [#if !(resourceId?has_content)]
         [#return ""]
     [/#if]
@@ -226,11 +220,11 @@ can be referenced via dot notation. --]
     [#if ((!(inRegion?has_content)) || (inRegion == region)) &&
         isPartOfCurrentDeploymentUnit(resourceId)]
         [#if attributeType?has_content]
-            [#local resourceType = getAzureResourceType(resourceId)]
+            [#local resourceType = getResourceType(resourceId)]
             [#local mapping = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType)]
             [#if (mapping.Attribute)?has_content]
                 [#return
-                    formatAzureResourceReference(resourceId, resourceType, "", [], "")
+                    formatAzureResourceReference(resourceId, resourceName, resourceType, "", [], "")
                 ]
             [#else]
                 [#return
@@ -243,7 +237,7 @@ can be referenced via dot notation. --]
             [/#if]
         [/#if]
         [#return
-            formatAzureResourceReference(resourceId, "", "", [], "")
+            formatAzureResourceReference(resourceId, resourceName, "", "", [], "")
         ]
     [/#if]
     [#return
