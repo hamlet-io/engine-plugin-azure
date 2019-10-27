@@ -123,24 +123,6 @@ Id of a resource within the same template, only the resourceId is necessary.
             (this is typically 1 for the child, and 1 per parent resource.)
 --]
 [#function formatAzureResourceName name parentNames=[]]
-
-    [#if parentNames?has_content]
-        [#return formatRelativePath( (parentNames![]), name) ]
-    [#else]
-        [#return name]
-    [/#if]
-
-[/#function]
-
-[#-- 
-    Azure has strict rules around resource name "segments" (parts seperated by a '/'). 
-    The rules that must be adhered to are:
-        - A root level resource must have one less segment in the name than the 
-            resource type (typically just the 1 segment).
-        - Child resources must have the same number of segments as the child type.
-            (this is typically 1 for the child, and 1 per parent resource.)
---]
-[#function formatAzureResourceName name parentNames=[]]
     [#return formatRelativePath( (parentNames![]), name) ]
 [/#function]
 
