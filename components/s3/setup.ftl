@@ -23,7 +23,7 @@
     [#-- Process Resource Naming Conditions --]
     [#local accountName = formatAzureResourceName(accountName, getResourceType(accountId))]
     [#local blobName = formatAzureResourceName(blobName, getResourceType(blobId), accountName)]
-    [#local containerName = formatAzureResourceName(containerName, getResourceType(containerId), accountName, blobName)]
+    [#local containerName = formatAzureResourceName(containerName, getResourceType(containerId), blobName)]
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
