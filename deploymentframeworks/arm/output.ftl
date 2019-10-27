@@ -110,13 +110,7 @@
         [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
 
             [#-- format the ARM function: resourceId() --]
-            [#local reference=formatAzureResourceIdReference(
-                id,
-                name,
-                "",
-                "",
-                parentNames
-            )]
+            [#local reference=formatAzureResourceIdReference(id, name)]
 
             [@armOutput
                 name=id
@@ -131,7 +125,6 @@
                 id,
                 name,
                 "",
-                parentNames,
                 outputValue.Property!""
             )]
     
