@@ -38,35 +38,47 @@
     /]
 [/#macro]
 
-[#-- Formats a given resourceId into an azure resourceId lookup function.
-The scope of the lookup is dependant on the attributes provided. For the
-Id of a resource within the same template, only the resourceId is necessary.
- --]
-[#function formatAzureResourceIdReference
+[#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
+a resource, be it previously deployed or within current template. This differs from
+the previous function as the ARM function will return a full object, from which attributes
+can be referenced via dot notation. --]
+[#function formatAzureResourceReference
     resourceId
     resourceName
+    outputType=REFERENCE_ATTRIBUTE_TYPE
     subscriptionId=""
-    resourceGroupName=""]
-    
+    resourceGroupName=""
+    attributes...]
+
     [#local resourceType = getResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
+    [#local apiVersion = resourceProfile.apiVersion]
+    [#local typeFull = resourceProfile.type]
+    [#local conditions = resourceProfile.conditions]
     [#local nameSegments = getAzureResourceNameSegments(resourceName)]
 
-    [#local args = []]
-    [#list [subscriptionId, resourceGroupName, resourceProfile.type] as arg]
-        [#if arg?has_content]
-            [#local args += [arg]]
-        [/#if]
-    [/#list]
+    [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
 
-    [#list nameSegments as segment]
-        [#local args += [segment]]
-    [/#list]
+        [#-- return a reference to the resourceId --]
+        [#local args = []]
+        [#list [subscriptionId, resourceGroupName, resourceProfile.type] as arg]
+            [#if arg?has_content]
+                [#local args += [arg]]
+            [/#if]
+        [/#list]
 
-    [#return
-        "[resourceId('" + concatenate(args, "', '") + "')]"
-    ]
+        [#list nameSegments as segment]
+            [#local args += [segment]]
+        [/#list]
 
+        [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
+    [#else]
+        [#-- return a reference to the specific resources attributes. --]
+        [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+        [#return
+            "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+        ]
+    [/#if]
 [/#function]
 
 [#-- 
@@ -117,29 +129,6 @@ Id of a resource within the same template, only the resourceId is necessary.
     [#return resourceName?split("/")]
 [/#function]
 
-[#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
-a resource, be it previously deployed or within current template. This differs from
-the previous function as the ARM function will return a full object, from which attributes
-can be referenced via dot notation. --]
-[#function formatAzureResourceReference
-    resourceId
-    resourceName
-    serviceType=""
-    attributes...]
-
-    [#local resourceType = getResourceType(resourceId)]
-    [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local apiVersion = resourceProfile.apiVersion]
-    [#local typeFull = resourceProfile.type]
-    [#local conditions = resourceProfile.conditions]
-    [#local nameSegments = getAzureResourceNameSegments(resourceName)]
-
-    [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-    [#return
-        "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
-    ]
-[/#function]
-
 [#function getAzureResourceProfile resourceType serviceType=""]
 
     [#-- Service has been provided, so lookup can be specific --]
@@ -178,7 +167,7 @@ can be referenced via dot notation. --]
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 
-[#function getReference resourceId resourceName attributeType="" inRegion=""]
+[#--[#function getReference resourceId resourceName attributeType="" inRegion=""]
     [#if !(resourceId?has_content)]
         [#return ""]
     [/#if]
@@ -218,7 +207,7 @@ can be referenced via dot notation. --]
             attributeType,
             inRegion)
     ]
-[/#function]
+[/#function] --]
 
 [#-- Due to azure resource names having multiple segments, Azure requires
 its own function to return the first split of the last segment --]
