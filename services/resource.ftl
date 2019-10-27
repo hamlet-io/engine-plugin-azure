@@ -59,7 +59,7 @@
                 [#break]
             [#case "segment_out_names"]
                 [#-- This will always happen last --]
-                [#local fullName = formatAzureResourceName(name, parents)]
+                [#local fullName = formatAzureResourceName(name, parents?last)]
                 [#break]
             [#default]
                 [@fatal
