@@ -45,7 +45,7 @@
             "Property" : "properties.primaryEndpoints.blob"
         },
         REGION_ATTRIBUTE_TYPE : {
-            "Property" : "properties.location"
+            "Property" : "properties.primaryLocation"
         }
     }
 ]

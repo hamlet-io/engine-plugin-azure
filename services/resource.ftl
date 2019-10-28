@@ -73,11 +73,16 @@ can be referenced via dot notation. --]
 
         [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
     [#else]
-        [#-- return a reference to the specific resources attributes. --]
-        [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-        [#return
-            "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
-        ]
+        [#if attributes?size = 1 && attributes?last = "name" ]
+            [#-- "name" isn't a referencable attribute - but we already have access to it. --]
+            [#return resourceName]
+        [#else]
+            [#-- return a reference to the specific resources attributes. --]
+            [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+            [#return
+                "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+            ]
+        [/#if]
     [/#if]
 [/#function]
 
