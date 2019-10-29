@@ -12,8 +12,8 @@
         {
             "defaultAction": defaultAction
         } +
-        attributeIfContent("ipRules", asArray(ipRules)) +
-        attributeIfContent("virtualNetworkRules", asArray(virtualNetworkRules)) +
+        attributeIfContent("ipRules", ipRules) +
+        attributeIfContent("virtualNetworkRules", virtualNetworkRules) +
         attributeIfContent("bypass", bypass)
     ]
 [/#function]

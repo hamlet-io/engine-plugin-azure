@@ -3,28 +3,28 @@
 [#macro azure_baseline_arm_state occurrence parent={} baseState={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
-  [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
-  [#local blobId = formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id)]
-  [#local keyvaultId = formatResourceId(AZURE_KEYVAULT_RESOURCE_TYPE, core.Id)]
-  [#local keyvaultAccessPolicyId = formatResourceId(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.Id)]
   
   [#assign componentState=
     {
       "Resources" : {
         "storageAccount" : {
-            "Id" : storageAccountId,
+            "Id" : formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id),
+            "Name" : formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
         },
         "blobService" : {
-            "Id" : blobId,
+            "Id" : formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id),
+            "Name" : "default",
             "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
         },
         "keyVault" : {
-            "Id" : keyvaultId,
+            "Id" : formatResourceId(AZURE_KEYVAULT_RESOURCE_TYPE, core.Id),
+            "Name" : formatName(AZURE_KEYVAULT_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEYVAULT_RESOURCE_TYPE
         },
         "keyVaultAccessPolicy" : {
-            "Id" : keyvaultAccessPolicyId,
+            "Id" : formatResourceId(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.Id),
+            "Name" : formatName(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
         }
       },
@@ -41,18 +41,14 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
-  [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
-  [#local containerName = core.SubComponent.Id]
-
-
   [#assign componentState =
     {
       "Resources": {
         "container" : {
-          "Id" : containerId,
-          "Name" : containerName,
+          "Id" : formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id),
+          "Name" : formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.SubComponent.Id),
           "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
-        },
+        }
       },
       "Attributes": {},
       "Roles": {
@@ -66,7 +62,6 @@
 [#macro azure_baselinekey_arm_state occurrence parent={} baseState={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
-  [#local keyvaultId = formatResourceId(AZURE_KEYVAULT_RESOURCE_TYPE, core.Id)]
   
   [#local resources = {}]
 
@@ -77,14 +72,14 @@
         {
           "cmkLocalKeyPair" : {
             "Id" : formatResourceId(AZURE_CMK_RESOURCE_TYPE, core.Id),
+            "Name" : formatName(LOCAL_PRIVATE_KEY_RESOURCE_TYPE, core.SubComponent.Id),
             "PrivateKey" : formatName(".azure", accountObject.Id, regionId, "cmk", "prv") + ".pem",
             "PublicKey" : formatName(".azure", accountObject.Id, regionId, "cmk", "crt") + ".pem",
             "Type" : LOCAL_PRIVATE_KEY_RESOURCE_TYPE
           },
           "cmkKeyPair" : {
-            "Id" : keyPairId,
-            "Name" : formatName(core.FullName, "cmk"),
-            "Vault" : keyvaultId
+            "Id" : formatResourceId(AZURE_KEY_PAIR_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(AZURE_KEY_PAIR_RESOURCE_TYPE, core.ShortName, "cmk"),
             "Type" : AZURE_KEY_PAIR_RESOURCE_TYPE
           }
         }
@@ -93,15 +88,15 @@
       [#local resources +=
         {
           "sshLocalKeyPair" : {
-            "Id" : formatResourceId(LOCAL_PRIVATE_KEY_RESOURCE_TYPE, core.Id),
+            "Id" : formatResourceId(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.ShortName),
             "PrivateKey" : formatName(".azure", accountObject.Id, regionId, "ssh", "prv") + ".pem",
             "PublicKey" : formatName(".azure", accountObject.Id, regionId, "ssh", "crt") + ".pem",
-            "Type" : LOCAL_PRIVATE_KEY_RESOURCE_TYPE
+            "Type" : LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE
           },
           "vmKeyPair" : {
-            "Id" : formatResourceId(AZURE_KEY_PAIR_RESOURCE_TYPE, core.Id),
-            "Name" : formatSegmentFullName(),
-            "Vault" : keyvaultId
+            "Id" : formatResourceId(AZURE_KEY_PAIR_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(AZURE_KEY_PAIR_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEY_PAIR_RESOURCE_TYPE
           }
         }

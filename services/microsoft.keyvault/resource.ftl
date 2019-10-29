@@ -1,5 +1,35 @@
 [#ftl]
 
+[@addResourceProfile
+    service=AZURE_KEYVAULT_SERVICE
+    resource=AZURE_KEYVAULT_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2018-02-14",
+            "type" : "Microsoft.KeyVault/vaults"
+        }
+/]
+
+[@addResourceProfile
+    service=AZURE_KEYVAULT_SERVICE
+    resource=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2018-02-14",
+            "type" : "Microsoft.KeyVault/vaults/secrets"
+        }
+/]
+
+[@addResourceProfile
+    service=AZURE_KEYVAULT_SERVICE
+    resource=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "2018-02-14",
+            "type" : "Microsoft.KeyVault/vaults/accessPolicies"
+        }
+/]
+
 [#assign AZURE_KEYVAULT_OUTPUT_MAPPINGS = 
   {
     REFERENCE_ATTRIBUTE_TYPE : {
@@ -8,11 +38,13 @@
   }
 ]
 
-[#-- TODO - do i need more attribute types here? KEY_ATTRIBUTE_TYPE? --]
 [#assign AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS =
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
+    },
+    NAME_ATTRIBUTE_TYPE : {
+      "Property" : "name"
     }
   }
 ]
@@ -33,7 +65,7 @@
   }
 ]
 
-[#fuction getKeyVaultSku family name]
+[#function getKeyVaultSku family name]
   [#-- SKU for a KeyVault resides within the Properties object,
   not at the top level object depth as exists in the ARM schema. --]
   [#return
@@ -71,10 +103,10 @@ convention ("object" suffix) is used to easily distinguish the two. --]
   storage=[]]
   [#return
     {} +
-    attributeIfContent("keys", asArray(keys)) +
-    attributeIfContent("secrets", asArray(secrets)) +
-    attributeIfContent("certificates", asArray(certificates)) +
-    attributeIfContent("storage", asArray(storage))
+    attributeIfContent("keys", keys) +
+    attributeIfContent("secrets", secrets) +
+    attributeIfContent("certificates", certificates) +
+    attributeIfContent("storage", storage)
   ]
 [/#function]
 
@@ -137,6 +169,7 @@ convention ("object" suffix) is used to easily distinguish the two. --]
 [/#function]
 
 [#macro createKeyVault
+  id
   name
   location
   properties
@@ -145,41 +178,42 @@ convention ("object" suffix) is used to easily distinguish the two. --]
   dependsOn=[]]
 
   [@armResource
+    id=id
     name=name
-    type="Microsoft.KeyVault/vaults"
-    apiVersion="2018-02-14"
+    profile=AZURE_KEYVAULT_RESOURCE_TYPE
     location=location
     properties=properties
     tags=tags
     resources=resources
     outputs=AZURE_KEYVAULT_OUTPUT_MAPPINGS
     dependsOn=dependsOn
-  ]
+  /]
 
 [/#macro]
 
-[#macro createKeyVaultAccessPolicy name properties]
+[#macro createKeyVaultAccessPolicy id name properties]
 
   [@armResource
+    id=id
     name=name
-    type="Microsoft.KeyVault/vaults/accessPolicies"
-    apiVersion="2018-02-14"
+    profile=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     properties=properties
-  ]
+  /]
 
 [/#macro]
 
 [#macro createKeyVaultSecret
+  id
   name
   tags={}
   properties={}]
 
   [@armResource
+    id=id
     name=name
-    type="Microsoft.KeyVault/vaults/secrets"
-    apiVersion="2018-02-14"
+    profile=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
     tags=tags
     outputs=AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS
     properties=properties
-  ]
+  /]
 [/#macro]

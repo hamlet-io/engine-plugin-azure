@@ -1,7 +1,6 @@
 [#ftl]
 
-[#macro azure_baseline_arm_solution occurrence]
-  [@debug message="Entering" context=occurrence enabled=false /]
+[#macro azure_baseline_arm_segment occurrence]
 
     [#if deploymentSubsetRequired("genplan", false)]
       [@addDefaultGenerationPlan subsets="template" /]
@@ -35,14 +34,21 @@
     [#-- Parent Component Resources --]
     [#local tenantId = accountObject.AWSId]
     [#local accountId = resources["storageAccount"].Id]
+    [#local accountName = resources["storageAccount"].Name]
     [#local blobServiceId = resources["blobService"].Id]
+    [#local blobServiceName = resources["blobService"].Name]
     [#local keyvaultId = resources["keyVault"].Id]
+    [#local keyvaultName = resources["keyVault"].Name]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
 
     [#-- storageAccount : Retrieve Certificate Information --]
-    [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
-    [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
-    [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
+    [#if solution.Certificate?has_content]
+      [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
+      [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
+      [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
+    [#else]
+        [#local fqdn = ""]
+    [/#if]
 
     [#-- storageAccount + keyVault : Retrieve NetworkACL Configuration --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
@@ -51,7 +57,7 @@
 
     [#list solution.IPAddressGroups as subnet]
       [#local virtualNetworkRulesConfiguration += getNetworkAclsVirtualNetworkRules(
-        id=(getExistingReference(formatResourceId(AZURE_NETWORK_RESOURCE_TYPE, subnet)).id)
+        id=getReference(formatDependentSubnetId(subnet))
         action="Allow"
       )]
     [/#list]
@@ -72,7 +78,8 @@
     )]
 
     [@createStorageAccount
-      name=accountId
+      id=accountId
+      name=accountName
       sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
       location=regionId
       customDomain=getStorageCustomDomain(fqdn)
@@ -86,8 +93,9 @@
       isHnsEnabled=(storageProfile.HnsEnabled!false)
     /]
 
-    [@createBlobService 
-      name=blobServiceId
+    [@createBlobService
+      id=blobServiceId
+      name=accountName
       CORSBehaviours=solution.CORSBehaviours
       deleteRetentionPolicy=
         (solution.Lifecycle.BlobRetentionDays)?has_content?then(
@@ -98,7 +106,8 @@
     /]
 
     [@createKeyVault
-      name=keyvaultId
+      id=keyvaultId
+      name=accountName
       location=regionId
       properties=
         getKeyVaultProperties(
@@ -122,9 +131,10 @@
 
       [#-- storage containers --]
       [#if subCore.Type == BASELINE_DATA_COMPONENT_TYPE]
+        [#local containerId = subResources["container"].Id]
         [#local containerName = subResources["container"].Name]
 
-        [#if ( deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true)]
+        [#if (deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true))]
 
           [#if subSolution.Role == "appdata"]
             [#local publicAccess = dataPublicEnabled]
@@ -133,12 +143,13 @@
           [/#if]
 
           [@createBlobServiceContainer
+            id=containerName
             name=containerName
             publicAccess=publicAccess
             dependsOn=
               [ 
-                accountId,
-                blobId 
+                getReference(accountId, accountName),
+                getReference(blobId, blobName) 
               ]
           /]
         [/#if]
@@ -155,7 +166,7 @@
             [#local localKeyPairPrivateKey = subResources["cmkLocalKeyPair"].PrivateKey]
             [#local keyPairId = subResources["cmkKeyPair"].Id]
             [#local keyPairName = subResources["cmkKeyPair"].Name]
-            [#local keyVaultName = subResources["cmkKeyPair"].Vault]
+            [#local keyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
 
@@ -237,7 +248,7 @@
             [#local localKeyPairPrivateKey = subResources["sshLocalKeyPair"].PrivateKey]
             [#local vmKeyPairId = subResources["vmKeyPair"].Id]
             [#local vmKeyPairName = subResources["vmKeyPair"].Name]
-            [#local vmKeyVaultName = subResources["vmKeyPair"].Vault]
+            [#local vmKeyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
 
