@@ -27,7 +27,11 @@
 
     [#-- Baseline component lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "Encryption" ], false, false )]
-    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)]
+    [#local baselineComponentIds = getBaselineComponentIds(
+      baselineLinks,
+      AZURE_CMK_KEY_PAIR_RESOURCE_TYPE,
+      AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE,
+      "")]
     [#local cmkKeyId = baselineComponentIds["Encryption"]]
     [@debug message={ "KeyId" : cmkKeyId } enabled=false /]
 
@@ -35,11 +39,12 @@
     [#local tenantId = accountObject.AWSId]
     [#local accountId = resources["storageAccount"].Id]
     [#local accountName = resources["storageAccount"].Name]
-    [#local blobServiceId = resources["blobService"].Id]
-    [#local blobServiceName = resources["blobService"].Name]
+    [#local blobId = resources["blobService"].Id]
+    [#local blobName = resources["blobService"].Name]
     [#local keyvaultId = resources["keyVault"].Id]
     [#local keyvaultName = resources["keyVault"].Name]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
+    [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
     [#-- storageAccount : Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
@@ -50,59 +55,42 @@
         [#local fqdn = ""]
     [/#if]
 
-    [#-- storageAccount + keyVault : Retrieve NetworkACL Configuration --]
+    [#-- 
+      storageAccount + keyVault : Retrieve NetworkACL Configuration
+      Component roles will grant more explicit access to Storage + KeyVault.
+      For now we just want blanket "deny-all" networkAcls.
+    --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
-    [#local virtualNetworkRulesConfiguration = []]
-    [#local cidrs = getGroupCIDRs(solution.IPAddressGroups)]
-
-    [#list solution.IPAddressGroups as subnet]
-      [#local virtualNetworkRulesConfiguration += getNetworkAclsVirtualNetworkRules(
-        id=getReference(formatDependentSubnetId(subnet))
-        action="Allow"
-      )]
-    [/#list]
-
-    [#local ipRulesConfiguration = []]
-    [#list cidrs as cidr]
-      [#local ipRulesConfiguration += getNetworkAclsIpRules(
-        value=cidr
-        action="Allow"
-      )]
-    [/#list]
-
-    [#local networkAclsConfiguration = getNetworkAcls(
-      defaultAction="Deny"
-      ipRules=ipRulesConfiguration
-      virtualNetworkRules=virtualNetworkRulesConfiguration
-      bypass="None"
-    )]
+    [#local networkAclsConfiguration = getNetworkAcls("Deny", [], [], "None")]
 
     [@createStorageAccount
       id=accountId
       name=accountName
+      kind=storageProfile.Type
       sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
       location=regionId
       customDomain=getStorageCustomDomain(fqdn)
       networkAcls=networkAclsConfiguration
-      accessTier=(storageProfile.AccessTier!{})
+      accessTier=(storageProfile.AccessTier)!{}
       azureFilesIdentityBasedAuthentication=
         (solution.Access.DirectoryService)?has_content?then(
           getStorageAzureFilesIdentityBasedAuthentication(solution.Access.DirectoryService),
           {}
         )
-      isHnsEnabled=(storageProfile.HnsEnabled!false)
+      isHnsEnabled=(storageProfile.HnsEnabled)!false
     /]
 
     [@createBlobService
-      id=blobServiceId
-      name=accountName
+      id=blobId
+      name=blobName
+      accountName=accountName
       CORSBehaviours=solution.CORSBehaviours
       deleteRetentionPolicy=
         (solution.Lifecycle.BlobRetentionDays)?has_content?then(
           getStorageBlobServiceDeleteRetentionPolicy(solution.Lifecycle.BlobRetentionDays),
           {}
         )
-      automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots!false)
+      automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots)!false
     /]
 
     [@createKeyVault
@@ -111,14 +99,17 @@
       location=regionId
       properties=
         getKeyVaultProperties(
-          tenantId=tenantId
-          sku=getKeyVaultSku("A", "standard")
-          enabledForDeployment=true
-          enabledForDiskEncryption=true
-          enableSoftDelete=true
-          createMode="default"
-          enablePurgeProtection=true
-          networkAcls=networkAclsConfiguration
+          tenantId,
+          getKeyVaultSku("A", "standard"),
+          [],
+          "",
+          true,
+          true,
+          true,
+          true,
+          "default",
+          true,
+          networkAclsConfiguration
         )
     /]
 
@@ -137,14 +128,16 @@
         [#if (deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true))]
 
           [#if subSolution.Role == "appdata"]
-            [#local publicAccess = dataPublicEnabled]
+            [#local publicAccess = "Container"]
           [#else]
-            [#local publicAccess = false]
+            [#local publicAccess = "None"]
           [/#if]
 
           [@createBlobServiceContainer
-            id=containerName
+            id=containerId
             name=containerName
+            accountName=accountName
+            blobName=blobName
             publicAccess=publicAccess
             dependsOn=
               [ 
@@ -161,11 +154,11 @@
         [#switch subSolution.Engine]
           [#case "cmk"]
 
-            [#local localKeyPairId = subResources["cmkLocalKeyPair"].Id]
-            [#local localKeyPairPublicKey = subResources["cmkLocalKeyPair"].PublicKey]
-            [#local localKeyPairPrivateKey = subResources["cmkLocalKeyPair"].PrivateKey]
-            [#local keyPairId = subResources["cmkKeyPair"].Id]
-            [#local keyPairName = subResources["cmkKeyPair"].Name]
+            [#local localKeyPairId = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].Id]
+            [#local localKeyPairPublicKey = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].PublicKey]
+            [#local localKeyPairPrivateKey = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].PrivateKey]
+            [#local keyPairId = subResources[AZURE_CMK_KEY_PAIR_RESOURCE_TYPE].Id]
+            [#local keyPairName = subResources[AZURE_CMK_KEY_PAIR_RESOURCE_TYPE].Name]
             [#local keyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
@@ -243,11 +236,11 @@
           [#break]
           [#case "ssh"]
 
-            [#local localKeyPairId = subResources["sshLocalKeyPair"].Id]
-            [#local localKeyPairPublicKey = subResources["sshLocalKeyPair"].PublicKey]
-            [#local localKeyPairPrivateKey = subResources["sshLocalKeyPair"].PrivateKey]
-            [#local vmKeyPairId = subResources["vmKeyPair"].Id]
-            [#local vmKeyPairName = subResources["vmKeyPair"].Name]
+            [#local localKeyPairId = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].Id]
+            [#local localKeyPairPublicKey = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].PublicKey]
+            [#local localKeyPairPrivateKey = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].PrivateKey]
+            [#local vmKeyPairId = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Id]
+            [#local vmKeyPairName = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Name]
             [#local vmKeyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]

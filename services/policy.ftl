@@ -1,5 +1,4 @@
-[#ftl
-]
+[#ftl]
 [#-- Structure --]
 
 [#function getNetworkAcls 

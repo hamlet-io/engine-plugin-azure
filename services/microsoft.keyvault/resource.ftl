@@ -130,12 +130,12 @@ convention ("object" suffix) is used to easily distinguish the two. --]
     } +
     attributeIfContent("accessPolicies", accessPolicies) +
     attributeIfContent("vaultUri", uri) +
-    attributeIfTrue("enabledForDeployment", enabledForDeployment) +
-    attributeIfTrue("enabledForDiskEncryption", enabledForDiskEncryption) +
-    attributeIfTrue("enabledForTemplateDeployment", enabledForTemplateDeployment) +
-    attributeIfTrue("enableSoftDelete", enableSoftDelete) +
-    attributeIfTrue("createMode", createMode) +
-    attributeIfTrue("enablePurgeProtection", enablePurgeProtection) +
+    attributeIfTrue("enabledForDeployment", enabledForDeployment, enabledForDeployment) +
+    attributeIfTrue("enabledForDiskEncryption", enabledForDiskEncryption, enabledForDiskEncryption) +
+    attributeIfTrue("enabledForTemplateDeployment", enabledForTemplateDeployment, enabledForTemplateDeployment) +
+    attributeIfTrue("enableSoftDelete", enableSoftDelete, enableSoftDelete) +
+    attributeIfContent("createMode", createMode) +
+    attributeIfTrue("enablePurgeProtection", enablePurgeProtection, enablePurgeProtection) +
     attributeIfContent("networkAcls", networkAcls)
   ]
 
@@ -148,7 +148,7 @@ convention ("object" suffix) is used to easily distinguish the two. --]
 
   [#return
     {} +
-    attributeIfTrue("enabled", enabled) +
+    attributeIfTrue("enabled", enabled, enabled) +
     attributeIfContent("nbf", notBeforeDate) +
     attributeIfContent("exp", expiryDate)
   ]
