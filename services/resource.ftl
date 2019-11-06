@@ -100,6 +100,22 @@ can be referenced via dot notation. --]
     [/#if]
 [/#function]
 
+[#--Formats a reference to a subscription's attributes:
+id, subscriptionId, tenantId or displayName --]
+[#function formatAzureSubscriptionReference attribute=""]
+ [#return
+    "[subscription()" + (attribute?has_content)?then(attribute?ensure_starts_with("."), "") + "]"
+ ]
+[/#function]
+
+[#--Formats a reference to a resourceGroups attributes:
+id, name, type, location, managedBy, tags, properties.provisioningState --]
+[#function formatAzureResourceGroupReference attribute=""]
+ [#return
+    "[resourceGroup()" + (attribute?has_content)?then(attribute?ensure_starts_with("."), "") + "]"
+ ]
+[/#function]
+
 [#-- 
     Azure has strict rules around resource name "segments" (parts seperated by a '/'). 
     The rules that must be adhered to are:

@@ -126,9 +126,9 @@ convention ("object" suffix) is used to easily distinguish the two. --]
   [#return
     {
       "tenantId" : tenantId,
-      "sku" : sku
+      "sku" : sku,
+      "accessPolicies" : accessPolicies
     } +
-    attributeIfContent("accessPolicies", accessPolicies) +
     attributeIfContent("vaultUri", uri) +
     attributeIfTrue("enabledForDeployment", enabledForDeployment, enabledForDeployment) +
     attributeIfTrue("enabledForDiskEncryption", enabledForDiskEncryption, enabledForDiskEncryption) +
@@ -191,11 +191,15 @@ convention ("object" suffix) is used to easily distinguish the two. --]
 
 [/#macro]
 
-[#macro createKeyVaultAccessPolicy id name properties]
+[#-- To ensure Vaults can be created with no accessPolicies, can have accessPolicies added
+at a later time, and remain idempotent, naming an AccessPolicy "add" will merge in the policy
+reference: https://tinyurl.com/y42ot42k --]
+[#macro createKeyVaultAccessPolicy id vaultName properties]
 
   [@armResource
     id=id
-    name=name
+    name="add"
+    parentNames=[vaultName]
     profile=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     properties=properties
   /]

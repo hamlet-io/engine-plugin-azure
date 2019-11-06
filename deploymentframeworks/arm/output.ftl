@@ -12,9 +12,9 @@
 
 [#function getArmTemplateCoreOutputs deploymentUnit=deploymentUnit]
     [#return {
-        "Subscription": { "type": "string", "value": "[subscription().id]"},
-        "ResourceGroup": { "type": "string", "value": "[resourceGroup().id]"},
-        "Region": { "type": "string", "value": "[resourceGroup().location]"},
+        "Subscription": { "type": "string", "value": formatAzureSubscriptionReference("id")},
+        "ResourceGroup": { "type": "string", "value": formatAzureResourceGroupReference("id")},
+        "Region": { "type": "string", "value": formatAzureResourceGroupReference("location")},
         "DeploymentUnit": {
             "type": "string",
             "value": 

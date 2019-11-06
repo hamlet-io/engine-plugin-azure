@@ -36,7 +36,7 @@
     [@debug message={ "KeyId" : cmkKeyId } enabled=false /]
 
     [#-- Parent Component Resources --]
-    [#local tenantId = accountObject.AWSId]
+    [#local tenantId = formatAzureSubscriptionReference("tenantId")]
     [#local accountId = resources["storageAccount"].Id]
     [#local accountName = resources["storageAccount"].Name]
     [#local blobId = resources["blobService"].Id]
@@ -44,6 +44,11 @@
     [#local keyvaultId = resources["keyVault"].Id]
     [#local keyvaultName = resources["keyVault"].Name]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
+
+    [#-- Process Resource Naming Conditions --]
+    [#local accountName = formatAzureResourceName(accountName, getResourceType(accountId))]
+    [#local blobName = formatAzureResourceName(blobName, getResourceType(blobId), accountName)]
+    
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
     [#-- storageAccount : Retrieve Certificate Information --]
@@ -61,7 +66,7 @@
       For now we just want blanket "deny-all" networkAcls.
     --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
-    [#local networkAclsConfiguration = getNetworkAcls("Deny", [], [], "None")]
+    [#local networkAclsConfiguration = getNetworkAcls("Deny", [], [], "AzureServices")]
 
     [@createStorageAccount
       id=accountId
@@ -91,11 +96,15 @@
           {}
         )
       automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots)!false
+      dependsOn=
+        [
+          getReference(accountId, accountName)
+        ]
     /]
 
     [@createKeyVault
       id=keyvaultId
-      name=accountName
+      name=keyvaultName
       location=regionId
       properties=
         getKeyVaultProperties(
@@ -124,6 +133,9 @@
       [#if subCore.Type == BASELINE_DATA_COMPONENT_TYPE]
         [#local containerId = subResources["container"].Id]
         [#local containerName = subResources["container"].Name]
+
+        [#-- Process Resource Naming Conditions --]
+        [#local containerName = formatAzureResourceName(containerName, getResourceType(containerId), blobName)]
 
         [#if (deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true))]
 
