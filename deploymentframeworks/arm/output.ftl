@@ -10,11 +10,17 @@
     ]
 [/#function]
 
-[#function getArmTemplateCoreOutputs deploymentUnit=deploymentUnit]
+[#function getArmTemplateCoreOutputs 
+    region=formatAzureResourceGroupReference("location")
+    account=formatAzureSubscriptionReference("id")
+    resourceGroup=formatAzureResourceGroupReference("id")
+    deploymentUnit=getDeploymentUnit()
+    deploymentMode=commandLineOptions.Deployment.Mode]
+
     [#return {
-        "Subscription": { "type": "string", "value": formatAzureSubscriptionReference("id")},
-        "ResourceGroup": { "type": "string", "value": formatAzureResourceGroupReference("id")},
-        "Region": { "type": "string", "value": formatAzureResourceGroupReference("location")},
+        "Subscription": { "type": "string", "value": account },
+        "ResourceGroup": { "type": "string", "value": resourceGroup },
+        "Region": { "type": "string", "value": region },
         "DeploymentUnit": {
             "type": "string",
             "value": 
@@ -26,7 +32,8 @@
                     "-" + deploymentUnitSubset?lower_case,
                     ""
                 )
-        }
+        },
+        "DeploymentMode" : { "type": "string", "value" : deploymentMode }
     }]
 [/#function]
 
@@ -44,18 +51,18 @@
     /]
 [/#macro]
 
-[#function pseudoARMStackOutputScript description outputs filesuffix="" ]
+[#function pseudoArmStackOutputScript description outputs filesuffix=""]
     [#local outputString = ""]
 
-    [#list getARMTemplateCoreOutputs() as  key,value ]
-        [#if value?is_hash ]
-            [#local outputs += { key, value.Value } ]
-        [#else ]
-            [#local outputs += { key, value } ]
+    [#list getArmTemplateCoreOutputs(region, accountObject.AWSId, commandLineOptions.Deployment.ResourceGroup.Name) as key,value]
+        [#if value?is_hash]
+            [#local outputs += { key, value.value }]
+        [#else]
+            [#local outputs += { key, value }]
         [/#if]
     [/#list]
 
-    [#list outputs as key,value ]
+    [#list outputs as key,value]
         [#local outputString +=
           "\"" + key + "\" \"" + value + "\" "
         ]
