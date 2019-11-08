@@ -4,12 +4,24 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
   
+  [#local segmentSeedId = formatSegmentSeedId() ]
+  [#if !(getExistingReference(segmentSeedId)?has_content) ]
+    [#local segmentSeedValue = (commandLineOptions.Run.Id + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
+  [#else]
+    [#local segmentSeedValue = getExistingReference(segmentSeedId) ]
+  [/#if]
+
   [#assign componentState=
     {
       "Resources" : {
+        "segmentSeed": {
+          "Id" : segmentSeedId,
+          "Value" : segmentSeedValue,
+          "Type" : SEED_RESOURCE_TYPE
+        },
         "storageAccount" : {
             "Id" : formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id),
-            "Name" : formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName),
+            "Name" : formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, segmentSeedValue),
             "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
         },
         "blobService" : {
@@ -19,7 +31,7 @@
         },
         "keyVault" : {
             "Id" : formatResourceId(AZURE_KEYVAULT_RESOURCE_TYPE, core.Id),
-            "Name" : formatName(AZURE_KEYVAULT_RESOURCE_TYPE, core.ShortName),
+            "Name" : formatName(AZURE_KEYVAULT_RESOURCE_TYPE, segmentSeedValue),
             "Type" : AZURE_KEYVAULT_RESOURCE_TYPE
         },
         "keyVaultAccessPolicy" : {
@@ -28,7 +40,9 @@
             "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
         }
       },
-      "Attributes" : {},
+      "Attributes" : {
+        "SEED_SEGMENT" : segmentSeedValue
+      },
       "Roles" : {
         "Inbound": {},
         "Outbound": {}

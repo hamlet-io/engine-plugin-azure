@@ -6,7 +6,8 @@
     profile=
         {
             "apiVersion" : "2018-02-14",
-            "type" : "Microsoft.KeyVault/vaults"
+            "type" : "Microsoft.KeyVault/vaults",
+            "conditions" : [ "globally_unique" ]
         }
 /]
 

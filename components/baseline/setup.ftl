@@ -3,7 +3,7 @@
 [#macro azure_baseline_arm_segment occurrence]
 
     [#if deploymentSubsetRequired("genplan", false)]
-      [@addDefaultGenerationPlan subsets="template" /]
+      [@addDefaultGenerationPlan subsets=["prologue", "template", "epilogue"] /]
       [#return]
     [/#if]
 
@@ -22,7 +22,32 @@
         message="The baseline component can only be deployed once as an unversioned component"
         context=core
       /]
-      [#return ]
+      [#return]
+    [/#if]
+
+    [#-- Segment Seed --]
+    [#local segmentSeedId = resources["segmentSeed"].Id]
+    [#local segmentSeedValue = resources["segmentSeed"].Value]
+    [#if !(getExistingReference(segmentSeedId)?has_content)]
+
+      [#if deploymentSubsetRequired("prologue", false)]
+        [@addToDefaultBashScriptOutput
+          content=
+          [
+            "case $\{STACK_OPERATION} in",
+            "  create|update)"
+          ] +
+          pseudoArmStackOutputScript(
+            "Seed Values",
+            { segmentSeedId : segmentSeedValue },
+            "seed"
+          ) +
+          [
+            "       ;;",
+            "       esac"
+          ]
+        /]
+      [/#if]
     [/#if]
 
     [#-- Baseline component lookup --]
@@ -115,7 +140,7 @@
           true,
           true,
           true,
-          true,
+          false,
           "default",
           true,
           networkAclsConfiguration
@@ -154,7 +179,7 @@
             dependsOn=
               [ 
                 getReference(accountId, accountName),
-                getReference(blobId, blobName) 
+                getReference(blobId, blobName)
               ]
           /]
         [/#if]
@@ -206,7 +231,7 @@
                   "  fi",
                   "  #"
                 ] +
-                pseudoARMStackOutputScript(
+                pseudoArmStackOutputScript(
                   "CMK Key Pair",
                   {
                     keyPairId : keyPairName,
@@ -288,7 +313,7 @@
                   "  fi",
                   "  #"
                 ] +
-                pseudoARMStackOutputScript(
+                pseudoArmStackOutputScript(
                   "SSH Key Pair",
                   {
                     vmKeyPairId : vmKeyPairName,
