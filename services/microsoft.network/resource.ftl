@@ -100,6 +100,7 @@
 [#macro createNetworkSecurityGroupSecurityRule
   id
   name
+  nsgName
   protocol
   access
   direction
@@ -114,7 +115,7 @@
   destinationAddressPrefixes=""
   destinationApplicationSecurityGroups=[]
   description=""
-  priority=""
+  priority=4096
   tags={}
   outputs={}
   dependsOn=[]]
@@ -122,6 +123,7 @@
   [@armResource
     id=id
     name=name
+    parentNames=[nsgName]
     profile=AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE
     dependsOn=dependsOn
     properties=  
@@ -307,6 +309,7 @@
 [#macro createSubnet
   id
   name
+  vnetName
   addressPrefix=""
   addressPrefixes=[]
   networkSecurityGroup={}
@@ -316,23 +319,26 @@
   serviceEndpointPolicies=[]
   resourceNavigationLinks=[]
   serviceAssociationLinks=[]
-  delegations=[]]
+  delegations=[]
+  dependsOn=[]]
 
   [@armResource
     id=id
     name=name
+    parentNames=[vnetName]
     profile=AZURE_SUBNET_RESOURCE_TYPE
     properties={} +
       attributeIfContent("addressPrefix", addressPrefix) +
       attributeIfContent("addressPrefixes", addressPrefixes) +
       attributeIfContent("networkSecurityGroup", networkSecurityGroup) +
       attributeIfContent("routeTable", routeTable) +
-      attributeIfContent("natGateway", { "id" : natGatewayId } ) +
+      attributeIfContent("natGateway", attributeIfContent("id", natGatewayId)) +
       attributeIfContent("serviceEndpoints", serviceEndpoints) +
       attributeIfContent("serviceEndpointPolicies", serviceEndpointPolicies) +
       attributeIfContent("resourceNavigationLinks", resourceNavigationLinks) +
       attributeIfContent("serviceAssociationLinks", serviceAssociationLinks) +
       attributeIfContent("delegations", delegations)
+    dependsOn=dependsOn
   /]
 [/#macro]
 
