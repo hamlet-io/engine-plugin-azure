@@ -106,8 +106,6 @@
   direction
   sourceAddressPrefix=""
   sourceAddressPrefixes=[]
-  sourcePortRange=""
-  sourcePortRanges=[]
   sourceApplicationSecurityGroups=[]
   destinationPortRange=""
   destinationPortRanges=[]
@@ -120,6 +118,10 @@
   outputs={}
   dependsOn=[]]
 
+  [#--
+    Azure will generate alerts if you provide source-port range/s as port filtering is
+    primarily on the destination. Their recommendation is to specify "any" ("*") port.
+  --]
   [@armResource
     id=id
     name=name
@@ -130,12 +132,11 @@
       {
         "access" : access,
         "direction" : direction,
-        "protocol" : protocol
+        "protocol" : protocol,
+        "sourcePortRange": "*"
       } +
       attributeIfContent("sourceAddressPrefix", sourceAddressPrefix) +
       attributeIfContent("sourceAddressPrefixes", sourceAddressPrefixes) +
-      attributeIfContent("sourcePortRange", sourcePortRange) +
-      attributeIfContent("sourcePortRanges", sourcePortRanges) +
       attributeIfContent("sourceApplicationSecurityGroups", sourceApplicationSecurityGroups) +
       attributeIfContent("destinationPortRange", destinationPortRange) +
       attributeIfContent("destinationPortRanges", destinationPortRanges) +

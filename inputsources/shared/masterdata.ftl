@@ -12,14 +12,100 @@
             "a": {
               "Title": "Zone A",
               "Description": "Zone A",
-              "AzureId" : "eastus"
+              "AzureId": "eastus"
             }
           },
           "Accounts": {}
         }
       },
       "Tiers": {
+        "api": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "ana": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "app": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "db": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "dir": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "docs": {},
+        "elb": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Public"
+          }
+        },
+        "gbl": {
+          "Components": {
+            "cfredirect": {
+              "Lambda": {
+                "Instances": {
+                  "default": {
+                    "Versions": {
+                      "v1": {
+                        "DeploymentUnits": [
+                          "cfredirect-v1"
+                        ],
+                        "Enabled": false,
+                        "Fragment": "_cfredirect-v1"
+                      }
+                    }
+                  }
+                },
+                "DeploymentType": "EDGE",
+                "RunTime": "nodejs8.10",
+                "MemorySize": 128,
+                "Timeout": 1,
+                "FixedCodeVersion": {},
+                "Functions": {
+                  "cfredirect": {
+                    "Handler": "index.handler",
+                    "VPCAccess": false,
+                    "Permissions": {
+                      "Decrypt": false,
+                      "AsFile": false,
+                      "AppData": false,
+                      "AppPublic": false
+                    },
+                    "PredefineLogGroup": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ilb": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
         "mgmt": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Public"
+          },
           "Components": {
             "seg-cert": {
               "DeploymentUnits": [
@@ -117,45 +203,60 @@
               "MultiAZ": true,
               "network": {
                 "RouteTables": {
-                  "internal": {},
-                  "external": {
-                    "Public": true
-                  }
+                  "default" : {}
                 },
                 "NetworkACLs": {
-                  "open": {
+                  "Public": {
                     "Rules": {
-                      "in": {
+                      "internetAccess": {
                         "Priority": 200,
                         "Action": "allow",
                         "Source": {
                           "IPAddressGroups": [
-                            "_global"
+                            "_localnet"
                           ]
                         },
                         "Destination": {
                           "IPAddressGroups": [
-                            "_localnet"
+                            "_global"
                           ],
                           "Port": "any"
                         },
                         "ReturnTraffic": false
+                      }
+                    }
+                  },
+                  "Private": {
+                    "Rules": {
+                      "internetAccess": {
+                        "Priority": 200,
+                        "Action": "allow",
+                        "Source": {
+                          "IPAddressGroups": [
+                            "_localnet"
+                          ]
+                        },
+                        "Destination": {
+                          "IPAddressGroups": [
+                            "_global"
+                          ],
+                          "Port": "any"
+                        }
                       },
-                      "out": {
-                        "Priority": 200,
-                        "Action": "allow",
+                      "blockInbound": {
+                        "Priority": 100,
+                        "Action": "deny",
                         "Source": {
                           "IPAddressGroups": [
-                            "_localnet"
+                            "_global"
                           ]
                         },
                         "Destination": {
                           "IPAddressGroups": [
-                            "_global"
+                            "_localnet"
                           ],
                           "Port": "any"
-                        },
-                        "ReturnTraffic": false
+                        }
                       }
                     }
                   }
@@ -172,12 +273,12 @@
                   "default": {
                     "IPAddressGroups": "_global",
                     "Links": {
-                      "external": {
+                      "Public": {
                         "Tier": "mgmt",
                         "Component": "vpc",
                         "Version": "",
                         "Instance": "",
-                        "RouteTable": "external"
+                        "RouteTable": "default"
                       }
                     }
                   }
@@ -194,12 +295,12 @@
                   "default": {
                     "IPAddressGroups": "_global",
                     "Links": {
-                      "internal": {
+                      "Private": {
                         "Tier": "mgmt",
                         "Component": "vpc",
                         "Version": "",
                         "Instance": "",
-                        "RouteTable": "internal"
+                        "RouteTable": "default"
                       }
                     }
                   }
@@ -219,19 +320,19 @@
                       "logs"
                     ],
                     "Links": {
-                      "internal": {
+                      "Private": {
                         "Tier": "mgmt",
                         "Component": "vpc",
                         "Version": "",
                         "Instance": "",
-                        "RouteTable": "internal"
+                        "RouteTable": "default"
                       },
-                      "external": {
+                      "Public": {
                         "Tier": "mgmt",
                         "Component": "vpc",
                         "Version": "",
                         "Instance": "",
-                        "RouteTable": "external"
+                        "RouteTable": "default"
                       }
                     }
                   }
@@ -240,43 +341,22 @@
             }
           }
         },
-        "gbl": {
-          "Components": {
-            "cfredirect": {
-              "Lambda": {
-                "Instances": {
-                  "default": {
-                    "Versions": {
-                      "v1": {
-                        "DeploymentUnits": [
-                          "cfredirect-v1"
-                        ],
-                        "Enabled": false,
-                        "Fragment": "_cfredirect-v1"
-                      }
-                    }
-                  }
-                },
-                "DeploymentType": "EDGE",
-                "RunTime": "nodejs8.10",
-                "MemorySize": 128,
-                "Timeout": 1,
-                "FixedCodeVersion": {},
-                "Functions": {
-                  "cfredirect": {
-                    "Handler": "index.handler",
-                    "VPCAccess": false,
-                    "Permissions": {
-                      "Decrypt": false,
-                      "AsFile": false,
-                      "AppData": false,
-                      "AppPublic": false
-                    },
-                    "PredefineLogGroup": false
-                  }
-                }
-              }
-            }
+        "msg": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
+          }
+        },
+        "shared": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Public"
+          }
+        },
+        "web": {
+          "Network": {
+            "RouteTable": "default",
+            "NetworkACL": "Private"
           }
         }
       },
@@ -286,33 +366,33 @@
             "Tier": "Standard",
             "Replication": "LRS",
             "Type": "BlobStorage",
-            "AccessTier" : "Cool",
-            "HnsEnabled" : false
+            "AccessTier": "Cool",
+            "HnsEnabled": false
           }
         },
         "Blob": {
-          "storageAccount" : {
-            "Tier" : "Standard",
-            "Replication" : "LRS",
-            "Type" : "BlobStorage",
-            "AccessTier" : "Cool",
-            "HnsEnabled" : false
+          "storageAccount": {
+            "Tier": "Standard",
+            "Replication": "LRS",
+            "Type": "BlobStorage",
+            "AccessTier": "Cool",
+            "HnsEnabled": false
           }
         },
         "File": {
-          "storageAccount" : {
-            "Tier" : "Standard",
-            "Replication" : "LRS",
-            "Type" : "FileStorage",
-            "HnsEnabled" : false
+          "storageAccount": {
+            "Tier": "Standard",
+            "Replication": "LRS",
+            "Type": "FileStorage",
+            "HnsEnabled": false
           }
         },
         "Block": {
-          "storageAccount" : {
-            "Tier" : "Standard",
-            "Replication" : "LRS",
-            "Type" : "BlockBlobStorage",
-            "HnsEnabled" : false
+          "storageAccount": {
+            "Tier": "Standard",
+            "Replication": "LRS",
+            "Type": "BlockBlobStorage",
+            "HnsEnabled": false
           }
         }
       },
