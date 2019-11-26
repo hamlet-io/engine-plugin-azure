@@ -76,8 +76,7 @@
   imagePublisher
   imageOffer
   imageSku
-  nicId
-  nicName
+  nicConfigurations
   licenseType=""
   linuxConfiguration={}
   windowsConfiguration={}
@@ -106,13 +105,9 @@
           "version" : imageVersion
         }
       },
-      attributeIfContent("networkProfile",
-        attributeIfContent("networkInterfaceConfigurations",
-          {} +
-          attributeIfContent("id", nicId) +
-          attributeIfContent("name", nicName)
-        )
-      ),
+      "networkProfile" : {
+        "networkInterfaceConfigurations" : nicConfigurations
+      },
       "priority" : priority
     } +
     attributeIfContent("licenseType", licenseType)
