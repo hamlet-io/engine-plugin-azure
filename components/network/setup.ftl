@@ -126,20 +126,15 @@
             Rules are Subnet-specific.
             Where an IPAddressGroup is found to be _localnet, use the subnet CIDR instead.
           --]
-          [#local ruleAction = ruleConfig.Action?cap_first]
           [#if ruleConfig.Source.IPAddressGroups?seq_contains("_localnet")]
             [#local direction = "Outbound"]
             [#local sourceAddressPrefix = subnet.Address]
           [#else]
             [#local direction = "Inbound"]
-            [#-- 
-              Azure has some default tags to reference standard IP ranges.
-              We use that here as Azure does not accept 0.0.0.0/0 as reference to Internet.
-            --]
             [#local sourceAddressPrefix = getGroupCIDRs(
               ruleConfig.Source.IPAddressGroups,
               true,
-              occurrence)[0]?replace("0.0.0.0/0", "Internet")]
+              occurrence)[0]]
           [/#if]
 
           [#if ruleConfig.Destination.IPAddressGroups?seq_contains("_localnet")]
@@ -148,17 +143,7 @@
             [#local destinationAddressPrefix = getGroupCIDRs(
               ruleConfig.Destination.IPAddressGroups,
               true,
-              occurrence)[0]?replace("0.0.0.0/0", "Internet")]
-          [/#if]
-
-          [#-- Determine if ports are individual, a range, or "any" --]
-          [#local destinationPortProfile = ports[ruleConfig.Destination.Port]]
-          [#if ruleConfig.Destination.Port == "any"]
-            [#local destinationPort = "*"]
-          [#else]
-            [#local destinationPort = isPresent(destinationPortProfile.PortRange)?then(
-              destinationPortProfile.PortRange.From + "-" + destinationPortProfile.PortRange.To,
-              destinationPortProfile.Port)]
+              occurrence)[0]]
           [/#if]
 
           [@createNetworkSecurityGroupSecurityRule
@@ -169,8 +154,7 @@
               networkSecurityGroupName)
             nsgName=networkSecurityGroupName
             description=description
-            protocol=destinationPortProfile.IPProtocol?replace("all", "*")
-            destinationPortRange=destinationPort
+            destinationPortProfileName=ruleConfig.Destination.Port
             sourceAddressPrefix=sourceAddressPrefix
             destinationAddressPrefix=destinationAddressPrefix
             access=ruleConfig.Action
