@@ -58,41 +58,6 @@
         },
         "gbl": {
           "Components": {
-            "cfredirect": {
-              "Lambda": {
-                "Instances": {
-                  "default": {
-                    "Versions": {
-                      "v1": {
-                        "DeploymentUnits": [
-                          "cfredirect-v1"
-                        ],
-                        "Enabled": false,
-                        "Fragment": "_cfredirect-v1"
-                      }
-                    }
-                  }
-                },
-                "DeploymentType": "EDGE",
-                "RunTime": "nodejs8.10",
-                "MemorySize": 128,
-                "Timeout": 1,
-                "FixedCodeVersion": {},
-                "Functions": {
-                  "cfredirect": {
-                    "Handler": "index.handler",
-                    "VPCAccess": false,
-                    "Permissions": {
-                      "Decrypt": false,
-                      "AsFile": false,
-                      "AppData": false,
-                      "AppPublic": false
-                    },
-                    "PredefineLogGroup": false
-                  }
-                }
-              }
-            }
           }
         },
         "ilb": {
