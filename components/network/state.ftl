@@ -76,8 +76,8 @@
     {
       "Resources" : {
         "vnet" : {
-          "Id" : formatResourceId(AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE, core.FullName),
-          "Name" : formatName(AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE, core.FullName),
+          "Id" : vnetId,
+          "Name" : vnetName,
           "Address" : networkAddress + "/" + networkMask,
           "Type" : AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
         },
