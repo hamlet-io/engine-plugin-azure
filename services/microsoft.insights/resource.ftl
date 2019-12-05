@@ -83,6 +83,7 @@
   location
   targetId
   profiles
+  enabled=true
   notifications=[]
   dependsOn=[]]
 
@@ -95,10 +96,11 @@
     properties=
       {
         "name" : name,
+        "enabled" : enabled,
         "profiles" : profiles,
         "targetResourceUri" : targetId
       } +
-      attributeIfContent(""notifications", notifications) +
+      attributeIfContent("notifications", notifications)
   /]
 
 [/#macro]

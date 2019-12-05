@@ -19,14 +19,13 @@
 /]
 
 [#function getVirtualMachineProfileLinuxConfigPublicKey
-  path
-  data]
+  path=""
+  data=""]
 
   [#return
-    {
-      "path" : path,
-      "keyData" : data
-    }
+    {} +
+    attributeIfContent("path", path) +
+    attributeIfContent("keyData", data)
   ]
 
 [/#function]
@@ -41,7 +40,7 @@
         "publicKeys" : publicKeys
       }
     } +
-    attributeIfTrue("disablePasswordAuth", disablePasswordAuth, disablePasswordAuth) +
+    attributeIfTrue("disablePasswordAuthentication", disablePasswordAuth, disablePasswordAuth)
   ]
 
 [/#function]
@@ -62,6 +61,34 @@
 
 [/#function]
 
+[#function getVirtualMachineNetworkProfileNICConfig
+  id
+  name
+  primary=false
+  ipConfigurations=[]]
+
+  [#return 
+    {
+      "id": id,
+      "name": name,
+      "properties" : {
+        "primary" : primary,
+        "ipConfigurations" : ipConfigurations
+      }
+    }
+  ]
+
+[/#function]
+
+[#function getVirtualMachineNetworkProfile 
+  networkInterfaceConfigurations=[]
+  healthProbe={}]
+  [#return
+    {} +
+    attributeIfContent("networkInterfaceConfigurations", networkInterfaceConfigurations) +
+    attributeIfContent("healthProbe", healthProbe)]
+[/#function]
+
 [#function getVirtualMachineProfile
   vmNamePrefix
   adminName
@@ -70,11 +97,11 @@
   imageOffer
   imageSku
   nicConfigurations
-  licenseType=""
   linuxConfiguration={}
   windowsConfiguration={}
   priority="Regular"
-  imageVersion="latest"]
+  imageVersion="latest"
+  licenseType=""]
 
   [#return 
     {
@@ -94,13 +121,11 @@
         "imageReference" : {
           "publisher" : imagePublisher,
           "offer" : imageOffer,
-          "sku" : imageSku
+          "sku" : imageSku,
           "version" : imageVersion
         }
       },
-      "networkProfile" : {
-        "networkInterfaceConfigurations" : nicConfigurations
-      },
+      "networkProfile" : nicConfigurations,
       "priority" : priority
     } +
     attributeIfContent("licenseType", licenseType)
@@ -116,6 +141,7 @@
   skuTier
   skuCapacity
   vmProfile
+  vmUpgradeMode="Manual"
   identity={}
   zones=[]
   dependsOn={}]
@@ -135,7 +161,12 @@
     dependsOn=dependsOn
     zones=zones
     properties=
-      { "virtualMachineProfile" : vmProfile }
+      { 
+        "upgradePolicy" : {
+          "mode" : vmUpgradeMode
+        },
+        "virtualMachineProfile" : vmProfile 
+      }
   /]
 
 [/#macro]
