@@ -1,5 +1,11 @@
 [#ftl]
-
+[#-- 
+  Currently, all the typical Gateway resources have been created within the
+  Network component due to Azure specific requirements. The Gateway will
+  be utilised in a greater capacity when it comes to implimenting 
+  privateEndpoint resources. Leaving large portions of the macro
+  intact so as to outline the future structure.
+--]
 [#macro azure_gateway_arm_segment occurrence]
 
   [#if deploymentSubsetRequired("genplan", false)]
@@ -35,23 +41,36 @@
   [#local sourceCidrs = getGroupCIDRs(sourceIPAddressGroups, true, occurrence)]
 
   [#-- Private DNS Zone Creation --]
-  [#if deploymentSubsetRequired(NETWORK_GATEWAY_COMPONENT_TYPE, true)]
+  [#--
+
+    [#if deploymentSubsetRequired(NETWORK_GATEWAY_COMPONENT_TYPE, true)]
+
+    [#local dnsZoneId = gwResources["dnsZone"].Id]
+    [#local dnsZoneName = gwResources["dnsZone"].Name]
+    [#local dnsZoneLinkId = gwResources["vnetLink"].Id]
+    [#local dnsZoneLinkName = formatAzureResourceName(gwResources["vnetLink"].Name, getResourceType(dnsZoneLinkId), dnsZoneName)]
 
     [@createPrivateDnsZone 
-      id=gwResources["dnsZone"].Id 
-      name=gwResources["dnsZone"].Name
-      location=regionId
+      id=dnsZoneId
+      name=dnsZoneName
     /]
 
     [@createPrivateDnsZoneVnetLink 
-      id=gwResources["vnetLink"].Id
-      name=gwResources["vnetLink"].Name
-      location=regionId
-      vnetId=networkResources["vnet"].Id
+      id=dnsZoneLinkId
+      name=dnsZoneLinkName
+      vnetId=getReference(networkResources["vnet"].Id, networkResources["vnet"].Name)
+      autoRegistrationEnabled=true
     /]
 
   [/#if]
+  --]
 
+  [#--
+    Currently there are no "destination" requirements for an Azure Gateway component
+    (they are created as a part of the Subnet resource in the Network component).
+    The below structure is left available to ensure simple implimentation of Private
+    Links at a later time.
+  --]
   [#list occurrence.Occurrences![] as subOccurrence]
 
     [@debug message="Suboccurrence" context=subOccurrence enabled=false /]
@@ -62,21 +81,18 @@
 
     [#switch gwSolution.Engine]
       [#case "vpcendpoint"]
-        [#local privateEndpointResources = resources["privateEndpoints"]!{}]
-        [#if deploymentSubsetRequired(NETWORK_GATEWAY_COMPONENT_TYPE, true)]
-          [#list privateEndpointResources as privateEndpointId, privateEndpoint]
-            
-            [@createPrivateEndpoint
-              id=privateEndpoint.Id
-              name=privateEndpoint.Name
-              location=regionId
-              subnetId=""
-              privateLinkServiceConnections=[]
-            /]
-
-          [/#list]
-        [/#if]
+        [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", region)]
+        [#list networkEndpoints as id, networkEndpoint]
+          [#if networkEndpoint.Type == "PrivateLink"]
+            [#-- TODO(rossmurr4y): impliment Azure Private Links --]
+          [/#if]
+        [/#list]
         [#break]
+      [#default]
+        [@fatal
+          message="Unsupported Gateway Engine."
+          context=gwSolution.Engine
+        /]
     [/#switch]
 
   [/#list]

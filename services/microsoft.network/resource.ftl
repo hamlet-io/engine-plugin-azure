@@ -468,14 +468,13 @@
 
 [#macro createPrivateDnsZone
   id
-  name
-  location]
+  name]
   
   [@armResource
     id=id
     name=name
     profile=AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE
-    location=location
+    location="global"
     properties={}
   /]
 [/#macro]
@@ -483,7 +482,6 @@
 [#macro createPrivateDnsZoneVnetLink
   id
   name
-  location
   vnetId
   autoRegistrationEnabled=false]
 
@@ -491,7 +489,7 @@
     id=id
     name=name
     profile=AZURE_PRIVATE_DNS_ZONE_VNET_LINK_RESOURCE_TYPE
-    location=location
+    location="global"
     properties=
       {
         "virtualNetwork" : {

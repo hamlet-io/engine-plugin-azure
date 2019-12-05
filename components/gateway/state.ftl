@@ -17,7 +17,7 @@
         "Resources" : {
           "dnsZone" : {
             "Id" : formatDependentResourceId(AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE, core.Id),
-            "Name" : formatName(AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE, core.TypedName),
+            "Name" : AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE,
             "Type" : AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE
           },
           "vnetLink" : {
@@ -59,24 +59,13 @@
       
     [#list networkEndpoints as id, networkEndpoint]
 
-      [#local resources = mergeObjects(resources,
-        {
-          "endpointPolicy" : {
-            "Id" : formatResourceId(AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE, id),
-            "Name" : formatName(AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE, id),
-            "Type" : AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE
-          },
-          "endpointPolicyDefinitions" : {
-            id : {
-              "Id" : formatDependentResourceId(AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE, core.Id, replaceAlphaNumericOnly(id, "X")),
-              "Name" : formatName(AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE, id),
-              "EndpointType" : networkEndpoint.Type?lower_case,
-              "ServiceName" : networkEndpoint.ServiceName,
-              "Type" : AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE
-            }
-          }
-        }
-      )]
+      [#switch networkEndpoint.Type]
+        [#case "Interface"]
+          [#break]
+        [#case "PrivateLink"]
+          [#-- TODO(rossmurr4y): impliment Azure Private Links --]
+          [#break]
+      [/#switch] 
 
     [/#list]
 
