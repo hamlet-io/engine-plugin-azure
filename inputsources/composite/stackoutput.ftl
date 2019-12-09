@@ -13,26 +13,26 @@
 
 [#macro azure_input_composite_stackoutput_seed]
 
-  [#local deploymentOutputs = []]
+  [#local stackOutputs = []]
 
   [#-- ARM Stack Output Processing --]
-  [#list commandLineOptions.Composites.StackOutputs as deploymentTemplate]
+  [#list commandLineOptions.Composites.StackOutputs as stackOutputFile]
 
-    [#local level = ((deploymentTemplate["FileName"])?split('-'))[0]]
-    [#list (deploymentTemplate["Content"]![]) as rawDeploymentOutput]
-      [#if (rawDeploymentOutput["properties"]["outputs"]!{})?has_content]
+    [#local level = ((stackOutputFile["FileName"])?split('-'))[0]]
+    [#list (stackOutputFile["Content"]![]) as rawStackOutput]
+      [#if (rawStackOutput["properties"]["outputs"]!{})?has_content]
 
-        [#local deploymentOutput = {
+        [#local stackOutput = {
           "Level" : level
         }]
 
-        [#list rawDeploymentOutput["properties"]["outputs"] as outputId, outputValue]   
-          [#local deploymentOutput += {
+        [#list rawStackOutput["properties"]["outputs"] as outputId, outputValue]   
+          [#local stackOutput += {
             outputId : outputValue.value
           }]
         [/#list]
 
-        [#local deploymentOutputs += [ deploymentOutput ]]
+        [#local stackOutputs += [ stackOutput ]]
 
       [/#if]
     [/#list]
