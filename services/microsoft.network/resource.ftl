@@ -584,7 +584,7 @@
   [#return
     {
       "name" : name,
-      "properties" { "port" : port }
+      "properties": { "port" : port }
     }
   ]
 [/#function]
@@ -631,7 +631,7 @@
 
   [#local backendIpAddresses = []]
   [#list backendAddresses as ipAddress]
-    [#lical backendIpAddresses += [{"ipAddress": ipAddress}]]
+    [#local backendIpAddresses += [{"ipAddress": ipAddress}]]
   [/#list]
 
   [#return
@@ -804,7 +804,7 @@
         attributeIfContent("rewriteRuleSet",
           getSubResourceReference(rewriteRuleSetId)) +
         attributeIfContent("redirectConfiguration",
-          getSubResourceReference(redirectConfigurationId)) +
+          getSubResourceReference(redirectConfigurationId))
     }
   ]
 [/#function]
@@ -961,7 +961,7 @@
       "enabled": wafEnabled,
       "firewallMode": wafMode,
       "ruleSetType": wafRuleSetType,
-      "ruleSetVersion": wafRuleSetVersion,
+      "ruleSetVersion": wafRuleSetVersion
     } +
     attributeIfContent("disabledRuleGroups", wafDisabledRuleGroups) +
     attributeIfTrue("requestBodyCheck", wafRequestBodyCheck, wafRequestBodyCheck) +
