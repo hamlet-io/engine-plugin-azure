@@ -25,9 +25,9 @@
         [#list rawStackOutput["properties"] as propertyId, propertyValue]
           [#if propertyId == "outputs"]
 
-            [#list propertyValue as outputId, outputValue]
+            [#local stackOutput = {}]
 
-              [#local stackOutput = {}]
+            [#list propertyValue as outputId, outputValue]
 
               [#switch outputId]
                 [#case "deploymentUnit"]
@@ -38,7 +38,7 @@
                   [#break]
                 [#case "subscription"]
                   [#-- convert Azure languague "subscription to COT language "Account" --]
-                [#local stackOutput += { "Account" : outputValue["value"] }]
+                  [#local stackOutput += { "Account" : outputValue["value"] }]
                   [#break]
                 [#default]
                   [#local stackOutput += { outputId : outputValue["value"] }]
@@ -52,16 +52,11 @@
           [#if stackOutput?has_content]
             [#local stackOutputs += [mergeObjects( { "Level" : level} , stackOutput)]]
           [/#if]
-
         [/#list]
-
       [/#if]
-
-
-      
     [/#list]
   [/#list]
 
   [@addStackOutputs stackOutputs /]
-[@debug message="StackOutputs" context=stackOutputs enabled=true /]
+
 [/#macro]
