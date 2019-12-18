@@ -27,6 +27,7 @@
 
 [#-- Microsoft.Network --]
 [#assign AZURE_NETWORK_SERVICE = "microsoft.network"]
+[#assign AZURE_NETWORK_APPLICATION_GATEWAY_SERVICE = "microsoft.network.applicationgateways"]
 
 [#-- Microsoft.Storage --]
 [#assign AZURE_STORAGE_SERVICE = "microsoft.storage"]
