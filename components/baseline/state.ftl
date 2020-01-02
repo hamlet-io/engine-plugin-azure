@@ -84,17 +84,10 @@
 
       [#local resources +=
         {
-          LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE : {
-            "Id" : formatResourceId(LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE, core.Id),
-            "Name" : formatName(LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE, core.SubComponent.Id),
-            "PrivateKey" : formatName(".azure", accountObject.Id, regionId, "cmk", "prv") + ".pem",
-            "PublicKey" : formatName(".azure", accountObject.Id, regionId, "cmk", "crt") + ".pem",
-            "Type" : LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE
-          },
-          AZURE_CMK_KEY_PAIR_RESOURCE_TYPE : {
-            "Id" : formatResourceId(AZURE_CMK_KEY_PAIR_RESOURCE_TYPE, core.SubComponent.Id),
-            "Name" : formatName(AZURE_CMK_KEY_PAIR_RESOURCE_TYPE, core.ShortName, "cmk"),
-            "Type" : AZURE_CMK_KEY_PAIR_RESOURCE_TYPE
+          AZURE_CMK_RESOURCE_TYPE : {
+            "Id" : formatResourceId(AZURE_CMK_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(AZURE_CMK_RESOURCE_TYPE, core.ShortName, "cmk"),
+            "Type" : AZURE_CMK_RESOURCE_TYPE
           }
         }
       ]
@@ -102,13 +95,6 @@
     [#case "ssh"]
       [#local resources +=
         {
-          LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE : {
-            "Id" : formatResourceId(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.SubComponent.Id),
-            "Name" : formatName(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.ShortName),
-            "PrivateKey" : formatName(".azure", accountObject.Id, regionId, "ssh", "prv") + ".pem",
-            "PublicKey" : formatName(".azure", accountObject.Id, regionId, "ssh", "crt") + ".pem",
-            "Type" : LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE
-          },
           AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE : {
             "Id" : formatResourceId(AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.SubComponent.Id),
             "Name" : formatName(AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.ShortName),

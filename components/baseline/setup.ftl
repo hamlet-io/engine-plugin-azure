@@ -5,10 +5,12 @@
 
 [#macro azure_baseline_arm_setup_segment occurrence]
 
+
     [#local core = occurrence.Core ]
     [#local solution = occurrence.Configuration.Solution ]
     [#local resources = occurrence.State.Resources ]
     [#local links = getLinkTargets(occurrence )]
+    [#local keyVaultIPRuleGroups = []]
 
     [#-- make sure we only have one occurence --]
     [#if  ! ( core.Tier.Id == "mgmt" &&
@@ -52,11 +54,10 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "Encryption" ], false, false )]
     [#local baselineComponentIds = getBaselineComponentIds(
       baselineLinks,
-      AZURE_CMK_KEY_PAIR_RESOURCE_TYPE,
+      AZURE_CMK_RESOURCE_TYPE,
       AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE,
       "")]
     [#local cmkKeyId = baselineComponentIds["Encryption"]]
-    [@debug message={ "KeyId" : cmkKeyId } enabled=false /]
 
     [#-- Parent Component Resources --]
     [#local tenantId = formatAzureSubscriptionReference("tenantId")]
@@ -89,7 +90,7 @@
       For now we just want blanket "deny-all" networkAcls.
     --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
-    [#local networkAclsConfiguration = getNetworkAcls("Deny", [], [], "AzureServices")]
+    [#local storageNetworkAclsConfiguration = getNetworkAcls("Deny", [], [], "AzureServices")]
 
     [@createStorageAccount
       id=accountId
@@ -98,7 +99,7 @@
       sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
       location=regionId
       customDomain=getStorageCustomDomain(fqdn)
-      networkAcls=networkAclsConfiguration
+      networkAcls=storageNetworkAclsConfiguration
       accessTier=(storageProfile.AccessTier)!{}
       azureFilesIdentityBasedAuthentication=
         (solution.Access.DirectoryService)?has_content?then(
@@ -123,26 +124,6 @@
         [
           getReference(accountId, accountName)
         ]
-    /]
-
-    [@createKeyVault
-      id=keyvaultId
-      name=keyvaultName
-      location=regionId
-      properties=
-        getKeyVaultProperties(
-          tenantId,
-          getKeyVaultSku("A", "standard"),
-          [],
-          "",
-          true,
-          true,
-          true,
-          false,
-          "default",
-          true,
-          networkAclsConfiguration
-        )
     /]
 
     [#-- Subcomponents --]
@@ -189,45 +170,19 @@
         [#switch subSolution.Engine]
           [#case "cmk"]
 
-            [#local localKeyPairId = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].Id]
-            [#local localKeyPairPublicKey = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].PublicKey]
-            [#local localKeyPairPrivateKey = subResources[LOCAL_CMK_KEY_PAIR_RESOURCE_TYPE].PrivateKey]
-            [#local keyPairId = subResources[AZURE_CMK_KEY_PAIR_RESOURCE_TYPE].Id]
-            [#local keyPairName = subResources[AZURE_CMK_KEY_PAIR_RESOURCE_TYPE].Name]
+            [#local keyPairId = subResources[AZURE_CMK_RESOURCE_TYPE].Id]
+            [#local keyPairName = subResources[AZURE_CMK_RESOURCE_TYPE].Name]
             [#local keyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
 
               [#-- Generate & Import CMK into keyvault --]
+
               [@addToDefaultBashScriptOutput
                 content=[
-                  "function az_manage_cmk_credentials() {"
-                  "  info \"Checking CMK credentials ...\"",
-                  "  #",
-                  "  # Create CMK credential for the segment",
-                  "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
-                  "  az_create_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                      "\"" + regionId + "\" " +
-                      "\"" + accountObject.Id + "\" " +
-                      " cmk || return $?",
-                  "  #",
-                  "  # Update the credential if required",
-                  "  if ! az_check_key_credentials" + " " +
-                      "\"" + keyVaultName + "\" " +
-                      "\"" + keyPairName + "\"; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + "\"",
-                  "    az_update_key_credentials" + " " +
-                      "\"" + keyVaultName + "\" " +
-                      "\"" + keyPairName + "\" " +
-                      "\"$\{pem_file}\" || return $?",
-                  "   [[ -f \"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext\" ]] && ",
-                  "      { encrypt_file" + " " +
-                          "\"" + regionId + "\"" + " " +
-                          "\"" + keyPairId + "\"" + " " +
-                          "\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext\"" + " " +
-                          "\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + "\" || return $?; }",
-                  "  fi",
-                  "  #"
+                  "function az_generate_cmk() {"
+                    "az keyvault key create --kty RSA --size 2048 --vault-name \"" + keyVaultName + "\" --name \"" + keyPairName + "\"",
+                    "#"
                 ] +
                 pseudoArmStackOutputScript(
                   "CMK Key Pair",
@@ -238,30 +193,15 @@
                   "cmk"
                 ) +
                 [
-                  "  #",
-                  "  az_show_key_credentials" + " " +
-                      "\"" + keyVaultName + "\" " +
-                      "\"" + keyPairName + "\" ",
-                  "  #",
-                  "  return 0"
+                  " return 0"
                   "}",
-                  "#",
-                  "# Determine the required key pair name",
-                  "key_pair_name=\"" + keyPairName + "\"",
                   "#",
                   "case $\{DEPLOYMENT_OPERATION} in",
                   "  delete)",
-                  "    az_delete_key_credentials " + " " +
-                    "\"" + keyVaultName + "\" " +
-                    "\"$\{key_pair_name}\" || return $?",
-                  "    az_delete_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                        "\"" + regionId + "\" " +
-                        "\"" + accountObject.Id + "\" " +
-                        " cmk || return $?",
-                  "    rm -f \"$\{CF_DIR}/$(fileBase \"$\{BASH_SOURCE}\")-keypair-pseudo-stack.json\"",
+                  "    az_delete_key_credentials \"" + keyVaultName + "\" \"" + keyPairName + "\"",
                   "    ;;",
                   "  create|update)",
-                  "    az_manage_cmk_credentials || return $?",
+                  "    az_generate_cmk || return $?",
                   "    ;;",
                   "esac"
                 ]
@@ -271,45 +211,19 @@
           [#break]
           [#case "ssh"]
 
-            [#local localKeyPairId = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].Id]
-            [#local localKeyPairPublicKey = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].PublicKey]
-            [#local localKeyPairPrivateKey = subResources[LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE].PrivateKey]
             [#local vmKeyPairId = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Id]
             [#local vmKeyPairName = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Name]
             [#local vmKeyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
-
+              
               [#-- Generate & Import SSH credentials into keyvault --]
+
               [@addToDefaultBashScriptOutput
                 content=[
-                  "function az_manage_ssh_credentials() {"
-                  "  info \"Checking SSH credentials ...\"",
-                  "  #",
-                  "  # Create SSH credential for the segment",
-                  "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
-                  "  az_create_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                      "\"" + regionId + "\" " +
-                      "\"" + accountObject.Id + "\" " +
-                      " ssh || return $?",
-                  "  #",
-                  "  # Update the credential if required",
-                  "  if ! az_check_key_credentials" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "\"; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + "\"",
-                  "    az_update_key_credentials" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "\" " +
-                      "\"$\{pem_file}\" || return $?",
-                  "   [[ -f \"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext\" ]] && ",
-                  "      { encrypt_file" + " " +
-                          "\"" + regionId + "\"" + " " +
-                          "\"" + cmkKeyId + "\"" + " " +
-                          "\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext\"" + " " +
-                          "\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + "\" || return $?; }",
-                  "  fi",
-                  "  #"
+                  "function az_generate_ssh_private_key() {"
+                    "az keyvault key create --kty RSA --size 2048 --vault-name \"" + vmKeyVaultName + "\" --name \"" + vmKeyPairName + "\"",
+                    "#"
                 ] +
                 pseudoArmStackOutputScript(
                   "SSH Key Pair",
@@ -320,37 +234,72 @@
                   "keypair"
                 ) +
                 [
-                  "  #",
-                  "  az_show_key_credentials" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "\" ",
-                  "  #",
-                  "  return 0"
+                  " return 0"
                   "}",
-                  "#",
-                  "# Determine the required key pair name",
-                  "key_pair_name=\"" + vmKeyPairName + "\"",
                   "#",
                   "case $\{DEPLOYMENT_OPERATION} in",
                   "  delete)",
-                  "    az_delete_key_credentials " + " " +
-                    "\"" + vmKeyVaultName + "\" " +
-                    "\"$\{key_pair_name}\" || return $?",
-                  "    az_delete_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                        "\"" + regionId + "\" " +
-                        "\"" + accountObject.Id + "\" " +
-                        " ssh || return $?",
-                  "    rm -f \"$\{CF_DIR}/$(fileBase \"$\{BASH_SOURCE}\")-keypair-pseudo-stack.json\"",
+                  "    az_delete_key_credentials \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "\"",
                   "    ;;",
                   "  create|update)",
-                  "    az_manage_ssh_credentials || return $?",
+                  "    az_generate_ssh_private_key || return $?",
                   "    ;;",
                   "esac"
                 ]
               /]
+
             [/#if]
           [#break]
         [/#switch]
+
+        [#-- Determine the IPAddressGroups for the KeyVault rules --]
+        [#local keyVautlNetworkAddressGroups = subSolution.IPAddressGroups]
+        [#list keyVautlNetworkAddressGroups as group]
+          [#local keyVaultIPRuleGroups += [group]]
+        [/#list]
+
       [/#if]
     [/#list]
+
+    [#-- Create keyvault after generating rules --]
+
+    [#local keyVaultIpRules = []]
+    [#local keyVaultRuleCIDRs = getGroupCIDRs(getUniqueArrayElements(keyVaultIPRuleGroups))]
+    [#list keyVaultRuleCIDRs as cidr]
+      [#local keyVaultIpRules += [{"value" : cidr}]]
+    [/#list]
+
+    [#-- KeyVault Access Policy to allow Azure Admins access to KeyVault--]
+    [#local defaultKeyVaultPermissions = getKeyVaultAccessPolicyPermissions(
+      ["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore"],
+      ["Get","List","Set","Delete","Recover","Backup","Restore"],
+      ["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore","ManageContacts","ManageIssuers","GetIssuers","ListIssuers","SetIssuers","DeleteIssuers"]
+    )]
+
+    [#local keyVaultAccessPolicyObject = getKeyVaultAccessPolicyObject(
+      tenantId,
+      getExistingReference("AzureAdministratorsGroup"),
+      defaultKeyVaultPermissions
+    )]
+
+    [@createKeyVault
+      id=keyvaultId
+      name=keyvaultName
+      location=regionId
+      properties=
+        getKeyVaultProperties(
+          tenantId,
+          getKeyVaultSku("A", "standard"),
+          [keyVaultAccessPolicyObject],
+          "",
+          true,
+          true,
+          true,
+          false,
+          "default",
+          true,
+          getNetworkAcls("Deny", keyVaultIpRules, [], "AzureServices")
+        )
+    /]
+
 [/#macro]
