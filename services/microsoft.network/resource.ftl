@@ -67,32 +67,26 @@
   /]
 [/#list]
 
-[#assign VIRTUAL_NETWORK_OUTPUT_MAPPINGS = 
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
-]
-
-[#assign SUBNET_OUTPUT_MAPPINGS =
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
-]
-
 [@addOutputMapping 
   provider=AZURE_PROVIDER
   resourceType=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
-  mappings=VIRTUAL_NETWORK_OUTPUT_MAPPINGS
+  mappings=
+    {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
 /]
 
 [@addOutputMapping 
   provider=AZURE_PROVIDER
   resourceType=AZURE_SUBNET_RESOURCE_TYPE
-  mappings=SUBNET_OUTPUT_MAPPINGS
+  mappings=
+    {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
 /]
 
 [#macro createApplicationSecurityGroup id name location tags={}]
