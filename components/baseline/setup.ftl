@@ -211,8 +211,12 @@
           [#break]
           [#case "ssh"]
 
-            [#local vmKeyPairId = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Id]
-            [#local vmKeyPairName = subResources[AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE].Name]
+            [#local localKeyPairId = subResources["localKeyPair"].Id]
+            [#local localKeyPairPublicKey = subResources["localKeyPair"].PublicKey]
+            [#local localKeyPairPrivateKey = subResources["localKeyPair"].PrivateKey]
+
+            [#local vmKeyPairId = subResources["vmKeyPair"].Id]
+            [#local vmKeyPairName = subResources["vmKeyPair"].Name]
             [#local vmKeyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
@@ -221,15 +225,45 @@
 
               [@addToDefaultBashScriptOutput
                 content=[
-                  "function az_generate_ssh_private_key() {"
-                    "az keyvault key create --kty RSA --size 2048 --vault-name \"" + vmKeyVaultName + "\" --name \"" + vmKeyPairName + "\"",
-                    "#"
+                  "function az_manage_ssh_credentials() {"
+                  "  info \"Checking SSH credentials ...\"",
+                  "  #",
+                  "  # Create SSH credential for the segment",
+                  "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
+                  "  az_create_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
+                      "\"" + regionId + "\" " +
+                      "\"" + accountObject.Id + "\" " +
+                      " ssh || return $?",
+                  "  #",
+                  "  # Upload to keyvault if required.",
+                  "  if [[ ! $(az_check_secret" + " " +
+                      "\"" + vmKeyVaultName + "\" " +
+                      "\"" + vmKeyPairName + "PublicKey" + "\") " +
+                      "= *SecretNotFound* ]]; then",
+                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + "\"",
+                  "    az_add_secret" + " " +
+                      "\"" + vmKeyVaultName + "\" " +
+                      "\"" + vmKeyPairName + "PublicKey" + "\" " +
+                      "\"$\{pem_file}\" || return $?",
+                  "  fi",
+                  "  if [[ ! $(az_check_secret" + " " +
+                      "\"" + vmKeyVaultName + "\" " +
+                      "\"" + vmKeyPairName + "PrivateKey" + "\") " +
+                      "= *SecretNotFound* ]]; then",
+                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + "\"",
+                  "    az_add_secret" + " " +
+                      "\"" + vmKeyVaultName + "\" " +
+                      "\"" + vmKeyPairName + "PrivateKey" + "\" " +
+                      "\"$\{pem_file}\" || return $?",
+                  "  fi",
+                  "  #"
                 ] +
                 pseudoArmStackOutputScript(
                   "SSH Key Pair",
                   {
                     vmKeyPairId : vmKeyPairName,
-                    formatId(vmKeyVaultName, "Name") : vmKeyVaultName
+                    formatId(vmKeyVaultName, "Name") : vmKeyVaultName,
+                    formatId(vmKeyVaultName, "PrivateKey") : "TODO"
                   },
                   "keypair"
                 ) +
@@ -239,10 +273,11 @@
                   "#",
                   "case $\{DEPLOYMENT_OPERATION} in",
                   "  delete)",
-                  "    az_delete_key_credentials \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "\"",
+                  "    az_delete_secret \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "PublicKey" + "\"",
+                  "    az_delete_secret \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "PrivateKey" + "\"",
                   "    ;;",
                   "  create|update)",
-                  "    az_generate_ssh_private_key || return $?",
+                  "    az_manage_ssh_credentials || return $?",
                   "    ;;",
                   "esac"
                 ]
