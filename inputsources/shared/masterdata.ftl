@@ -155,7 +155,10 @@
                 },
                 "Keys": {
                   "ssh": {
-                    "Engine": "ssh"
+                    "Engine": "ssh",
+                    "IPAddressGroups": [
+                      "_global"
+                    ]
                   },
                   "cmk": {
                     "Engine": "cmk"
