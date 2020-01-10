@@ -96,9 +96,9 @@
       [#local resources +=
         {
           "vmKeyPair" : {
-            "Id" : formatResourceId(AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.SubComponent.Id),
-            "Name" : formatName(AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.ShortName),
-            "Type" : AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE
+            "Id" : formatResourceId(AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, core.ShortName),
+            "Type" : AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
           },
           "localKeyPair": {
             "Id" : formatResourceId(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.Id),

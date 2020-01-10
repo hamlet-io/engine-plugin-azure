@@ -55,7 +55,7 @@
     [#local baselineComponentIds = getBaselineComponentIds(
       baselineLinks,
       AZURE_CMK_RESOURCE_TYPE,
-      AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE,
+      AZURE_KEYVAULT_SECRET_RESOURCE_TYPE,
       "")]
     [#local cmkKeyId = baselineComponentIds["Encryption"]]
 
