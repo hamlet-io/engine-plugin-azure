@@ -51,6 +51,17 @@
     /]
 [/#macro]
 
+[#macro addParametersToDefaultJsonOutput id parameter]
+   [@addToDefaultJsonOutput
+        content=
+            {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters" : parameter
+            }
+    /]
+[/#macro]
+
 [#function pseudoArmStackOutputScript description outputs filesuffix=""]
     [#local outputString = ""]
 
