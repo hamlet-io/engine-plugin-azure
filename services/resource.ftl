@@ -100,6 +100,12 @@ can be referenced via dot notation. --]
     [/#if]
 [/#function]
 
+[#function getParameterReference parameterName]
+    [#return 
+        "[parameters('" + parameterName + "')]"
+    ]
+[/#function]
+
 [#-- turn a list of resource Id's into an array of objects with a key of "id". --]
 [#-- i.e [{"id": "<resource 1 reference>"}, {"id", "<resource 2 reference>"}] --]
 [#-- this is a common way for one azure resource to reference another sub-resource --]
