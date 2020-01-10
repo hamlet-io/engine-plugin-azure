@@ -79,6 +79,18 @@
 
 [/#function]
 
+[#macro armParameter name type="securestring"]
+    [@mergeWithJsonOutput
+        name="parameters"
+        content=
+            {
+                name : {
+                    "type": type
+                }
+            }
+    /]
+[/#macro]
+
 [#macro armResource
     id
     name
