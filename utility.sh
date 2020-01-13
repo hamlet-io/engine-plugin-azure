@@ -4,6 +4,81 @@
 #
 # This script is designed to be sourced into other scripts
 
+# -- Storage --
+
+function az_check_blob_container_access() {
+  local storageAccountName="$1"; shift
+  local containerName="$1"; shift
+
+  az storage container show-permission \
+    --name ${containerName} \
+    --account-name ${storageAccountName} > /dev/null
+}
+
+function az_copy_to_blob(){
+  local storageAccountName="$1"; shift
+  local containerName="$1"; shift
+  local blobName="$1"; shift
+  local fileName="$1"; shift
+
+  az storage blob upload \
+    --account-name "${storageAccountName}" \
+    --container-name "${containerName}" \
+    --name "${blobName}" \
+    --file "${file}" > /dev/null
+}
+
+function az_copy_from_blob(){
+  local storageAccountName="$1"; shift
+  local containerName="$1"; shift
+  local blobName="$1"; shift
+  local fileName="$1"; shift
+
+  az storage blob download \
+    --account-name "${storageAccountName}" \
+    --container-name "${containerName}" \
+    --name "${blobName}" \
+    --file "${file}" \
+    --no-progress > /dev/null
+}
+
+# sync is in public preview as of Jan 2020.
+function az_sync_with_blob(){
+  local storageAccountName="$1"; shift
+  local containerName="$1"; shift
+  local sourcePath="$1"; shift
+  local destinationSuffix="$1"; shift
+
+  args=(
+    "account-name ${accountName}"
+    "container ${containerName}"
+    "source ${sourcePath}"
+  )
+
+  if [[ -n "${destinationSuffix}" ]]; then
+    args=("${args[@]}" "destination ${destinationSuffix}")
+  fi
+
+  az storage blob sync ${args[@]/#/--} > /dev/null
+}
+
+function az_delete_blob_dir(){
+  local storageAccountName="$1"; shift
+  local sourcePath="$1"; shift
+  local pattern="$1"; shift
+
+  args=(
+    "account-name ${storageAccountName}"
+    "source ${sourcePath}"
+  )
+
+  if [[ -n "${pattern}" ]]; then
+    args=("${args[@]}" "pattern ${pattern}")
+  fi
+
+  az storage blob delete-batch ${args[@]/#/--} > /dev/null || return $?
+}
+
 # -- Keys --
 function az_create_pki_credentials() {
   local dir="$1"; shift
