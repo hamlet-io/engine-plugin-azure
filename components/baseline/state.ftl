@@ -64,7 +64,9 @@
           "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         }
       },
-      "Attributes": {},
+      "Attributes": {
+        "ACCOUNT_NAME" : parent.State.Resources["storageAccount"].Name
+      },
       "Roles": {
         "Inbound": {},
         "Outbound": {}

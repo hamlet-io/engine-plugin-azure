@@ -271,3 +271,55 @@
             attributeIfContent("metadata", metadata)
     /]
 [/#macro]
+
+[#-- Convenience Script functions for interacting with Storage --]
+
+[#function getBuildScript filesArrayName registry product occurrence fileName]
+
+    [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
+    [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
+
+    [#return
+        [
+            "az_copy_from_blob" + " " +
+                "\"" + storageAccount + "\"" + " " +
+                "\"" + registry + "\"" + " " +
+                "\"" + product + "\"" + " " +
+                "\"$\{tmpdir}/" + fileName + "\" || return $?",
+            "#",
+            "addToArray" + " " +
+               filesArrayName + " " +
+               "\"$\{tmpdir}/" + fileName + "\"",
+            "#"
+        ]
+    ]
+[/#function]
+
+[#function syncFilesToBlobContainerScript 
+    filesArrayName
+    storageAccount
+    container 
+    destination]
+
+    [#return
+        [
+            "case $\{STACK_OPERATION} in",
+            "  delete)",
+            "    az_delete_blob_dir " +
+                   "\"" + storageAccount + "\"" + " " +
+                   "\"" + destination + "\" || return $?",
+            "    ;;",
+            "  create|update)",
+            "    debug \"FILES=$\{" + filesArrayName + "[@]}\"",
+            "    #",
+            "    az_sync_with_blob " +
+                   "\"" + storageAccount + "\"" + " " +
+                   "\"" + container + "\"" + " " +
+                   "\"" + destination + "\"" + " " +
+                   "\"" + filesArrayName + "\"" + " || return $?",
+            "    ;;",
+            " esac",
+            "#"
+        ] 
+    ]
+[/#function]
