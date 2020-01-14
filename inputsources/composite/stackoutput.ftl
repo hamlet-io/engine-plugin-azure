@@ -16,7 +16,24 @@
   [#local stackOutputs = []]
 
   [#-- ARM Stack Output Processing --]
-  [#list commandLineOptions.Composites.StackOutputs as stackOutputFile]
+  [#local stackOutputFiles =
+      getCMDBAccountStackOutputs(
+          commandLineOptions.Scopes.Tenant,
+          commandLineOptions.Scopes.Account
+      )
+  ]
+  [#if commandLineOptions.Scopes.Product?has_content]
+    [#local stackOutputFiles +=
+        getCMDBProductStackOutputs(
+            commandLineOptions.Scopes.Tenant,
+            commandLineOptions.Scopes.Product,
+            commandLineOptions.Scopes.Environment,
+            commandLineOptions.Scopes.Segment
+        )
+    ]
+  [/#if]
+  
+  [#list stackOutputFiles as stackOutputFile ]
 
     [#local level = ((stackOutputFile["FileName"])?split('-'))[0]]
 
