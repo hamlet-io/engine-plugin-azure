@@ -12,7 +12,8 @@
 
   [#-- Network Lookups & Links --]
   [#-- As full subnet name is vnet/subnet, retrieve both & format --]
-  [#local networkLink = getOccurrenceNetwork(occurrence).Link!{} ]
+  [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
+  [#local networkLink = occurrenceNetwork.Link!{} ]
   [#local networkLinkTarget = getLinkTarget(occurrence, networkLink, false) ]
 
   [#if ! networkLinkTarget?has_content ]
@@ -20,7 +21,6 @@
       [#return]
   [/#if]
 
-  [#local networkConfiguration = networkLinkTarget.Configuration.Solution]
   [#local networkResources = networkLinkTarget.State.Resources ]
   [#local networkVnetResource = networkResources["vnet"]]
   [#local mgmtSubnetResource = networkResources["subnets"]["mgmt"]["subnet"]]
