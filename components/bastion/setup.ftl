@@ -5,6 +5,7 @@
 
 [#macro azure_bastion_arm_setup_segment occurrence]
 
+  [@debug message="Entering Bastion Setup" context=occurrence enabled=false /]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
   [#local resources = occurrence.State.Resources]
@@ -121,30 +122,14 @@
   [#-- AutoScale Policy --]
   [#if autoScaleConfig.Enabled]
 
+    [#-- TODO: rossmurr4y
+    Add autoscaling configuration for the VMSS.
+    
     [#local autoScaleTargetId = getReference(
-        resources["scaleSet"].Id,
-        resources["scaleSet"].Name)]
+      resources["scaleSet"].Id,
+      resources["scaleSet"].Name)]
 
-    [#-- 
-      This autoScaleRule reviews the sum of network bandwidth over a period
-      of time, and if the machine is found to be inactive, scales down by 1.
-      When applied to the autoScaleProfile (with max count of 1 and min of 0)
-      this effectively means a bastion host only exists for the period it is
-      in use.
-    --]
-    [#local autoScaleRule = getAutoScaleRule(
-      "Network In Total",
-      autoScaleTargetId,
-      "PT1M",
-      "Sum",
-      "PT5M",
-      "Average",
-      "LessThan",
-      50000,
-      "Decrease",
-      "ChangeCount",
-      "PT30M",
-      1)]
+    [#local autoScaleRule = getAutoScaleRule()]
 
     [#local autoScaleProfile = getAutoScaleProfile(
       "scale-to-zero-when-unused",
@@ -152,7 +137,7 @@
       "1",
       autoScaleConfig.MinUpdateInstances,
       [autoScaleRule])]
-
+      
     [@createAutoscaleSettings
       id=resources["autoScalePolicy"].Id
       name=resources["autoScalePolicy"].Name
@@ -165,7 +150,7 @@
           autoScaleTargetId
         ]
     /]
-
+    --]
   [/#if]
 
   [#-- NSG Rule - Allow SSH Inbound --]
