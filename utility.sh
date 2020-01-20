@@ -167,3 +167,18 @@ function az_delete_secret() {
 
   return 0
 }
+
+# -- CDN --
+
+function az_purge_frontdoor_endpoint() {
+  resourceGroup="$1"; shift
+  frontDoorName="$1"; shift
+
+  local paths=("/*")
+  [[ -n "$1" ]] && local paths=("$@")
+
+  az network front-door purge-endpoint \
+    --resource-group "${resourceGroup}" \
+    --name "${frontDoorName}" \
+    --content-paths "${paths[@]}"
+}

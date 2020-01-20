@@ -107,16 +107,24 @@ can be referenced via dot notation. --]
             [/#if]
         [/#if]
     [#else]
-        [#return getExistingReference(
-            resourceId,
-            attributeType,
-            "",
-            "",
-            (subscriptionId?has_content)?then(
-                subscriptionId,
-                ""
-            )
-        )]
+        [#if ! (attributes?size = 0) ]
+            [#-- return a reference to the specific resources attributes in another Deployment Unit --]
+            [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+            [#return
+                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+            ]
+        [#else]
+            [#return getExistingReference(
+                resourceId,
+                attributeType,
+                "",
+                "",
+                (subscriptionId?has_content)?then(
+                    subscriptionId,
+                    ""
+                )
+            )]
+        [/#if]
     [/#if]
 [/#function]
 
@@ -133,11 +141,21 @@ such an object Id through parent/grandparent Ids/Names --]
     subscriptionId=""
     resourceGroupName=""]
 
+    [#local names = [resourceName, childName]]
+    [#if grandChildName?has_content]
+        [#local names += [grandChildName]]
+    [/#if]
+
+    [#local types = [getAzureResourceProfile(getResourceType(resourceId)).type, childType]]
+    [#if grandChildType?has_content]
+        [#local types += [grandChildType]]
+    [/#if]
+
     [#return
         getReference(
             resourceId,
-            [resourceName, childName, grandChildName]?join('/'),
-            [getAzureResourceProfile(getResourceType(resourceId)).type, childType, grandChildType]?join('/'),
+            names?join('/'),
+            types?join('/'),
             REFERENCE_ATTRIBUTE_TYPE,
             subscriptionId,
             resourceGroupName

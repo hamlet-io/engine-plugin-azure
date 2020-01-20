@@ -55,6 +55,8 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
+  [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
+
   [#assign componentState =
     {
       "Resources": {
@@ -65,7 +67,8 @@
         }
       },
       "Attributes": {
-        "ACCOUNT_NAME" : parent.State.Resources["storageAccount"].Name
+        "ACCOUNT_NAME" : storageAccountName,
+        "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net")
       },
       "Roles": {
         "Inbound": {},

@@ -7,6 +7,7 @@
     {
       "apiVersion" : "2019-05-01",
       "type" : "Microsoft.Network/frontDoors",
+      "conditions" : [ "alphanumeric_only" ],
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
@@ -31,48 +32,86 @@
 /]
 
 [#function getFrontDoorRoutingRule
-  id=""
   name=""
   frontendEndpoints=[]
   acceptedProtocols=[]
   patternsToMatch=[]
-  routeODataType=""]
+  routeODataType="#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration"
+  forwardingProtocol=""
+  forwardingBackendPool={}
+  forwardingCacheConfig={}
+  forwardingCustomPath=""
+  routeRedirectType=""
+  routeRedirectProtocol=""
+  routeCustomHost=""
+  routeCustomPath=""
+  routeCustomQueryString=""
+  routeCustomFragment=""]
+
+  [#switch routeODataType]
+
+    [#case "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration"]
+      [#local routeConfig = 
+        {
+          "@odata.type" : routeODataType,
+          "forwardingProtocol" : forwardingProtocol?capitalize?ensure_ends_with("Only"),
+          "backendPool" : getSubResourceReference(forwardingBackendPool)
+        } +
+        attributeIfContent("cacheConfiguration", forwardingCacheConfig) +
+        attributeIfContent("customForwardingPath", forwardingCustomPath)
+      ]
+      [#break]
+    [#case "#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration"]
+      [#local routeConfig = 
+        {
+          "@odata.type" : routeODataType,
+          "redirectType" : routeRedirectType,
+          "redirectProtocol" : routeRedirectProtocol
+        } +
+        attributeIfContent("customHost", routeCustomHost) +
+        attributeIfContent("customPath", routeCustomPath) +
+        attributeIfContent("customQueryString", routeCustomQueryString) +
+        attributeIfContent("customFragment", routeCustomFragment)
+      ]
+      [#break]
+  [/#switch]
+
+  [#local properties = 
+    {
+      "routeConfiguration" : routeConfig
+    } +
+    attributeIfContent("frontendEndpoints", frontendEndpoints) +
+    attributeIfContent("acceptedProtocols", acceptedProtocols) +
+    attributeIfContent("patternsToMatch", patternsToMatch)
+  ]
 
   [#return
-    {} +
-    attributeIfContent("id", id) +
-    attributeIfContent("name", name) +
-    attributeIfContent("properties", {} +
-      attributeIfContent("frontendEndpoints", frontendEndpoints) +
-      attributeIfContent("acceptedProtocols", acceptedProtocols) +
-      attributeIfContent("patternsToMatch", patternsToMatch) +
-      attributeIfContent("routeConfiguration", {} +
-        attributeIfContent("@odata.type", routeODataType)
-      )
-    )
+    {
+      "name": name,
+      "properties" : properties
+    }
   ]
 [/#function]
 
 [#function getFrontDoorLoadBalancingSettings
-  id=""
-  name=""
-  sampleSize=""
-  successfulSamplesRequired=""
-  additionalLatencyMilliseconds=""]
+  name
+  sampleSize=4
+  successfulSamplesRequired=2
+  additionalLatencyMilliseconds=0]
 
-  [#return {} +
-    attributeIfContent("id", id) +
-    attributeIfContent("name", name) +
-    attributeIfContent("properties", {} +
-      attributeIfContent("sampleSize", sampleSize) +
-      attributeIfContent("successfulSamplesRequired", successfulSamplesRequired) +
-      attributeIfContent("additionalLatencyMilliseconds", additionalLatencyMilliseconds)
-    )
+  [#return
+    {
+      "name" : name,
+      "properties" : {
+        "sampleSize" : sampleSize?number,
+        "successfulSamplesRequired" : successfulSamplesRequired?number,
+        "additionalLatencyMilliseconds" : additionalLatencyMilliseconds?number
+      }
+    }
   ]
 [/#function]
 
 [#function getFrontDoorHealthProbeSettings
-  id=""
   name=""
   path=""
   protocol=""
@@ -80,55 +119,57 @@
   healthProbeMethod=""]
 
   [#return {} +
-    attributeIfContent("id", id) +
     attributeIfContent("name", name) +
     attributeIfContent("properties", {} +
       attributeIfContent("path", path) +
       attributeIfContent("protocol", protocol) +
-      attributeIfContent("intervalInSeconds", intervalInSeconds) +
+      attributeIfContent("intervalInSeconds", intervalInSeconds?number) +
       attributeIfContent("healthProbeMethod", healthProbeMethod)
     )
   ]
 [/#function]
 
 [#function getFrontDoorBackend
-  address=""
-  httpPort=""
-  httpsPort=""
-  priority=""
-  weight=""
+  address
+  httpPort
+  httpsPort
+  priority=1
+  weight=50
   backendHostHeader=""]
 
   [#return {} +
     attributeIfContent("address", address) +
-    attributeIfContent("httpPort", httpPort) +
-    attributeIfContent("httpsPort", httpsPort) +
-    attributeIfContent("priority", priority) +
-    attributeIfContent("weight", weight) +
+    attributeIfContent("httpPort", httpPort?number) +
+    attributeIfContent("httpsPort", httpsPort?number) +
+    attributeIfContent("priority", priority?number) +
+    attributeIfContent("weight", weight?number) +
     attributeIfContent("backendHostHeader", backendHostHeader)
   ]
 [/#function]
 
 [#function getFrontDoorBackendPool
-  id=""
   name=""
   backends=[]
   loadBalancingSettings={}
   healthProbeSettings={}]
+
+  [#local properties = 
+    {
+      "loadBalancingSettings" : loadBalancingSettings
+    }  +
+    attributeIfContent("backends", backends) +
+    attributeIfContent("healthProbeSettings", healthProbeSettings)
+  ]
+
   [#return
-    {} +
-    attributeIfContent("id", id) +
-    attributeIfContent("name", name) +
-    attributeIfContent("properties", {} +
-      attributeIfContent("backends", backends) +
-      attributeIfContent("loadBalancingSettings", loadBalancingSettings) +
-      attributeIfContent("healthProbeSettings", healthProbeSettings)
-    )
+    {
+      "properties" : properties
+    } +
+    attributeIfContent("name", name)
   ]
 [/#function]
 
 [#function getFrontDoorFrontendEndpoint
-  id=""
   name=""
   hostName=""
   sessionAffinityEnabledState=""
@@ -136,12 +177,11 @@
   webApplicationFirewallPolicyLinkId=""]
 
   [#return {} +
-    attributeIfContent("id", id) +
     attributeIfContent("name", name) +
     attributeIfContent("properties", {} +
       attributeIfContent("hostName", hostName) +
       attributeIfContent("sessionAffinityEnabledState", sessionAffinityEnabledState) +
-      attributeIfContent("sessionAffinityTtlSeconds", sessionAffinityTtlSeconds) +
+      attributeIfContent("sessionAffinityTtlSeconds", sessionAffinityTtlSeconds?number) +
       attributeIfContent("webApplicationFirewallPolicyLink", {} +
         attributeIfContent("id", webApplicationFirewallPolicyLinkId)
       )
@@ -152,6 +192,7 @@
 [#macro createFrontDoor
   id
   name
+  location
   friendlyName=""
   routingRules=[]
   loadBalancingSettings=[]
@@ -167,6 +208,7 @@
     id=id
     name=name
     profile=AZURE_FRONTDOOR_RESOURCE_TYPE
+    location=location
     dependsOn=dependsOn
     tags=tags
     properties={} +
@@ -238,12 +280,13 @@
     attributeIfContent("rules", rules)]
 [/#function]
 
-[#function getFrontDoorWAFPolicyManagedRuleSet type version groupOverrides=[]]
+[#function getFrontDoorWAFPolicyManagedRuleSet type version exclusions=[] groupOverrides=[]]
   [#return
     {
       "ruleSetType": type,
       "ruleSetVersion": version
     } +
+    attributeIfContent("exclusions", exclusions) +
     attributeIfContent("ruleGroupOverrides", groupOverrides)
   ]
 [/#function]
@@ -256,19 +299,62 @@
   id
   name
   location=""
-  mode=""
+  securityProfile={}
   redirectUrl=""
   customBlockResponseStatusCode=""
   customBlockResponseBody=""
-  customRules=[]
-  managedRules=[]
-  tags={}
   dependsOn=[]]
+
+  [#local mode = securityProfile.Enabled?then("Prevention", "Detection")]
+  [#local wafProfile = wafProfiles[securityProfile.WAFProfile]]
+  [#local wafValueSet = wafValueSets[securityProfile.WAFValueSet]]
+  [#local customRules = []]
+
+  [#-- Custom Rules --]
+  [#-- TODO(rossmurr4y): implement custom rules for WAF --]
+  [#--[#local wafRules = getWAFProfileRules(
+    wafProfile,
+    blueprintObject.WAFRuleGroups,
+    blueprintObject.WAFRules,
+    blueprintObject.WAFConditions)]
+
+  [#list wafRules as rule]
+
+    [#local matchConditions = []]
+    
+    [#list rule.Conditions as condition]  
+
+      [#if condition?is_hash]
+        [#local matchConditions += []]
+      [/#if]
+    [/#list]
+
+    [#local customRules += [getFrontDoorWAFPolicyCustomRule(
+      rule.NameSuffix,
+      rule.Action?capitalize,
+      "1",
+      rule.Conditions[0].Type?ends_with("Match")?then("MatchRule", "RateLimitRule"),
+      matchConditions
+      ""
+      ""
+    )]]
+  [/#list] --]
+
+  [#-- Azure Managed Rules --]
+  [#local managedRules =
+    getFrontDoorWAFPolicyManagedRuleSetList([
+      getFrontDoorWAFPolicyManagedRuleSet(
+        "DefaultRuleSet",
+        "1.0"
+      )
+    ])
+  ]
 
   [@armResource
     id=id
     name=name
     profile=AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
+    location=location
     dependsOn=dependsOn
     properties={} +
       attributeIfContent("customRules", {} +

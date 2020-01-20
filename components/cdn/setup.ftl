@@ -1,0 +1,252 @@
+[#ftl]
+
+[#macro azure_cdn_arm_genplan_solution occurrence]
+    [@addDefaultGenerationPlan subsets=["template", "epilogue"] /]
+[/#macro]
+
+[#macro azure_cdn_arm_setup_solution occurrence]
+
+    [@debug message="Entering CDN Component Setup" context=occurrence enabled=false /]
+
+    [#local core = occurrence.Core]
+    [#local resources = occurrence.State.Resources]
+    [#local attributes = occurrence.State.Attributes]
+    [#local solution = occurrence.Configuration.Solution]
+
+    [#local wafPresent = isPresent(solution.WAF)]
+    [#local frontDoor = resources["frontDoor"]]
+    [#local wafPolicy = resources["wafPolicy"]]
+    [#local frontendEndpointName = formatName(frontDoor.Name, "frontend")]
+    [#local frontDoorLBSettingsName = formatName(frontDoor.Name, "lb", "settings")]
+
+    [#-- Baseline lookup --]
+    [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
+    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
+    [#local fragment = getOccurrenceFragmentBase(occurrence)]
+
+    [#local routingRules = []]
+    [#local backendPools = []]
+    [#local frontendEndpoints = []]
+    [#local healthProbeSettings = []]
+    [#local httpReRouteRequired = false]
+    [#local invalidationPaths = []]
+
+    [#list occurrence.Occurrences![] as subOccurrence]
+
+        [#local subCore = subOccurrence.Core]
+        [#local subSolution = subOccurrence.Configuration.Solution]
+        [#local subResources = subOccurrence.State.Resources]
+        [#local subAttributes = subOccurrence.State.Attributes]
+        [#local routingRuleResource = subResources["frontDoorRoute"]]
+        [#local routingRulePathPattern = [routingRuleResource.PathPattern]]
+
+        [#local healthProbeSettingsName = formatName(routingRuleResource.Name, "healthProbe")]
+
+        [#local originLink = getLinkTarget(occurrence, subSolution.Origin.Link)]
+        [#if !originLink?has_content]
+            [#continue]
+        [/#if]
+        [#local originLinkTargetCore = originLink.Core]
+        [#local originLinkTargetAttributes = originLink.State.Attributes]
+        [#local originLinkTargetConfiguration = originLink.Configuration]
+
+        [#switch originLinkTargetCore.Type]
+            [#-- TODO(rossmurr4y): 
+                expand this to allow for S3, LB_PORT & APIGATEWAY component types. --]
+            [#case SPA_COMPONENT_TYPE]
+
+                [#local spaBaslineProfile = originLinkTargetConfiguration.Solution.Profiles.Baseline ]
+                [#local spaBaselineLinks = getBaselineLinks(originLink, ["OpsData"], false, false)]
+                [#local spaBaselineComponentIds = getBaselineComponentIds(spaBaselineLinks, "", "", "", "container")]
+                [#local spaBaselineAttributes = spaBaselineLinks["OpsData"].State.Attributes]
+                [#local storageAccount = spaBaselineAttributes["ACCOUNT_NAME"]]
+                [#local spaBaselineResources = spaBaselineLinks["OpsData"].State.Resources]
+                [#local operationsBlobContainer = spaBaselineResources["container"]]
+                [#local primaryEndpoint = spaBaselineAttributes["PRIMARY_ENDPOINT"]]
+                [#local backendPoolName = formatName(core.Id, SPA_COMPONENT_TYPE)]
+
+                [#-- Ports & Protocols --]
+                [#local spaFrontEndPort = ports[originLinkTargetAttributes["FRONTEND_PORT"]]]
+                [#local spaBackEndHttpPort = originLinkTargetAttributes["BACKEND_HTTP_PORT"]]
+                [#local spaBackEndHttpsPort = originLinkTargetAttributes["BACKEND_HTTPS_PORT"]]
+                [#local acceptedProtocols=[spaFrontEndPort.Protocol?capitalize]]
+                [#if spaFrontEndPort.Protocol == "HTTPS"]
+                    [#local httpReRouteRequired = true]
+                [/#if]
+
+                [#-- SPA Config File Settings --]
+                [#local configBlobContainer = originLinkTargetAttributes["CONFIG_STORAGE_CONTAINER"]]
+                [#local configPathPattern = originLinkTargetAttributes["CONFIG_PATH_PATTERN"]]
+                [#local configFile = originLinkTargetAttributes["CONFIG_FILE"]]
+
+                [#-- Establish the frontend endpoints --]
+                [#local frontendEndpoints += [
+                    getFrontDoorFrontendEndpoint(
+                        frontendEndpointName,
+                        attributes["FQDN"],
+                        "Disabled",
+                        "0",
+                        getReference(wafPolicy.Id, wafPolicy.Name)
+                    )
+                ]]
+
+                [#-- health probe settings --]
+                [#local healthProbeSettings += [
+                    getFrontDoorHealthProbeSettings(
+                        healthProbeSettingsName,
+                        spaFrontEndPort.HealthCheck.Path,
+                        spaFrontEndPort.Protocol?capitalize,
+                        spaFrontEndPort.HealthCheck.Interval
+                    )
+                ]]
+                            
+                [#-- Create backend pools--]
+                  [#local spaBackendPool = [
+                    getFrontDoorBackendPool(
+                        backendPoolName,
+                        [
+                            getFrontDoorBackend(
+                                primaryEndpoint,
+                                spaBackEndHttpPort,
+                                spaBackEndHttpsPort
+                            )
+                        ],
+                        getSubResourceReference(
+                            getSubReference(
+                                frontDoor.Id,
+                                frontDoor.Name,
+                                "loadBalancingSettings"
+                                frontDoorLBSettingsName
+                            )
+                        ),
+                        getSubResourceReference(
+                            getSubReference(
+                                frontDoor.Id,
+                                frontDoor.Name,
+                                "healthProbeSettings"
+                                healthProbeSettingsName
+                            )
+                        )
+                    )
+                ]]
+                [#local backendPools += spaBackendPool]
+
+                [#-- Create routing rules --]
+                [#local routingRules += [ 
+                    getFrontDoorRoutingRule(
+                        routingRuleResource.Name,
+                        [
+                            getSubResourceReference(
+                                getSubReference(
+                                    frontDoor.Id, 
+                                    frontDoor.Name,
+                                    "frontendEndpoints",
+                                    frontendEndpointName
+                                )
+                            )
+                        ],
+                        acceptedProtocols,
+                        routingRulePathPattern,
+                        "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",
+                        spaFrontEndPort.Protocol?capitalize,
+                        getSubReference(
+                            frontDoor.Id,
+                            frontDoor.Name,
+                            "backendPools",
+                            backendPoolName
+                        )
+                    )
+                ]]
+
+                [#break]
+        [/#switch]
+
+        [#-- Invalidate old content if applicable --]
+        [#if subSolution.InvalidateOnUpdate]
+            [#if ! invalidationPaths?seq_contains("/*") ]
+                [#local invalidationPaths += [ routingRulePathPattern ]]
+            [/#if]
+        [/#if]
+
+    [/#list]
+
+    [#-- Parent occurrence --]
+    [#if deploymentSubsetRequired(CDN_COMPONENT_TYPE, true)]
+
+        [#-- Add HTTP redirect routing rule --]
+        [#if httpReRouteRequired]
+            [#local routingRules += [ 
+                getFrontDoorRoutingRule(
+                    "HttpToHttpsRedirect",
+                    [
+                        getSubResourceReference(
+                            getSubReference(
+                                frontDoor.Id, 
+                                frontDoor.Name,
+                                "frontendEndpoints",
+                                frontendEndpointName
+                            )
+                        )
+                    ],
+                    ["Http"],
+                    ["/*"],
+                    "#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration"
+                    "", "", "", "",
+                    "Found",
+                    "HttpsOnly"
+                )
+            ]]
+        [/#if]
+
+        [#-- Load Balancing Settings --]
+        [#local loadBalancingSettings = 
+            [
+                getFrontDoorLoadBalancingSettings(
+                    frontDoorLBSettingsName
+                )
+            ]
+        ]
+
+        [@createFrontDoor
+            id=frontDoor.Id
+            name=frontDoor.Name
+            location=regionId
+            routingRules=routingRules
+            loadBalancingSettings=loadBalancingSettings
+            backendPools=backendPools
+            frontendEndpoints=frontendEndpoints
+            healthProbeSettings=healthProbeSettings         
+        /]
+
+        [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
+
+        [@createFrontDoorWAFPolicy
+            id=wafPolicy.Id
+            name=wafPolicy.Name
+            location=regionId
+            securityProfile=securityProfile
+        /]
+    [/#if]
+
+    [#-- Epilogue --]
+    [#if deploymentSubsetRequired("epilogue", false)]
+        [#-- If there is something to purge, and its previously been deployed, purge it --]
+        [#if invalidationPaths?has_content && getExistingReference(frontDoor.Id)?has_content]
+            [@addToDefaultBashScriptOutput
+                [
+                    "case $\{STACK_OPERATION} in",
+                    "  create|update)"
+                    "    # Purge FrontDoor Endpoint",
+                    "    info \"Purging frontDoor content ... \"",
+                    "    az_purge_frontdoor_endpoint" +
+                        " \"" + getExistingReference("ResourceGroup") + "\"" +
+                        " \"" + frontDoor.Name + "\"" +
+                        " \"" + asFlattenedArray(invalidationPaths, true)?join(' ') + "\" || return $?"
+                        ";;",
+                    "esac"
+                ]
+            /]
+        [/#if]
+    [/#if]
+
+[/#macro]
