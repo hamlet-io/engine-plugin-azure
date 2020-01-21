@@ -25,7 +25,7 @@ function az_copy_to_blob(){
     --account-name "${storageAccountName}" \
     --container-name "${containerName}" \
     --name "${blobName}" \
-    --file "${file}" > /dev/null
+    --file "${file}" > /dev/null || return $?
 }
 
 function az_copy_from_blob(){
@@ -38,28 +38,49 @@ function az_copy_from_blob(){
     --account-name "${storageAccountName}" \
     --container-name "${containerName}" \
     --name "${blobName}" \
-    --file "${file}" \
-    --no-progress > /dev/null
+    --file "${fileName}" \
+    --no-progress > /dev/null || return $?
 }
 
 # sync is in public preview as of Jan 2020.
 function az_sync_with_blob(){
   local storageAccountName="$1"; shift
   local containerName="$1"; shift
-  local sourcePath="$1"; shift
   local destinationSuffix="$1"; shift
+  if namedef_supported; then
+    local -n syncFiles="$1"; shift
+  else
+    eval "local syncFiles=(\"\${${1}[@]}\")"; shift
+  fi
+
+  pushTempDir "${FUNCNAME[0]}_XXXXXX"
+  local tmp_dir="$(getTopTempDir)"
+
+  # Copy files locally so we can sync with Blog Storage
+  for file in "${syncFiles[@]}" ; do
+    if [[ -f "${file}" ]]; then
+      case "$(fileExtension "${file}")" in
+        zip)
+          unzip -DD "${file}" -d "${tmp_dir}"
+          ;;
+        *)
+          cp "${file}" "${tmp_dir}"
+          ;;
+      esac
+    fi
+  done
 
   args=(
     "account-name ${accountName}"
     "container ${containerName}"
-    "source ${sourcePath}"
+    "source ${tmp_dir}"
   )
 
   if [[ -n "${destinationSuffix}" ]]; then
     args=("${args[@]}" "destination ${destinationSuffix}")
   fi
 
-  az storage blob sync ${args[@]/#/--} > /dev/null
+  az storage blob sync ${args[@]/#/--} > /dev/null || return $?
 }
 
 function az_delete_blob_dir(){

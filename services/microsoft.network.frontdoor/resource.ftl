@@ -199,7 +199,7 @@
       attributeIfContent("frontendEndpoints", frontendEndpoints) +
       attributeIfContent("backendPoolsSettings", {} +
         attributeIfContent("enforceCertificateNameCheck", backendEnforceCertNameCheck) + 
-        attributeIfContent("sendRecvTimeoutSeconds", backendSendRecvTimeoutSeconds")
+        attributeIfContent("sendRecvTimeoutSeconds", backendSendRecvTimeoutSeconds)
       )
   /]
 
