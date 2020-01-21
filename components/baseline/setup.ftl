@@ -54,9 +54,8 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "Encryption" ], false, false )]
     [#local baselineComponentIds = getBaselineComponentIds(
       baselineLinks,
-      AZURE_CMK_RESOURCE_TYPE,
-      AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE,
-      "")]
+      "cmk",
+      "vmKeyPair")]
     [#local cmkKeyId = baselineComponentIds["Encryption"]]
 
     [#-- Parent Component Resources --]

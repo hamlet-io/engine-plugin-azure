@@ -222,3 +222,16 @@ reference: https://tinyurl.com/y42ot42k --]
     properties=properties
   /]
 [/#macro]
+
+[#function getKeyVaultParameter vaultId secretName]
+  [#return
+    {
+      "reference": {
+        "keyVault": {
+          "id": getExistingReference(vaultId)
+        },
+        "secretName": secretName
+      }
+    }
+  ]
+[/#function]

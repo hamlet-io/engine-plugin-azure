@@ -7,5 +7,4 @@
 
 [#assign AZURE_CMK_RESOURCE_TYPE = "cmk"]
 
-[#assign AZURE_SSH_PRIVATE_KEY_RESOURCE_TYPE = "sshkey"]
 [#assign LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE = "sshPrivKey"]

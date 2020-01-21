@@ -51,6 +51,17 @@
     /]
 [/#macro]
 
+[#macro addParametersToDefaultJsonOutput id parameter]
+   [@addToDefaultJsonOutput
+        content=
+            {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters" : parameter
+            }
+    /]
+[/#macro]
+
 [#function pseudoArmStackOutputScript description outputs filesuffix=""]
     [#local outputString = ""]
 
@@ -78,6 +89,18 @@
     ]
 
 [/#function]
+
+[#macro armParameter name type="securestring"]
+    [@mergeWithJsonOutput
+        name="parameters"
+        content=
+            {
+                name : {
+                    "type": type
+                }
+            }
+    /]
+[/#macro]
 
 [#macro armResource
     id
@@ -185,7 +208,7 @@
             {
                 '$schema': "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                 "contentVersion": "1.0.0.0",
-                "parameters": {},
+                "parameters": getOutputContent("parameters"),
                 "variables": {},
                 "resources": getOutputContent("resources"),
                 "outputs":
