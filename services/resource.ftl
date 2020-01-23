@@ -44,26 +44,32 @@ the previous function as the ARM function will return a full object, from which 
 can be referenced via dot notation. --]
 [#function getReference
     resourceId
-    resourceName
+    resourceName,
+    typeFull=""
     outputType=REFERENCE_ATTRIBUTE_TYPE
     subscriptionId=""
     resourceGroupName=""
     attributes...]
 
+    [#-- get short type - used for apiVersion + conditions --]
     [#local resourceType = getResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
     [#local apiVersion = resourceProfile.apiVersion]
-    [#local typeFull = resourceProfile.type]
     [#local conditions = resourceProfile.conditions]
+
     [#local nameSegments = getAzureResourceNameSegments(resourceName)]
 
+    [#-- get long type - used for referencing resources in ARM functions --]
+    [#if typeFull == ""]
+        [#local typeFull = resourceProfile.type]
+    [/#if]
 
     [#if isPartOfCurrentDeploymentUnit(resourceId)]
         [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
 
             [#-- return a reference to the resourceId --]
             [#local args = []]
-            [#list [subscriptionId, resourceGroupName, resourceProfile.type] as arg]
+            [#list [subscriptionId, resourceGroupName, typeFull] as arg]
                 [#if arg?has_content]
                     [#local args += [arg]]
                 [/#if]
@@ -98,6 +104,32 @@ can be referenced via dot notation. --]
             )
         )]
     [/#if]
+[/#function]
+
+[#-- Some Azure resources need to be referened by their resourceId without being
+a resource themselves. This function will create the correct ARM reference to
+such an object Id through parent/grandparent Ids/Names --]
+[#function getSubReference 
+    resourceId
+    resourceName
+    childType
+    childName
+    grandChildType=""
+    grandChildName=""
+    subscriptionId=""
+    resourceGroupName=""]
+
+    [#return
+        getReference(
+            resourceId,
+            [resourceName, childName, grandChildName]?join('/'),
+            [getAzureResourceProfile(getResourceType(resourceId)).type, childType, grandChildType]?join('/'),
+            REFERENCE_ATTRIBUTE_TYPE,
+            subscriptionId,
+            resourceGroupName
+        )
+    ]
+
 [/#function]
 
 [#function getParameterReference parameterName]
