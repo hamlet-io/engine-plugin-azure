@@ -36,7 +36,7 @@
 [#assign STORAGE_ACCOUNT_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
-            "UseRef" : true
+            "Property" : "id"
         },
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"
@@ -53,7 +53,7 @@
 [#assign STORAGE_BLOB_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
-            "UseRef" : true
+            "Property" : "id"
         }
     }
 ]
@@ -61,7 +61,7 @@
 [#assign STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
-            "UseRef" : true
+            "Property" : "id"
         },
         NAME_ATTRIBUTE_TYPE : {
             "Property" : "name"

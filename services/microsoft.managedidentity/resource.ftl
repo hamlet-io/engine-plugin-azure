@@ -13,7 +13,7 @@
 [#assign IDENTITY_OUTPUT_MAPPINGS =
     {
         REFERENCE_ATTRIBUTE_TYPE : {
-            "Attribute" : "id"
+            "Property" : "id"
         }
     }
 ]

@@ -31,15 +31,21 @@
         }
 /]
 
-[#assign AZURE_KEYVAULT_OUTPUT_MAPPINGS = 
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_KEYVAULT_RESOURCE_TYPE
+  mappings=
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
     }
   }
-]
+/]
 
-[#assign AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS =
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
+  mappings=
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
@@ -48,23 +54,18 @@
       "Property" : "name"
     }
   }
-]
+/]
 
-[#assign AZURE_KEYVAULT_ACCESS_POLICY_OUTPUT_MAPPINGS =
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
+  mappings=
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
     }
   }
-]
-
-[#assign outputMappings +=
-  {
-    AZURE_KEYVAULT_RESOURCE_TYPE : AZURE_KEYVAULT_OUTPUT_MAPPINGS,
-    AZURE_KEYVAULT_SECRET_RESOURCE_TYPE : AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS,
-    AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE : AZURE_KEYVAULT_ACCESS_POLICY_OUTPUT_MAPPINGS
-  }
-]
+/]
 
 [#function getKeyVaultSku family name]
   [#-- SKU for a KeyVault resides within the Properties object,

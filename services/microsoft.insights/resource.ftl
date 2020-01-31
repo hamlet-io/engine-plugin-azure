@@ -10,19 +10,16 @@
     }
 /]
 
-[#assign AZURE_AUTOSCALE_SETTINGS_OUTPUT_MAPPINGS =
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE
+  mappings=
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
     }
   }
-]
-
-[#assign outputMappings += 
-  {
-    AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE : AZURE_AUTOSCALE_SETTINGS_OUTPUT_MAPPINGS
-  }
-]
+/]
 
 [#function getAutoScaleRule
   metricName

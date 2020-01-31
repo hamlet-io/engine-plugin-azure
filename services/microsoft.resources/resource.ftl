@@ -15,7 +15,9 @@
   resourceType=
   mappings=
     { 
-      REFERENCE_ATTRIBUTE_TYPE : { "Property" : "id" }
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
     }
 /]
 
