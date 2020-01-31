@@ -10,7 +10,10 @@
     }
 /]
 
-[#assign AZURE_VIRTUALMACHINE_SCALESET_OUTPUT_MAPPINGS = 
+[@addOutputMapping 
+  provider=AZURE_PROVIDER
+  resourceType=AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE
+  mappings=
   {
     REFERENCE_ATTRIBUTE_TYPE : {
       "Property" : "id"
@@ -19,11 +22,7 @@
       "Property" : "name"
     }
   }
-]
-
-[#assign outputMappings +=
-  { AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE : AZURE_VIRTUALMACHINE_SCALESET_OUTPUT_MAPPINGS }
-]
+/]
 
 [#function getVirtualMachineProfileLinuxConfigPublicKey
   path

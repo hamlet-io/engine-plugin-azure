@@ -166,31 +166,35 @@
         ]
     /]
 
-    [#list outputs as outputType,outputValue]
-        [@armOutput
-            name=(outputType = REFERENCE_ATTRIBUTE_TYPE)?then(
-                id,
-                formatAttributeId(id, outputType)
-            )
-            type=((outputValue.Property!"")?has_content)?then(
-                "string",
-                (outputType = REFERENCE_ATTRIBUTE_TYPE)?then(
-                    "string",
-                    "object"
-                )
-            )
-            value=getReference(
-                id,
-                name,
-                outputType,
-                "",
-                "",
-                ((outputValue.Property!"")?has_content)?then(
-                    outputValue.Property,
-                    ""
-                )
-            )
-        /]
+ [@debug message="outputMappings" context=outputMappings enabled=true /]
+    [#list outputMappings as provider,components]
+        [#list components as componentType,mappings]
+            [#list mappings as attributeType,attributes]
+                [#list attributes as attributeName,attributeValue]
+
+                    [#if attributeValue == "id"]
+                        [#local name = id]
+                        [#local type = "string"]
+                        [#local value = getReference(id, name)]
+                    [#else]
+                        [#-- Properties that are "several": { "levels" : { "deep" : {}}} --]
+                        [#-- are referenced with a Property value of several.levels.deep --]
+                        [#local propertySections = attributeValue?split(".")]
+                        [#local name = formatAttributeId(id, propertySections)]
+                        [#local type = attributeValue?is_hash?then("object","string")]
+                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                        [#local value = getReference(id, name, typeFull, attributeType, "", "")]
+                    [/#if]
+
+                    [@armOutput
+                        name=name
+                        type=type
+                        value=value
+                    /]
+
+                [/#list]
+            [/#list]
+        [/#list]
     [/#list]
 [/#macro]
 
