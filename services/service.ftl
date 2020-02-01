@@ -33,5 +33,8 @@
 [#-- Microsoft.Storage --]
 [#assign AZURE_STORAGE_SERVICE = "microsoft.storage"]
 
+[#-- Microsoft.Web --]
+[#assign AZURE_WEB_SERVICE = "microsoft.web"]
+
 [#-- Pseudo services --]
 [#assign AZURE_BASELINE_PSEUDO_SERVICE = "baseline"]
