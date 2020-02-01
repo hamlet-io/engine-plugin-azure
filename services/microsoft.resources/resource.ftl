@@ -6,17 +6,11 @@
   profile=
     {
       "apiVersion" : "2019-10-01",
-      "type" : "Microsoft.Resources/deployments"
-    }
-/]
-
-[@addOutputMappings
-  provider=AZURE_PROVIDER
-  resourceType=
-  mappings=
-    { 
-      REFERENCE_ATTRIBUTE_TYPE : {
-        "Property" : "id"
+      "type" : "Microsoft.Resources/deployments",
+      "outputMappings" : { 
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
       }
     }
 /]

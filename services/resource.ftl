@@ -25,6 +25,11 @@
                 "Names" : "conditions",
                 "Type" : ARRAY_OF_STRING_TYPE,
                 "Default" : []
+            },
+            {
+                "Names" : "outputMappings",
+                "type" : OBJECT_TYPE,
+                "Mandatory" : true
             }
         ]
     }
@@ -35,6 +40,15 @@
         service=service
         resource=resource
         profile=profile
+    /]
+
+    [#-- Update outputMappings from profile
+        Though outputMappings are now accessible from the profile, its important to use
+        "outputMapping" variable to support cross-provider implementation.          --]
+    [@addOutputMapping 
+        provider=AZURE_PROVIDER
+        resourceType=resource
+        mappings=profile.outputMappings
     /]
 [/#macro]
 

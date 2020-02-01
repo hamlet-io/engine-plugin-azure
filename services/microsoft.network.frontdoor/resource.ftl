@@ -6,7 +6,12 @@
   profile=
     {
       "apiVersion" : "2019-05-01",
-      "type" : "Microsoft.Network/frontDoors"
+      "type" : "Microsoft.Network/frontDoors",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
+      }
     }
 /]
 
@@ -16,38 +21,14 @@
   profile=
     {
       "apiVersion" : "2019-03-01",
-      "type" : "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies"
+      "type" : "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
+      }
     }
 /]
-
-[#assign FRONTDOOR_OUTPUT_MAPPINGS = 
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
-]
-
-[#assign FRONTDOOR_WAF_POLICY_OUTPUT_MAPPINGS = 
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
-]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_FRONTDOOR_RESOURCE_TYPE
-  mappings=FRONTDOOR_OUTPUT_MAPPINGS
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
-  mappings=FRONTDOOR_WAF_POLICY_OUTPUT_MAPPINGS
-/]
-
 
 [#function getFrontDoorRoutingRule
   id=""

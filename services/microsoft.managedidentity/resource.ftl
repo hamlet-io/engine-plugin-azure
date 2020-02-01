@@ -6,22 +6,13 @@
     profile=
         {
             "apiVersion" : "2018-11-30",
-            "type" : "Microsoft.ManagedIdentity/userAssignedIdentities"
+            "type" : "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                }
+            }
         }
-/]
-
-[#assign IDENTITY_OUTPUT_MAPPINGS =
-    {
-        REFERENCE_ATTRIBUTE_TYPE : {
-            "Property" : "id"
-        }
-    }
-]
-
-[@addOutputMapping 
-    provider=AZURE_PROVIDER
-    resourceType=AZURE_IAM_IDENTITY_RESOURCE_TYPE
-    mappings=IDENTITY_OUTPUT_MAPPINGS
 /]
 
 [#macro createUserAssignedIdentity
