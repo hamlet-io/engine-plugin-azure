@@ -84,7 +84,6 @@
   targetId
   profiles
   notifications=[]
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -92,7 +91,6 @@
     name=name
     profile=AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE
     location=location
-    outputs=outputs
     dependsOn=dependsOn
     properties=
       {

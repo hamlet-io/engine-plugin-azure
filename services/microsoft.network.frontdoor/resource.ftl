@@ -161,7 +161,6 @@
   backendEnforceCertNameCheck=""
   backendSendRecvTimeoutSeconds=""
   tags={}
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -170,7 +169,6 @@
     profile=AZURE_FRONTDOOR_RESOURCE_TYPE
     dependsOn=dependsOn
     tags=tags
-    outputs=outputs
     properties={} +
       attributeIfContent("friendlyName", friendlyName) +
       attributeIfContent("routingRules", routingRules) +
@@ -265,7 +263,6 @@
   customRules=[]
   managedRules=[]
   tags={}
-  outputs={}
   dependsOn=[]]
 
   [@armResource

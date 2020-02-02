@@ -118,8 +118,7 @@
     plan={}
     zones=[]
     resources=[]
-    parentNames=[]
-    outputs={}]
+    parentNames=[]]
     
     [#--
         Note - "Identity" is a unique attribute and is not available to resources

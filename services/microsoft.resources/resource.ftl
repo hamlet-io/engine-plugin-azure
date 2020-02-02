@@ -81,7 +81,6 @@
   zones=[]
   resources=[]
   parentNames=[]
-  outputs={}
   deploymentResourceId="defaultDeploymentResource"
   deploymentResourceName="default"
   deploymentResourceMode="Incremental"

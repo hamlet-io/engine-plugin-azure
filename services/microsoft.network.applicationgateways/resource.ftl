@@ -441,7 +441,6 @@
   autoScaleMinCapacity=""
   autoScaleMaxCapacity=""
   identity={}
-  outputs={}
   dependsOn=[]]
 
   [#local sku = {} +
@@ -503,7 +502,6 @@
         attributeIfTrue("minCapacity", autoScaleMinCapacity) +
         attributeIfTrue("maxCapacity", autoScaleMaxCapacity)) +
       attributeIfContent("customErrorConfigurations", customErrorConfigurations)
-    outputs=outputs
     dependsOn=dependsOn
   /]
 

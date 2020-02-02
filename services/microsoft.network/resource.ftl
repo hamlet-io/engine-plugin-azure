@@ -110,7 +110,6 @@
   description=""
   priority=4096
   tags={}
-  outputs={}
   dependsOn=[]]
 
   [#local destinationPortProfile = ports[destinationPortProfileName]]
@@ -149,7 +148,6 @@
       attributeIfContent("description", description) +
       attributeIfContent("priority", priority)
     tags=tags
-    outputs=outputs
   /]
   
 [/#macro]
@@ -161,7 +159,6 @@
   addressPrefix="" 
   nextHopIpAddress=""
   dependsOn=[]
-  outputs={}
   tags={}]
 
   [@armResource
@@ -172,7 +169,6 @@
       attributeIfContent("addressPrefix", addressPrefix) +
       attributeIfContent("nextHopIpAddress", nextHopIpAddress)
     dependsOn=dependsOn
-    outputs=outputs
     tags=tags
   /]
 
@@ -185,8 +181,7 @@
   disableBgpRoutePropagation=false
   location=""
   tags={}
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -198,7 +193,6 @@
       attributeIfContent("routes", routes) +
       attributeIfTrue("disableBgpRoutePropagation", disableBgpRoutePropagation, disableBgpRoutePropagation)
     dependsOn=dependsOn
-    outputs=outputs
   /]
 
 [/#macro]
@@ -209,8 +203,7 @@
   location=""
   tags={}
   resources=[]
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -220,7 +213,6 @@
     tags=tags
     resources=resources
     dependsOn=dependsOn
-    outputs=outputs
   /]
 [/#macro]
 
@@ -230,8 +222,7 @@
   description=""
   service=""
   serviceResources=[]
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -242,7 +233,6 @@
       attributeIfContent("service", service) +
       attributeIfContent("serviceResources", serviceResources)
     dependsOn=dependsOn
-    outputs=outputs
   /]
 [/#macro]
 
@@ -356,7 +346,6 @@
   remoteVirtualNetworkId=""
   remoteAddressSpacePrefixes=[]
   peeringState=""
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -371,7 +360,6 @@
       attributeIfContent("remoteVirtualNetwork", { "id" : remoteVirtualNetworkId } ) +
       attributeIfContent("remoteAddressSpace", { "addressPrefixes" : remoteAddressSpacePrefixes } ) +
       attributeIfContent("peeringState", peeringState)
-    outputs=outputs
     dependsOn=dependsOn
   /]
 [/#macro]
@@ -382,7 +370,6 @@
   dnsServers=[]
   addressSpacePrefixes=[]
   location=regionId
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -390,7 +377,6 @@
     name=name
     profile=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
     location=location
-    outputs=outputs
     dependsOn=dependsOn
     properties={} +
       attributeIfContent("addressSpace", {} + 
@@ -421,7 +407,6 @@
   formatType=""
   formatVersion=""
   location=""
-  outputs={}
   dependsOn=[]]
 
   [#local networkWatcherFlowAnalyticsConfiguration = { "enabled" : true } +
@@ -450,7 +435,6 @@
       attributeIfContent("retentionPolicy", retentionPolicy) +
       attributeIfContent("format", format)
     location=location
-    outputs=outputs
     dependsOn=dependsOn
   /]
 [/#macro]

@@ -118,7 +118,6 @@
   vmProfile
   identity={}
   zones=[]
-  outputs={}
   dependsOn={}]
 
   [@armResource
@@ -133,7 +132,6 @@
         "capacity" : skuCapacity
       }
     identity=identity
-    outputs=outputs
     dependsOn=dependsOn
     zones=zones
     properties=
