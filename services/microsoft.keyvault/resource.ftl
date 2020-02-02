@@ -1,70 +1,52 @@
 [#ftl]
 
 [@addResourceProfile
-    service=AZURE_KEYVAULT_SERVICE
-    resource=AZURE_KEYVAULT_RESOURCE_TYPE
-    profile=
-        {
-            "apiVersion" : "2018-02-14",
-            "type" : "Microsoft.KeyVault/vaults",
-            "conditions" : [ "globally_unique" ]
+  service=AZURE_KEYVAULT_SERVICE
+  resource=AZURE_KEYVAULT_RESOURCE_TYPE
+  profile=
+    {
+      "apiVersion" : "2018-02-14",
+      "type" : "Microsoft.KeyVault/vaults",
+      "conditions" : [ "globally_unique" ],
+      "outputMappings":   {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
         }
+      }
+    }
 /]
 
 [@addResourceProfile
-    service=AZURE_KEYVAULT_SERVICE
-    resource=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
-    profile=
-        {
-            "apiVersion" : "2018-02-14",
-            "type" : "Microsoft.KeyVault/vaults/secrets"
+  service=AZURE_KEYVAULT_SERVICE
+  resource=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
+  profile=
+    {
+      "apiVersion" : "2018-02-14",
+      "type" : "Microsoft.KeyVault/vaults/secrets",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        },
+        NAME_ATTRIBUTE_TYPE : {
+          "Property" : "name"
         }
+      }
+    }
 /]
 
 [@addResourceProfile
     service=AZURE_KEYVAULT_SERVICE
     resource=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     profile=
-        {
-            "apiVersion" : "2018-02-14",
-            "type" : "Microsoft.KeyVault/vaults/accessPolicies"
+      {
+        "apiVersion" : "2018-02-14",
+        "type" : "Microsoft.KeyVault/vaults/accessPolicies",
+        "outputMappings" : {
+          REFERENCE_ATTRIBUTE_TYPE : {
+            "Property" : "id"
+          }
         }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_KEYVAULT_RESOURCE_TYPE
-  mappings=
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
-  mappings=
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    },
-    NAME_ATTRIBUTE_TYPE : {
-      "Property" : "name"
-    }
-  }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
-  mappings=
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
+      }
 /]
 
 [#function getKeyVaultSku family name]
@@ -187,7 +169,6 @@ convention ("object" suffix) is used to easily distinguish the two. --]
     properties=properties
     tags=tags
     resources=resources
-    outputs=AZURE_KEYVAULT_OUTPUT_MAPPINGS
     dependsOn=dependsOn
   /]
 
@@ -219,7 +200,6 @@ reference: https://tinyurl.com/y42ot42k --]
     name=name
     profile=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
     tags=tags
-    outputs=AZURE_KEYVAULT_SECRET_OUTPUT_MAPPINGS
     properties=properties
   /]
 [/#macro]

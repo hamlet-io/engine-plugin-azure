@@ -118,8 +118,7 @@
     plan={}
     zones=[]
     resources=[]
-    parentNames=[]
-    outputs={}]
+    parentNames=[]]
     
     [#--
         Note - "Identity" is a unique attribute and is not available to resources
@@ -166,35 +165,32 @@
         ]
     /]
 
-    [#list outputMappings as provider,components]
-        [#list components as componentType,mappings]
-            [#list mappings as attributeType,attributes]
-                [#list attributes as attributeName,attributeValue]
+    [#list resourceProfile.outputMappings as attributeType,attributes]
+        [#list attributes as attributeName,attributeValue]
 
-                    [#if attributeValue == "id"]
-                        [#local outputName = id]
-                        [#local type = "string"]
-                        [#local value = getReference(id, name)]
-                    [#else]
-                        [#-- Properties that are "several": { "levels" : { "deep" : {}}} --]
-                        [#-- are referenced with a Property value of several.levels.deep --]
-                        [#local propertySections = attributeValue?split(".")]
-                        [#local outputName = formatAttributeId(id, propertySections)]
-                        [#local type = attributeValue?is_hash?then("object","string")]
-                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                        [#local value = getReference(id, name, typeFull, attributeType, "", "", attributeValue)]
-                    [/#if]
+            [#if attributeValue == "id"]
+                [#local outputName = id]
+                [#local type = "string"]
+                [#local value = getReference(id, name)]
+            [#else]
+                [#-- Properties that are "several": { "levels" : { "deep" : {}}} --]
+                [#-- are referenced with a Property value of several.levels.deep --]
+                [#local propertySections = attributeValue?split(".")]
+                [#local outputName = formatAttributeId(id, propertySections)]
+                [#local type = attributeValue?is_hash?then("object","string")]
+                [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                [#local value = getReference(id, name, typeFull, attributeType, "", "", attributeValue)]
+            [/#if]
 
-                    [@armOutput
-                        name=outputName
-                        type=type
-                        value=value
-                    /]
+            [@armOutput
+                name=outputName
+                type=type
+                value=value
+            /]
 
-                [/#list]
-            [/#list]
         [/#list]
     [/#list]
+
 [/#macro]
 
 [#macro arm_output_resource level="" include=""]

@@ -7,7 +7,21 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts",
-            "conditions" : [ "alphanumeric_only", "name_to_lower", "globally_unique" ]
+            "conditions" : [ "alphanumeric_only", "name_to_lower", "globally_unique" ],
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                },
+                NAME_ATTRIBUTE_TYPE : {
+                    "Property" : "name"
+                },
+                URL_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.primaryEndpoints.blob"
+                },
+                REGION_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.primaryLocation"
+                }
+            }
         }
 /]
 
@@ -18,7 +32,12 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts/blobServices",
-            "conditions" : [ "name_to_lower", "parent_to_lower" ]
+            "conditions" : [ "name_to_lower", "parent_to_lower" ],
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                }
+            }
         }
 /]
 
@@ -29,60 +48,17 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts/blobServices/containers",
-            "conditions" : [ "name_to_lower", "parent_to_lower" ]
+            "conditions" : [ "name_to_lower", "parent_to_lower" ],
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                },
+                NAME_ATTRIBUTE_TYPE : {
+                    "Property" : "name"
+                }
+            }
         }
 /]
-
-[#assign STORAGE_ACCOUNT_OUTPUT_MAPPINGS =
-    {
-        REFERENCE_ATTRIBUTE_TYPE : {
-            "Property" : "id"
-        },
-        NAME_ATTRIBUTE_TYPE : {
-            "Property" : "name"
-        },
-        URL_ATTRIBUTE_TYPE : {
-            "Property" : "properties.primaryEndpoints.blob"
-        },
-        REGION_ATTRIBUTE_TYPE : {
-            "Property" : "properties.primaryLocation"
-        }
-    }
-]
-
-[#assign STORAGE_BLOB_OUTPUT_MAPPINGS =
-    {
-        REFERENCE_ATTRIBUTE_TYPE : {
-            "Property" : "id"
-        }
-    }
-]
-
-[#assign STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS =
-    {
-        REFERENCE_ATTRIBUTE_TYPE : {
-            "Property" : "id"
-        },
-        NAME_ATTRIBUTE_TYPE : {
-            "Property" : "name"
-        }
-    }
-]
-[#assign storageMappings = 
-    {
-        AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE : STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS,
-        AZURE_BLOBSERVICE_RESOURCE_TYPE : STORAGE_BLOB_OUTPUT_MAPPINGS,
-        AZURE_STORAGEACCOUNT_RESOURCE_TYPE : STORAGE_ACCOUNT_OUTPUT_MAPPINGS
-    }
-]
-
-[#list storageMappings as type, mappings]
-    [@addOutputMapping 
-        provider=AZURE_PROVIDER
-        resourceType=type
-        mappings=mappings
-    /]
-[/#list]
 
 [#function getStorageSku tier replication reasonCodes...]
     [#return
@@ -189,7 +165,6 @@
         tags=tags
         identity={ "type" : "SystemAssigned" }
         sku=sku
-        outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
             {
                 "supportsHttpsTrafficOnly" : supportHttpsTrafficOnly
@@ -238,7 +213,6 @@
         profile=AZURE_BLOBSERVICE_RESOURCE_TYPE
         dependsOn=dependsOn
         resources=resources
-        outputs=STORAGE_BLOB_OUTPUT_MAPPINGS
         properties=
             {} + 
             attributeIfContent("cors", attributeIfContent("CORSRules", CORSRules)) +
@@ -264,7 +238,6 @@
         profile=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         resources=resources
         dependsOn=dependsOn
-        outputs=STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS
         properties=
             {} +
             attributeIfContent("publicAccess", publicAccess) +

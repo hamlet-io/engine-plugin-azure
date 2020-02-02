@@ -3,91 +3,86 @@
 [#assign networkResourceProfiles = {
   AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
-    "type" : "Microsoft.Network/applicationSecurityGroups"
+    "type" : "Microsoft.Network/applicationSecurityGroups",
+    "outputMappings" : {}
   },
   AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/routeTables"
+    "type" : "Microsoft.Network/routeTables",
+    "outputMappings" : {}
   },
   AZURE_ROUTE_TABLE_ROUTE_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/routeTables/routes"
+    "type" : "Microsoft.Network/routeTables/routes",
+    "outputMappings" : {}
   },
   AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/serviceEndpointPolicies"
+    "type" : "Microsoft.Network/serviceEndpointPolicies",
+    "outputMappings" : {}
   },
   AZURE_SERVICE_ENDPOINT_POLICY_DEFINITION_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions"
+    "type" : "Microsoft.Network/serviceEndpointPolicies/serviceEndpointPolicyDefinitions",
+    "outputMappings" : {}
   },
   AZURE_SUBNET_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/virtualNetworks/subnets"
+    "type" : "Microsoft.Network/virtualNetworks/subnets",
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
   },
   AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/virtualNetworks"
+    "type" : "Microsoft.Network/virtualNetworks",
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
   },
   AZURE_VIRTUAL_NETWORK_PEERING_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings"
+    "type" : "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+    "outputMappings" : {}
   },
   AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
-    "type" : "Microsoft.Network/networkSecurityGroups"
+    "type" : "Microsoft.Network/networkSecurityGroups",
+    "outputMappings" : {}
   },
   AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
-    "type" : "Microsoft.Network/networkSecurityGroups/securityRules"
+    "type" : "Microsoft.Network/networkSecurityGroups/securityRules",
+    "outputMappings" : {}
   },
   AZURE_NETWORK_WATCHER_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
-    "type" : "Microsoft.Network/networkWatchers"
+    "type" : "Microsoft.Network/networkWatchers",
+    "outputMappings" : {}
   },
   AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE : {
     "apiVersion" : "2018-09-01",
-    "type" : "Microsoft.Network/privateDnsZones"
+    "type" : "Microsoft.Network/privateDnsZones",
+    "outputMappings" : {}
   },
   AZURE_PRIVATE_DNS_ZONE_VNET_LINK_RESOURCE_TYPE : {
     "apiVersion" : "2018-09-01",
-    "type" : "Microsoft.Network/privateDnsZones/virtualNetworkLinks"
+    "type" : "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+    "outputMappings" : {}
   }
 }]
 
-[#list networkResourceProfiles as resource,attributes]
+[#list networkResourceProfiles as resourceType,resourceProfile]
   [@addResourceProfile
     service=AZURE_NETWORK_SERVICE
-    resource=resource
-    profile=
-      {
-        "apiVersion" : attributes.apiVersion,
-        "type" : attributes.type
-      }
+    resource=resourceType
+    profile=resourceProfile
   /]
 [/#list]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
-  mappings=
-    {
-      REFERENCE_ATTRIBUTE_TYPE : {
-        "Property" : "id"
-      }
-    }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_SUBNET_RESOURCE_TYPE
-  mappings=
-    {
-      REFERENCE_ATTRIBUTE_TYPE : {
-        "Property" : "id"
-      }
-    }
-/]
 
 [#macro createApplicationSecurityGroup id name location tags={}]
   [@armResource
@@ -115,7 +110,6 @@
   description=""
   priority=4096
   tags={}
-  outputs={}
   dependsOn=[]]
 
   [#local destinationPortProfile = ports[destinationPortProfileName]]
@@ -154,7 +148,6 @@
       attributeIfContent("description", description) +
       attributeIfContent("priority", priority)
     tags=tags
-    outputs=outputs
   /]
   
 [/#macro]
@@ -166,7 +159,6 @@
   addressPrefix="" 
   nextHopIpAddress=""
   dependsOn=[]
-  outputs={}
   tags={}]
 
   [@armResource
@@ -177,7 +169,6 @@
       attributeIfContent("addressPrefix", addressPrefix) +
       attributeIfContent("nextHopIpAddress", nextHopIpAddress)
     dependsOn=dependsOn
-    outputs=outputs
     tags=tags
   /]
 
@@ -190,8 +181,7 @@
   disableBgpRoutePropagation=false
   location=""
   tags={}
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -203,7 +193,6 @@
       attributeIfContent("routes", routes) +
       attributeIfTrue("disableBgpRoutePropagation", disableBgpRoutePropagation, disableBgpRoutePropagation)
     dependsOn=dependsOn
-    outputs=outputs
   /]
 
 [/#macro]
@@ -214,8 +203,7 @@
   location=""
   tags={}
   resources=[]
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -225,7 +213,6 @@
     tags=tags
     resources=resources
     dependsOn=dependsOn
-    outputs=outputs
   /]
 [/#macro]
 
@@ -235,8 +222,7 @@
   description=""
   service=""
   serviceResources=[]
-  dependsOn=[]
-  outputs={}]
+  dependsOn=[]]
 
   [@armResource
     id=id
@@ -247,7 +233,6 @@
       attributeIfContent("service", service) +
       attributeIfContent("serviceResources", serviceResources)
     dependsOn=dependsOn
-    outputs=outputs
   /]
 [/#macro]
 
@@ -361,7 +346,6 @@
   remoteVirtualNetworkId=""
   remoteAddressSpacePrefixes=[]
   peeringState=""
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -376,7 +360,6 @@
       attributeIfContent("remoteVirtualNetwork", { "id" : remoteVirtualNetworkId } ) +
       attributeIfContent("remoteAddressSpace", { "addressPrefixes" : remoteAddressSpacePrefixes } ) +
       attributeIfContent("peeringState", peeringState)
-    outputs=outputs
     dependsOn=dependsOn
   /]
 [/#macro]
@@ -387,7 +370,6 @@
   dnsServers=[]
   addressSpacePrefixes=[]
   location=regionId
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -395,7 +377,6 @@
     name=name
     profile=AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
     location=location
-    outputs=outputs
     dependsOn=dependsOn
     properties={} +
       attributeIfContent("addressSpace", {} + 
@@ -426,7 +407,6 @@
   formatType=""
   formatVersion=""
   location=""
-  outputs={}
   dependsOn=[]]
 
   [#local networkWatcherFlowAnalyticsConfiguration = { "enabled" : true } +
@@ -455,7 +435,6 @@
       attributeIfContent("retentionPolicy", retentionPolicy) +
       attributeIfContent("format", format)
     location=location
-    outputs=outputs
     dependsOn=dependsOn
   /]
 [/#macro]

@@ -6,22 +6,16 @@
   profile=
     {
       "apiVersion" : "2019-03-01",
-      "type" : "Microsoft.Compute/virtualMachineScaleSets"
+      "type" : "Microsoft.Compute/virtualMachineScaleSets",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        },
+        NAME_ATTRIBUTE_TYPE : {
+          "Property" : "name"
+        }
+      }
     }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE
-  mappings=
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    },
-    NAME_ATTRIBUTE_TYPE : {
-      "Property" : "name"
-    }
-  }
 /]
 
 [#function getVirtualMachineProfileLinuxConfigPublicKey
@@ -124,7 +118,6 @@
   vmProfile
   identity={}
   zones=[]
-  outputs={}
   dependsOn={}]
 
   [@armResource
@@ -139,7 +132,6 @@
         "capacity" : skuCapacity
       }
     identity=identity
-    outputs=outputs
     dependsOn=dependsOn
     zones=zones
     properties=

@@ -6,17 +6,11 @@
   profile=
     {
       "apiVersion" : "2019-09-01",
-      "type" : "Microsoft.Network/applicationGateways"
-    }
-/]
-
-[@addOutputMapping
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_APPLICATION_GATEWAY_RESOURCE_TYPE
-  mappings=
-    {
-      REFERENCE_ATTRIBUTE_TYPE : {
-        "Property" : "id"
+      "type" : "Microsoft.Network/applicationGateways",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
       }
     }
 /]
@@ -447,7 +441,6 @@
   autoScaleMinCapacity=""
   autoScaleMaxCapacity=""
   identity={}
-  outputs={}
   dependsOn=[]]
 
   [#local sku = {} +
@@ -509,7 +502,6 @@
         attributeIfTrue("minCapacity", autoScaleMinCapacity) +
         attributeIfTrue("maxCapacity", autoScaleMaxCapacity)) +
       attributeIfContent("customErrorConfigurations", customErrorConfigurations)
-    outputs=outputs
     dependsOn=dependsOn
   /]
 

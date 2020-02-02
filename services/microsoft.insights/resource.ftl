@@ -6,19 +6,13 @@
   profile=
     {
       "apiVersion" : "2018-05-01-preview",
-      "type" : "Microsoft.Insights/autoscaleSettings"
+      "type" : "Microsoft.Insights/autoscaleSettings",
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
+      }
     }
-/]
-
-[@addOutputMapping 
-  provider=AZURE_PROVIDER
-  resourceType=AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE
-  mappings=
-  {
-    REFERENCE_ATTRIBUTE_TYPE : {
-      "Property" : "id"
-    }
-  }
 /]
 
 [#function getAutoScaleRule
@@ -90,7 +84,6 @@
   targetId
   profiles
   notifications=[]
-  outputs={}
   dependsOn=[]]
 
   [@armResource
@@ -98,7 +91,6 @@
     name=name
     profile=AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE
     location=location
-    outputs=outputs
     dependsOn=dependsOn
     properties=
       {

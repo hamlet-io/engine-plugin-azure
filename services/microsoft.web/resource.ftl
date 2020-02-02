@@ -6,7 +6,12 @@
     profile=
         {
             "apiVersion" : "2019-08-01",
-            "type" : "Microsoft.Web/serverfarms"
+            "type" : "Microsoft.Web/serverfarms",
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                }
+            }
         }
 /]
 
@@ -16,28 +21,11 @@
     profile=
         {
             "apiVersion": "2019-08-01",
-            "type" : "Microsoft.Web/sites"
-        }
-/]
-
-[@addOutputMapping
-    provider=AZURE_PROVIDER
-    resourceType=AZURE_APP_SERVICE_PLAN_RESOURCE_TYPE
-    mappings=
-        {
-            REFERENCE_ATTRIBUTE_TYPE : {
-                "Property" : "id"
-            }
-        }
-/]
-
-[@addOutputMapping
-    provider=AZURE_PROVIDER
-    resourceType=AZURE_WEB_APP_RESOURCE_TYPE
-    mappings=
-        {
-            REFERENCE_ATTRIBUTE_TYPE : {
-                "Property" : "id"
+            "type" : "Microsoft.Web/sites",
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                }
             }
         }
 /]
