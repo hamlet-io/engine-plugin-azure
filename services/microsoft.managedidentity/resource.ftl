@@ -30,6 +30,5 @@
         dependsOn=dependsOn
         properties={}
         tags=tags
-        outputs=IDENTITY_OUTPUT_MAPPINGS
     /]
 [#/macro]

@@ -165,7 +165,6 @@
         tags=tags
         identity={ "type" : "SystemAssigned" }
         sku=sku
-        outputs=STORAGE_ACCOUNT_OUTPUT_MAPPINGS
         properties=
             {
                 "supportsHttpsTrafficOnly" : supportHttpsTrafficOnly
@@ -214,7 +213,6 @@
         profile=AZURE_BLOBSERVICE_RESOURCE_TYPE
         dependsOn=dependsOn
         resources=resources
-        outputs=STORAGE_BLOB_OUTPUT_MAPPINGS
         properties=
             {} + 
             attributeIfContent("cors", attributeIfContent("CORSRules", CORSRules)) +
@@ -240,7 +238,6 @@
         profile=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         resources=resources
         dependsOn=dependsOn
-        outputs=STORAGE_BLOB_CONTAINER_OUTPUT_MAPPINGS
         properties=
             {} +
             attributeIfContent("publicAccess", publicAccess) +
