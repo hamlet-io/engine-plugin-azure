@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azure_baseline_arm_state occurrence parent={} baseState={}]
+[#macro azure_baseline_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
   
@@ -51,7 +51,7 @@
   ]
 [/#macro]
 
-[#macro azure_baselinedata_arm_state occurrence parent={} baseState={}]
+[#macro azure_baselinedata_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
@@ -75,7 +75,7 @@
   ]
 [/#macro]
 
-[#macro azure_baselinekey_arm_state occurrence parent={} baseState={}]
+[#macro azure_baselinekey_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
   
