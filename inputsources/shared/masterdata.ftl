@@ -395,6 +395,35 @@
       "Processors": {
         "default": {}
       },
+      "CertificateBehaviours": {
+        "External": false,
+        "Wildcard": true,
+        "IncludeInHost": {
+          "Product": false,
+          "Segment": false,
+          "Tier": false
+        },
+        "HostParts": [
+          "Host",
+          "Tier",
+          "Component",
+          "Instance",
+          "Version",
+          "Segment",
+          "Environment",
+          "Product"
+        ],
+        "Qualifiers": {
+          "prod": {
+            "IncludeInHost": {
+              "Environment": false
+            },
+            "IncludeInDomain": {
+              "Environment": false
+            }
+          }
+        }
+      },
       "LogFiles": {},
       "LogFileGroups": {},
       "LogFileProfiles": {
@@ -427,9 +456,6 @@
       "ScriptStores": {},
       "Bootstraps": {},
       "BootstrapProfiles": {
-        "default": {}
-      },
-      "SecurityProfiles": {
         "default": {}
       },
       "BaselineProfiles": {

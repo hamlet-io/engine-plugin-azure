@@ -7,9 +7,9 @@
 
   [#-- Baseline component lookup --]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false )]
-  [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "cmk", "vmKeyPair", "", "container")]
-  [#local operationsBlobContainer = getExistingReference(baselineComponentIds["OpsData"])]
-  
+  [#local baselineResources = baselineLinks["OpsData"].State.Resources]
+  [#local operationsBlobContainer = baselineResources["container"]]
+
   [#local configFilePath = 
     formatRelativePath(
       getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
@@ -28,7 +28,10 @@
       "Attributes": {
         "CONFIG_PATH_PATTERN": solution.ConfigPathPattern,
         "CONFIG_STORAGE_CONTAINER": operationsBlobContainer,
-        "CONFIG_FILE": formatRelativePath(configFilePath, configFileName)
+        "CONFIG_FILE": formatRelativePath(configFilePath, configFileName),
+        "FRONTEND_PORT" : solution.Port,
+        "BACKEND_HTTP_PORT" : ports[solution.Port].Port.Http,
+        "BACKEND_HTTPS_PORT" : ports[solution.Port].Port.Https
       },
       "Roles": {
         "Inbound": {},
