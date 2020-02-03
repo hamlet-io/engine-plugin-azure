@@ -68,7 +68,8 @@
       },
       "Attributes": {
         "ACCOUNT_NAME" : storageAccountName,
-        "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net")
+        "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
+        "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net")
       },
       "Roles": {
         "Inbound": {},

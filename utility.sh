@@ -42,6 +42,15 @@ function az_copy_from_blob(){
     --no-progress > /dev/null || return $?
 }
 
+function az_interact_storage_queue(){
+  local storageAccountName="$1"; shift
+  local queueName="$1"; shift
+  local action="$1"; shift
+
+  connectionString=$(az storage account show-connection-string --name "${storageAccountName}" | jq '.["connectionString"]') || return $?
+  az storage queue ${action} --name "${queueName}" --connection-string "${connectionString}"  || return $?
+}
+
 # sync is in public preview as of Jan 2020.
 function az_sync_with_blob(){
   local storageAccountName="$1"; shift
