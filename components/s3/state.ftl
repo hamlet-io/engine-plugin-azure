@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azure_s3_arm_state occurrence parent={} baseState={}]
+[#macro azure_s3_arm_state occurrence parent={}]
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 

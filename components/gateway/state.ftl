@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azure_gateway_arm_state occurrence parent={} baseState={}]
+[#macro azure_gateway_arm_state occurrence parent={}]
 
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
@@ -43,7 +43,7 @@
 
 [/#macro]
 
-[#macro azure_gatewaydestination_arm_state occurrence parent={} baseState={}]
+[#macro azure_gatewaydestination_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 

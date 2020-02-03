@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azure_network_arm_state occurrence parent={} baseState={}]
+[#macro azure_network_arm_state occurrence parent={}]
   
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
@@ -109,7 +109,7 @@
   ]
 [/#macro]
 
-[#macro azure_networkroute_arm_state occurrence parent={} baseState={}]
+[#macro azure_networkroute_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
@@ -152,7 +152,7 @@ resource. It remains "networkacl" in name to ensure there is no clash
 with any future networkSecurityGroup components. When referring to
 the Resource alone, it will remain NetworkSecurityGroup for clarity
 as Azure does not have NetworkACLs.--]
-[#macro azure_networkacl_arm_state occurrence parent={} baseState={}]
+[#macro azure_networkacl_arm_state occurrence parent={}]
 
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
