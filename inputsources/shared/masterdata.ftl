@@ -361,7 +361,7 @@
           "storageAccount": {
             "Tier": "Standard",
             "Replication": "LRS",
-            "Type": "BlobStorage",
+            "Type": "StorageV2",
             "AccessTier": "Cool",
             "HnsEnabled": false
           }
