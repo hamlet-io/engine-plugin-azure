@@ -55,6 +55,7 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
+  [#local storageAccountId = parent.State.Resources["storageAccount"].Id]
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
 
   [#assign componentState =
@@ -67,6 +68,7 @@
         }
       },
       "Attributes": {
+        "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
         "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
         "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net")

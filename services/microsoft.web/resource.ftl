@@ -430,7 +430,7 @@
         attributeIfContent("limits", {} +
             attributeIfContent("maxPercentageCpu", maxPercentageCpu) +
             attributeIfContent("maxMemoryInMb", maxMemoryInMb) +
-            attributeIfContent("maxDiskSizeInMb", maxDiskSizeInMb) +
+            attributeIfContent("maxDiskSizeInMb", maxDiskSizeInMb)
         ) +
         attributeIfTrue("autoHealEnabled", autoHealEnabled, autoHealEnabled) +
         attributeIfContent("autoHealRules", autoHealRules) +
