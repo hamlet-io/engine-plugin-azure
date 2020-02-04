@@ -21,8 +21,6 @@
         }
     ]
 
-    [@debug message="Entering LAMBDA ARM State" context=occurrence enabled=true /]
-
 [/#macro]
 
 [#macro azure_function_arm_state occurrence parent={}]
@@ -34,7 +32,7 @@
             "Resources" : {
                 "function" : {
                     "Id" : formatResourceId(AZURE_WEB_APP_RESOURCE_TYPE, core.Id),
-                    "Name" : core.FullName,
+                    "Name" : core.ShortName,
                     "Type" : AZURE_WEB_APP_RESOURCE_TYPE
                 }
             },
@@ -45,7 +43,5 @@
             }
         }
     ]
-
-    [@debug message="Entering FUNCTION ARM State" context=occurrence enabled=true /]
 
 [/#macro]

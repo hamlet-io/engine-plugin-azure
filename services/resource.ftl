@@ -291,7 +291,12 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 [/#function]
 
 [#-- Get stack output --]
-[#function getExistingReference resourceId attributeType="" inRegion="" inDeploymentUnit="" inAccount=(accountObject.AWSId)!""]
+[#function getExistingReference resourceId attributeType="" inRegion="" inDeploymentUnit="" inAccount=""]
+    [#local attributeType = (attributeType == REFERENCE_ATTRIBUTE_TYPE)?then(
+                                "",
+                                attributeType
+    )]
+
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 

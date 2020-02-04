@@ -69,7 +69,6 @@
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
 
     [#-- Process Resource Naming Conditions --]
-    [#local accountName = formatAzureResourceName(accountName, getResourceType(accountId))]
     [#local blobName = formatAzureResourceName(blobName, getResourceType(blobId), accountName)]
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
@@ -85,8 +84,8 @@
 
     [#--
       storageAccount + keyVault : Retrieve NetworkACL Configuration
-      Component roles will grant more explicit access to Storage + KeyVault.
-      For now we just want blanket "deny-all" networkAcls.
+      Default network access to keyvault and storageAccounts is to Allow. Restricting
+      these services is expected to occur through authentication.
     --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
     [#local storageNetworkAclsConfiguration = getNetworkAcls("Allow", [], [], "AzureServices")]

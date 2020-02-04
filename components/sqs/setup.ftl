@@ -23,7 +23,7 @@
         [@addToDefaultBashScriptOutput
             content=
             [
-                "case $\{STACK_OPERATION} in",
+                "case $\{DEPLOYMENT_OPERATION} in",
                 "  create|update)"
                 "    # Create Storage Account Queue",
                 "    info \"Creating Queue Storage ... \"",

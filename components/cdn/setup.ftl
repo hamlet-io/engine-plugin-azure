@@ -234,7 +234,7 @@
         [#if invalidationPaths?has_content && getExistingReference(frontDoor.Id)?has_content]
             [@addToDefaultBashScriptOutput
                 [
-                    "case $\{STACK_OPERATION} in",
+                    "case $\{DEPLOYMENT_OPERATION} in",
                     "  create|update)"
                     "    # Purge FrontDoor Endpoint",
                     "    info \"Purging frontDoor content ... \"",

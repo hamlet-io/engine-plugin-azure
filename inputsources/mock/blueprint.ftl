@@ -6,7 +6,7 @@
         blueprint=
         {
             "Account": {
-                "Region": "eastus",
+                "Region": "westus",
                 "AzureId": "0123456789"
             },
             "Product": {

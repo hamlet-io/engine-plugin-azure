@@ -216,24 +216,6 @@
           },
           "Accounts": {}
         },
-        "eastasia": {
-          "Partitian": "azure",
-          "Locality": "Asia Pacific",
-          "Zones": {
-            "a": {
-              "Title": "Zone A",
-              "Description": "Zone A",
-              "AzureId": "eastasia",
-              "NetworkEndpoints": [
-                {
-                  "Type": "Interface",
-                  "ServiceName": "Microsoft.Storage"
-                }
-              ]
-            }
-          },
-          "Accounts": {}
-        },
         "japanwest": {
           "Partitian": "azure",
           "Locality": "Asia Pacific",
