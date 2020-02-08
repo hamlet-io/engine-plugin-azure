@@ -5,9 +5,45 @@
     data=
     {
       "Regions": {
+        "southcentralus": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "southcentralus",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "brazilsouth": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "brazilsouth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
         "eastus": {
           "Partitian": "azure",
-          "Locality": "UnitedStates",
+          "Locality": "Americas",
           "Zones": {
             "a": {
               "Title": "Zone A",
@@ -23,15 +59,699 @@
           },
           "Accounts": {}
         },
+        "eastus2": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "eastus2",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "northcentralus": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "northcentralus",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "northeurope": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "northeurope",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "westeurope": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "westeurope",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "westus": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "westus",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "eastasia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "eastasia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "southeastasia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "southeastasia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
         "global": {
           "Partitian": "azure",
-          "Locality": "UnitedStates",
+          "Locality": "none",
           "Zones": {
             "a": {
               "Title": "Global",
               "Description": "A Global Zone",
               "AzureId": "global",
               "NetworkEndpoints": []
+            }
+          },
+          "Accounts": {}
+        },
+        "centralus": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "centralus",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "eastasia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "eastasia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "japanwest": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "japanwest",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "japaneast": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "japaneast",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "australiaeast": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "australiaeast",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "australiasoutheast": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "australiasoutheast",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "southindia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "southindia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "centralindia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "centralindia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "westindia": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "westindia",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "canadaeast": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "canadaeast",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "canadacentral": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "canadacentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "uksouth": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "uksouth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "ukwest": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "ukwest",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "westcentralus": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "westcentralus",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "westus2": {
+          "Partitian": "azure",
+          "Locality": "Americas",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "westus2",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "koreacentral": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "koreacentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "koreasouth": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "koreasouth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "francecentral": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "francecentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "francesouth": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "francesouth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "australiacentral": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "australiacentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "australiacentral2": {
+          "Partitian": "azure",
+          "Locality": "Asia Pacific",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "australiacentral2",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "uaecentral": {
+          "Partitian": "azure",
+          "Locality": "Middle East and Africa",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "uaecentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "uaenorth": {
+          "Partitian": "azure",
+          "Locality": "Middle East and Africa",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "uaenorth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "southafricanorth": {
+          "Partitian": "azure",
+          "Locality": "Middle East and Africa",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "southafricanorth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "southafricawest": {
+          "Partitian": "azure",
+          "Locality": "Middle East and Africa",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "southafricawest",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "switzerlandnorth": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "switzerlandnorth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "switzerlandwest": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "switzerlandwest",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "germanynorth": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "germanynorth",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "germanywestcentral": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "germanywestcentral",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "norwaywest": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "norwaywest",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
+            }
+          },
+          "Accounts": {}
+        },
+        "norwayeast": {
+          "Partitian": "azure",
+          "Locality": "Europe",
+          "Zones": {
+            "a": {
+              "Title": "Zone A",
+              "Description": "Zone A",
+              "AzureId": "norwayeast",
+              "NetworkEndpoints": [
+                {
+                  "Type": "Interface",
+                  "ServiceName": "Microsoft.Storage"
+                }
+              ]
             }
           },
           "Accounts": {}
