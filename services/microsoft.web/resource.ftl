@@ -103,7 +103,7 @@
                 )
             ) +
             attributeIfTrue("perSiteScaling", perSiteScaling, perSiteScaling) +
-            attributeIfContent("maximumElasticWorkerCount", maxElasticWorkerCount?number) +
+            numberAttributeIfContent("maximumElasticWorkerCount", maxElasticWorkerCount) +
             attributeIfTrue("isSpot", isSpot, isSpot) +
             attributeIfContent("spotExpirationTime", spotExpirationTime) +
             attributeIfContent("freeOfferExpirationTime", freeOfferExpirationTime) +
@@ -196,11 +196,11 @@
     [#return {} +
         attributeIfContent("name", name) +
         attributeIfContent("actionHostName", actionHostName) +
-        attributeIfContent("reroutePercentage", reroutePercentage?number) +
-        attributeIfContent("changeStep", changeStep?number) +
-        attributeIfContent("changeIntervalInMinutes", changeIntervalInMinutes?number) +
-        attributeIfContent("minReroutePercentage", minReroutePercentage?number) +
-        attributeIfContent("maxReroutePercentage", maxReroutePercentage?number) +
+        numberAttributeIfContent("reroutePercentage", reroutePercentage) +
+        numberAttributeIfContent("changeStep", changeStep) +
+        numberAttributeIfContent("changeIntervalInMinutes", changeIntervalInMinutes) +
+        numberAttributeIfContent("minReroutePercentage", minReroutePercentage) +
+        numberAttributeIfContent("maxReroutePercentage", maxReroutePercentage) +
         attributeIfContent("changeDecisionCallbackUrl", changeDecisionCallbackUrl)
     ]
 
@@ -214,10 +214,10 @@
     timeInterval=""]
 
     [#return {} +
-        attributeIfContent("status", status?number) +
-        attributeIfContent("subStatus", subStatus?number) +
-        attributeIfContent("win32Status", win32Status?number) +
-        attributeIfContent("count", count?number) +
+        numberAttributeIfContent("status", status) +
+        numberAttributeIfContent("subStatus", subStatus) +
+        numberAttributeIfContent("win32Status", win32Status) +
+        numberAttributeIfContent("count", count) +
         attributeIfContent("timeInterval", timeInterval)
     ]
 
@@ -248,12 +248,12 @@
     customActionParameters=""]
 
     [#local requests = {} +
-        attributeIfContent("count", requestTriggerCount?number) +
+        numberAttributeIfContent("count", requestTriggerCount) +
         attributeIfContent("timeInterval", requestTriggerTimeInterval)
     ]
 
     [#local triggers = {} +
-        attributeIfContent("provideBytesInKB", provideBytesInKB?number) +
+        numberAttributeIfContent("provideBytesInKB", provideBytesInKB) +
         attributeIfContent("statusCodes", statusCodeTriggers) +
         attributeIfContent("requests", requests) +
         attributeIfContent("slowRequests", slowRequestTriggers)
@@ -292,7 +292,7 @@
         attributeIfContent("vnetSubnetResourceId", vnetSubnetResourceId) +
         attributeIfContent("action", action) +
         attributeIfContent("tag", tag) +
-        attributeIfContent("priority", priority?number) +
+        numberAttributeIfContent("priority", priority) +
         attributeIfContent("name", name) +
         attributeIfContent("description", description)
     ]
@@ -393,7 +393,7 @@
     dependsOn=[]]
 
     [#local siteConfig = {} +
-        attributeIfContent("numberOfWorkers", siteConfigNumberofWorkers?number) +
+        numberAttributeIfContent("numberOfWorkers", siteConfigNumberofWorkers) +
         attributeIfContent("defaultDocuments", siteConfigDefaultDocuments) +
         attributeIfContent("netFrameworkVersion", siteConfigNetFrameworkVersion) +
         attributeIfContent("phpVersion", siteConfigPHPVersion) +
@@ -406,7 +406,7 @@
         attributeIfContent("remoteDebuggingEnabled", remoteDebuggingEnabled) +
         attributeIfContent("remoteDebuggingVersion", remoteDebuggingVersion) +
         attributeIfTrue("httpLoggingEnabled", httpLoggingEnabled, httpLoggingEnabled) +
-        attributeIfContent("logsDirectorySizeLimit", logsDirectorySizeLimit?number)
+        numberAttributeIfContent("logsDirectorySizeLimit", logsDirectorySizeLimit)
         attributeIfTrue("detailedErrorLoggingEnabled", detailedErrorLoggingEnabled, detailedErrorLoggingEnabled) +
         attributeIfContent("publishingUsername", publishingUsername) +
         attributeIfContent("appSettings", appSettings) +
@@ -460,15 +460,15 @@
         ) +
         attributeIfContent("autoSwapSlotName", autoSwapSlotName) +
         attributeIfTrue("localMySqlEnabled", localMySqlEnabled, localMySqlEnabled) +
-        attributeIfContent("managedServiceIdentityId", managedServiceIdentityId?number) +
-        attributeIfContent("xManagedServiceIdentityId", xManagedServiceIdentityId?number) +
+        numberAttributeIfContent("managedServiceIdentityId", managedServiceIdentityId) +
+        numberAttributeIfContent("xManagedServiceIdentityId", xManagedServiceIdentityId) +
         attributeIfContent("ipSecurityRestrictions", ipSecurityRestrictions) +
         attributeIfContent("scmIpSecurityRestrictions", scmIpSecurityRestrictions) +
         attributeIfTrue("scmIpSecurityRestrictionsUseMain", scmIpSecurityRestrictionsUseMain, scmIpSecurityRestrictionsUseMain) +
         attributeIfTrue("http20Enabled", http20Enabled, http20Enabled) +
         attributeIfContent("minTlsVersion", minTlsVersion) +
         attributeIfContent("ftpsState", ftpsState) +
-        attributeIfContent("preWarmedInstanceCount", preWarmedInstanceCount?number) +
+        numberAttributeIfContent("preWarmedInstanceCount", preWarmedInstanceCount) +
         attributeIfContent("healthCheckPath", healthCheckPath)
     ]
 
@@ -498,8 +498,8 @@
             attributeIfTrue("clientCertEnabled", clientAffinityEnabled, clientAffinityEnabled) +
             attributeIfContent("clientCertExclusionPaths", clientCertExclusionPaths) +
             attributeIfTrue("hostNamesDisabled", hostNamesDisabled) +
-            attributeIfContent("containerSize", containerSize?number) +
-            attributeIfContent("dailyMemoryTimeQuota", dailyMemoryTimeQuota?number) +
+            numberAttributeIfContent("containerSize", containerSize) +
+            numberAttributeIfContent("dailyMemoryTimeQuota", dailyMemoryTimeQuota) +
             attributeIfContent("cloningInfo", {} +
                 attributeIfContent("correlationId", cloningCorrelationId) +
                 attributeIfTrue("overwrite", cloningOverwrite, cloningOverwrite) +

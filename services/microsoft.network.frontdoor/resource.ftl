@@ -123,7 +123,7 @@
     attributeIfContent("properties", {} +
       attributeIfContent("path", path) +
       attributeIfContent("protocol", protocol) +
-      attributeIfContent("intervalInSeconds", intervalInSeconds?number) +
+      numberAttributeIfContent("intervalInSeconds", intervalInSeconds) +
       attributeIfContent("healthProbeMethod", healthProbeMethod)
     )
   ]
@@ -139,10 +139,10 @@
 
   [#return {} +
     attributeIfContent("address", address) +
-    attributeIfContent("httpPort", httpPort?number) +
-    attributeIfContent("httpsPort", httpsPort?number) +
-    attributeIfContent("priority", priority?number) +
-    attributeIfContent("weight", weight?number) +
+    numberAttributeIfContent("httpPort", httpPort) +
+    numberAttributeIfContent("httpsPort", httpsPort) +
+    numberAttributeIfContent("priority", priority) +
+    numberAttributeIfContent("weight", weight) +
     attributeIfContent("backendHostHeader", backendHostHeader)
   ]
 [/#function]
@@ -181,7 +181,7 @@
     attributeIfContent("properties", {} +
       attributeIfContent("hostName", hostName) +
       attributeIfContent("sessionAffinityEnabledState", sessionAffinityEnabledState) +
-      attributeIfContent("sessionAffinityTtlSeconds", sessionAffinityTtlSeconds?number) +
+      numberAttributeIfContent("sessionAffinityTtlSeconds", sessionAffinityTtlSeconds) +
       attributeIfContent("webApplicationFirewallPolicyLink", {} +
         attributeIfContent("id", webApplicationFirewallPolicyLinkId)
       )
