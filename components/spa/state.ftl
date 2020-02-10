@@ -30,8 +30,8 @@
         "CONFIG_STORAGE_CONTAINER": operationsBlobContainer,
         "CONFIG_FILE": formatRelativePath(configFilePath, configFileName),
         "FRONTEND_PORT" : solution.Port,
-        "BACKEND_HTTP_PORT" : ports[solution.Port].Port.Http,
-        "BACKEND_HTTPS_PORT" : ports[solution.Port].Port.Https
+        "BACKEND_HTTP_PORT" : ports[solution.Port.HTTP].Port,
+        "BACKEND_HTTPS_PORT" : ports[solution.Port.HTTPS].Port
       },
       "Roles": {
         "Inbound": {},
