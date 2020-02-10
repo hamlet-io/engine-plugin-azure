@@ -18,11 +18,6 @@
     [#local blobName = resources["blobService"].Name]
     [#local containerName = resources["container"].Name]
 
-    [#-- Process Resource Naming Conditions --]
-    [#local accountName = formatAzureResourceName(accountName, getResourceType(accountId))]
-    [#local blobName = formatAzureResourceName(blobName, getResourceType(blobId), accountName)]
-    [#local containerName = formatAzureResourceName(containerName, getResourceType(containerId), blobName)]
-
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
     [#-- Baseline component lookup

@@ -89,7 +89,7 @@
       For now we just want blanket "deny-all" networkAcls.
     --]
     [#-- networkAcls object is used for both Storage Account and KeyVault --]
-    [#local storageNetworkAclsConfiguration = getNetworkAcls("Deny", [], [], "AzureServices")]
+    [#local storageNetworkAclsConfiguration = getNetworkAcls("Allow", [], [], "AzureServices")]
 
     [@createStorageAccount
       id=accountId
