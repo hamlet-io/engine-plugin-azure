@@ -7,7 +7,8 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts",
-            "conditions" : [ "alphanumeric_only", "name_to_lower", "globally_unique" ],
+            "conditions" : [ "alphanumeric_only", "name_to_lower", "globally_unique", "max_length" ],
+            "max_name_length" : 24,
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"

@@ -27,6 +27,11 @@
                 "Default" : []
             },
             {
+                "Names" : "max_name_length",
+                "Type" : NUMBER_TYPE,
+                "Mandatory" : false
+            },
+            {
                 "Names" : "outputMappings",
                 "type" : OBJECT_TYPE,
                 "Mandatory" : true
@@ -210,7 +215,8 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 --]
 [#function formatAzureResourceName name profile primaryParent=""]
     
-    [#local conditions = getAzureResourceProfile(profile).conditions]
+    [#local resourceProfile = getAzureResourceProfile(profile)]
+    [#local conditions = resourceProfile.conditions]
     [#local conditions += ["segment_out_names"]]
     [#list conditions as condition]
         [#switch condition]
@@ -220,6 +226,9 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
             [#case "globally_unique"]
                 [#local segmentSeed = getStackOutput(AZURE_PROVIDER, formatSegmentSeedId())]
                 [#local name = name?ensure_ends_with(segmentSeed)]
+                [#break]
+            [#case "max_length"]
+                [#local name = name[0..(resourceProfile.max_name_length - 1)]]
                 [#break]
             [#case "name_to_lower"]
                 [#local name = name?lower_case]

@@ -16,26 +16,32 @@
         [/#if]
     [/#list]
 
-    [#--
-        Note: it is a requirement that the blobService name is "default" in all cases.
-        https://tinyurl.com/yxozph9o
-    --]
+    [#-- Process Resource Naming Conditions                                             --]
+    [#-- Note: it is a requirement that the blobService name is "default" in all cases. --]
+    [#-- https://tinyurl.com/yxozph9o                                                   --]
+    [#local accountName = formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName)]
+    [#local blobName = "default"]
+    [#local containerName = formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName)]
+    [#local accountName = formatAzureResourceName(accountName, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
+    [#local blobName = formatAzureResourceName(blobName, AZURE_BLOBSERVICE_RESOURCE_TYPE, accountName)]
+    [#local containerName = formatAzureResourceName(containerName, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+
     [#assign componentState=
         {
             "Resources" : {
                 "storageAccount" : {
                     "Id" : storageAccountId,
-                    "Name" : formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName),
+                    "Name" : accountName,
                     "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
                 },
                 "blobService" : {
                     "Id" : blobId,
-                    "Name" : "default",
+                    "Name" : blobName,
                     "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
                 },
                 "container" : {
                     "Id" : containerId,
-                    "Name" : formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName),
+                    "Name" : containerName,
                     "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
                 }
             },
