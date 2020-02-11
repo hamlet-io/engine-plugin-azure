@@ -6,6 +6,13 @@
 
 # -- Storage --
 
+function az_get_storage_connection_string(){
+  local storageAccountName="$1"; shift
+
+  az storage account show-connection-string \
+    --name "${storageAccountName}" | jq '.["connectionString"]' || return $?
+}
+
 function az_check_blob_container_access() {
   local storageAccountName="$1"; shift
   local containerName="$1"; shift
@@ -34,12 +41,15 @@ function az_copy_from_blob(){
   local blobName="$1"; shift
   local fileName="$1"; shift
 
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+
   az storage blob download \
-    --account-name "${storageAccountName}" \
+    --connection-string "${connectionString}" \
     --container-name "${containerName}" \
     --name "${blobName}" \
     --file "${fileName}" \
-    --no-progress > /dev/null || return $?
+    --no-progress \
+    --output none || return $?
 }
 
 function az_interact_storage_queue(){
@@ -47,7 +57,7 @@ function az_interact_storage_queue(){
   local queueName="$1"; shift
   local action="$1"; shift
 
-  connectionString=$(az storage account show-connection-string --name "${storageAccountName}" | jq '.["connectionString"]') || return $?
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
   az storage queue ${action} --name "${queueName}" --connection-string "${connectionString}"  || return $?
 }
 
@@ -180,8 +190,8 @@ function az_delete_secret() {
 # -- CDN --
 
 function az_purge_frontdoor_endpoint() {
-  resourceGroup="$1"; shift
-  frontDoorName="$1"; shift
+  local resourceGroup="$1"; shift
+  local frontDoorName="$1"; shift
 
   local paths=("/*")
   [[ -n "$1" ]] && local paths=("$@")
@@ -190,4 +200,43 @@ function az_purge_frontdoor_endpoint() {
     --resource-group "${resourceGroup}" \
     --name "${frontDoorName}" \
     --content-paths "${paths[@]}"
+}
+
+# -- Lambda --
+
+# downloads project files from .zip into a Function App.
+# This will restart the app automatically.
+# TODO(rossmurr4y): https://github.com/Azure/azure-cli/issues/10773
+# remove requirement for subscription param when resolved
+function az_functionapp_deploy() {
+  local subscription="$1"; shift
+  local resourceGroup="$1"; shift
+  local function="$1"; shift
+  local file="$1"; shift
+  local action="$1"; shift
+
+  cat <<EOF
+"${action^}"ing FunctionApp:
+Subscription:  "${subscription}"
+ResourceGroup: "${resourceGroup}"
+Function Name: "${function}"
+File:          "${file:-"n/a"}"
+EOF
+
+  case ${action} in
+    delete)
+      az functionapp delete \
+        --subscription "${subscription}" \
+        --resource-group "${resourceGroup}" \
+        --name "${function}" \
+        --output none || return $?
+        ;;
+    *)
+      az functionapp deployment source config-zip \
+        --subscription "${subscription}" \
+        --resource-group "${resourceGroup}" \
+        --name "${function}" \
+        --src "${file}" --verbose --debug || return $?
+        ;;
+  esac
 }

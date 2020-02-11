@@ -142,7 +142,7 @@
     [#if deploymentSubsetRequired("epilogue", false)]    
       [@addToDefaultBashScriptOutput
         [
-          "case $\{STACK_OPERATION} in",
+          "case $\{DEPLOYMENT_OPERATION} in",
           "  create|update)"
         ] +
         invalidationScript +

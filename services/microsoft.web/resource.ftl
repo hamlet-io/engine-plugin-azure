@@ -315,7 +315,7 @@
     siteConfigPHPVersion=""
     siteConfigPythonVersion=""
     siteConfigNodeVersion=""
-    siteConfigLinuxFxVersion=""
+    siteConfigLinuxFXVersion=""
     siteConfigWindowsFxVersion=""
     requestTracingEnabled=false
     requestTracingExpirationTime=""
@@ -377,7 +377,7 @@
     containerSize=""
     dailyMemoryTimeQuota=""
     cloningCorrelationId=""
-    cloningOverwrite=""
+    cloningOverwrite=false
     cloningCustomHostNames=false
     cloningSourceControl=false
     cloningSourceWebAppId=""
@@ -399,14 +399,14 @@
         attributeIfContent("phpVersion", siteConfigPHPVersion) +
         attributeIfContent("pythonVersion", siteConfigPythonVersion) +
         attributeIfContent("nodeVersion", siteConfigNodeVersion) +
-        attributeIfContent("linuxFxVersion", siteConfigLinuxFxVersion) +
+        attributeIfContent("LinuxFXVersion", siteConfigLinuxFXVersion) +
         attributeIfContent("windowsFxVersion", siteConfigWindowsFxVersion) +
         attributeIfTrue("requestTracingEnabled", requestTracingEnabled, requestTracingEnabled) +
         attributeIfContent("requestTracingExpirationTime", requestTracingExpirationTime) +
         attributeIfContent("remoteDebuggingEnabled", remoteDebuggingEnabled) +
         attributeIfContent("remoteDebuggingVersion", remoteDebuggingVersion) +
         attributeIfTrue("httpLoggingEnabled", httpLoggingEnabled, httpLoggingEnabled) +
-        numberAttributeIfContent("logsDirectorySizeLimit", logsDirectorySizeLimit)
+        numberAttributeIfContent("logsDirectorySizeLimit", logsDirectorySizeLimit) +
         attributeIfTrue("detailedErrorLoggingEnabled", detailedErrorLoggingEnabled, detailedErrorLoggingEnabled) +
         attributeIfContent("publishingUsername", publishingUsername) +
         attributeIfContent("appSettings", appSettings) +
@@ -424,23 +424,23 @@
         attributeIfContent("managedPipelineMode", managedPipelineMode) +
         attributeIfContent("virtualApplications", virtualApplications) +
         attributeIfContent("loadBalancing", loadBalancing) +
-        attributeIfContent("experiments", 
+        attributeIfContent("experiments",
             attributeIfContent("rampUpRules", rampUpRules)
         ) +
-        attributeIfContent("limits", {} +
+        attributeIfContent("limits",
             attributeIfContent("maxPercentageCpu", maxPercentageCpu) +
             attributeIfContent("maxMemoryInMb", maxMemoryInMb) +
-            attributeIfContent("maxDiskSizeInMb", maxDiskSizeInMb) +
+            attributeIfContent("maxDiskSizeInMb", maxDiskSizeInMb)
         ) +
         attributeIfTrue("autoHealEnabled", autoHealEnabled, autoHealEnabled) +
         attributeIfContent("autoHealRules", autoHealRules) +
         attributeIfContent("tracingOptions", tracingOptions) +
         attributeIfContent("vnetName", vnetName) +
-        attributeIfContent("cors", {} +
+        attributeIfContent("cors",
             attributeIfContent("allowedOrigins", corsAllowedOrigins) +
-            attributeIfContent("supportCredentials", corsSupportCredentials)
+            attributeIfTrue("supportCredentials", corsSupportCredentials, corsSupportCredentials)
         ) +
-        attributeIfContent("push", {} +
+        attributeIfContent("push",
             attributeIfContent("kind", pushKind) +
             attributeIfContent("properties", {} + 
                 attributeIfTrue("isPushEnabled", pushEnabled, pushEnabled) +
@@ -449,10 +449,10 @@
                 attributeIfContent("dynamicTagsJson", pushDynamicTagsJson)
             )
         ) +
-        attributeIfContent("apiDefinition", {} +
+        attributeIfContent("apiDefinition",
             attributeIfContent("url", apiDefinitionUrl)
         ) +
-        attributeIfContent("apiManagementConfig", {} +
+        attributeIfContent("apiManagementConfig",
             apiManagementConfigId?has_content?then(
                 getSubResourceReference(apiManagementConfigId),
                 ""
@@ -488,7 +488,7 @@
             attributeIfTrue("hyperV", hyperV, hyperV) +
             attributeIfContent("siteConfig", siteConfig) +
             attributeIfTrue("scmSiteAlsoStopped", scmSiteAlsoStopped, scmSiteAlsoStopped) +
-            attributeIfContent("hostingEnvironmentProfile", {} +
+            attributeIfContent("hostingEnvironmentProfile",
                 appServiceEnvironmentId?has_content?then(
                     getSubResourceReference(appServiceEnvironmentId),
                     ""
@@ -497,10 +497,10 @@
             attributeIfTrue("clientAffinityEnabled", clientAffinityEnabled, clientAffinityEnabled) +
             attributeIfTrue("clientCertEnabled", clientAffinityEnabled, clientAffinityEnabled) +
             attributeIfContent("clientCertExclusionPaths", clientCertExclusionPaths) +
-            attributeIfTrue("hostNamesDisabled", hostNamesDisabled) +
+            attributeIfTrue("hostNamesDisabled", hostNamesDisabled, hostNamesDisabled) +
             numberAttributeIfContent("containerSize", containerSize) +
             numberAttributeIfContent("dailyMemoryTimeQuota", dailyMemoryTimeQuota) +
-            attributeIfContent("cloningInfo", {} +
+            attributeIfContent("cloningInfo",
                 attributeIfContent("correlationId", cloningCorrelationId) +
                 attributeIfTrue("overwrite", cloningOverwrite, cloningOverwrite) +
                 attributeIfTrue("cloneCustomHostNames", cloningCustomHostNames, cloningCustomHostNames) +
@@ -518,3 +518,169 @@
     /]
 
 [/#macro]
+
+[#function getWebAppRunTime language]
+[#-- values from here:                                                                   --]
+[#-- https://docs.microsoft.com/en-us/azure/azure-functions/functions-versions#languages --]
+
+    [#local runTime = {}]
+    
+    [#switch language]
+
+        [#case "dotnetcore1.0"]
+            [#local runTime +=
+                { 
+                    "ExtensionVersion": "~1",
+                    "WorkerRunTime": "dotnet",
+                    "LinuxFXVersion" : "DOTNET|1.0"
+                } 
+            ]
+            [#break]
+
+        [#case "dotnetcore2.1"]
+            [#local runTime +=
+                { 
+                    "ExtensionVersion": "~1",
+                    "WorkerRunTime": "dotnet",
+                    "LinuxFXVersion" : "DOTNET|2"
+                } 
+            ]
+            [#break]
+
+        [#case "dotnetcore"]
+            [#local runTime +=
+                { 
+                    "ExtensionVersion": "~2",
+                    "WorkerRunTime": "dotnet",
+                    "LinuxFXVersion" : "DOTNET|2"
+                } 
+            ]
+            [#break]
+
+        [#case "java8"]
+            [#local runTime += 
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "java",
+                    "LinuxFXVersion" : "NODE"
+                }
+            ]
+            [#break]
+            
+        [#case "java11"]
+            [#local runTime += 
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "java",
+                    "LinuxFXVersion" : "NODE"
+                }
+            ]
+            [#break]
+
+        [#case "nodejs"]
+            [#local runTime += 
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "java",
+                    "LinuxFXVersion" : "NODE"
+                }
+            ]
+            [#break]
+            
+        [#case "nodejs4.3"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~1",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE",
+                    "DefaultVersion" : language?split("nodejs")[1]
+                }
+            ]
+            [#break]
+
+        [#case "nodejs4.3-edge"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~1",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE",
+                    "DefaultVersion" : language?split("nodejs")[1]
+                }
+            ]
+            [#break]
+
+        [#case "nodejs6.10"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~1",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE",
+                    "DefaultVersion" : language?split("nodejs")[1]
+                }
+            ]
+            [#break]
+
+        [#case "nodejs8.10"]
+            [#local runTime += 
+                {
+                    "ExtensionVersion" : "~2",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE|8",
+                    "DefaultVersion" : language?split("nodejs")[1]
+                }
+            ]
+            [#break]
+
+        [#case "python2.7"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~2",
+                    "WorkerRunTime" : "python",
+                    "LinuxFXVersion" : "PYTHON|2.7"
+                }
+            ]
+            [#break]
+
+        [#case "python3.6"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "python",
+                    "LinuxFXVersion" : "PYTHON|3.6"
+                }
+            ]
+            [#break]
+
+        [#case "python3.7"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "python",
+                    "LinuxFXVersion" : "PYTHON|3.7"
+                }
+            ]
+            [#break]
+
+        [#case "python3.8"]
+            [#-- 3.8 not available at time of writing https://github.com/Azure-App-Service/python --]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "python",
+                    "LinuxFXVersion" : "PYTHON|3.7"
+                }
+            ]
+            [#break]
+
+        [#default]
+            [@fatal
+                message="Unsupported RunTime Language"
+                context=language
+                enabled=true
+            /]
+            [#break]
+    [/#switch]
+
+    [#return runTime]
+
+[/#function]

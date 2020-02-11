@@ -11,6 +11,14 @@
     [#local segmentSeedValue = getExistingReference(segmentSeedId) ]
   [/#if]
 
+  [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
+  [#local storageAccountName = 
+    formatAzureResourceName(
+      formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, segmentSeedValue),
+      AZURE_STORAGEACCOUNT_RESOURCE_TYPE
+    )
+  ]
+
   [#assign componentState=
     {
       "Resources" : {
@@ -20,8 +28,8 @@
           "Type" : SEED_RESOURCE_TYPE
         },
         "storageAccount" : {
-            "Id" : formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id),
-            "Name" : formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, segmentSeedValue),
+            "Id" : storageAccountId,
+            "Name" : storageAccountName,
             "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
         },
         "blobService" : {
@@ -55,6 +63,7 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
+  [#local storageAccountId = parent.State.Resources["storageAccount"].Id]
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
 
   [#assign componentState =
@@ -67,6 +76,7 @@
         }
       },
       "Attributes": {
+        "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
         "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
         "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net")

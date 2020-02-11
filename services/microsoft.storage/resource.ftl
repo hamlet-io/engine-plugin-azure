@@ -72,10 +72,9 @@
 
 [#function getStorageCustomDomain name useSubDomainName=true]
     [#return
-        {
-            "name": name,
-            "useSubDomainName": useSubDomainName
-        }
+        {} +
+        attributeIfContent("name", name) +
+        attributeIfTrue("useSubDomainName", useSubDomainName)
     ]
 [/#function]
 
@@ -277,7 +276,7 @@
 
     [#return
         [
-            "case $\{STACK_OPERATION} in",
+            "case $\{DEPLOYMENT_OPERATION} in",
             "  delete)",
             "    az_delete_blob_dir " +
                    "\"" + storageAccount + "\"" + " " +
@@ -295,5 +294,14 @@
             " esac",
             "#"
         ] 
+    ]
+[/#function]
+
+[#-- Formats a reference to a Storage Account connection string --]
+[#function formatAzureStorageAccountConnectionStringReference storageId, storageName parameter=""]
+
+    [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
+    [#return
+        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + storageId + "', '" + apiVersion + "')." + parameter + ")]"
     ]
 [/#function]
