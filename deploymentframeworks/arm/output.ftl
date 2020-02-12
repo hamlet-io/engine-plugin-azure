@@ -228,9 +228,8 @@
 
 [@addGenPlanStepOutputMapping 
     provider=AZURE_PROVIDER
-    subsets=[
-        "template"
-    ]
+    subset="template"
     outputType=AZURE_OUTPUT_RESOURCE_TYPE
     outputFormat=""
+    outputSuffix="template.json"
 /]
