@@ -34,6 +34,71 @@
       location=regionId
     /]
 
+    [#-- Seperate NSG for the ELB Subnet                                              --]
+    [#-- Application Gateways have some very specific requirements around NSG         --]
+    [#-- rules that must be in place. At present time they are overly-open in         --]
+    [#-- the access that they grant. To reduce this, the ELB subnet which will        --]
+    [#-- be used by the App Gateways will get their own NSG. This can be              --]
+    [#-- removed once the NSG Rules can be associated with the Azure Service          --]
+    [#-- tag "GatewayManager" https://github.com/MicrosoftDocs/azure-docs/issues/38691--]
+    [#if (resources["subnets"]["elb"]!{})?has_content]
+
+      [#local elbNSG = 
+        {
+          "Id" : formatDependentNetworkSecurityGroupId(vnetId, "elb"),
+          "Name" : formatName(networkSecurityGroupName, "elb"),
+          "Reference" : getReference(formatDependentNetworkSecurityGroupId(vnetId, "elb"), formatName(networkSecurityGroupName, "elb"))
+        }
+      ]
+
+      [@createNetworkSecurityGroup
+        id=elbNSG.Id
+        name=elbNSG.Name
+        location=regionId
+      /]
+
+      [@createNetworkSecurityGroupSecurityRule
+        id=formatDependentSecurityRuleId("elb", "AllowGatewayManager")
+        name=formatAzureResourceName(
+                formatName("elb", "AllowGatewayManager"),
+                AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
+                elbNSG.Name)
+        nsgName=elbNSG.Name
+        description="Grants the GatewayManager access to App Gateway resources"
+        destinationPortProfileName="gatewaymanager"
+        sourceAddressPrefix="*"
+        destinationAddressPrefix="*"
+        access="allow"
+        priority=100
+        direction="Inbound"
+        dependsOn=
+          [
+            elbNSG.Reference
+          ]
+      /]
+
+      [@createNetworkSecurityGroupSecurityRule
+        id=formatDependentSecurityRuleId("elb", "AllowAzureLoadBalancer")
+        name=formatAzureResourceName(
+                formatName("elb", "AllowAzureLoadBalancer"),
+                AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
+                elbNSG.Name)
+        nsgName=elbNSG.Name
+        description="Grants the GatewayManager access to App Gateway resources"
+        destinationPortProfileName="any"
+        sourceAddressPrefix="AzureLoadBalancer"
+        destinationAddressPrefix="*"
+        access="allow"
+        priority=110
+        direction="Inbound"
+        dependsOn=
+          [
+            elbNSG.Reference
+          ]
+      /]
+
+    [/#if]
+
     [#-- 3. Subnets for every tier --]
     [#if (resources["subnets"]!{})?has_content]
 
@@ -73,8 +138,7 @@
 
         [#-- Determine dependencies --]
         [#local dependencies = [
-            getReference(vnetId, vnetName),
-            getReference(networkSecurityGroupId, networkSecurityGroupName)
+            getReference(vnetId, vnetName)
         ]]
 
         [#if subnetIndex > 0]
@@ -130,32 +194,33 @@
           [/#list]
         [/#if]
 
+        [#-- Add routeTable details if applicable --]
         [#if routeTableResource?has_content]
-          [#local routeTableId = routeTableResource.Id]
-          [#local routeTableName = routeTableResource.Name]
-          [#local dependencies += [getReference(routeTableId, routeTableName)]]
-
-          [@createSubnet
-            id=subnet.Id
-            name=subnetName
-            vnetName=vnetName
-            addressPrefix=subnet.Address
-            networkSecurityGroup={ "id" : getReference(networkSecurityGroupId, networkSecurityGroupName) }
-            routeTable= { "id" : getReference(routeTableId, routeTableName) }
-            serviceEndpoints=serviceEndpoints
-            dependsOn=dependencies
-          /]
-        [#else]
-          [@createSubnet
-            id=subnet.Id
-            name=subnetName
-            vnetName=vnetName
-            addressPrefix=subnet.Address
-            networkSecurityGroup={ "id" : getReference(networkSecurityGroupId, networkSecurityGroupName) }
-            serviceEndpoints=serviceEndpoints
-            dependsOn=dependencies
-          /]
+          [#local dependencies += [getReference(routeTableResource.Id, routeTableResource.Name)]]
         [/#if]
+
+        [#if networkTier.Name == "elb"]
+          [#local networkSecurityGroupReference = getSubResourceReference(elbNSG.Reference)]
+          [#local dependencies += [elbNSG.Reference]]
+        [#else]
+          [#local networkSecurityGroupReference = getSubResourceReference(
+            getReference(networkSecurityGroupId, networkSecurityGroupName)
+          )]
+        [/#if]
+
+        [@createSubnet
+          id=subnet.Id
+          name=subnetName
+          vnetName=vnetName
+          addressPrefix=subnet.Address
+          networkSecurityGroup=networkSecurityGroupReference
+          routeTable={} + routeTableResource?has_content?then(
+            getSubResourceReference(getReference(routeTableResource.Id, routeTableResource.Name)),
+            {}
+          )
+          serviceEndpoints=serviceEndpoints
+          dependsOn=dependencies
+        /]
 
         [#local networkACLConfiguration = networkACLLink.Configuration.Solution]
 
@@ -185,13 +250,21 @@
               occurrence)[0]]
           [/#if]
 
+          [#if subnet.Name == "elb"]
+            [#local nsgName = elbNSG.Name]
+            [#local nsgId = elbNSG.Id]
+          [#else]
+            [#local nsgName = networkSecurityGroupName]
+            [#local nsgId = networkSecurityGroupId]
+          [/#if]
+
           [@createNetworkSecurityGroupSecurityRule
             id=formatDependentSecurityRuleId(subnet.Id, ruleId)
             name=formatAzureResourceName(
               formatName(tierId,ruleId),
               getResourceType(formatDependentSecurityRuleId(vnetId, formatName(tierId,ruleId))),
-              networkSecurityGroupName)
-            nsgName=networkSecurityGroupName
+              nsgName)
+            nsgName=nsgName
             description=description
             destinationPortProfileName=ruleConfig.Destination.Port
             sourceAddressPrefix=sourceAddressPrefix
@@ -201,7 +274,7 @@
             direction=direction
             dependsOn=
               [
-                getReference(networkSecurityGroupId, networkSecurityGroupName)
+                getReference(nsgId, nsgName)
               ]
           /]
 
