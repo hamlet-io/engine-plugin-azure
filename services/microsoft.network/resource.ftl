@@ -117,7 +117,7 @@
     [#local destinationPort = "*"]
   [#else]
     [#local destinationPort = isPresent(destinationPortProfile.PortRange)?then(
-      destinationPortProfile.PortRange.From + "-" + destinationPortProfile.PortRange.To,
+      destinationPortProfile.PortRange.From?c + "-" + destinationPortProfile.PortRange.To?c,
       destinationPortProfile.Port)]
   [/#if]
 

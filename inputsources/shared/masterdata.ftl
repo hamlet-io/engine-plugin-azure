@@ -1058,6 +1058,15 @@
           }
         }
       },
+      "Ports" : {
+        "gatewaymanager": {
+          "PortRange" : {
+            "From" : 65200,
+            "To" : 65535
+          },
+          "IPProtocol" : "all"
+        }
+      },
       "Storage": {
         "default": {
           "storageAccount": {
