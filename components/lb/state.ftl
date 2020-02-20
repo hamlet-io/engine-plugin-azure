@@ -5,11 +5,20 @@
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 
+    [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
+    [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
+    [#local keyVaultId = baselineAttributes["KEYVAULT_ID"]]
+    [#local keyVaultName = getExistingReference(keyVaultId, NAME_ATTRIBUTE_TYPE)]
+
     [#-- Name Processing --]
     [#local id = formatResourceId(AZURE_APPLICATION_GATEWAY_RESOURCE_TYPE, core.FullName)]
     [#local name = formatName(AZURE_APPLICATION_GATEWAY_RESOURCE_TYPE, core.FullName)]
     [#local ipId = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.FullName)]
     [#local ipName = formatName(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.FullName)]
+    [#local identityId = formatResourceId(AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE, core.FullName)]
+    [#local identityName = formatName(AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE, core.ShortName)]
+    [#local accessPolicyId = formatResourceId(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, "accessKeyVaultCert")]
+    [#local accessPolicyName = formatAzureResourceName("add", AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, keyVaultName)]
 
     [#switch solution.Engine]
         [#case "application"]
@@ -46,6 +55,20 @@
                     "Name" : ipName,
                     "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
                     "Reference" : getReference(ipId, ipName)
+                },
+                "identity" : {
+                    "Id" : identityId,
+                    "Name" : identityName,
+                    "Type" : AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE,
+                    "PrincipalId" : getReference(identityId, identityName, "", "", "", "", "principalId"),
+                    "Reference" : getReference(identityId, identityName)
+                },
+                "accessPolicy" : {
+                    "Id" : accessPolicyId,
+                    "Name" : accessPolicyName,
+                    "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE,
+                    "KeyVault" : keyVaultName,
+                    "Reference" : getReference(accessPolicyId, accessPolicyName)
                 }
             },
             "Attributes" : {
@@ -85,8 +108,8 @@
     [#local destinationPortId = destinationPort.Id!destination]
     [#local destinationPortName = destinationPort.Name!destination]
 
-    [#local listenerId = formatDependentResourceId(lb.Type, parentCore.Id, source, "listener")]
-    [#local listenerName = formatName(source, destination)]
+    [#local listenerId = formatResourceId(lb.Type, parentCore.Id, source)]
+    [#local listenerName = source]
     [#local routingRuleId = formatDependentResourceId(lb.Type, parentCore.Id, sourcePortId, solution.Priority)]
     [#local backendSettingsId = formatDependentResourceId(lb.Type, parentCore.Id, destinationPortId, "settings")]
     [#local backendAddressPoolId = formatDependentResourceId(lb.Type, parentCore.Id, destinationPortId, "addresses")]
@@ -96,6 +119,14 @@
     [#local frontendIPConfigName = formatName(destinationPortName, "frontendIP")]
     [#local gatewayIPConfigId = formatResourceId(lb.Type, parentCore.Tier.Name, "ipconfig")]
     [#local gatewayIPConfigName = formatName(parentCore.Tier.Name, "ipconfig")]
+    [#local urlPathMapId = formatResourceId(lb.Type, parentCore.Id, destinationPortName, "path")]
+    [#local urlPathMapName = destinationPortName]
+    [#local pathRuleId = formatResourceId(lb.Type, parentCore.Id, destinationPortName, "rule")]
+    [#local pathRuleName = formatName(destinationPortName, "rule")]
+    [#local redirectConfigId = formatResourceId(lb.Type, parentCore.Id, "redirect")]
+    [#local redirectConfigName = formatName(source, "redirect")]
+    [#local sslCertId = formatDependentResourceId(listenerId, "sslCert")]
+    [#local sslCertName = formatName(destinationPortName, "sslCert")]
 
     [#local domainRedirectRules = {} ]
     [#if (sourcePort.Certificate)!false ]
@@ -178,9 +209,28 @@
                         "Id" : backendAddressPoolId,
                         "Name" : backendAddressPoolName,
                         "SubReference" : getSubReference(lb.Id, lb.Name, "backendAddressPools", backendAddressPoolName)
+                    },
+                    "urlPathMap": {
+                        "Id" : urlPathMapId,
+                        "Name" : urlPathMapName,
+                        "SubReference" : getSubReference(lb.Id, lb.Name, "urlPathMaps", urlPathMapName)
+                    },
+                    "pathRule" : {
+                        "Id" : pathRuleId,
+                        "Name" : pathRuleName,
+                        "SubReference" : getSubReference(lb.Id, lb.Name, "urlPathMaps", urlPathMapName, "pathRules", pathRuleName)
+                    },
+                    "redirectConfiguration" : {
+                        "Id" : redirectConfigId,
+                        "Name" : redirectConfigName,
+                        "SubReference" : getSubReference(lb.Id, lb.Name, "redirectConfigurations", redirectConfigName)
+                    },
+                    "sslCertificate" : {
+                        "Id" : sslCertId,
+                        "Name" : sslCertName,
+                        "SubReference" : getSubReference(lb.Id, lb.Name, "sslCertificates", sslCertName)
                     }
-                } +
-                attributeIfContent("redirectConfiguration", domainRedirectRules),
+                },
                 "Attributes" : {
                     "LB" : lb.Id,
                     "ENGINE" : engine,

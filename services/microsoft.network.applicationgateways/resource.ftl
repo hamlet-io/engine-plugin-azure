@@ -41,11 +41,11 @@
 [/#function]
 
 [#function getAppGatewaySslCertificate
-  name 
+  name
+  keyVaultSecretId=""
   data=""
   dataPwd=""
-  publicCertData=""
-  keyVaultSecretId=""]
+  publicCertData=""]
 
   [#return
     {
@@ -125,22 +125,22 @@
   ]
 [/#function]
 
+[#function getAppGatewayBackendAddress fqdn="" ip=""]
+  [#return {} +
+    attributeIfContent("fqdn", fqdn) +
+    attributeIfContent("ipAddress", ip)]
+[/#function]
+
 [#function getAppGatewayBackendAddressPool
   name
-  ipConfigurations=[]
   backendAddresses=[]]
-
-  [#local backendIpAddresses = []]
-  [#list backendAddresses as ipAddress]
-    [#local backendIpAddresses += [{"ipAddress": ipAddress}]]
-  [/#list]
 
   [#return
     {
       "name" : name,
-      "properties" : {} +
-        attributeIfContent("backendIPConfigurations", ipConfigurations) +
-        attributeIfContent("backendAddresses", backendIpAddresses)
+      "properties" : {
+        "backendAddresses" : backendAddresses
+      }
     }
   ]
 [/#function]
@@ -148,6 +148,8 @@
 [#function getAppGatewayBackendHttpSettingsCollection
   name
   port=""
+  protocol=""
+  path=""
   cookieBasedAffinity=false
   requestTimeout=""
   probeId=""
@@ -158,8 +160,7 @@
   hostName=""
   pickHostNameFromBackendAddress=false
   affinityCookieName=""
-  probeEnabled=false
-  path=""]
+  probeEnabled=false]
 
   [#local connectionDraining = {} +
     attributeIfTrue("enabled",
@@ -174,7 +175,7 @@
       "name" : name,
       "properties": {} +
         attributeIfContent("port", port) +
-        attributeIfContent("protocol", protocol) +
+        attributeIfContent("protocol", protocol?capitalize) +
         attributeIfTrue("cookieBasedAffinity", cookieBasedAffinity, "Enabled") +
         attributeIfContent("requestTimeout", requestTimeout) +
         attributeIfTrue("probe", probeId?has_content,
@@ -357,7 +358,7 @@
 
 [#function getAppGatewayRedirectConfiguration
   name
-  redirectType=""
+  permanentRedirect=false
   targetListenerId=""
   targetUrl=""
   includePath=false
@@ -370,18 +371,18 @@
     {
       "name": name,
       "properties": {} +
-        attributeIfContent("redirectType", redirectType) +
+        attributeIfTrue("redirectType", permanentRedirect, "Permanent") +
         attributeIfContent("targetListener",
           getSubResourceReferences(targetListenerId)) +
         attributeIfContent("targetUrl", targetUrl) +
         attributeIfTrue("includePath", includePath, includePath) +
         attributeIfTrue("includeQueryString", includeQueryString, includeQueryString) +
         attributeIfContent("requestRoutingRules",
-          getSubResourceReferences(requestRoutingRuleIds)) +
+          [getSubResourceReferences(requestRoutingRuleIds)]) +
         attributeIfContent("urlPathMaps",
-          getSubResourceReferences(urlPathMapIds)) +
+          [getSubResourceReferences(urlPathMapIds)]) +
         attributeIfContent("pathRules",
-          getSubResourceReferences(pathRuleIds))
+          [getSubResourceReferences(pathRuleIds)])
     }
   ]
 [/#function] 
@@ -445,7 +446,7 @@
   [#local sku = {} +
     attributeIfContent("name", skuName) +
     attributeIfContent("tier", skuTier) +
-    attributeIfContent("capacity", skuCapacity)]
+    attributeIfContent("capacity", skuCapacity?number)]
 
   [#local sslPolicy = {} +
     attributeIfContent("disabledSslProtocols", sslPolicyDisabledProtocols) +
