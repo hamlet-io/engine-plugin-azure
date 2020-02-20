@@ -24,11 +24,13 @@
 
   [#local networkResources = networkLinkTarget.State.Resources ]
   [#local networkVnetResource = networkResources["vnet"]]
-  [#local mgmtSubnetResource = networkResources["subnets"]["mgmt"]["subnet"]]
-  [#local mgmtSubnetName = formatAzureResourceName(
-    mgmtSubnetResource.Name, 
-    getResourceType(mgmtSubnetResource.Id), networkVnetResource.Name
+  [#local subnetResource = getSubnet(core.Tier, networkResources)]
+  [#local subnetName = formatAzureResourceName(
+    subnetResource.Name, 
+    getResourceType(subnetResource.Id),
+    networkVnetResource.Name
   )]
+  [#local subnetReference = getReference(subnetResource.Id, subnetName)]
 
   [#-- Baseline Component Lookup --]
   [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
@@ -67,7 +69,7 @@
   [#-- NIC --]
   [#local nicIpConfiguration = getIPConfiguration(
     "default",
-    getReference(mgmtSubnetResource.Id, mgmtSubnetName),
+    subnetReference,
     true,
     publicIP.Reference
   )]
@@ -121,7 +123,7 @@
   [#-- IP Config that references the existing NIC and IP Prefix --]
   [#local nicIPReference = getIPConfiguration(
     "default",
-    getReference(mgmtSubnetResource.Id, mgmtSubnetName),
+    subnetReference,
     true,
     "",
     "default",

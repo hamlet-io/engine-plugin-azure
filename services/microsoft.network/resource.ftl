@@ -665,3 +665,14 @@
   /]
 
 [/#macro]
+
+[#-- Utility Network functions --]
+[#function getSubnet tier networkResources asReference=false]
+  [#local subnet = networkResources.subnets[tier.Id]["subnet"]]
+
+  [#if asReference]
+    [#return subnet.Reference]
+  [#else]
+    [#return subnet]
+  [/#if]
+[/#function]
