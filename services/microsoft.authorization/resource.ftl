@@ -62,21 +62,6 @@
             attributeIfContent("assignableScopes", assignableScopes)
     /]
 
-    [#-- Add to userRoles, so custom and build-in roles are --]
-    [#-- referenced in one convenient object.               --]
-    [#assign userRoles =
-        mergeObjects(
-            userRoles,
-            {
-                roleName : {
-                    "Description" : roleDescription,
-                    "RoleType" : "CustomRole",
-                    "Id" : getReference(id, name)
-                }
-            }
-        )
-    ]
-
 [/#macro]
 
 [#macro createRoleAssignment

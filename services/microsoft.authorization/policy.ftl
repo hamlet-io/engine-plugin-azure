@@ -12,6 +12,9 @@
     }
 }]
 
+[#-- For retrieving BuiltInRole definitions only.             --]
+[#-- CustomRole definition references should be obtained      --]
+[#-- through occurrence.State.Resources[<resource>].Reference --]
 [#function getRoleReference role subscription=""]
     [#local userRole = userRoles[role]]
     [#return
