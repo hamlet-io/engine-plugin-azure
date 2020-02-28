@@ -11,7 +11,7 @@
 --]
 
 [#-- Microsoft.Authorization --]
-[#assign AZURE_RBAC_SERVICE = "microsoft.authorization"]
+[#assign AZURE_AUTHORIZATION_SERVICE = "microsoft.authorization"]
 
 [#-- Microsoft.Compute --]
 [#assign AZURE_VIRTUALMACHINE_SERVICE = "microsoft.compute"]
