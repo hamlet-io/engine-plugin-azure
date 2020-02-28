@@ -1,6 +1,6 @@
 [#ftl]
-[#macro azure_bastion_arm_genplan_segment occurrence]
-  [@addDefaultGenerationPlan subsets=[ "template", "parameters"] /]
+[#macro azure_bastion_arm_generationcontract_segment occurrence]
+  [@addDefaultGenerationContract subsets=[ "template", "parameters"] /]
 [/#macro]
 
 [#macro azure_bastion_arm_setup_segment occurrence]
@@ -39,7 +39,7 @@
   [@createPublicIPAddress
     id=resources["publicIP"].Id
     name=resources["publicIP"].Name
-    location=regionId 
+    location=regionId
   /]
 
   [#-- NIC --]
@@ -76,7 +76,7 @@
       [@addParametersToDefaultJsonOutput
         id=baselineComponentIds["ssh"]
         parameter=getKeyVaultParameter(
-          baselineLinks[0].State.Resources["keyVault"].Id, 
+          baselineLinks[0].State.Resources["keyVault"].Id,
           baselineComponentIds["ssh"]
         )
       /]
@@ -98,11 +98,11 @@
     vmssVMImageProfile.Publisher,
     vmssVMImageProfile.Offering,
     vmssVMImageProfile.SKU,
-    [{ 
+    [{
       "name" : resources["networkInterface"].Name,
       "id" : getReference(
       resources["networkInterface"].Id,
-      resources["networkInterface"].Name) 
+      resources["networkInterface"].Name)
     }],
     vmssVMOSConfig
   )]
@@ -117,14 +117,14 @@
     skuCapacity=autoScaleConfig.MinUpdateInstances
     vmProfile=vmssVMProfile
   /]
-  
+
 
   [#-- AutoScale Policy --]
   [#if autoScaleConfig.Enabled]
 
     [#-- TODO: rossmurr4y
     Add autoscaling configuration for the VMSS.
-    
+
     [#local autoScaleTargetId = getReference(
       resources["scaleSet"].Id,
       resources["scaleSet"].Name)]
@@ -137,7 +137,7 @@
       "1",
       autoScaleConfig.MinUpdateInstances,
       [autoScaleRule])]
-      
+
     [@createAutoscaleSettings
       id=resources["autoScalePolicy"].Id
       name=resources["autoScalePolicy"].Name
