@@ -179,7 +179,7 @@
                 [#local outputName = formatAttributeId(id, propertySections)]
                 [#local type = attributeValue?is_hash?then("object","string")]
                 [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                [#local value = getReference(id, name, typeFull, attributeType, "", "", attributeValue)]
+                [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
             [/#if]
 
             [@armOutput
