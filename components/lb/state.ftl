@@ -60,7 +60,7 @@
                     "Id" : identityId,
                     "Name" : identityName,
                     "Type" : AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE,
-                    "PrincipalId" : getReference(identityId, identityName, "", "", "", "", "principalId"),
+                    "PrincipalId" : getReference(identityId, identityName, "", "", "", "", false, "principalId"),
                     "Reference" : getReference(identityId, identityName)
                 },
                 "accessPolicy" : {
