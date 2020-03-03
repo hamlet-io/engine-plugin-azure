@@ -328,7 +328,7 @@
           true,
           true,
           true,
-          false,
+          true,
           "default",
           true,
           getNetworkAcls("Deny", keyVaultIpRules, [], "AzureServices")

@@ -74,7 +74,7 @@
     [#return
         {} +
         attributeIfContent("name", name) +
-        attributeIfTrue("useSubDomainName", useSubDomainName)
+        attributeIfTrue("useSubDomainName", useSubDomainName, useSubDomainName)
     ]
 [/#function]
 
