@@ -8,6 +8,7 @@
   [#local vnetId = formatVirtualNetworkId(core.Id)]
   [#local vnetName = core.ShortTypedFullName]
   [#local nsgId = formatDependentNetworkSecurityGroupId(vnetId)]
+  [#local nsgName = formatName(vnetName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
 
   [#local nsgFlowLogEnabled = environmentObject.Operations.FlowLogs.Enabled!
     segmentObject.Operations.FlowLogs.Enabled!
@@ -44,15 +45,19 @@
       [#continue]
     [/#if]
 
+    [#local subnetId = formatDependentResourceId(AZURE_SUBNET_RESOURCE_TYPE, networkTier.Id)]
+    [#local resourceProfile = getAzureResourceProfile(AZURE_SUBNET_RESOURCE_TYPE)]
+
     [#local subnets = mergeObjects(
       subnets,
       {
         networkTier.Id : {
           "subnet": {
-            "Id": formatDependentResourceId(AZURE_SUBNET_RESOURCE_TYPE, networkTier.Id),
+            "Id": subnetId,
             "Name": networkTier.Name,
             "Address": subnetCIDRs[tierId?index],
-            "Type": AZURE_SUBNET_RESOURCE_TYPE
+            "Type": AZURE_SUBNET_RESOURCE_TYPE,
+            "Reference" : getReference(subnetId, networkTier.Name, resourceProfile.type)
           }
         }
       }
@@ -85,8 +90,9 @@
         "routeTableRoutes" : routeTableRoutes,
         "networkSecurityGroup" : {
           "Id" : nsgId,
-          "Name" : formatName(vnetName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE),
-          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE
+          "Name" : nsgName,
+          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+          "Reference" : getReference(nsgId, nsgName)
         }
       } +
       attributeIfTrue(
