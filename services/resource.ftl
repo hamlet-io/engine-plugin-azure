@@ -115,7 +115,7 @@ can be referenced via dot notation. --]
                 [#-- return a reference to the specific resources attributes. --]
                 [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
                 [#return
-                    "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+                    "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
                 ]
             [/#if]
         [/#if]
@@ -124,7 +124,7 @@ can be referenced via dot notation. --]
             [#-- return a reference to the specific resources attributes in another Deployment Unit --]
             [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
             [#return
-                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
             ]
         [#else]
             [#return getExistingReference(
