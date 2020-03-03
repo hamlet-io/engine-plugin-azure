@@ -61,10 +61,10 @@
 
 [#function getAppGatewayFrontendIPConfiguration
   name
+  publicIpAddressId=""
   privateIpAddress=""
-  privateIpAllocationMethod="Static"
-  subnetId=""
-  publicIpAddressId=""]
+  privateIpAllocationMethod="Dynamic"
+  subnetId=""]
 
   [#return
     {
@@ -73,9 +73,9 @@
         "privateIPAllocationMethod": privateIpAllocationMethod
       } +
         attributeIfContent("privateIPAddress", privateIpAddress) +
-        attributeIfContent("subnet",
+        attributeIfTrue("subnet", subnetId?has_content,
           getSubResourceReference(subnetId)) +
-        attributeIfContent("publicIPAddress",
+        attributeIfTrue("publicIPAddress", publicIpAddressId?has_content,
           getSubResourceReference(publicIpAddressId))
     }
   ]
@@ -177,7 +177,7 @@
         attributeIfContent("protocol", protocol) +
         attributeIfTrue("cookieBasedAffinity", cookieBasedAffinity, "Enabled") +
         attributeIfContent("requestTimeout", requestTimeout) +
-        attributeIfContent("probe", 
+        attributeIfTrue("probe", probeId?has_content,
           getSubResourceReference(probeId)) +
         attributeIfContent("authenticationCertificates", authenticationCertificates) +
         attributeIfContent("trustedRootCertificates", trustedRootCertificates) +
@@ -204,24 +204,23 @@
   customErrorConfigurations=[]]
 
   [#-- applicable only to https --]
-  [#local serverNameIndication = ""]
-  [#if protocol?lower_case == "https"]
-    [#local serverNameIndication = requireServerNameIndication]
+  [#if ! (protocol?lower_case == "https")]
+    [#local requireServerNameIndication = false]
   [/#if]
 
   [#return
     {
       "name": name,
       "properties" : {} +
-        attributeIfContent("frontendIPConfiguration", 
+        attributeIfTrue("frontendIPConfiguration", frontendIPConfigurationId?has_content,
           getSubResourceReference(frontendIPConfigurationId)) +
-        attributeIfContent("frontendPort", 
+        attributeIfTrue("frontendPort", frontendPortId?has_content,
           getSubResourceReference(frontendPortId)) +
-        attributeIfContent("protocol", protocol) +
+        attributeIfContent("protocol", protocol?capitalize) +
         attributeIfContent("hostName", hostName) +
-        attributeIfContent("sslCertificate", 
+        attributeIfTrue("sslCertificate", sslCertificateId?has_content,
           getSubResourceReference(sslCertificateId)) +
-        attributeIfContent("requireServerNameIndication", serverNameIndication) +
+        attributeIfTrue("requireServerNameIndication", requireServerNameIndication, requireServerNameIndication) +
         attributeIfContent("customErrorConfigurations", customErrorConfigurations)
     }
   ]
@@ -240,13 +239,13 @@
       "name": name,
       "properties" : {} +
         attributeIfContent("paths", paths) +
-        attributeIfContent("backendAddressPool",
+        attributeIfTrue("backendAddressPool", backendAddressPoolId?has_content,
           getSubResourceReference(backendAddressPoolId)) +
-        attributeIfContent("backendHttpSettings",
+        attributeIfTrue("backendHttpSettings", backendHttpSettingsId?has_content,
           getSubResourceReference(backendHttpSettingsId)) +
-        attributeIfContent("redirectConfiguration",
+        attributeIfTrue("redirectConfiguration", redirectConfigurationId?has_content,
           getSubResourceReference(redirectConfigurationId)) +
-        attributeIfContent("rewriteRuleSet",
+        attributeIfTrue("rewriteRuleSet", rewriteRuleSetId?has_content,
           getSubResourceReference(rewriteRuleSetId))
     }
   ]
@@ -264,13 +263,13 @@
     {
       "name": name,
       "properties" : {} +
-        attributeIfContent("defaultBackendAddressPool", 
+        attributeIfTrue("defaultBackendAddressPool", defaultBackendAddressPoolId?has_content,
           getSubResourceReference(defaultBackendAddressPoolId)) +
-        attributeIfContent("defaultBackendHttpSettings", 
+        attributeIfTrue("defaultBackendHttpSettings", defaultBackendHttpSettingsId?has_content,
           getSubResourceReference(defaultBackendHttpSettingsId)) +
-        attributeIfContent("defaultRewriteRuleSet", 
+        attributeIfTrue("defaultRewriteRuleSet", defaultRewriteRulesetId?has_content,
           getSubResourceReference(defaultRewriteRulesetId)) +
-        attributeIfContent("defaultRedirectConfiguration",
+        attributeIfTrue("defaultRedirectConfiguration", defaultRedirectConfigurationId?has_content,
           getSubResourceReference(defaultRedirectConfigurationId)) +
         attributeIfContent("pathRules", pathrules)       
     }
@@ -294,17 +293,17 @@
       "properties": {} +
         attributeIfContent("ruleType", ruleType) +
         attributeIfContent("priority", priority) +
-        attributeIfContent("backendAddressPool",
+        attributeIfTrue("backendAddressPool", backendAddressPoolId?has_content,
           getSubResourceReference(backendAddressPoolId)) +
-        attributeIfContent("backendHttpSettings",
+        attributeIfTrue("backendHttpSettings", backendHttpSettingsId?has_content,
           getSubResourceReference(backendHttpSettingsId)) +
-        attributeIfContent("httpListener",
+        attributeIfTrue("httpListener", httpListenerId?has_content,
           getSubResourceReference(httpListenerId)) +
-        attributeIfContent("urlPathMap",
+        attributeIfTrue("urlPathMap", urlPathMapId?has_content,
           getSubResourceReference(urlPathMapId)) +
-        attributeIfContent("rewriteRuleSet",
+        attributeIfTrue("rewriteRuleSet", rewriteRuleSetId?has_content,
           getSubResourceReference(rewriteRuleSetId)) +
-        attributeIfContent("redirectConfiguration",
+        attributeIfTrue("redirectConfiguration", redirectConfigurationId?has_content,
           getSubResourceReference(redirectConfigurationId))
     }
   ]
@@ -495,12 +494,12 @@
       attributeIfContent("rewriteRuleSets", rewriteRuleSets) +
       attributeIfContent("redirectConfigurations", redirectConfigurations) +
       attributeIfContent("webApplicationFirewallConfiguration", wafConfiguration) +
-      attributeIfContent("firewallPolicy", getSubResourceReference(firewallPolicyId)) +
+      attributeIfTrue("firewallPolicy", firewallPolicyId?has_content, getSubResourceReference(firewallPolicyId)) +
       attributeIfTrue("enableHttp2", enableHttp2, enableHttp2) +
       attributeIfTrue("enableFips", enableFips, enableFips) +
       attributeIfContent("autoscaleConfiguration", {} +
-        attributeIfTrue("minCapacity", autoScaleMinCapacity) +
-        attributeIfTrue("maxCapacity", autoScaleMaxCapacity)) +
+        attributeIfContent("minCapacity", autoScaleMinCapacity) +
+        attributeIfContent("maxCapacity", autoScaleMaxCapacity)) +
       attributeIfContent("customErrorConfigurations", customErrorConfigurations)
     dependsOn=dependsOn
   /]
