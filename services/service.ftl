@@ -10,6 +10,9 @@
     ie. "microsoft.network.applicationgateways"
 --]
 
+[#-- Microsoft.ApiManagement --]
+[#assign AZURE_API_MANAGEMENT_SERVICE = "microsoft.apimanagement"]
+
 [#-- Microsoft.Authorization --]
 [#assign AZURE_AUTHORIZATION_SERVICE = "microsoft.authorization"]
 
