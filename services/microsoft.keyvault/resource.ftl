@@ -11,6 +11,9 @@
       "outputMappings":   {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
+        },
+        NAME_ATTRIBUTE_TYPE : {
+          "Property" : "name"
         }
       }
     }
@@ -177,14 +180,15 @@ convention ("object" suffix) is used to easily distinguish the two. --]
 [#-- To ensure Vaults can be created with no accessPolicies, can have accessPolicies added
 at a later time, and remain idempotent, naming an AccessPolicy "add" will merge in the policy
 reference: https://tinyurl.com/y42ot42k --]
-[#macro createKeyVaultAccessPolicy id vaultName properties]
+[#macro createKeyVaultAccessPolicy id name vaultName properties dependsOn=[]]
 
   [@armResource
     id=id
-    name="add"
+    name=name
     parentNames=[vaultName]
     profile=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     properties=properties
+    dependsOn=dependsOn
   /]
 
 [/#macro]

@@ -31,4 +31,4 @@
         properties={}
         tags=tags
     /]
-[#/macro]
+[/#macro]
