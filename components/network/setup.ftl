@@ -1,6 +1,6 @@
 [#ftl]
-[#macro azure_network_arm_genplan_segment occurrence]
-  [@addDefaultGenerationPlan subsets="template" /]
+[#macro azure_network_arm_generationcontract_segment occurrence]
+  [@addDefaultGenerationContract subsets="template" /]
 [/#macro]
 
 [#macro azure_network_arm_setup_segment occurrence]
@@ -43,7 +43,7 @@
     [#-- tag "GatewayManager" https://github.com/MicrosoftDocs/azure-docs/issues/38691--]
     [#if (resources["subnets"]["elb"]!{})?has_content]
 
-      [#local elbNSG = 
+      [#local elbNSG =
         {
           "Id" : formatDependentNetworkSecurityGroupId(vnetId, "elb"),
           "Name" : formatName(networkSecurityGroupName, "elb"),

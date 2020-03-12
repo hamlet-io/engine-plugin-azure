@@ -1,6 +1,6 @@
 [#ftl]
-[#macro azure_bastion_arm_genplan_segment occurrence]
-  [@addDefaultGenerationPlan subsets=[ "template", "parameters"] /]
+[#macro azure_bastion_arm_generationcontract_segment occurrence]
+  [@addDefaultGenerationContract subsets=[ "template", "parameters"] /]
 [/#macro]
 
 [#macro azure_bastion_arm_setup_segment occurrence]
@@ -168,7 +168,7 @@
         nic.Reference
       ]
   /]
-  
+
 
   [#-- AutoScale Policy --]
   [#if autoScaleConfig.Enabled]
@@ -186,7 +186,7 @@
       "1",
       autoScaleConfig.MinUpdateInstances,
       [autoScaleRule])]
-      
+
     [@createAutoscaleSettings
       id=autoScalePolicy.Id
       name=autoScalePolicy.Name

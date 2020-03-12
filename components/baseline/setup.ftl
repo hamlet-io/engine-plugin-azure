@@ -1,6 +1,6 @@
 [#ftl]
-[#macro azure_baseline_arm_genplan_segment occurrence]
-  [@addDefaultGenerationPlan subsets=["prologue", "template", "epilogue"] /]
+[#macro azure_baseline_arm_generationcontract_segment occurrence]
+  [@addDefaultGenerationContract subsets=["prologue", "template", "epilogue"] /]
 [/#macro]
 
 [#macro azure_baseline_arm_setup_segment occurrence]
@@ -218,7 +218,7 @@
             [#local vmKeyVaultName = keyvaultName]
 
             [#if deploymentSubsetRequired("epilogue")]
-              
+
               [#-- Generate & Import SSH credentials into keyvault --]
 
               [@addToDefaultBashScriptOutput

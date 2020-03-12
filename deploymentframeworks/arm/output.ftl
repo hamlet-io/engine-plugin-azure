@@ -10,7 +10,7 @@
     ]
 [/#function]
 
-[#function getArmTemplateCoreOutputs 
+[#function getArmTemplateCoreOutputs
     region=formatAzureResourceGroupReference("location")
     account=formatAzureSubscriptionReference("id")
     resourceGroup=formatAzureResourceGroupReference("id")
@@ -23,7 +23,7 @@
         "Region": { "type": "string", "value": region },
         "DeploymentUnit": {
             "type": "string",
-            "value": 
+            "value":
                 deploymentUnit +
                 (
                     (!(ignoreDeploymentUnitSubsetInOutputs!false)) &&
@@ -42,10 +42,10 @@
         name="outputs"
         content=
             {
-                name : { 
+                name : {
                     "type" : type,
-                    "value" : value 
-                } + 
+                    "value" : value
+                } +
                 attributeIfContent("condition", condition)
             }
     /]
@@ -119,7 +119,7 @@
     zones=[]
     resources=[]
     parentNames=[]]
-    
+
     [#--
         Note - "Identity" is a unique attribute and is not available to resources
         that can be assigned a Managed Identity
@@ -127,11 +127,11 @@
 
     [#-- TODO(rossmurr4y): impliment localDependencies as the AWS provider does. --]
     [#-- The AWS Provider checks that the dependencies exist with the getReference
-        function first, assembles a new array from those that do, and impliments only those. 
+        function first, assembles a new array from those that do, and impliments only those.
         The getReference function calls on the getExistingReference function, which has
         some AWS-specific components to it. This will need to be implimented in:
         gen3-azure/azure/services/resource.ftl before it can be utilised. --]
-    [#-- 
+    [#--
         [#local localDependencies = [] ]
         [#list asArray(dependencies) as resourceId]
             [#if getReference(id, name)?is_hash]
@@ -142,7 +142,7 @@
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
 
-    [@addToJsonOutput 
+    [@addToJsonOutput
         name="resources"
         content=[
             {
@@ -226,7 +226,7 @@
 
 [#assign AZURE_OUTPUT_RESOURCE_TYPE = "resource" ]
 
-[@addGenPlanStepOutputMapping 
+[@addGenerationContractStepOutputMapping
     provider=AZURE_PROVIDER
     subset="template"
     outputType=AZURE_OUTPUT_RESOURCE_TYPE

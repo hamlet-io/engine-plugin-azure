@@ -1,11 +1,11 @@
 [#ftl]
 
-[#macro azure_lambda_arm_genplan_application occurrence]
-    [@addDefaultGenerationPlan subsets=["template", "epilogue"] /]
+[#macro azure_lambda_arm_generationcontract_application occurrence]
+    [@addDefaultGenerationContract subsets=["template", "epilogue"] /]
 [/#macro]
 
 [#macro azure_lambda_arm_setup_application occurrence]
-    
+
     [@debug message="Entering Function ARM Setup" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core]
@@ -32,8 +32,8 @@
         [#-- App Settings --]
         [#local appSettings = []]
         [#local runTimeSettings = getWebAppRunTime(subSolution.RunTime)]
-        
-        [#local mandatoryAppSettings = 
+
+        [#local mandatoryAppSettings =
             {
                 "AzureWebJobsStorage" : formatAzureStorageAccountConnectionStringReference(storageAccountId, storageAccountName, "keys[0].value"),
                 "FUNCTIONS_EXTENSION_VERSION" : runTimeSettings.ExtensionVersion,

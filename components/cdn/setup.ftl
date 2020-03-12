@@ -1,7 +1,7 @@
 [#ftl]
 
-[#macro azure_cdn_arm_genplan_solution occurrence]
-    [@addDefaultGenerationPlan subsets=["template", "epilogue"] /]
+[#macro azure_cdn_arm_generationcontract_solution occurrence]
+    [@addDefaultGenerationContract subsets=["template", "epilogue"] /]
 [/#macro]
 
 [#macro azure_cdn_arm_setup_solution occurrence]
@@ -51,7 +51,7 @@
         [#local originLinkTargetConfiguration = originLink.Configuration]
 
         [#switch originLinkTargetCore.Type]
-            [#-- TODO(rossmurr4y): 
+            [#-- TODO(rossmurr4y):
                 expand this to allow for S3, LB_PORT & APIGATEWAY component types. --]
             [#case SPA_COMPONENT_TYPE]
 
@@ -99,7 +99,7 @@
                         spaFrontEndPort.HealthCheck.Interval
                     )
                 ]]
-                            
+
                 [#-- Create backend pools--]
                   [#local spaBackendPool = [
                     getFrontDoorBackendPool(
@@ -132,13 +132,13 @@
                 [#local backendPools += spaBackendPool]
 
                 [#-- Create routing rules --]
-                [#local routingRules += [ 
+                [#local routingRules += [
                     getFrontDoorRoutingRule(
                         routingRuleResource.Name,
                         [
                             getSubResourceReference(
                                 getSubReference(
-                                    frontDoor.Id, 
+                                    frontDoor.Id,
                                     frontDoor.Name,
                                     "frontendEndpoints",
                                     frontendEndpointName
@@ -175,13 +175,13 @@
 
         [#-- Add HTTP redirect routing rule --]
         [#if httpReRouteRequired]
-            [#local routingRules += [ 
+            [#local routingRules += [
                 getFrontDoorRoutingRule(
                     "HttpToHttpsRedirect",
                     [
                         getSubResourceReference(
                             getSubReference(
-                                frontDoor.Id, 
+                                frontDoor.Id,
                                 frontDoor.Name,
                                 "frontendEndpoints",
                                 frontendEndpointName
@@ -199,7 +199,7 @@
         [/#if]
 
         [#-- Load Balancing Settings --]
-        [#local loadBalancingSettings = 
+        [#local loadBalancingSettings =
             [
                 getFrontDoorLoadBalancingSettings(
                     frontDoorLBSettingsName
@@ -215,7 +215,7 @@
             loadBalancingSettings=loadBalancingSettings
             backendPools=backendPools
             frontendEndpoints=frontendEndpoints
-            healthProbeSettings=healthProbeSettings         
+            healthProbeSettings=healthProbeSettings
         /]
 
         [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]

@@ -1,7 +1,7 @@
 [#ftl]
 
-[#macro azure_spa_arm_genplan_application occurrence]
-  [@addDefaultGenerationPlan subsets=["prologue", "config", "epilogue"] /]
+[#macro azure_spa_arm_generationcontract_application occurrence]
+  [@addDefaultGenerationContract subsets=["prologue", "config", "epilogue"] /]
 [/#macro]
 
 [#macro azure_spa_arm_setup_application occurrence]
@@ -129,7 +129,7 @@
   [/#if] --]
 
   [#-- invalidate the old cached content on the CDN with an epilogue script --]
-  [#-- 
+  [#--
   [#if solution.InvalidateOnUpdate && distributions?has_content]
     [#local invalidationScript = []]
     [#list distributions as distribution]
@@ -138,8 +138,8 @@
       once the CDN component exists, revisit this and ensure the cached data is invalidated.
 
     [/#list]
-  
-    [#if deploymentSubsetRequired("epilogue", false)]    
+
+    [#if deploymentSubsetRequired("epilogue", false)]
       [@addToDefaultBashScriptOutput
         [
           "case $\{DEPLOYMENT_OPERATION} in",
