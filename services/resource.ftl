@@ -68,6 +68,7 @@ can be referenced via dot notation. --]
     outputType=REFERENCE_ATTRIBUTE_TYPE
     subscriptionId=""
     resourceGroupName=""
+    fullResource=true
     attributes...]
 
     [#-- get short type - used for apiVersion + conditions --]
@@ -81,6 +82,13 @@ can be referenced via dot notation. --]
     [#-- get long type - used for referencing resources in ARM functions --]
     [#if typeFull == ""]
         [#local typeFull = resourceProfile.type]
+    [/#if]
+
+    [#-- Provide a full resource object or just the properties object --]
+    [#if fullResource]
+        [#local fullOrPartReference = "', 'Full'"]
+    [#else]
+        [#local fullOrPartReference = "'"]
     [/#if]
 
     [#if isPartOfCurrentDeploymentUnit(resourceId)]
@@ -107,7 +115,7 @@ can be referenced via dot notation. --]
                 [#-- return a reference to the specific resources attributes. --]
                 [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
                 [#return
-                    "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+                    "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
                 ]
             [/#if]
         [/#if]
@@ -116,7 +124,7 @@ can be referenced via dot notation. --]
             [#-- return a reference to the specific resources attributes in another Deployment Unit --]
             [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
             [#return
-                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + "', 'Full')." + (attributes?has_content)?then(attributes?join("."), "") + "]"
+                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
             ]
         [#else]
             [#return getExistingReference(
@@ -144,7 +152,9 @@ such an object Id through parent/grandparent Ids/Names --]
     grandChildType=""
     grandChildName=""
     subscriptionId=""
-    resourceGroupName=""]
+    resourceGroupName=""
+    fullResource=false
+    attributes...]
 
     [#local names = [resourceName, childName]]
     [#if grandChildName?has_content]
@@ -163,7 +173,9 @@ such an object Id through parent/grandparent Ids/Names --]
             types?join('/'),
             REFERENCE_ATTRIBUTE_TYPE,
             subscriptionId,
-            resourceGroupName
+            resourceGroupName,
+            fullResource,
+            attributes
         )
     ]
 
@@ -224,7 +236,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
                 [#local name = name?split("-")?join("")]
                 [#break]
             [#case "globally_unique"]
-                [#local segmentSeed = getStackOutput(AZURE_PROVIDER, formatSegmentSeedId())]
+                [#local segmentSeed = getStackOutput(AZURE_PROVIDER, formatSegmentResourceId("seed"))]
                 [#local name = name?ensure_ends_with(segmentSeed)]
                 [#break]
             [#case "max_length"]

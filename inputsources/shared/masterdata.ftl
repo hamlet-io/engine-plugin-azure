@@ -1104,7 +1104,11 @@
         }
       },
       "Processors": {
-        "default": {}
+        "default": {
+          "bastion": {
+            "Processor": "Standard_B1s"
+          }
+        }
       },
       "CertificateBehaviours": {
         "External": false,
@@ -1179,6 +1183,13 @@
         }
       },
       "LogFilters": {},
+      "VMImageProfiles" : {
+        "bastion" : {
+          "Publisher" : "Canonical",
+          "Offering" : "UbuntuServer",
+          "SKU" : "18.04-LTS"
+        }
+      },
       "NetworkEndpointGroups": {
         "compute" : {
           "Services" : []

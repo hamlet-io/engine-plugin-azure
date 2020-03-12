@@ -6,6 +6,25 @@
     "type" : "Microsoft.Network/applicationSecurityGroups",
     "outputMappings" : {}
   },
+  AZURE_NETWORK_INTERFACE_RESOURCE_TYPE : {
+    "apiVersion" : "2019-09-01",
+    "type" : "Microsoft.Network/networkInterfaces",
+    "outputMappings" : {}
+  },
+  AZURE_PUBLIC_IP_ADDRESS_PREFIX_RESOURCE_TYPE : {
+    "apiVersion" : "2019-11-01",
+    "type" : "Microsoft.Network/publicIPPrefixes",
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
+  },
+  AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE : {
+    "apiVersion" : "2019-09-01",
+    "type" : "Microsoft.Network/publicIPAddresses",
+    "outputMappings" : {}
+  },
   AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
     "type" : "Microsoft.Network/routeTables",
@@ -84,13 +103,14 @@
   /]
 [/#list]
 
-[#macro createApplicationSecurityGroup id name location tags={}]
+[#macro createApplicationSecurityGroup id name location tags={} dependsOn=[]]
   [@armResource
     id=id
     name=name
     profile=AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE
     location=location
     tags=tags
+    dependsOn=dependsOn
   /]
 [/#macro]
 
@@ -439,83 +459,220 @@
   /]
 [/#macro]
 
-[#macro createPrivateDnsZone
-  id
-  name]
-  
-  [@armResource
-    id=id
-    name=name
-    profile=AZURE_PRIVATE_DNS_ZONE_RESOURCE_TYPE
-    location="global"
-    properties={}
-  /]
-[/#macro]
+[#function getPublicIPPrefixIPTag type tag]
+  [#return { "ipTagType": tag, "tag": tag }]
+[/#function]
 
-[#macro createPrivateDnsZoneVnetLink
+[#macro createPublicIPAddressPrefix
   id
   name
-  vnetId
-  autoRegistrationEnabled=false]
+  location
+  publicIPAddressVersion="IPv4"
+  ipTags=[]
+  prefixLength=""
+  zones=[]]
 
   [@armResource
     id=id
     name=name
-    profile=AZURE_PRIVATE_DNS_ZONE_VNET_LINK_RESOURCE_TYPE
-    location="global"
+    profile=AZURE_PUBLIC_IP_ADDRESS_PREFIX_RESOURCE_TYPE
+    location=location
+    sku={"name": "Standard"}
+    zones=zones
     properties=
       {
-        "virtualNetwork" : {
-          "id" : vnetId
-        } +
-        attributeIfTrue(
-          "registrationEnabled",
-          autoRegistrationEnabled,
-          autoRegistrationEnabled
-        )
-      }
+        "publicIPAddressVersion": publicIPAddressVersion
+      } +
+      attributeIfContent("ipTags", ipTags) +
+      numberAttributeIfContent("prefixLength", prefixLength)
   /]
 
 [/#macro]
 
-[#-- 
-  The nicConfigurationReference & getIPConfigurationReference objects allow for the reference to an
-  existing NIC resource. It is not intended for use during the creation of a NIC.
---]
-[#function getIPConfigurationReference
-  publicIPId
-  publicIPName
-  subnetId]
+[#-- specifying no zones "[]" means "Zone Redundant" --]
+[#macro createPublicIPAddress
+  id
+  name
+  location
+  allocationMethod="Static"
+  publicIpAddressVersion="IPv4"
+  ipAddress=""
+  ipPrefixId=""
+  idleTimeoutInMins=""
+  dnsNameLabel=""
+  dnsFQDN=""
+  dnsReverseFQDN=""
+  ddosCustomPolicyId=""
+  ddosProtectionCoverageType=""
+  sku="Standard"
+  ipTags=[]
+  zones=[]
+  outputs={}
+  dependsOn=[]]
 
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE
+    location=location
+    sku={ "name" : sku }
+    zones=zones
+    dependsOn=dependsOn
+    properties=
+      {
+        "publicIPAllocationMethod" : allocationMethod,
+        "publicIPAddressVersion" : publicIpAddressVersion
+      } +
+      attributeIfContent(
+        "dnsSettings", 
+        {} + 
+        attributeIfContent("domainNameLabel", dnsNameLabel) +
+        attributeIfContent("fqdn", dnsFQDN) +
+        attributeIfContent("reverseFqdn", dnsReverseFQDN)
+      ) +
+      attributeIfContent(
+        "ddosSettings",
+        {} +
+        attributeIfContent(
+          "ddosCustomPolicy",
+          {} +
+          attributeIfContent("id", ddosCustomPolicyId)
+        ) +
+        attributeIfContent("protectionCoverage", ddosProtectionCoverageType)
+      ) +
+      attributeIfContent("ipTags", ipTags) +
+      attributeIfContent("ipAddress", ipAddress) +
+      attributeIfContent(
+        "publicIPPrefix", 
+        {} +
+        attributeIfContent("id", ipPrefixId)
+      ) +
+      attributeIfContent("idleTimeoutInMinutes", idleTimeoutInMins?has_content?then(idleTimeoutInMins?number, ""))
+  /]
+
+[/#macro]
+
+[#function getIPConfiguration
+  name
+  subnetId
+  primaryAddress=false
+  publicIpAddressId=""
+  publicIPAddressConfigurationName=""
+  publicIPAddressConfigurationIdleTimeout=""
+  publicIPAddressConfigurationIPTags=[]
+  publicIPAddressConfigurationIPVersion=""
+  publicIPAddressConfigurationIPPrefixId=""
+  privateIpAddress=""
+  privateIpAllocationMethod="Dynamic"
+  privateIpAddressVersion="IPv4"
+  vnetTapIds=[]
+  appGatewayBackendAddressPoolIds=[]
+  loadBalancerBackendAddressPoolIds=[]
+  loadBalancerInboundNatRuleIds=[]
+  applicationSecurityGroupIds=[]]
+
+  [#local vnetTapReferences = []]
+  [#list vnetTapIds as id]
+    [#local vnetTapReferences += [{ "id" : id }]]
+  [/#list]
+
+  [#local appGWBackendAddressPoolReferences = []]
+  [#list appGatewayBackendAddressPoolIds as id]
+    [#local appGWBackendAddressPoolReferences += [{ "id" : id }]]
+  [/#list]
+
+  [#local loadBalancerBackendAddressPoolReferences = []]
+  [#list loadBalancerBackendAddressPoolIds as id]
+    [#local loadBalancerBackendAddressPoolReferences += [{ "id" : id }]]
+  [/#list]
+
+  [#local loadBalancerInboundNatRulesReferences = []]
+  [#list loadBalancerInboundNatRuleIds as id]
+    [#local loadBalancerInboundNatRulesReferences += [{ "id" : id }]]
+  [/#list]
+
+  [#local applicationSecurityGroupReferences = []]
+  [#list applicationSecurityGroupIds as id]
+    [#local applicationSecurityGroupReferences += [{ "id" : id }]]
+  [/#list]
+  
   [#return
     {
-      "id" : publicIPId,
-      "name" : publicIPName,
+      "name" : name,
       "properties" : {
         "subnet" : {
           "id" : subnetId
-        }
-      }
+        } +
+        attributeIfContent("privateIPAllocationMethod", privateIpAllocationMethod) +
+        attributeIfContent("privateIPAddressVersion", privateIpAddressVersion)
+      } +
+      attributeIfContent("virtualNetworkTaps", vnetTapReferences) + 
+      attributeIfContent("applicationGatewayBackendAddressPools", appGWBackendAddressPoolReferences) +
+      attributeIfContent("loadBalancerBackendAddressPools", loadBalancerBackendAddressPoolReferences) +
+      attributeIfContent("loadBalancerInboundNatRules", loadBalancerInboundNatRulesReferences) +
+      attributeIfContent("privateIPAddress", privateIpAddress) +
+      attributeIfTrue("primary", primaryAddress, primaryAddress) +
+      attributeIfContent(
+        "publicIPAddress", {} +
+        attributeIfContent("id", publicIpAddressId)
+      ) +
+      attributeIfContent(
+        "publicIPAddressConfiguration",
+          attributeIfContent("name", publicIPAddressConfigurationName) +
+          attributeIfContent("properties", {} +
+            attributeIfContent("idleTimeoutInMinutes", publicIPAddressConfigurationIdleTimeout) +
+            attributeIfContent("ipTags", publicIPAddressConfigurationIPTags) +
+            attributeIfContent("publicIPAddressVersion", publicIPAddressConfigurationIPVersion) +
+            attributeIfContent("publicIPPrefix", {} + 
+              attributeIfContent("id", publicIPAddressConfigurationIPPrefixId)
+            )
+          )
+      ) +
+      attributeIfContent("applicationSecurityGroups", applicationSecurityGroupReferences)
     }
   ]
 
 [/#function]
 
-[#function getNICConfigurationReference
-  nicId
-  nicName
+[#macro createNetworkInterface
+  id
+  name
+  location
+  nsgId
   ipConfigurations=[]
-  primary=true]
+  dnsSettings=[]
+  enableAcceleratedNetworking=false
+  enableIPForwarding=false
+  outputs={}
+  dependsOn=[]]
 
-  [#return
-    {
-      "id" : nicId,
-      "name" : nicName,
-      "properties" : {
-        "primary" : primary,
-        "ipConfigurations" : ipConfigurations
-      }
-    }
-  ]
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_NETWORK_INTERFACE_RESOURCE_TYPE
+    location=location
+    dependsOn=dependsOn
+    properties=
+      {
+        "networkSecurityGroup" : {
+          "id" : nsgId
+        }
+      } +
+      attributeIfContent("ipConfigurations", ipConfigurations) +
+      attributeIfContent("dnsSettings", dnsSettings) +
+      attributeIfTrue("enableAcceleratedNetworking", enableAcceleratedNetworking, enableAcceleratedNetworking) +
+      attributeIfTrue("enableIPForwarding", enableIPForwarding, enableIPForwarding)
+  /]
 
+[/#macro]
+
+[#-- Utility Network functions --]
+[#function getSubnet tier networkResources asReference=false]
+  [#local subnet = networkResources.subnets[tier.Id]["subnet"]]
+
+  [#if asReference]
+    [#return subnet.Reference]
+  [#else]
+    [#return subnet]
+  [/#if]
 [/#function]

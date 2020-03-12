@@ -142,6 +142,27 @@ EOF
   return 0
 }
 
+function az_create_ssh_keypair() {
+  local dir="$1"; shift
+  local region="$1"; shift
+  local account="$1"; shift
+
+  file="${dir}/.azure-${account}-${region}-ssh.plaintext"
+
+  if [[ ! -e "${file}" ]]; then
+    ssh-keygen -m PEM -t rsa -b 2048 -f "${file}" -q -N ""
+  fi
+
+  if [[ ! -f "${dir}/.gitignore" ]]; then
+    cat << EOF > "${dir}/.gitignore"
+*.plaintext
+*.decrypted
+*.ppk
+EOF
+  fi
+
+}
+
 function az_show_key_credentials() {
   local vaultName="$1"; shift
   local keyName="$1"; shift

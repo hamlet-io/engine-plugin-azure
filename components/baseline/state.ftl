@@ -118,8 +118,8 @@
           },
           "localKeyPair": {
             "Id" : formatResourceId(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.Id),
-            "PublicKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name, "crt") + ".pem",
-            "PrivateKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name, "prv") + ".pem",
+            "PublicKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name),
+            "PrivateKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name),
             "Type" : LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE
           }
         }
@@ -140,7 +140,9 @@
   [#assign componentState =
     {
       "Resources": resources,
-      "Attributes": {},
+      "Attributes": {
+        "KEYVAULT_ID": parent.State.Resources["keyVault"].Id
+      },
       "Roles": {
         "Inbound": {},
         "Outbound": {}

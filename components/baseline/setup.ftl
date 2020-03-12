@@ -228,17 +228,16 @@
                   "  #",
                   "  # Create SSH credential for the segment",
                   "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
-                  "  az_create_pki_credentials \"$\{SEGMENT_OPERATIONS_DIR}\" " +
+                  "  az_create_ssh_keypair \"$\{SEGMENT_OPERATIONS_DIR}\" " +
                       "\"" + regionId + "\" " +
-                      "\"" + accountObject.Id + "\" " +
-                      " ssh || return $?",
+                      "\"" + accountObject.Id + "\" || return $?",
                   "  #",
                   "  # Upload to keyvault if required.",
                   "  if [[ ! $(az_check_secret" + " " +
                       "\"" + vmKeyVaultName + "\" " +
                       "\"" + vmKeyPairName + "PublicKey" + "\") " +
                       "= *SecretNotFound* ]]; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + "\"",
+                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
                   "    az_add_secret" + " " +
                       "\"" + vmKeyVaultName + "\" " +
                       "\"" + vmKeyPairName + "PublicKey" + "\" " +
@@ -248,7 +247,7 @@
                       "\"" + vmKeyVaultName + "\" " +
                       "\"" + vmKeyPairName + "PrivateKey" + "\") " +
                       "= *SecretNotFound* ]]; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + "\"",
+                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
                   "    az_add_secret" + " " +
                       "\"" + vmKeyVaultName + "\" " +
                       "\"" + vmKeyPairName + "PrivateKey" + "\" " +
@@ -328,7 +327,7 @@
           true,
           true,
           true,
-          false,
+          true,
           "default",
           true,
           getNetworkAcls("Deny", keyVaultIpRules, [], "AzureServices")
