@@ -16,13 +16,12 @@ pipeline {
         stage('Trigger Docker Build') {
             when {
                 branch 'master'
+                beforeAgent true
             }
-
             agent none
-
             steps {
                 build (
-                    job: '../docker-image-build/master'
+                    job: '../docker-hamlet/master'
                 )
             }
         }
