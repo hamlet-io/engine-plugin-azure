@@ -390,7 +390,6 @@
     value=""
     format="openapi"
     wsdlServiceName=""
-    wsdlEndpointName=""
     apiType=""
     resources=[]
     dependsOn=[]]
