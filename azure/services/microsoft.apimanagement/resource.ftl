@@ -1,6 +1,6 @@
 [#ftl]
 
-[#local apiManagementResourceprofiles = 
+[#assign apiManagementResourceprofiles = 
     {
         AZURE_API_MANAGEMENT_SERVICE : {
             "apiVersion" : "2019-01-01",
@@ -384,6 +384,7 @@
     value=""
     format=""
     wsdlServiceName=""
+    wsdlEndpointName=""
     apiType=""
     resources=[]
     dependsOn=[]]
