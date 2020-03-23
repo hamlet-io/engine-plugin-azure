@@ -35,6 +35,14 @@
         )
     ]
 
+    [#if storageEndpoints?is_string]
+        [#local storageEndpoints = {
+            "blob" : "",
+            "queue" : "",
+            "web" : ""
+        }]
+    [/#if]
+
     [#assign componentState=
         {
             "Resources" : {

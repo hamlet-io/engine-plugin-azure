@@ -26,7 +26,6 @@
           "Subscription" : account,
           "Region" : region,
           "DeploymentUnit" : deploymentUnit,
-          "ResourceGroup" : resourceGroup,
           id : value
         }
       ]

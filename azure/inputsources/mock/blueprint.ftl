@@ -10,7 +10,7 @@
                 "AzureId": "0123456789"
             },
             "Product": {
-                "Region": "eastus"
+                "Region": "westus"
             }
         }
     /]
