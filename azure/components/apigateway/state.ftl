@@ -8,7 +8,7 @@
     [#-- Process Resource Naming Conditions --]
     [#local serviceId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE, core.FullName)]
     [#local serviceName = formatAzureResourceName(
-        formatName(AZURE_API_MANAGEMENT_SERVICE, core.ShortName),
+        "apimService",
         AZURE_API_MANAGEMENT_SERVICE
     )]
     [#local authorizationserverId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER, core.FullName)]
@@ -23,63 +23,27 @@
         AZURE_API_MANAGEMENT_SERVICE_IDENTITY_PROVIDER,
         serviceName
     )]
-    [#local productId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_PRODUCT, core.FullName)]
+
+    [#local productId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_PRODUCT, core.ShortName)]
     [#local productName = formatAzureResourceName(
         formatName(AZURE_API_MANAGEMENT_SERVICE_PRODUCT, core.ShortName),
         AZURE_API_MANAGEMENT_SERVICE_PRODUCT,
         serviceName
     )]
 
-    [#-- Create all apis --]
-    [#local apis = {}]
-    [#local publishers = {}]
-    [#list solution.Publishers as publisher, attributes]
-
-        [#local apiId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_API, core.FullName)]
-        [#local apiName = formatAzureResourceName(
-            formatName(AZURE_API_MANAGEMENT_SERVICE_API, core.Name),
-            AZURE_API_MANAGEMENT_SERVICE_API,
-            serviceName
-        )]
-        [#local schemaId = formatDependentResourceId(AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA, core.FullName)]
-        [#local schemaName = formatAzureResourceName(
-            AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-            AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-            apiName
-        )]
-
-        [#local apis = 
-            mergeObjects(
-                apis,
-                {
-                    apiId : {
-                        "api" : {
-                            "Id" : apiId,
-                            "Name" : apiName,
-                            "Type" : AZURE_API_MANAGEMENT_SERVICE_API,
-                            "Reference" : getReference(apiId, apiName)
-                        },
-                        "schema" : {
-                            "Id" : schemaId,
-                            "Name" : schemaName,
-                            "Type" : AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-                            "Reference" : getReference(schemaId, schemaName)
-                        }
-                    }
-                }
-            )
-        ]
-
-        [#local publishers =
-            mergeObjects(
-                publishers,
-                {
-                    apiId : attributes.Contact!{}
-                }
-            )
-        ]
-
-    [/#list]
+    [#local apiId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_API, core.ShortName)]
+    [#local apiName = formatAzureResourceName(
+        formatName(AZURE_API_MANAGEMENT_SERVICE_API, core.ShortName),
+        AZURE_API_MANAGEMENT_SERVICE_API,
+        serviceName
+    )]
+ 
+    [#local schemaId = formatDependentResourceId(AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA, core.ShortName)]
+    [#local schemaName = formatAzureResourceName(
+        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
+        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
+        apiName
+    )]
 
     [#assign componentState =
         {
@@ -106,13 +70,22 @@
                     "Id": productId,
                     "Name" : productName,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE_PRODUCT,
-                    "Reference" : getReference(productId, productName),
-                    "apis" : apis
+                    "Reference" : getReference(productId, productName)
+                },
+                "api" : {
+                    "Id" : apiId,
+                    "Name" : apiName,
+                    "Type" : AZURE_API_MANAGEMENT_SERVICE_API,
+                    "Reference" : getReference(apiId, apiName)
+                },
+                "schema" : {
+                    "Id" : schemaId,
+                    "Name" : schemaName,
+                    "Type" : AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
+                    "Reference" : getReference(schemaId, schemaName)
                 }
             },
-            "Attributes" : {
-                "PUBLISHERS" : publishers
-            },
+            "Attributes" : {},
             "Roles" : {
                 "Inbound" : {},
                 "Outbound" : {}

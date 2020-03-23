@@ -382,12 +382,33 @@
     serviceUrl=""
     protocols=[]
     value=""
-    format=""
+    format="openapi"
     wsdlServiceName=""
     wsdlEndpointName=""
     apiType=""
     resources=[]
     dependsOn=[]]
+
+    [#if (! format?contains("-link")) && value?has_content]
+
+        [#-- output inline spec as an ARM parameter. This puts the  --]
+        [#-- spec in another file, keeping the template tidy and    --]
+        [#-- allows us to easily call the ARM function "string()"   --]
+        [#--  on it, to pass it inline to the API resource.         --]
+        [@addParametersToDefaultJsonOutput
+            id="openapi"
+            parameter=value
+        /]
+        [@armParameter
+            name="openapi"
+            type="object"
+        /]
+
+        [#-- Now that "value" has been converted to a Parameter,  --]
+        [#-- redirect "value" to the parameter name.              --]
+        [#local value = formatAzureStringFunction("", "parameters('openapi')")]
+
+    [/#if]
 
     [#local properties = {
             "path" : path
