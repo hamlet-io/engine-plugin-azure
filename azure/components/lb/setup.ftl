@@ -1,7 +1,7 @@
 [#ftl]
 
-[#macro azure_lb_arm_genplan_solution occurrence]
-    [@addDefaultGenerationPlan subsets=["template"] /]
+[#macro azure_lb_arm_generationcontract_solution occurrence]
+    [@addDefaultGenerationContract subsets=["template"] /]
 [/#macro]
 
 [#macro azure_lb_arm_setup_solution occurrence]
