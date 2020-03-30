@@ -1,4 +1,5 @@
 [#ftl]
+[#include "openapi.ftl"]
 
 [@addResourceGroupInformation
     type=APIGATEWAY_COMPONENT_TYPE
@@ -22,6 +23,16 @@
                     "Type" : STRING_TYPE
                 }
             ]
+        },
+        {
+            "Names" : "FrontDoor",
+            "Children": [
+                {
+                    "Names" : "Mapping",
+                    "Type" : BOOLEAN_TYPE,
+                    "Default" : false
+                }
+            ]
         }
     ]
     provider=AZURE_PROVIDER
@@ -29,6 +40,7 @@
     services=
         [
             AZURE_API_MANAGEMENT_SERVICE,
-            AZURE_STORAGE_SERVICE
+            AZURE_STORAGE_SERVICE,
+            AZURE_KEYVAULT_SERVICE
         ]
 /]

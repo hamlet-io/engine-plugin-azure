@@ -5,21 +5,124 @@
 [/#macro]
 
 [#macro azure_apigateway_arm_setup_application occurrence]
+    [@debug message="Entering" context=occurrence enabled=true /]
 
-    [#local core = occurrence.Core]
-    [#local solution = occurrence.Configuration.Solution]
-    [#local resources = occurrence.State.Resources]
-    [#local attributes = occurrence.State.Attributes]
+    [#local core          = occurrence.Core]
+    [#local solution      = occurrence.Configuration.Solution]
+    [#local resources     = occurrence.State.Resources]
+    [#local attributes    = occurrence.State.Attributes]
     [#local buildSettings = occurrence.Configuration.Settings.Build]
     [#local buildRegistry = buildSettings["BUILD_FORMATS"].Value[0]]
 
     [#-- resources --]
-    [#local service          = resources["service"]]
-    [#local auth             = resources["authorizationserver"]]
-    [#local identityprovider = resources["identityprovider"]]
-    [#local product          = resources["product"]]
-    [#local api              = resources["api"]]
-    [#local schema           = resources["schema"]]
+    [#local service           = resources["service"]]
+    [#local auth              = resources["authorizationserver"]]
+    [#local identityproviders = resources["identityproviders"]]
+    [#local product           = resources["product"]]
+    [#local api               = resources["api"]]
+    [#local schema            = resources["schema"]]
+
+    [#-- Determine the stage variables required --]
+    [#local stageVariables = {} ]
+    [#local fragment = getOccurrenceFragmentBase(occurrence) ]
+
+    [#-- Baselink Links --]
+    [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey", "OpsData"], false, false)]
+    [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
+    [#local keyvault = baselineAttributes["KEYVAULT_ID"]]
+
+    [#local contextLinks = getLinkTargets(occurrence)]
+    [#assign _context =
+        {
+            "Id" : fragment,
+            "Name" : fragment,
+            "Instance" : core.Instance.Id,
+            "Version" : core.Version.Id,
+            "DefaultEnvironment" : defaultEnvironment(occurrence, contextLinks, baselineLinks),
+            "Environment" : {},
+            "Links" : contextLinks,
+            "BaselineLinks" : baselineLinks,
+            "DefaultCoreVariables" : false,
+            "DefaultBaselineVariables" : false,
+            "DefaultEnvironmentVariables" : false,
+            "DefaultLinkVariables" : false,
+            "Policy" : []
+        }
+    ]
+
+    [#-- Add in fragment specifics including override of defaults --]
+    [#if solution.Fragment?has_content ]
+        [#local fragmentId = formatFragmentId(_context)]
+        [#include fragmentList?ensure_starts_with("/")]
+    [/#if]
+
+    [#local stageVariables += getFinalEnvironment(occurrence, _context).Environment ]
+
+    [#-- Links --]
+    [#local lambdaAuthorizers = {}]
+    [#local aadAppRegistrations = {}]
+    []
+
+    [#list solution.Links?values?filter(l -> l?is_hash) as link]
+
+        [#local linkTarget = getLinkTarget(occurrence, link, false)]
+        [@debug message="Link Target" context=linkTarget enabled=true /]
+
+        [#if !linkTarget?has_content]
+            [#continue]
+        [/#if]
+
+        [#local linkTargetCore = linkTarget.Core]
+        [#local linkTargetConfiguration = linkTarget.Configuration]
+        [#local linkTargetResources = linkTarget.State.Resources]
+        [#local linkTargetAttributes = linkTarget.State.Attributes]
+
+        [#switch linkTargetCore.Type]
+
+            [#case LB_COMPONENT_TYPE]
+                [#break]
+            [#case LAMBDA_FUNCTION_COMPONENT_TYPE]
+                [#local stageVariableName =
+                        formatSettingName(
+                            true,
+                            link.Name,
+                            linkTargetCore.SubComponent.Name,
+                            "LAMBDA")
+                ]
+                [#local stageVariables +=
+                    {
+                        stageVariableName :
+                            linkTargetResources["function"].Name
+                    }
+                ]
+                [#if ["authorise", "authorize"]?seq_contains(linkTarget.Role) ]
+                    [#local lambdaAuthorizers +=
+                        {
+                            link.Name : {
+                                "Name" : link.Name,
+                                "StageVariable" : stageVariableName,
+                                "Default" : true
+                            }
+                        }
+                    ]
+                [/#if]
+                [#break]
+            [#case USERPOOL_COMPONENT_TYPE]
+                [#if isLinkTargetActive(linkTarget)]
+                    [#local aadAppRegistrations += 
+                        {
+                            link.Name : {
+                                "Name" : link.Name,
+                                "Reference" : link.Reference
+                            }
+                        }
+                    ]
+                [/#if]
+                [#break]
+
+        [/#switch]
+
+    [/#list]
 
     [#-- Retrieve the OpenApi Spec from the registry --]
     [#-- and write it out to definition.json         --] 
@@ -49,44 +152,76 @@
 
     [#-- Get the definition that was        --]
     [#-- created/updated in "pregeneration" --]
-    [#local contact = {}]
     [#if definitionsObject[core.Id]??]
 
-        [#local definition = definitionsObject[core.Id]]
+        [#local openapiDefinition = definitionsObject[core.Id]]
         [#local openapiFileName = "openapi_" + commandLineOptions.Run.Id + ".json"]
 
+        [#-- Open API Integrations --]
+        [#local openapiIntegrations = getOccurrenceSettingValue(occurrence, [["apigw"], ["Integrations"]], true) ]
+        [#if !(openapiIntegrations?has_content) || !(openapiIntegrations?is_hash)]
+            [@fatal
+                message="API Gateway integration definitions not found or is not a hash."
+                context={"Integrations" : openapiIntegrations }
+            /]
+        [/#if]
+
+        [#-- Open API Context --]
+        [#local openapiContext = 
+            {
+                "Account" : accountObject.AzureId,
+                "Region" : region,
+                "AADAppRegistrations" : aadAppRegistrations,
+                "LambdaAuthorizers" : lambdaAuthorizers,
+                "FQDN" : attributes["FQDN"],
+                "Scheme": attributes["SCHEME"],
+                "BasePath": attributes["BASE_PATH"],
+                "BuildReference" : (buildSettings["APP_REFERENCE"].Value)!buildSettings["BUILD_REFERENCE"].Value,
+                "Name" : api.Name
+            }
+        ]
+
         [#-- API Management contact details. CMDB > openapi spec. --]
-        [#if definition.info?has_content]
-            [#if definition.info.contact?has_content]
-                [#local contact = mergeObjects(
-                    contact,
+        [#if openapiDefinition.info?has_content]
+            [#if openapiDefinition.info.contact?has_content]
+                [#local service = mergeObjects(
+                    service,
                     {
-                        "Name" : definition.info.contact.name!"",
-                        "Email" : definition.info.contact.email!""
+                        "ContactName" : openapiDefinition.info.contact.name!"",
+                        "ContactEmail" : openapiDefinition.info.contact.email!""
                     }
                 )]
             [/#if]
         [/#if]
-        [#local contact = mergeObjects(
-            contact,
+        [#local service = mergeObjects(
+            service,
             {} +
-            attributeIfContent("Name", solution["azure:Contact"].Name!"") +
-            attributeIfContent("Email", solution["azure:Contact"].Email!"")
+            attributeIfContent("ContactName", solution.azure\:Contact.Name!"") +
+            attributeIfContent("ContactEmail", solution.azure\:Contact.Email!"")
         )]
-
-        [#-- Link to externalservice & retrieve App Registration Client Id --]
-        [#-- this should be performed via an adaptor component             --]
-        [#local links = getLinkTargets(occurrence)]
-        [@debug message="flibberdy" context=links enabled=true /]
-        [@debug message="occy" context=occurrence enabled=true /]
 
         [#-- Extend Spec with extensions.                                        --]
         [#-- Azure only supports two openapi extensions, all others are skipped. --]
         [#-- Extensions: x-ms-paths & x-servers                                  --]
-        [#local extendedDefinition = definition]
+        [#local extendedDefinition = 
+            azExtendOpenapiDefinition(
+                openapiDefinition,
+                openapiIntegrations,
+                openapiContext,
+                true
+            )]
 
+        [#list identityproviders?values as identityprovider]
+            [@createApiManagementServiceIdentityProvider
+                id=identityprovider.Id
+                name=identityprovider.Name
+                clientId=identityprovider.ObjectId
+                keyvaultId=keyvault
+                keyvaultSecret=identityprovider.SecretId
+                dependsOn=[service.Reference]
+            /]
+        [/#list]
 
-        [#-- API --]
         [@createApiManagementServiceApi
             id=api.Id
             name=api.Name
@@ -95,31 +230,24 @@
             dependsOn=[service.Reference]
         /]
 
-        [@createApiManagementServiceApiSchema
-            id=schema.Id
-            name=schema.Name
-            contentType=solution.azure\:ContentType
+        [@createApiManagementServiceProduct
+            id=product.Id
+            name=product.Name
             dependsOn=[api.Reference]
+        /]
+
+        [@createApiManagementService
+            id=service.Id
+            name=service.Name
+            location=regionId
+            skuName="Developer"
+            publisherEmail=service.ContactEmail
+            publisherName=service.ContactName
+            identity=service.ManagedIdentity
         /]
 
     [#else]
         [@fatal message="No API definition exists." context=definitionsObject /]
     [/#if]
-
-    [@createApiManagementServiceProduct
-        id=product.Id
-        name=product.Name
-        dependsOn=[api.Reference]
-    /]
-
-    [#-- API Management (APIM) Service --]
-    [@createApiManagementService
-        id=service.Id
-        name=service.Name
-        location=regionId
-        skuName="Consumption"
-        publisherEmail=contact.Email
-        publisherName=contact.Name
-    /]
 
 [/#macro]

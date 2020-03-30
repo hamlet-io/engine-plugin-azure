@@ -5,7 +5,11 @@
         AZURE_API_MANAGEMENT_SERVICE : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service",
-            "outputMappings" : {}
+            "outputMappings" : {
+                SERVICE_PRINCIPAL_ATTRIBUTE_TYPE : {
+                    "Property" : "identity.principalId"
+                }
+            }
         },
         AZURE_API_MANAGEMENT_SERVICE_API : {
             "apiVersion" : "2019-01-01",
@@ -791,7 +795,8 @@
     id
     name
     clientId
-    clientSecret
+    keyvaultId
+    keyvaultSecret
     type=""
     signinTenant=""
     allowedTenants=[]
@@ -803,6 +808,12 @@
     resources=[]
     dependsOn=[]]
 
+    [@createKeyVaultParameterLookup
+        id=keyvaultSecret
+        vaultId=keyvaultId
+        secretName=keyvaultSecret
+    /]
+
     [@armResource
         id=id
         name=name
@@ -812,7 +823,7 @@
         properties=
             {
                 "clientId": clientId,
-                "clientSecret": clientSecret
+                "clientSecret": getParameterReference(keyvaultSecret)
             } +
             attributeIfContent("type", type) +
             attributeIfContent("signinTenant", signinTenant) +

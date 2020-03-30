@@ -334,7 +334,7 @@ its own function to return the first split of the last segment --]
 [#-- This is particularly helpful when the string is huge.  --]
 [#function formatAzureStringFunction stringFormat="" parameters...]
     [#local args = stringFormat?has_content?then([stringFormat, parameters], [parameters])]
-    [#return "[string(" + asFlattenedArray(args)?join("', '") + ")"]
+    [#return "[string(" + asFlattenedArray(args)?join("', '") + ")]"]
 [/#function]
 
 [#-- 
@@ -432,3 +432,8 @@ its own function to return the first split of the last segment --]
         ]
     [/#if]
 [/#macro]
+
+[#-- Function for determining if a Managed Identity is required. --]
+[#function getAzureManagedIdentity linkTarget]
+    [#return linkTarget.Role?has_content?then({ "type" : "SystemAssigned" },{})]
+[/#function]

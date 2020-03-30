@@ -26,6 +26,8 @@
     {
       "apiVersion" : "2018-02-14",
       "type" : "Microsoft.KeyVault/vaults/secrets",
+      "conditions" : [ "max_length" ],
+      "max_name_length" : 127,
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
@@ -220,3 +222,27 @@ reference: https://tinyurl.com/y42ot42k --]
     }
   ]
 [/#function]
+
+[#function formatSecretName name suffix...]
+  [#return formatAzureResourceName(
+            formatName(name, AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, suffix),
+            AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
+  )]
+[/#function]
+
+[#-- Creates a Parameter file (parameter generation contract pass req.)        --]
+[#-- with a parameter formatted in such a way that it retrieves a keyvault     --]
+[#-- secret during deployment, avoiding the secret ever being in the templates --]
+[#-- or in configuration.                                                      --]
+[#-- Also adds the parameter section to template.json that retrives the value. --]
+[#macro createKeyVaultParameterLookup id vaultId secretName type="securestring"]
+    [@addReferenceParameterToDefaultJsonOutput
+        id=id
+        vaultId=vaultId
+        referenceName=secretName
+    /]
+    [@armParameter
+        name=secretName
+        type=type
+    /]
+[/#macro]
