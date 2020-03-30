@@ -41,3 +41,4 @@
 
 [#-- Pseudo services --]
 [#assign AZURE_BASELINE_PSEUDO_SERVICE = "baseline"]
+[#assign AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE = "microsoft.aad.appregistration"]
