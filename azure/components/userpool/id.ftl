@@ -64,3 +64,13 @@
         AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
     ]
 /]
+
+[@addResourceGroupInformation
+    type=USERPOOL_RESOURCE_COMPONENT_TYPE
+    attributes=[]
+    provider=AZURE_PROVIDER
+    resourceGroup=DEFAULT_RESOURCE_GROUP
+    services=[
+        AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
+    ]
+/]

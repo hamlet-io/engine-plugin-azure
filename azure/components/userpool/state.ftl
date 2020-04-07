@@ -69,3 +69,20 @@
     ]
 
 [/#macro]
+
+[#macro azure_userpoolresource_arm_state occurrence parent={}]
+
+    [#local core = occurrence.Core]
+    [#local solution = occurrence.Configuration.Solution]
+
+    [#assign componentState =
+        {
+            "Resources" : {},
+            "Attributes" : {},
+            "Roles" : {
+                "Inbound" : {},
+                "Outbound" : {}
+            }
+        }
+    ]
+[/#macro]

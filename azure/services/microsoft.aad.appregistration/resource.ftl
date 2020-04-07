@@ -26,3 +26,18 @@
         }
         
 /]
+
+[@addResourceProfile
+    service=AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
+    resource=AZURE_APP_REGISTRATION_BACKEND_RESOURCE_TYPE
+    profile=
+        {
+            "apiVersion" : "pseudo",
+            "type" : "pseudo",
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE: {
+                    "Property" : "id"
+                }
+            }
+        }
+/]
