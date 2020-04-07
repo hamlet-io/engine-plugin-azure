@@ -5,7 +5,7 @@
 [/#macro]
 
 [#macro azure_apigateway_arm_setup_application occurrence]
-    [@debug message="Entering" context=occurrence enabled=true /]
+    [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core          = occurrence.Core]
     [#local solution      = occurrence.Configuration.Solution]
@@ -66,7 +66,7 @@
     [#list solution.Links?values?filter(l -> l?is_hash) as link]
 
         [#local linkTarget = getLinkTarget(occurrence, link, false)]
-        [@debug message="Link Target" context=linkTarget enabled=true /]
+        [@debug message="Link Target" context=linkTarget enabled=false /]
 
         [#if !linkTarget?has_content]
             [#continue]
