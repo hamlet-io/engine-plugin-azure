@@ -178,7 +178,7 @@ function az_add_secret() {
   local keyName="$1"; shift
   local secret="$1"; shift
 
-  info "Adding secret ${secret} to vault ${vaultName} ..."
+  info "Adding secret ${keyName} to vault ${vaultName} ..."
   if [[ -f ${secret} ]]; then
     az keyvault secret set --vault-name "${vaultName}" --name "${keyName}" --file "${secret}" 2>&1 > /dev/null
   else

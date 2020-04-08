@@ -7,6 +7,8 @@
 [#assign postgresResourceProfiles = {
     AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
+        "conditions" : [ "max_length", "name_to_lower", "globally_unique" ],
+        "max_name_length" : 63,
         "type" : "Microsoft.DBforPostgreSQL/servers",
         "outputMappings" : {}
     },
@@ -17,8 +19,14 @@
     },
     AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
+        "conditions" : [ "max_length", "name_to_lower", "globally_unique" ],
+        "max_name_length" : 63,
         "type" : "Microsoft.DBforPostgreSQL/servers/databases",
-        "outputMappings" : {}
+        "outputMappings" : {
+            REFERENCE_ATTRIBUTE_TYPE : {
+                "Property" : "id"
+            }
+        }
     },
     AZURE_DB_POSTGRES_SERVER_FIREWALL_RULE_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
@@ -45,21 +53,14 @@
     /]
 [/#list]
 
-
-[#-- Example CreateModeProperties input:
-    {
-        "createMode" : "Default",
-        "administratorLogin" : "myadminaccount",
-        "administratorLoginPassword" : "<use-a-secure-string-parameter>"
-    }
---]
-[#-- https://docs.microsoft.com/en-us/azure/templates/microsoft.dbforpostgresql/2017-12-01/servers#template-format --]
 [#macro createPostgresServer
     id
     name
     location
-    creationMode
-    creationModeProperties
+    createMode
+    adminName
+    adminSecret
+    keyvaultId
     skuName=""
     skuTier=""
     skuCapacity=""
@@ -69,14 +70,32 @@
     sslEnforcement=""
     backupRetentionDays=""
     geoRedundandBackup=""
-    storageMB=""
+    storageGB=""
     storageAutogrow=""
-    adminName=""
-    adminSecret=""
-    keyvaultId=""
     sourceServerId=""
     restorePointInTime=""
     dependsOn=[]]
+
+    [#local disallowedAdminNames = [
+        "azure_superuser",
+        "azure_pg_admin",
+        "admin",
+        "administrator",
+        "root",
+        "guest",
+        "public"
+    ]]
+
+    [#if disallowedAdminNames?seq_contains(adminName?lower_case) ||
+        adminName?lower_case?starts_with("pg_")]
+        [@precondition
+            function="createPostgresServer"
+            context={ "adminName": adminName, "max_length": 63, "length" : adminName?length }
+            detail="Disallowed database administrator account name, or name too long."
+        /]
+    [/#if]
+
+    [#local adminName = replaceAlphaNumericOnly(adminName)]
 
     [#local sku = {} +
         attributeIfContent("name", skuName) +
@@ -89,7 +108,7 @@
     [#local storageProfile = {} +
         numberAttributeIfContent("backupRetentionDays", backupRetentionDays) +
         attributeIfContent("geoRedundandBackup", geoRedundandBackup) +
-        numberAttributeIfContent("storageMB", storageMB) +
+        numberAttributeIfContent("storageMB", "${storageGB} * 1024"?eval?c) +
         attributeIfContent("storageAutogrow", storageAutogrow)
     ]
 
@@ -102,8 +121,8 @@
     [#switch createMode]
         [#case "Default"]
             [#local dbadmin = getServerCreateModeDefault(
-                adminAccountName, 
-                adminAccountKeyvaultSecret
+                adminName, 
+                adminSecret
             )]
 
             [#-- Create ARM Parameter File and Template Parameter Reference to the secret --]
@@ -113,7 +132,7 @@
                 secretName=adminSecret
             /]
 
-            [#-- Add parameter reference p to Properties --]
+            [#-- Add parameter reference to Properties --]
             [#local properties += mergeObjects(
                 dbadmin,
                 { "administratorLoginPassword" : getParameterReference(adminSecret) }
@@ -138,6 +157,7 @@
     [@armResource
         id=id
         name=name
+        location=location
         sku=sku
         profile=AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE
         dependsOn=dependsOn
