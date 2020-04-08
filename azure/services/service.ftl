@@ -33,6 +33,9 @@
 [#assign AZURE_NETWORK_APPLICATION_GATEWAY_SERVICE = "microsoft.network.applicationgateways"]
 [#assign AZURE_NETWORK_FRONTDOOR_SERVICE = "microsoft.network.frontdoor"]
 
+[#-- Microsoft.DBforPostgreSQL --]
+[#assign AZURE_DB_POSTGRES_SERVICE = "microsoft.dbforpostgresql"]
+
 [#-- Microsoft.Storage --]
 [#assign AZURE_STORAGE_SERVICE = "microsoft.storage"]
 
