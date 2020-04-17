@@ -25,6 +25,9 @@
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"
+                },
+                URL_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.defaultHostName"
                 }
             }
         }

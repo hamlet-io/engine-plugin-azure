@@ -1,7 +1,6 @@
 [#ftl]
 
 [#macro azure_input_shared_masterdata_seed]
-  [@debug message="MASTERING" context={} enabled=true /]
   [@addMasterData
     data=
     {

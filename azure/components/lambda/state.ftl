@@ -26,17 +26,21 @@
 [#macro azure_function_arm_state occurrence parent={}]
 
     [#local core = occurrence.Core]
+    [#local functionId = formatResourceId(AZURE_WEB_APP_RESOURCE_TYPE, core.Id)]
+    [#local functionName = core.ShortName]
 
     [#assign componentState =
         {
             "Resources" : {
                 "function" : {
-                    "Id" : formatResourceId(AZURE_WEB_APP_RESOURCE_TYPE, core.Id),
-                    "Name" : core.ShortName,
+                    "Id" : functionId,
+                    "Name" : functionName,
                     "Type" : AZURE_WEB_APP_RESOURCE_TYPE
                 }
             },
-            "Attributes" : {},
+            "Attributes" : {
+                "URL": functionName + ".azurewebsites.net"
+            },
             "Roles" : {
                 "Inbound" : {},
                 "Outbound" : {}
