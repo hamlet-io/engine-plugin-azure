@@ -1215,6 +1215,15 @@
           ]
         }
       },
+      "PlacementProfiles": {
+        "default": {
+          "default": {
+            "Provider": "azure",
+            "Region": "australiaeast",
+            "DeploymentFramework": "arm"
+          }
+        }
+      },
       "DeploymentProfiles": {
         "default": {
           "Modes": {
