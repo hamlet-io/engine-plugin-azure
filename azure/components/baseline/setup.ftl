@@ -308,9 +308,21 @@
       ["Get","List","Update","Create","Import","Delete","Recover","Backup","Restore","ManageContacts","ManageIssuers","GetIssuers","ListIssuers","SetIssuers","DeleteIssuers"]
     )]
 
+    [#local keyvaultAdminsId = getOccurrenceSettingValue(
+      occurrence,
+      [
+        ["azure", "administrators", "group"],
+        ["aad", "administrators", "group"],
+        ["azure", "admins"],
+        ["aad", "admins"],
+        [productName, "administrators"],
+        [productName, "admins"]
+      ]
+    )]
+
     [#local keyVaultAccessPolicyObject = getKeyVaultAccessPolicyObject(
       tenantId,
-      getExistingReference("AzureAdministratorsGroup"),
+      keyvaultAdminsId,
       defaultKeyVaultPermissions
     )]
 
