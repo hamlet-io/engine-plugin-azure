@@ -19,6 +19,36 @@
     )
   ]
 
+  [#local blobName = formatAzureResourceName(
+      "default",
+      AZURE_BLOBSERVICE_RESOURCE_TYPE,
+      storageAccountName
+    )
+  ]
+
+  [#local registries = {}]
+  [#list occurrence.Configuration.Settings as config,settings]
+    [#list settings?keys?filter(s -> s?starts_with("REGISTRIES") && s?ends_with("PREFIX")) as setting]
+      [@debug message="FoundSetting" context=setting enabled=true /]
+
+        [#local registryName = getOccurrenceSettingValue(occurrence, setting)?remove_ending('/')]]
+        [#local registries += 
+          {
+            setting : {
+              "Id": formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, registryName),
+              "Name": formatAzureResourceName(
+                registryName
+                AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+                blobName
+              ),
+              "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+            }
+          }
+        ]
+
+    [/#list]
+  [/#list]
+
   [#assign componentState=
     {
       "Resources" : {
@@ -34,7 +64,7 @@
         },
         "blobService" : {
             "Id" : formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id),
-            "Name" : "default",
+            "Name" : blobName,
             "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
         },
         "keyVault" : {
@@ -46,7 +76,8 @@
             "Id" : formatResourceId(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.Id),
             "Name" : formatName(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
-        }
+        },
+        "registries" : registries
       },
       "Attributes" : {
         "SEED_SEGMENT" : segmentSeedValue
@@ -65,13 +96,16 @@
 
   [#local storageAccountId = parent.State.Resources["storageAccount"].Id]
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
+  [#local blobName = parent.State.Resources["blobService"].Name]
+
+  [#local containerName = formatAzureResourceName(core.SubComponent.Id, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
 
   [#assign componentState =
     {
       "Resources": {
         "container" : {
           "Id" : formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id),
-          "Name" : formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.SubComponent.Id),
+          "Name" : containerName,
           "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         }
       },
