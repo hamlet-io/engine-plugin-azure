@@ -793,23 +793,6 @@
             "NetworkACL": "Public"
           },
           "Components": {
-            "seg-cert": {
-              "DeploymentUnits": [
-                "cert"
-              ]
-            },
-            "seg-dns": {
-              "DeploymentUnits": [
-                "dns"
-              ],
-              "Enabled": false
-            },
-            "seg-dashboard": {
-              "DeploymentUnits": [
-                "dashboard"
-              ],
-              "Enabled": false
-            },
             "baseline": {
               "DeploymentUnits": [
                 "baseline"
@@ -983,28 +966,6 @@
                 }
               }
             },
-            "nat": {
-              "DeploymentUnits": [
-                "nat"
-              ],
-              "gateway": {
-                "Engine": "natgw",
-                "Destinations": {
-                  "default": {
-                    "IPAddressGroups": "_global",
-                    "Links": {
-                      "Private": {
-                        "Tier": "mgmt",
-                        "Component": "vpc",
-                        "Version": "",
-                        "Instance": "",
-                        "RouteTable": "default"
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "vpcendpoint": {
               "DeploymentUnits": [
                 "vpcendpoint"
@@ -1107,6 +1068,14 @@
         "default": {
           "bastion": {
             "Processor": "Standard_B1s"
+          },
+          "db": {
+            "Processor": "GP_Gen5_2"
+          }
+        },
+        "basic": {
+          "db" : {
+            "Processor": "B_Gen5_1"
           }
         }
       },

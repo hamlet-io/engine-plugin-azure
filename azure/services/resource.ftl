@@ -252,7 +252,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
                 [#break]
             [#case "segment_out_names"]
                 [#-- This will always happen last --]
-                [#local name = formatRelativePath( (primaryParent!""), name) ]
+                [#local name = formatRelativePath( (primaryParent!""), name?remove_ending("-"))]
                 [#break]
             [#default]
                 [@fatal
