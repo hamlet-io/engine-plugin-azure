@@ -227,7 +227,7 @@
             id=api.Id
             name=api.Name
             value=extendedDefinition
-            path="test"
+            path=productObject.Name
             dependsOn=[service.Reference]
         /]
 
