@@ -22,6 +22,8 @@
     [#local api               = resources["api"]]
     [#local schema            = resources["schema"]]
 
+    [#local sku = getSkuProfile(occurrence, core.Type)]
+    
     [#-- Determine the stage variables required --]
     [#local stageVariables = {} ]
     [#local fragment = getOccurrenceFragmentBase(occurrence) ]
@@ -61,7 +63,6 @@
     [#-- Links --]
     [#local lambdaAuthorizers = {}]
     [#local aadAppRegistrations = {}]
-    []
 
     [#list solution.Links?values?filter(l -> l?is_hash) as link]
 

@@ -1200,6 +1200,13 @@
           }
         }
       },
+      "SkuProfiles" : {
+        "default" : {
+          "apigateway" : {
+            "Name" : "Developer"
+          }
+        }
+      },
       "Segment": {
         "Network": {
           "InternetAccess": true,
