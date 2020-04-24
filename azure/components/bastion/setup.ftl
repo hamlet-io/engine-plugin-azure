@@ -91,7 +91,7 @@
   [#local vmssProcessorType = vmssProcessorProfile[core.Type]]
   [#local vmssProcessor = vmssProcessorType.Processor]
   [#local vmssProcessorTier = vmssProcessor?split("_")[0]]
-  [#local vmssVMImageProfile = vmImageProfiles[BASTION_COMPONENT_TYPE]]
+  [#local vmssVMImageProfile = getVMImageProfile(occurrence, core.Type)]
   [#local vmssVMAdminName = BASTION_COMPONENT_TYPE]
 
   [#if deploymentSubsetRequired("parameters", true)]

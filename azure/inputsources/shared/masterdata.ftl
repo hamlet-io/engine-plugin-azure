@@ -1153,10 +1153,17 @@
       },
       "LogFilters": {},
       "VMImageProfiles" : {
-        "bastion" : {
-          "Publisher" : "Canonical",
-          "Offering" : "UbuntuServer",
-          "SKU" : "18.04-LTS"
+        "default" : {
+          "bastion" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "SKU" : "18.04-LTS"
+          },
+          "computecluster" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "SKU" : "18.04-LTS"
+          }
         }
       },
       "NetworkEndpointGroups": {
