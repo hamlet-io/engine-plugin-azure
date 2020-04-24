@@ -320,6 +320,23 @@ its own function to return the first split of the last segment --]
     [#return resourceId?split("/")?last?split("X")[0]]
 [/#function]
 
+[#-- Formats a call to the Azure ARM "concat" function. --]
+[#function formatAzureConcatFunction segments...]
+    [#local parts = asArray(segments)?join("', '")]
+    [#return "[concat('" + parts + "')]"]
+[/#function]
+
+[#-- Formats a call to the Azure Arm "string() function     --]
+[#-- output the params as ARM parameters. This puts the     --]
+[#-- params in another file, keeping the template tidy and  --]
+[#-- allows us to easily call the ARM function "string()"   --]
+[#-- on them, to pass them inline as necessary.             --]
+[#-- This is particularly helpful when the string is huge.  --]
+[#function formatAzureStringFunction stringFormat="" parameters...]
+    [#local args = stringFormat?has_content?then([stringFormat, parameters], [parameters])]
+    [#return "[string(" + asFlattenedArray(args)?join("', '") + ")]"]
+[/#function]
+
 [#-- 
     Azure has some default tags to reference standard IP ranges.
     We use that here as Azure does not accept 0.0.0.0/0 as reference to Internet.
@@ -415,3 +432,8 @@ its own function to return the first split of the last segment --]
         ]
     [/#if]
 [/#macro]
+
+[#-- Function for determining if a Managed Identity is required. --]
+[#function getAzureManagedIdentity linkTarget]
+    [#return linkTarget.Role?has_content?then({ "type" : "SystemAssigned" },{})]
+[/#function]

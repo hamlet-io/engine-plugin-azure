@@ -16,7 +16,10 @@
             "Attributes" : {},
             "Roles" : {
                 "Inbound" : {},
-                "Outbound" : {}
+                "Outbound" : {
+                    "authorise" : "",
+                    "authorize" : ""
+                }
             }
         }
     ]
