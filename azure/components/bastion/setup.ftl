@@ -142,6 +142,7 @@
   )]
 
   [#local vmssVMNetworkProfile = getVirtualMachineNetworkProfile([vmssVMNICConfig])]
+  [#local vmssVMSkuProfile = getSkuProfile(occurrence, core.Type)]
 
   [#local vmssVMProfile = getVirtualMachineProfile(
     core.Type,
@@ -149,7 +150,7 @@
     "Standard_LRS",
     vmssVMImageProfile.Publisher,
     vmssVMImageProfile.Offering,
-    vmssVMImageProfile.SKU,
+    vmssVMImageProfile.Image,
     vmssVMNetworkProfile,
     vmssVMOSConfig
   )]
@@ -159,9 +160,9 @@
     identity={"type": "SystemAssigned"}
     name=scaleSet.Name
     location=regionId
-    skuName=vmssProcessor
-    skuTier=vmssProcessorTier
-    skuCapacity=autoScaleConfig.MinUpdateInstances
+    skuName=vmssVMSkuProfile.Name
+    skuTier=vmssVMSkuProfile.Tier
+    skuCapacity=vmssVMSkuProfile.Capacity
     vmProfile=vmssVMProfile
     dependsOn=
       [

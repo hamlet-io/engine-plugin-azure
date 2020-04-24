@@ -25,7 +25,7 @@
                     "Mandatory" : true
                 },
                 {
-                    "Names" : "SKU",
+                    "Names" : "Image",
                     "Type" : STRING_TYPE,
                     "Mandatory" : true
                 },

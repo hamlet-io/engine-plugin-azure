@@ -1157,12 +1157,12 @@
           "bastion" : {
             "Publisher" : "Canonical",
             "Offering" : "UbuntuServer",
-            "SKU" : "18.04-LTS"
+            "Image" : "18.04-LTS"
           },
           "computecluster" : {
             "Publisher" : "Canonical",
             "Offering" : "UbuntuServer",
-            "SKU" : "18.04-LTS"
+            "Image" : "18.04-LTS"
           }
         }
       },
@@ -1211,6 +1211,11 @@
         "default" : {
           "apigateway" : {
             "Name" : "Developer"
+          },
+          "bastion" : {
+            "Name" : "Standard_B1s",
+            "Tier" : "Standard",
+            "Capacity" : 0
           }
         }
       },

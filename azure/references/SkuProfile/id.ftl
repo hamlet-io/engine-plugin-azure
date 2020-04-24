@@ -110,14 +110,16 @@
             "Names" : "bastion",
             "Children" : [
                 {
-                    "Names" : "Profiles",
-                    "Children" :
-                        [
-                            {
-                                "Names" : "Processor",
-                                "Type" : STRING_TYPE
-                            }
-                        ]
+                    "Names" : "Name",
+                    "Type" : STRING_TYPE
+                },
+                {
+                    "Names" : "Tier",
+                    "Type" : STRING_TYPE
+                },
+                {
+                    "Names" : "Capacity",
+                    "Type" : NUMBER_TYPE
                 }
             ]
         }
