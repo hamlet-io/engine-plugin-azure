@@ -120,48 +120,6 @@
                         ]
                 }
             ]
-        },
-        {
-            "Names" : "spa",
-            "Children" : [
-                {
-                    "Names" : "Name",
-                    "Type" : STRING_TYPE
-                },
-                {
-                    "Names" : "Tier",
-                    "Type" : STRING_TYPE
-                },
-                {
-                    "Names" : "Capacity",
-                    "Children" : [
-                        {
-                            "Names" : "Count",
-                            "Type" : NUMBER_TYPE
-                        },
-                        {
-                            "Names" : "Minimum",
-                            "Type" : NUMBER_TYPE
-                        },
-                        {
-                            "Names" : "Maximum",
-                            "Type" : NUMBER_TYPE
-                        },
-                        {
-                            "Names" : "ScaleType",
-                            "Type" : STRING_TYPE
-                        }
-                    ]
-                },
-                {
-                    "Names" : "Size",
-                    "Type" : NUMBER_TYPE
-                },
-                {
-                    "Names" : "Family",
-                    "Type" : STRING_TYPE
-                }
-            ]
         }
     ]
 /]

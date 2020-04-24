@@ -5,12 +5,6 @@
     type=APIGATEWAY_COMPONENT_TYPE
     attributes=[
         {
-            "Names" : "ContentType",
-            "Description" : "The content type of the API's schema",
-            "Type" : STRING_TYPE,
-            "Default" : "application/vnd.oai.openapi.components+json"
-        },
-        {
             "Names": "Contact",
             "Description" : "The contact for the API Management Service",
             "Children" : [

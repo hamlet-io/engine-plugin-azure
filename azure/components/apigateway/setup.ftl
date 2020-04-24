@@ -20,7 +20,6 @@
     [#local identityproviders = resources["identityproviders"]]
     [#local product           = resources["product"]]
     [#local api               = resources["api"]]
-    [#local schema            = resources["schema"]]
 
     [#local sku = getSkuProfile(occurrence, core.Type)]
     
@@ -74,9 +73,7 @@
         [/#if]
 
         [#local linkTargetCore = linkTarget.Core]
-        [#local linkTargetConfiguration = linkTarget.Configuration]
         [#local linkTargetResources = linkTarget.State.Resources]
-        [#local linkTargetAttributes = linkTarget.State.Attributes]
 
         [#switch linkTargetCore.Type]
 
@@ -156,7 +153,6 @@
     [#if definitionsObject[core.Id]??]
 
         [#local openapiDefinition = definitionsObject[core.Id]]
-        [#local openapiFileName = "openapi_" + commandLineOptions.Run.Id + ".json"]
 
         [#-- Open API Integrations --]
         [#local openapiIntegrations = getOccurrenceSettingValue(occurrence, [["apigw"], ["Integrations"]], true) ]
