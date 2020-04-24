@@ -10,9 +10,13 @@
   [#local nsgId = formatDependentNetworkSecurityGroupId(vnetId)]
   [#local nsgName = formatName(vnetName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
 
-  [#local nsgFlowLogEnabled = environmentObject.Operations.FlowLogs.Enabled!
-    segmentObject.Operations.FlowLogs.Enabled!
-    solution.Logging.EnableFlowLogs ]
+  [#local nsgFlowLogEnabled = isPresent(segmentObject.Operations)?then(
+      isPresent(environmentObject.Operations.FlowLogs) || 
+      isPresent(segmentObject.Operations.FlowLogs) ||
+      solution.Logging.EnableFlowLogs,
+      isPresent(environmentObject.Operations.FlowLogs) || 
+      solution.Logging.EnableFlowLogs
+  )]
 
   [#local networkCIDR = (network.CIDR)?has_content?then(
     network.CIDR.Address + "/" + network.CIDR.Mask,
