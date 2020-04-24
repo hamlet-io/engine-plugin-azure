@@ -25,7 +25,7 @@
             ]
         },
         {
-            "Names" : [ "storage", "s3", "baselinedata" ],
+            "Names" : "s3",
             "Children" : [
                 {
                     "Names" : "Kind",
