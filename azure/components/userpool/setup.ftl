@@ -13,7 +13,8 @@
     [#-- Baseline Links --]
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
-    [#local keyvault = baselineAttributes["KEYVAULT_ID"]]
+    [#local keyvaultId = baselineAttributes["KEYVAULT_ID"]]
+    [#local keyvault = getExistingReference(keyvaultId, NAME_ATTRIBUTE_TYPE)]
 
     [#-- Instantiate CLI Args --]
     [#local replyUrls = []]
@@ -72,7 +73,6 @@
                 [#local cliArgs += {
                     "display-name": client.Name
                 } +
-                    attributeIfContent("id", getExistingReference(client.Id)!"") +
                     attributeIfTrue("oauth2-allow-implicit-flow", flows?seq_contains("implicit"), true) +
                     attributeIfTrue("available-to-other-tenants", otherTenants, otherTenants)
                 ]
@@ -107,7 +107,7 @@
         content=
             [
                 " # AAD App Registration",
-                " case $\{STACK_OPERATION} in",
+                " case $\{DEPLOYMENT_OPERATION} in",
                 "   delete)"
             ] +
             identifier?has_content?then(
@@ -125,8 +125,8 @@
             ) +
             [
                 "   create|update)",   
-                "       result=$(az ad app $\{STACK_OPERATION} " + args?join(" ") + ")",
-                "       objectId=$(echo $result | jq .objectId)"
+                "       az ad app create " + args?join(" ") + " > $tmp/registration.json",
+                "       objectId=$(runJQ -r '.objectId' < $tmp/registration.json)"
             ] +
             generateSecret?then(
                 [
@@ -134,7 +134,7 @@
                     "       az ad app credential reset --create-cert \\",
                     "           --keyvault " + keyvault + " \\",
                     "           --cert " + formatName(client.Name, "appregistration") + " \\",
-                    "           --id $\{objectId}"
+                    "           --id $(echo \"$\{objectId}\") > /dev/null"
                 ],
                 []
             ) +
