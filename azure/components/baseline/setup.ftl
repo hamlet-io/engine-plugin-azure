@@ -4,7 +4,7 @@
 [/#macro]
 
 [#macro azure_baseline_arm_setup_segment occurrence]
-
+    [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core ]
     [#local solution = occurrence.Configuration.Solution ]
@@ -67,9 +67,7 @@
     [#local keyvaultId = resources["keyVault"].Id]
     [#local keyvaultName = resources["keyVault"].Name]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
-
-    [#-- Process Resource Naming Conditions --]
-    [#local blobName = formatAzureResourceName(blobName, getResourceType(blobId), accountName)]
+    [#local registries = resources["registries"]]
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
@@ -124,6 +122,22 @@
         ]
     /]
 
+    [#-- Create All Registry Containers --]
+    [#list registries?values as registry]
+      [@createBlobServiceContainer
+        id=registry.Id
+        name=registry.Name
+        accountName=accountName
+        blobName=blobName
+        publicAccess="None"
+        dependsOn=
+          [
+            getReference(accountId, accountName),
+            getReference(blobId, blobName)
+          ]
+      /]
+    [/#list]
+
     [#-- Subcomponents --]
     [#list occurrence.Occurrences![] as subOccurrence]
 
@@ -135,9 +149,6 @@
       [#if subCore.Type == BASELINE_DATA_COMPONENT_TYPE]
         [#local containerId = subResources["container"].Id]
         [#local containerName = subResources["container"].Name]
-
-        [#-- Process Resource Naming Conditions --]
-        [#local containerName = formatAzureResourceName(containerName, getResourceType(containerId), blobName)]
 
         [#if (deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true))]
 
