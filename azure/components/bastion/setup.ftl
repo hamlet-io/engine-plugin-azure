@@ -145,14 +145,14 @@
   [#local vmssVMSkuProfile = getSkuProfile(occurrence, core.Type)]
 
   [#local vmssVMProfile = getVirtualMachineProfile(
-    core.Type,
-    vmssVMAdminName,
     "Standard_LRS",
     vmssVMImageProfile.Publisher,
     vmssVMImageProfile.Offering,
     vmssVMImageProfile.Image,
     vmssVMNetworkProfile,
-    vmssVMOSConfig
+    vmssVMOSConfig,
+    core.Type,
+    vmssVMAdminName
   )]
 
   [@createVMScaleSet

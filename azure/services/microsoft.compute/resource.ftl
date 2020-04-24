@@ -90,14 +90,14 @@
 [/#function]
 
 [#function getVirtualMachineProfile
-  vmNamePrefix
-  adminName
   storageAccountType
   imagePublisher
   imageOffer
   imageSku
   nicConfigurations
   linuxConfiguration={}
+  vmNamePrefix=""
+  adminName=""
   windowsConfiguration={}
   priority="Regular"
   imageVersion="latest"
@@ -105,12 +105,11 @@
 
   [#return 
     {
-      "osProfile" : {
-        "computerNamePrefix" : vmNamePrefix,
-        "adminUsername" : adminName
-      } +
-      attributeIfContent("linuxConfiguration", linuxConfiguration) +
-      attributeIfContent("windowsConfiguration", windowsConfiguration),
+      "osProfile" : {} +
+        attributeIfContent("computerNamePrefix", vmNamePrefix) +
+        attributeIfContent("adminUsername", adminName) +
+        attributeIfContent("linuxConfiguration", linuxConfiguration) +
+        attributeIfContent("windowsConfiguration", windowsConfiguration),
       "storageProfile" : {
         "osDisk" : {
           "createOption" : "FromImage",

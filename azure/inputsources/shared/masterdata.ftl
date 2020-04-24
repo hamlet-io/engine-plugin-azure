@@ -1036,6 +1036,10 @@
             "Type": "StorageV2",
             "AccessTier": "Cool",
             "HnsEnabled": false
+          },
+          "computecluster": {
+            "Tier": "Standard",
+            "Replication": "LRS"
           }
         },
         "Blob": {
@@ -1212,10 +1216,10 @@
           "apigateway" : {
             "Name" : "Developer"
           },
-          "bastion" : {
-            "Name" : "Standard_B1s",
+          "computecluster" : {
+            "Name" : "Standard_B1ms",
             "Tier" : "Standard",
-            "Capacity" : 0
+            "Capacity" : 1
           }
         }
       },

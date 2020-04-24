@@ -25,6 +25,25 @@
             ]
         },
         {
+            "Names" : "computecluster",
+            "Children" : [
+                {
+                    "Names" : "Name",
+                    "Type" : STRING_TYPE
+                },
+                {
+                    "Names" : "Tier",
+                    "Type" : STRING_TYPE,
+                    "Values" : [ "Standard", "Basic" ]
+                },
+                {
+                    "Names" : "Capacity",
+                    "Type" : NUMBER_TYPE,
+                    "Default" : 1
+                }
+            ]
+        },
+        {
             "Names" : "s3",
             "Children" : [
                 {
