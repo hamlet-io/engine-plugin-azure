@@ -40,9 +40,7 @@
     )]
 
     [#local certificatePresent = isPresent(solution.Certificate)]
-    [#local fdPresent = isPresent(solution.azure\:FrontDoor)]
-    [#local mappingPresent = isPresent(solution.Mapping) &&
-        (!fdPresent || solution.azure\:FrontDoor.Mapping)]
+    [#local mappingPresent = isPresent(solution.Mapping)]
     [#local publishPresent = isPresent(solution.Publish)]
 
     [#local endpointType       = solution.EndpointType]
@@ -65,14 +63,13 @@
     ]
 
     [#local fqdn = internalFqdn]
-    [#local stagePath = "/" + stageName]
+    [#local stagePath = stageName]
 
     [#-- Effective API Gateway end points --]
-    [#local hostDomains = [] ]
     [#local hostName = "" ]
 
     [#-- Custom domain definitions needed for signing --]
-    [#local customDomains = [] ]
+
     [#local customHostName = "" ]
 
     [#if certificatePresent]
@@ -84,34 +81,12 @@
         [#local certificateId = formatDomainCertificateId(certificateObject, hostName) ]
   
         [#if mappingPresent]
-            [#-- Mode 2, 3, 4 --]
             [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
-            [#local hostDomains = certificateDomains]
-            [#local customDomains = hostDomains]
-            [#local customHostName = hostName]
-            [#local docsDomains = hostDomains]
-            [#local signingFqdn = fqdn]
-            [#if solution.Mapping.IncludeStage]
-                [#local mappingStage = stageName]
+            [#if !(solution.Mapping.IncludeStage)]
                 [#local stagePath = ""]
-            [#else]
-                [#local internalPath = "/" + stageName]
-            [/#if]
-
-            [#if fdPresent && isEdgeEndpointType]
-                [#-- Mode 2 --]
-                [#local hostDomains = [primaryDomainObject]]
-                [#local customDomains = hostDomains]
-                [#local customHostName = formatName("sig4", hostName)]
-                [#local signingFqdn = formatDomainName(customHostName, primaryDomainObject)]
             [/#if]
         [#else]
-            [#if fdPresent]
-                [#-- Mode 1 --]
-                [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
-                [#local hostDomains = certificateDomains]
-                [#local docsDomains = hostDomains]
-            [/#if]
+            [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
         [/#if]
     [/#if]
 
@@ -132,10 +107,6 @@
         )]
 
         [#local linkTargetCore = linkTarget.Core]
-        [#local linkTargetConfiguration = linkTarget.Configuration]
-        [#local linkTargetResources = linkTarget.State.Resources]
-        [#local linkTargetAttributes = linkTarget.State.Attributes]
-
         [#switch linkTargetCore.Type]
 
             [#case USERPOOL_COMPONENT_TYPE]

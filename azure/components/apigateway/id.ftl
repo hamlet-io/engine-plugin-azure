@@ -17,16 +17,6 @@
                     "Type" : STRING_TYPE
                 }
             ]
-        },
-        {
-            "Names" : "FrontDoor",
-            "Children": [
-                {
-                    "Names" : "Mapping",
-                    "Type" : BOOLEAN_TYPE,
-                    "Default" : false
-                }
-            ]
         }
     ]
     provider=AZURE_PROVIDER
