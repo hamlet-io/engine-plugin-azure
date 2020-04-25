@@ -1153,10 +1153,17 @@
       },
       "LogFilters": {},
       "VMImageProfiles" : {
-        "bastion" : {
-          "Publisher" : "Canonical",
-          "Offering" : "UbuntuServer",
-          "SKU" : "18.04-LTS"
+        "default" : {
+          "bastion" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "Image" : "18.04-LTS"
+          },
+          "computecluster" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "Image" : "18.04-LTS"
+          }
         }
       },
       "NetworkEndpointGroups": {
@@ -1204,6 +1211,11 @@
         "default" : {
           "apigateway" : {
             "Name" : "Developer"
+          },
+          "bastion" : {
+            "Name" : "Standard_B1s",
+            "Tier" : "Standard",
+            "Capacity" : 0
           }
         }
       },

@@ -91,7 +91,7 @@
   [#local vmssProcessorType = vmssProcessorProfile[core.Type]]
   [#local vmssProcessor = vmssProcessorType.Processor]
   [#local vmssProcessorTier = vmssProcessor?split("_")[0]]
-  [#local vmssVMImageProfile = vmImageProfiles[BASTION_COMPONENT_TYPE]]
+  [#local vmssVMImageProfile = getVMImageProfile(occurrence, core.Type)]
   [#local vmssVMAdminName = BASTION_COMPONENT_TYPE]
 
   [#if deploymentSubsetRequired("parameters", true)]
@@ -142,6 +142,7 @@
   )]
 
   [#local vmssVMNetworkProfile = getVirtualMachineNetworkProfile([vmssVMNICConfig])]
+  [#local vmssVMSkuProfile = getSkuProfile(occurrence, core.Type)]
 
   [#local vmssVMProfile = getVirtualMachineProfile(
     core.Type,
@@ -149,7 +150,7 @@
     "Standard_LRS",
     vmssVMImageProfile.Publisher,
     vmssVMImageProfile.Offering,
-    vmssVMImageProfile.SKU,
+    vmssVMImageProfile.Image,
     vmssVMNetworkProfile,
     vmssVMOSConfig
   )]
@@ -159,9 +160,9 @@
     identity={"type": "SystemAssigned"}
     name=scaleSet.Name
     location=regionId
-    skuName=vmssProcessor
-    skuTier=vmssProcessorTier
-    skuCapacity=autoScaleConfig.MinUpdateInstances
+    skuName=vmssVMSkuProfile.Name
+    skuTier=vmssVMSkuProfile.Tier
+    skuCapacity=vmssVMSkuProfile.Capacity
     vmProfile=vmssVMProfile
     dependsOn=
       [
