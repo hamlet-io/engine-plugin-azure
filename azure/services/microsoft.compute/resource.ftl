@@ -18,6 +18,17 @@
     }
 /]
 
+[@addResourceProfile
+  service=AZURE_VIRTUALMACHINE_SERVICE
+  resource=AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE
+  profile=
+    {
+      "apiVersion" : "2019-12-01",
+      "type" : "Microsoft.Compute/virtualMachineScaleSets/extensions",
+      "outputMappings" : {}
+    }
+/]
+
 [#function getVirtualMachineProfileLinuxConfigPublicKey
   path=""
   data=""]
@@ -93,7 +104,7 @@
   storageAccountType
   imagePublisher
   imageOffer
-  imageSku
+  image
   nicConfigurations
   linuxConfiguration={}
   vmNamePrefix=""
@@ -120,7 +131,7 @@
         "imageReference" : {
           "publisher" : imagePublisher,
           "offer" : imageOffer,
-          "sku" : imageSku,
+          "sku" : image,
           "version" : imageVersion
         }
       },
@@ -166,6 +177,38 @@
         },
         "virtualMachineProfile" : vmProfile 
       }
+  /]
+
+[/#macro]
+
+[#macro createVMScaleSetExtension
+  id
+  name
+  publisher=""
+  type=""
+  typeHandlerVersion=""
+  autoUpgradeMinorVersion=false
+  settings={}
+  protectedSettings={}
+  provisionAfterExtensions=[]
+  dependsOn=[]]
+
+  [#-- Settings should be listed even when empty. --]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE
+    dependsOn=dependsOn
+    properties={
+      "settings" : settings
+    } +
+      attributeIfContent("publisher", publisher) +
+      attributeIfContent("type", type) +
+      attributeIfContent("typeHandlerVersion", typeHandlerVersion) +
+      attributeIfContent("autoUpgradeMinorVersion", autoUpgradeMinorVersion) +
+      attributeIfContent("protectedSettings", protectedSettings) +
+      attributeIfContent("provisionAfterExtensions", provisionAfterExtensions)
   /]
 
 [/#macro]

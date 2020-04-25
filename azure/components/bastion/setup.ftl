@@ -37,7 +37,8 @@
   [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
   [#local baselineResources = baselineLinks["SSHKey"].State.Resources]
   [#local sshKeyPairResourceId = getExistingReference(baselineResources["vmKeyPair"].Id)]
-  [#local sshPublicKeyParameterName = "SSHPublicKey"]
+  [#local sshKey = baselineResources["vmKeyPair"]]
+  [#local sshPublicKeyParameterName = sshKey.Name + "PublicKey"]
 
   [#-- Resources                                        --]
   [#-- Add Reference Attribute to all for simple lookup --]
@@ -96,18 +97,11 @@
 
   [#if deploymentSubsetRequired("parameters", true)]
 
-      [@addParametersToDefaultJsonOutput
-        id=sshKeyPairResourceId
-        parameter=
-          { 
-            sshPublicKeyParameterName : getKeyVaultParameter(
-              baselineAttributes["KEYVAULT_ID"], 
-              sshKeyPairResourceId?ensure_ends_with("PublicKey")
-            )
-          }
+      [@createKeyVaultParameterLookup
+        id=sshPublicKeyParameterName
+        vaultId=baselineAttributes["KEYVAULT_ID"]
+        secretName=sshPublicKeyParameterName
       /]
-
-      [@armParameter name=sshPublicKeyParameterName /]
 
   [/#if]
   [#local vmssVMOSConfig = getVirtualMachineProfileLinuxConfig(
