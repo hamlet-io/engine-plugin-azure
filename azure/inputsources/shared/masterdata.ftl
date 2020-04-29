@@ -1039,6 +1039,10 @@
             "Type": "StorageV2",
             "AccessTier": "Cool",
             "HnsEnabled": false
+          },
+          "computecluster": {
+            "Tier": "Standard",
+            "Replication": "LRS"
           }
         },
         "Blob": {
@@ -1141,9 +1145,63 @@
         }
       },
       "ScriptStores": {},
-      "Bootstraps": {},
+      "Bootstraps": {
+        "stage" : {
+          "Index" : 25,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "az storage blob download --connection-string ', parameters('storage'), ' -c ', parameters('container'), ' -n ', parameters('blob'), ' -f' , parameters('file')"
+            },
+            "systemAssignedIdentity" : {
+              "Key" : "managedIdentity",
+              "Value" : {}
+            }
+          }
+        },
+        "unzip" : {
+          "Index" : 30,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "unzip -DD ', parameters('file'), ' -d .'"
+            }
+          }
+        },
+        "encode" : {
+          "Index" : 75,
+          "ProtectedSettings" : {
+            "makeBase64" : {
+              "Key" : "commandToExecute",
+              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh"
+            }
+          }
+        },
+        "init-encoded" : {
+          "Index" : 100,
+          "Publisher" : "Microsoft.Azure.Extensions",
+          "Type" : {
+            "Name" : "CustomScript",
+            "HandlerVersion" : "2.1"
+          },
+          "InitScript" : "./init-encoded.sh"
+        },
+        "timestamp" : {
+          "Index" : 1000,
+          "ProtectedSettings" : {
+            "addTimestamp" : {
+              "Key" : "timestamp",
+              "Value" : "[parameters('timestamp')]"
+            }
+          }
+        }
+      },
       "BootstrapProfiles": {
-        "default": {}
+        "default": {
+          "computecluster" : {
+            "Bootstraps" : ["stage", "unzip", "encode", "init-encoded", "timestamp"]
+          }
+        }
       },
       "BaselineProfiles": {
         "default": {
@@ -1216,9 +1274,14 @@
             "Name" : "Developer"
           },
           "bastion" : {
-            "Name" : "Standard_B1s",
+            "Name" : "Standard_B1ms",
             "Tier" : "Standard",
             "Capacity" : 0
+          },
+          "computecluster" : {
+            "Name" : "Standard_B1ms",
+            "Tier" : "Standard",
+            "Capacity" : 1
           }
         }
       },

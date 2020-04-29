@@ -70,7 +70,7 @@
     ]
 [/#function]
 
-[#function getStorageCustomDomain name useSubDomainName=true]
+[#function getStorageCustomDomain name useSubDomainName=false]
     [#return
         {} +
         attributeIfContent("name", name) +

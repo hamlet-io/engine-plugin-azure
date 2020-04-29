@@ -5,7 +5,7 @@
   resource=AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE
   profile=
     {
-      "apiVersion" : "2018-05-01-preview",
+      "apiVersion" : "2015-04-01",
       "type" : "Microsoft.Insights/autoscaleSettings",
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
