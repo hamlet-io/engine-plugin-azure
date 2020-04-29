@@ -298,7 +298,10 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
             {
                 "Mapping" : "COTFatal: ResourceProfile not found.",
                 "ServiceType" : serviceType,
-                "ResourceType" : resourceType
+                "ResourceType" : resourceType,
+                "apiVersion" : "COTFatal: ResourceProfile not found.",
+                "conditions" : [],
+                "type" : "Hamlet/UnknownType"
             }
         ]
     [/#if]

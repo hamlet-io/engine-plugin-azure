@@ -131,8 +131,8 @@
 
 [#function getFrontDoorBackend
   address
-  httpPort
-  httpsPort
+  httpPort=""
+  httpsPort=""
   priority=1
   weight=50
   backendHostHeader=""]

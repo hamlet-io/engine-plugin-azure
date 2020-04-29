@@ -18,6 +18,10 @@
     [#local wafPolicy = resources["wafPolicy"]]
     [#local frontendEndpointName = formatName(frontDoor.Name, "frontend")]
     [#local frontDoorLBSettingsName = formatName(frontDoor.Name, "lb", "settings")]
+    [#local frontDoorFQDN = frontDoor.FrontDoorFQDN ]
+
+    [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
+    [#local wafRequired = (securityProfile.Enabled)!false ]
 
     [#-- Baseline lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
@@ -63,12 +67,11 @@
                 [#local spaBaselineResources = spaBaselineLinks["OpsData"].State.Resources]
                 [#local operationsBlobContainer = spaBaselineResources["container"]]
                 [#local primaryEndpoint = spaBaselineAttributes["PRIMARY_ENDPOINT"]]
+                [#local webEndpoint = spaBaselineAttributes["WEB_ENDPOINT"]]
                 [#local backendPoolName = formatName(core.Id, SPA_COMPONENT_TYPE)]
 
                 [#-- Ports & Protocols --]
-                [#local spaFrontEndPort = ports[originLinkTargetAttributes["FRONTEND_PORT"]]]
-                [#local spaBackEndHttpPort = originLinkTargetAttributes["BACKEND_HTTP_PORT"]]
-                [#local spaBackEndHttpsPort = originLinkTargetAttributes["BACKEND_HTTPS_PORT"]]
+                [#local spaFrontEndPort = ports[originLinkTargetAttributes["BACKEND_PORT"]]]
                 [#local acceptedProtocols=[spaFrontEndPort.Protocol?capitalize]]
                 [#if spaFrontEndPort.Protocol == "HTTPS"]
                     [#local httpReRouteRequired = true]
@@ -83,10 +86,10 @@
                 [#local frontendEndpoints += [
                     getFrontDoorFrontendEndpoint(
                         frontendEndpointName,
-                        attributes["FQDN"],
+                        frontDoorFQDN,
                         "Disabled",
                         "0",
-                        getReference(wafPolicy.Id, wafPolicy.Name)
+                        wafRequired?then(getReference(wafPolicy.Id, wafPolicy.Name), "")
                     )
                 ]]
 
@@ -101,14 +104,14 @@
                 ]]
 
                 [#-- Create backend pools--]
-                  [#local spaBackendPool = [
+                [#local spaBackendPool = [
                     getFrontDoorBackendPool(
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                primaryEndpoint,
-                                spaBackEndHttpPort,
-                                spaBackEndHttpsPort
+                                webEndpoint,
+                                "80",
+                                "443"
                             )
                         ],
                         getSubResourceReference(
@@ -154,7 +157,9 @@
                             frontDoor.Name,
                             "backendPools",
                             backendPoolName
-                        )
+                        ),
+                        {},
+                        formatAbsolutePath(getSettingsFilePrefix(originLink))
                     )
                 ]]
 
@@ -218,14 +223,17 @@
             healthProbeSettings=healthProbeSettings
         /]
 
-        [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
 
-        [@createFrontDoorWAFPolicy
-            id=wafPolicy.Id
-            name=wafPolicy.Name
-            location=regionId
-            securityProfile=securityProfile
-        /]
+        [#if wafRequired ]
+            [@createFrontDoorWAFPolicy
+                id=wafPolicy.Id
+                name=wafPolicy.Name
+                location=regionId
+                securityProfile=securityProfile
+
+            /]
+        [/#if]
+
     [/#if]
 
     [#-- Epilogue --]

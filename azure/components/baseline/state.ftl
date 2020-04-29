@@ -97,7 +97,11 @@
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
   [#local blobName = parent.State.Resources["blobService"].Name]
 
-  [#local containerName = formatAzureResourceName(core.SubComponent.Id, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+  [#if solution.Role == "staticWebsite" ]
+    [#local containerName = formatAzureResourceName('$web', AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+  [#else]
+    [#local containerName = formatAzureResourceName(core.SubComponent.Id, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+  [/#if]
 
   [#assign componentState =
     {
@@ -112,7 +116,8 @@
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
         "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
-        "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net")
+        "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net"),
+        "WEB_ENDPOINT": formatDomainName(storageAccountName, "web.core.windows.net")
       },
       "Roles": {
         "Inbound": {},

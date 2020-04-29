@@ -10,7 +10,7 @@
   [#local baselineResources = baselineLinks["OpsData"].State.Resources]
   [#local operationsBlobContainer = baselineResources["container"]]
 
-  [#local configFilePath = 
+  [#local configFilePath =
     formatRelativePath(
       getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
       "config")]
@@ -29,9 +29,7 @@
         "CONFIG_PATH_PATTERN": solution.ConfigPathPattern,
         "CONFIG_STORAGE_CONTAINER": operationsBlobContainer,
         "CONFIG_FILE": formatRelativePath(configFilePath, configFileName),
-        "FRONTEND_PORT" : solution.Port,
-        "BACKEND_HTTP_PORT" : ports[solution.Port.HTTP].Port,
-        "BACKEND_HTTPS_PORT" : ports[solution.Port.HTTPS].Port
+        "BACKEND_PORT" : solution.Port.HTTPS
       },
       "Roles": {
         "Inbound": {},

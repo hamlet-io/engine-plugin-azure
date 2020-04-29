@@ -836,6 +836,9 @@
                         "Offline": "_data"
                       }
                     }
+                  },
+                  "web" : {
+                    "Role" : "staticWebsite"
                   }
                 },
                 "Keys": {

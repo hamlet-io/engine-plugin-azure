@@ -124,6 +124,7 @@
 
     [#-- Create All Registry Containers --]
     [#list registries?values as registry]
+
       [@createBlobServiceContainer
         id=registry.Id
         name=registry.Name
