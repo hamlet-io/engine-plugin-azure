@@ -90,7 +90,7 @@ function az_sync_with_blob(){
   done
 
   args=(
-    "account-name ${accountName}"
+    "account-name ${storageAccountName}"
     "container ${containerName}"
     "source ${tmp_dir}"
   )

@@ -98,7 +98,7 @@
         syncFilesToBlobContainerScript(
           "spaFiles",
           storageAccount,
-          operationsBlobContainer,
+          r'\$web',
           formatRelativePath(
             getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
             "spa"
@@ -112,7 +112,7 @@
         syncFilesToBlobContainerScript(
           "configFiles",
           storageAccount,
-          operationsBlobContainer,
+          r'\$web',
           formatRelativePath(
             getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
             solution.ConfigPath

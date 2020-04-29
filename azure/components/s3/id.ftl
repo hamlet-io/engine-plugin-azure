@@ -35,7 +35,7 @@
                         "Names" : "PublicAccess",
                         "Type" : STRING_TYPE,
                         "Values" : [ "Container", "Blob", "None" ],
-                        "Default" : "None"
+                        "Default" : [ "None" ]
                     }
                 ]
             }

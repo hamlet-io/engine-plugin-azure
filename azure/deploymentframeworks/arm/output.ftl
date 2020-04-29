@@ -13,7 +13,7 @@
 [#function getArmTemplateCoreOutputs
     region=formatAzureResourceGroupReference("location")
     account=formatAzureSubscriptionReference("id")
-    resourceGroup=formatAzureResourceGroupReference("id")
+    resourceGroup=formatAzureResourceGroupReference("name")
     deploymentUnit=getDeploymentUnit()
     deploymentMode=commandLineOptions.Deployment.Mode]
 

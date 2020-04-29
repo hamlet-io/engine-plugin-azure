@@ -78,8 +78,8 @@
     ]
 [/#function]
 
-[#function getStorageNetworkAcls 
-    defaultAction 
+[#function getStorageNetworkAcls
+    defaultAction
     ipRules=[]
     virtualNetworkRules=[]
     bypass=""]
@@ -108,7 +108,7 @@
     [#return
         {
             "value" : value
-        } + 
+        } +
         attributeIfContent("action", action)
     ]
 [/#function]
@@ -201,7 +201,7 @@
                     "maxAgeInSeconds": (CORSBehaviour.MaxAge)?c
                 }
             ]
-            
+
             ]
         [/#if]
     [/#list]
@@ -214,9 +214,9 @@
         dependsOn=dependsOn
         resources=resources
         properties=
-            {} + 
+            {} +
             attributeIfContent("cors", attributeIfContent("CORSRules", CORSRules)) +
-            attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) + 
+            attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) +
             attributeIfTrue("automaticSnapshotPolicyEnabled", automaticSnapshotPolicyEnabled, automaticSnapshotPolicyEnabled)
     /]
 [/#macro]
@@ -252,12 +252,22 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
     [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
 
+    [#local container = getRegistryPrefix(registry, occurrence)?remove_ending("/")]
+    [#local fileName = getRegistryPrefix(registry, occurrence)?remove_ending("/")?ensure_ends_with(".zip") ]
+    [#local path = formatRelativePath(
+        product,
+        getOccurrenceBuildScopeExtension(occurrence),
+        getOccurrenceBuildUnit(occurrence),
+        getOccurrenceBuildReference(occurrence),
+        fileName
+    )]
+
     [#return
         [
             "az_copy_from_blob" + " " +
                 "\"" + storageAccount + "\"" + " " +
-                "\"" + registry + "\"" + " " +
-                "\"" + product + "\"" + " " +
+                "\"" + container + "\"" + " " +
+                "\"" + path + "\"" + " " +
                 "\"$\{tmpdir}/" + fileName + "\" || return $?",
             "#",
             "addToArray" + " " +
@@ -268,10 +278,10 @@
     ]
 [/#function]
 
-[#function syncFilesToBlobContainerScript 
+[#function syncFilesToBlobContainerScript
     filesArrayName
     storageAccount
-    container 
+    container
     destination]
 
     [#return
@@ -293,7 +303,7 @@
             "    ;;",
             " esac",
             "#"
-        ] 
+        ]
     ]
 [/#function]
 
