@@ -109,8 +109,7 @@
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                webEndpoint,
-                                webEndpoint,
+                                webEndpoint?remove_beginning("https://")?remove_ending("/"),
                                 "80",
                                 "443"
                             )

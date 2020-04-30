@@ -103,11 +103,24 @@
     [#local containerName = formatAzureResourceName(core.SubComponent.Id, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
   [/#if]
 
+  [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
+
+  [#local staticWebsiteEndpoint = 
+    getExistingReference(
+      formatId(
+        storageAccountId
+        "properties",
+        "primaryEndpoints",
+        "web"
+      )
+    )
+  ]
+
   [#assign componentState =
     {
       "Resources": {
         "container" : {
-          "Id" : formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id),
+          "Id" : containerId,
           "Name" : containerName,
           "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         }
@@ -117,7 +130,7 @@
         "ACCOUNT_NAME" : storageAccountName,
         "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
         "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net"),
-        "WEB_ENDPOINT": formatDomainName(storageAccountName, "web.core.windows.net")
+        "WEB_ENDPOINT": staticWebsiteEndpoint
       },
       "Roles": {
         "Inbound": {},
