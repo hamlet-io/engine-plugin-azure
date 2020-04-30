@@ -110,6 +110,7 @@
                         [
                             getFrontDoorBackend(
                                 webEndpoint,
+                                webEndpoint,
                                 "80",
                                 "443"
                             )

@@ -131,19 +131,19 @@
 
 [#function getFrontDoorBackend
   address
+  backendHostHeader=""
   httpPort=""
   httpsPort=""
   priority=1
-  weight=50
-  backendHostHeader=""]
+  weight=50]
 
   [#return {} +
     attributeIfContent("address", address) +
+    attributeIfContent("backendHostHeader", backendHostHeader) +
     numberAttributeIfContent("httpPort", httpPort) +
     numberAttributeIfContent("httpsPort", httpsPort) +
     numberAttributeIfContent("priority", priority) +
-    numberAttributeIfContent("weight", weight) +
-    attributeIfContent("backendHostHeader", backendHostHeader)
+    numberAttributeIfContent("weight", weight)
   ]
 [/#function]
 
