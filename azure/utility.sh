@@ -80,7 +80,7 @@ function az_sync_with_blob(){
     if [[ -f "${file}" ]]; then
       case "$(fileExtension "${file}")" in
         zip)
-          unzip -DD "${file}" -d "${tmp_dir}"
+          unzip -DD -q "${file}" -d "${tmp_dir}"
           ;;
         *)
           cp "${file}" "${tmp_dir}"
@@ -90,10 +90,16 @@ function az_sync_with_blob(){
   done
 
   args=(
+    "auth-mode login"
     "account-name ${storageAccountName}"
     "container ${containerName}"
     "source ${tmp_dir}"
   )
+
+  # -- Only show errors unless debugging --
+  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+    args=("${args[@]}" "only-show-errors" )
+  fi
 
   if [[ -n "${destinationSuffix}" ]]; then
     args=("${args[@]}" "destination ${destinationSuffix}")
@@ -108,9 +114,15 @@ function az_delete_blob_dir(){
   local pattern="$1"; shift
 
   args=(
+    "auth-mode login"
     "account-name ${storageAccountName}"
     "source ${sourcePath}"
   )
+
+  # -- Only show errors unless debugging --
+  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+    args=("${args[@]}" "only-show-errors" )
+  fi
 
   if [[ -n "${pattern}" ]]; then
     args=("${args[@]}" "pattern ${pattern}")
