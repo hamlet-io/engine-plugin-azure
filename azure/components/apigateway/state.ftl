@@ -139,7 +139,7 @@
                                                 "Name" : identityproviderName,
                                                 "Type" : AZURE_API_MANAGEMENT_SERVICE_IDENTITY_PROVIDER,
                                                 "Reference" : getReference(identityproviderId, identityproviderName),
-                                                "ObjectId" : subAttributes["CLIENT"]!getExistingReference(subCore.Id),
+                                                "ObjectId" : subAttributes["CLIENT_OBJECT_ID"]!getExistingReference(subCore.Id),
                                                 "SecretId" : identityProviderSecretId
                                             }
                                         }

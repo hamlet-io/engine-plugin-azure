@@ -25,6 +25,8 @@
     [#local id = formatResourceId(AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE, core.Name)]
     [#local name = formatName(core.Name)]
 
+    [#local clientAppId = formatId(id, "appid")]
+
     [#local parentAttributes = parent.State.Attributes]
 
     [#assign componentState=
@@ -32,13 +34,15 @@
             "Resources" : {
                 "client" : {
                     "Id" : id,
+                    "ClientAppId" : clientAppId,
                     "Name" : name,
                     "Type" : AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE,
                     "Reference" : getReference(id, name)
                 }
             },
             "Attributes" : parentAttributes + {
-                "CLIENT" : getExistingReference(id)
+                "CLIENT_APP_ID" : getExistingReference(clientAppId),
+                "CLIENT_OBJECT_ID" : getExistingReference(id)
             },
             "Roles" : {
                 "Inbound" : {},

@@ -126,7 +126,8 @@
             [
                 "   create|update)",   
                 "       az ad app create " + args?join(" ") + " > $tmp/registration.json",
-                "       objectId=$(runJQ -r '.objectId' < $tmp/registration.json)"
+                "       objectId=$(runJQ -r '.objectId' < $tmp/registration.json)",
+                "       clientId=$(runJQ -r '.appId' < $tmp/registration.json)"
             ] +
             generateSecret?then(
                 [
@@ -141,7 +142,8 @@
             pseudoArmStackOutputScript(
                 "Client Registration",
                 {
-                    client.Id : "$\{objectId}"
+                    client.Id : "$\{objectId}",
+                    client.ClientAppId : "$\{clientId}"
                 },
                 "client"
             ) +
