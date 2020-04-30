@@ -19,6 +19,9 @@
                 URL_ATTRIBUTE_TYPE : {
                     "Property" : "properties.primaryEndpoints.blob"
                 },
+                URL_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.primaryEndpoints.web"
+                },
                 REGION_ATTRIBUTE_TYPE : {
                     "Property" : "properties.primaryLocation"
                 }
