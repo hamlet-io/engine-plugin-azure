@@ -78,8 +78,7 @@
         [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
         [#local hostName = getHostName(certificateObject, occurrence) ]
         [#local docsHostName = hostName ]
-        [#local certificateId = formatDomainCertificateId(certificateObject, hostName) ]
-  
+
         [#if mappingPresent]
             [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
             [#if !(solution.Mapping.IncludeStage)]

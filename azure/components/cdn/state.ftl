@@ -61,7 +61,7 @@
     [#local parentResources = parent.State.Resources]
     [#local frontDoorId = parentResources["frontDoor"].Id]
     [#local frontDoorRouteId =
-        formatDependentResourceId(AZURE_FRONTDOOR_RESOURCE_TYPE, core.Id)]
+        formatDependentResourceId(AZURE_FRONTDOOR_ROUTE_RESOURCE_TYPE, core.Id)]
 
     [#-- Set Default Path --]
     [#local pathPattern = solution.PathPattern]
