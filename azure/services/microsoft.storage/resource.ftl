@@ -16,11 +16,8 @@
                 NAME_ATTRIBUTE_TYPE : {
                     "Property" : "name"
                 },
-                URL_ATTRIBUTE_TYPE : {
-                    "Property" : "properties.primaryEndpoints.blob"
-                },
-                URL_ATTRIBUTE_TYPE : {
-                    "Property" : "properties.primaryEndpoints.web"
+                DICTIONARY_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.primaryEndpoints"
                 },
                 REGION_ATTRIBUTE_TYPE : {
                     "Property" : "properties.primaryLocation"
