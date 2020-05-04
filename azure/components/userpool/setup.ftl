@@ -18,7 +18,10 @@
 
     [#-- Instantiate CLI Args --]
     [#local replyUrls = []]
-    [#local cliArgs = {}]
+    [#local logoutUrls = []]
+    [#local creationcliArgs = {}]
+    [#-- Not all properties can be set on creation --]
+    [#local updatesCliArgs = {}]
 
     [#list occurrence.Occurrences![] as subOccurrence]
 
@@ -62,6 +65,51 @@
 
             [#local client = subResources["client"]]
 
+            [#list subSolution.Links?values as link]
+
+                [#local linkTarget = getLinkTarget(subOccurrence, link)]
+
+                [@debug message="Link Target" context=linkTarget enabled=false /]
+
+                [#if !linkTarget?has_content]
+                    [#continue]
+                [/#if]
+
+                [#local linkTargetCore = linkTarget.Core]
+                [#local linkTargetConfiguration = linkTarget.Configuration]
+                [#local linkTargetResources = linkTarget.State.Resources]
+                [#local linkTargetAttributes = linkTarget.State.Attributes]
+
+                [#switch linkTargetCore.Type]
+
+                    [#case LB_PORT_COMPONENT_TYPE]
+                        [#local replyUrls += [
+                            linkTargetAttributes["AUTH_CALLBACK_URL"],
+                            linkTargetAttributes["AUTH_CALLBACK_INTERNAL_URL"]]]
+                        [#break]
+
+                    [#case "external" ]
+                    [#case EXTERNALSERVICE_COMPONENT_TYPE]
+
+                        [#if linkTargetAttributes["AUTH_CALLBACK_URL"]?has_content]
+                            [#local replyUrls += [linkTargetAttributes["AUTH_CALLBACK_URL"]]]
+                        [/#if]
+
+                        [#if linkTargetAttributes["AUTH_SIGNOUT_URL"]?has_content]
+                            [#local logoutUrls += [linkTargetAttributes["AUTH_SIGNOUT_URL"]]]
+                        [/#if]
+                        
+                        [#break]
+
+                    [#case USERPOOL_AUTHPROVIDER_COMPONENT_TYPE]
+                        [#if linkTargetConfiguration.Solution.Enabled]
+                            [#local identityProviders += [ linkTargetAttributes["PROVIDER_NAME"]]]
+                        [/#if]
+                        [#break]
+
+                [/#switch]
+            [/#list]
+
             [#if deploymentSubsetRequired("prologue", false)]
 
                 [#local flows = subSolution.OAuth.Flows![]]
@@ -70,7 +118,7 @@
 
                 [#-- CLI Args in the format {"arg": "value"} --]
                 [#-- We can then output all args to the CLI  --]
-                [#local cliArgs += {
+                [#local creationcliArgs += {
                     "display-name": client.Name
                 } +
                     attributeIfTrue("oauth2-allow-implicit-flow", flows?seq_contains("implicit"), true) +
@@ -83,12 +131,16 @@
 
     [/#list]
 
-    [#local cliArgs += {} + 
+    [#local creationcliArgs += {} + 
         attributeIfContent("reply-urls", replyUrls?join(' '))]
+
+    [#local updatesCliArgs += {} +
+        attributeIfContent("set", logoutUrls?join(' '))]
 
     [#-- Format Args as CLI Parameters --]
     [#local args = []]
-    [#list cliArgs as key,value]
+    [#local updateArgs = []]
+    [#list creationcliArgs as key,value]
         [#if value?is_boolean]
             [#local formattedValue = value?c]
         [#elseif value?is_sequence]
@@ -101,6 +153,14 @@
         [#local arg = (key?ensure_starts_with("--")) + " " + formattedValue]
         [#local args += [arg]]
     [/#list]
+
+    [#if updatesCliArgs?has_content]
+        [#local updatesCliArgs += {"output" : "none"}]
+        [#list updatesCliArgs as key,value]
+            [#local updateArg = (key?ensure_starts_with("--")) + " " + value]
+            [#local updateArgs += [updateArg]]
+        [/#list]
+    [/#if]
 
     [#-- Create App Registration --]
     [@addToDefaultBashScriptOutput
@@ -129,6 +189,13 @@
                 "       objectId=$(runJQ -r '.objectId' < $tmp/registration.json)",
                 "       clientId=$(runJQ -r '.appId' < $tmp/registration.json)"
             ] +
+            (updateArgs?has_content)?then(
+                [
+                    "       # Update AAD App Registration Properties",
+                    "       az ad app update --id $(echo \"$\{objectId}\") " updateArgs?join(" ")
+                ],
+                []
+            ) +
             generateSecret?then(
                 [
                     "       # Add Certificate as Client Secret",
