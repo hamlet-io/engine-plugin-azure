@@ -168,41 +168,42 @@
     [#list resourceProfile.outputMappings as attributeType,attributes]
         [#list attributes as attributeName,attributeValue]
 
-            [#if attributeValue?is_string]
-                [#switch attributeValue]
-                    [#case "id"]
-                        [#local outputName = id]
-                        [#local type = "string"]
-                        [#local value = getReference(id, name)]
-                        [#break]
-                    [#case "pseudo"]
-                        [#local outputName = id]
-                        [#local type = "string"]
-                        [#local value = name]
-                        [#break]
-                    [#default]
-                        [#local propertySections = attributeValue?split(".")]
-                        [#local outputName = formatAttributeId(id, propertySections)]
-                        [#local type = "string"]
-                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
-                        [#break]
-                [/#switch]
+            [#switch attributeValue]
+            
+                [#case "id"]
+                    [#local outputName = id]
+                    [#local type = "string"]
+                    [#local value = getReference(id, name)]
+                    [#break]
 
-                [@armOutput
-                    name=outputName
-                    type=type
-                    value=value
-                /]
+                [#case "pseudo"]
+                    [#local outputName = id]
+                    [#local type = "string"]
+                    [#local value = name]
+                    [#break]
 
-            [#else]
+                [#case "dictionary"]
+                    [#local outputName = formatAttributeId(id, propertySections)]
+                    [#local type = "object"]
+                    [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                    [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                    [#break]
 
-                [@fatal
-                    message="Output must be a string."
-                    context={attributeName : attributeValue}
-                /]
-                
-            [/#if]
+                [#default]
+                    [#local propertySections = attributeValue?split(".")]
+                    [#local outputName = formatAttributeId(id, propertySections)]
+                    [#local type = "string"]
+                    [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                    [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                    [#break]
+
+            [/#switch]
+
+            [@armOutput
+                name=outputName
+                type=type
+                value=value
+            /]
 
         [/#list]
     [/#list]
