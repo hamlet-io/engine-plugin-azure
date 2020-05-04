@@ -5,9 +5,18 @@
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 
+    [#local id = formatResourceId(AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE, core.FullName)]
+    [#local name = formatAzureResourceName(core.FullName, AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE)]
+
     [#assign componentState = 
         {
-            "Resources" : {},
+            "Resources" : {
+                "userpool" : {
+                    "Id" : id,
+                    "Name" : name,
+                    "Type" : AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE
+                }
+            },
             "Attributes" : {
                 "API_AUTHORIZATION_HEADER" : solution.AuthorizationHeader
             },
@@ -22,7 +31,7 @@
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 
-    [#local id = formatResourceId(AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE, core.Name)]
+    [#local id = formatResourceId(AZURE_APPLICATION_REGISTRATION_CLIENT_RESOURCE_TYPE, core.Name)]
     [#local name = formatName(core.Name)]
 
     [#local clientAppId = formatId(id, "appid")]
@@ -36,7 +45,7 @@
                     "Id" : id,
                     "ClientAppId" : clientAppId,
                     "Name" : name,
-                    "Type" : AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE,
+                    "Type" : AZURE_APPLICATION_REGISTRATION_CLIENT_RESOURCE_TYPE,
                     "Reference" : getReference(id, name)
                 }
             },

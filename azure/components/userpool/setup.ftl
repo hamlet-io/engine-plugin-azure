@@ -10,6 +10,8 @@
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 
+    [#local userpool =  occurrence.State.Resources["userpool"]]
+
     [#-- Baseline Links --]
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
@@ -54,10 +56,6 @@
                 /]
             [/#if]
 
-        [/#if]
-
-        [#-- Auth Provider Processing --]
-        [#if subCore.Type == USERPOOL_AUTHPROVIDER_COMPONENT_TYPE]
         [/#if]
 
         [#-- Client Processing --]
@@ -209,6 +207,7 @@
             pseudoArmStackOutputScript(
                 "Client Registration",
                 {
+                    userpool.Id : userpool.Name,
                     client.Id : "$\{objectId}",
                     client.ClientAppId : "$\{clientId}"
                 },

@@ -138,77 +138,82 @@
     resources=[]
     parentNames=[]]
 
-    [#--
-        Note - "Identity" is a unique attribute and is not available to resources
-        that can be assigned a Managed Identity
-    --]
-
-    [#-- TODO(rossmurr4y): impliment localDependencies as the AWS provider does. --]
-    [#-- The AWS Provider checks that the dependencies exist with the getReference
-        function first, assembles a new array from those that do, and impliments only those.
-        The getReference function calls on the getExistingReference function, which has
-        some AWS-specific components to it. This will need to be implimented in:
-        gen3-azure/azure/services/resource.ftl before it can be utilised. --]
-    [#--
-        [#local localDependencies = [] ]
-        [#list asArray(dependencies) as resourceId]
-            [#if getReference(id, name)?is_hash]
-                [#local localDependencies += [resourceId] ]
-            [/#if]
-        [/#list]
-    --]
-
     [#local resourceProfile = getAzureResourceProfile(profile)]
 
-    [@addToJsonOutput
-        name="resources"
-        content=[
-            {
-                "name": name,
-                "type": resourceProfile.type,
-                "apiVersion": resourceProfile.apiVersion,
-                "properties": properties
-            } +
-            attributeIfContent("identity", identity) +
-            attributeIfContent("location", location) +
-            attributeIfContent("dependsOn", dependsOn) +
-            attributeIfContent("tags", tags) +
-            attributeIfContent("comments", comments) +
-            attributeIfContent("copy", copy) +
-            attributeIfContent("sku", sku) +
-            attributeIfContent("kind", kind) +
-            attributeIfContent("plan", plan) +
-            attributeIfContent("zones", zones) +
-            attributeIfContent("resources", resources)
-        ]
-    /]
+    [#if !(resourceProfile.type == "pseudo")]
+        [@addToJsonOutput
+            name="resources"
+            content=[
+                {
+                    "name": name,
+                    "type": resourceProfile.type,
+                    "apiVersion": resourceProfile.apiVersion,
+                    "properties": properties
+                } +
+                attributeIfContent("identity", identity) +
+                attributeIfContent("location", location) +
+                attributeIfContent("dependsOn", dependsOn) +
+                attributeIfContent("tags", tags) +
+                attributeIfContent("comments", comments) +
+                attributeIfContent("copy", copy) +
+                attributeIfContent("sku", sku) +
+                attributeIfContent("kind", kind) +
+                attributeIfContent("plan", plan) +
+                attributeIfContent("zones", zones) +
+                attributeIfContent("resources", resources)
+            ]
+        /]
+    [/#if]
 
     [#list resourceProfile.outputMappings as attributeType,attributes]
         [#list attributes as attributeName,attributeValue]
 
-            [#if attributeValue == "id"]
-                [#local outputName = id]
-                [#local type = "string"]
-                [#local value = getReference(id, name)]
-            [#else]
-                [#-- Properties that are "several": { "levels" : { "deep" : {}}} --]
-                [#-- are referenced with a Property value of several.levels.deep --]
-                [#local propertySections = attributeValue?split(".")]
-                [#local outputName = formatAttributeId(id, propertySections)]
-                [#local type = attributeValue?is_hash?then("object","string")]
-                [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
-            [/#if]
+            [#if attributeValue?is_string]
+                [#switch attributeValue]
+                    [#case "id"]
+                        [#local outputName = id]
+                        [#local type = "string"]
+                        [#local value = getReference(id, name)]
+                        [#break]
+                    [#case "pseudo"]
+                        [#local outputName = id]
+                        [#local type = "string"]
+                        [#local value = name]
+                        [#break]
+                    [#default]
+                        [#local propertySections = attributeValue?split(".")]
+                        [#local outputName = formatAttributeId(id, propertySections)]
+                        [#local type = "string"]
+                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                        [#break]
+                [/#switch]
 
-            [@armOutput
-                name=outputName
-                type=type
-                value=value
-            /]
+                [@armOutput
+                    name=outputName
+                    type=type
+                    value=value
+                /]
+
+            [#else]
+
+                [@fatal
+                    message="Output must be a string."
+                    context={attributeName : attributeValue}
+                /]
+                
+            [/#if]
 
         [/#list]
     [/#list]
+[/#macro]
 
+[#macro armPseudoResource id name profile]
+    [@armResource
+        id=id
+        name=name
+        profile=profile
+    /]
 [/#macro]
 
 [#macro arm_output_resource level="" include=""]
