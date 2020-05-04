@@ -105,13 +105,12 @@
 
   [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
 
-  [#local staticWebsiteEndpoint = 
+  [#local storageEndpoints = 
     getExistingReference(
       formatId(
         storageAccountId
         "properties",
-        "primaryEndpoints",
-        "web"
+        "primaryEndpoints"
       )
     )
   ]
@@ -128,9 +127,9 @@
       "Attributes": {
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
-        "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
-        "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net"),
-        "WEB_ENDPOINT": staticWebsiteEndpoint
+        "PRIMARY_ENDPOINT" : storageEndpoints.blob,
+        "QUEUE_ENDPOINT": storageEndpoints.queue,
+        "WEB_ENDPOINT": storageEndpoints.web
       },
       "Roles": {
         "Inbound": {},
