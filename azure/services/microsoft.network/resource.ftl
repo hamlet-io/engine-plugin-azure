@@ -676,3 +676,16 @@
     [#return subnet]
   [/#if]
 [/#function]
+
+[#function formatDomainCertificateId certificateObject, hostName=""]
+    [#local primaryDomain = getCertificatePrimaryDomain(certificateObject) ]
+    [#return
+        formatResourceId(
+            "test",
+            certificateObject.Wildcard?then(
+                "*",
+                hostName
+            ),
+            splitDomainName(primaryDomain.Name)
+        ) ]
+[/#function]
