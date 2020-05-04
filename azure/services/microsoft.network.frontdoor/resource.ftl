@@ -31,6 +31,11 @@
     }
 /]
 
+[@addPseudoResourceProfile
+    service=AZURE_NETWORK_FRONTDOOR_SERVICE
+    resource=AZURE_FRONTDOOR_ROUTE_RESOURCE_TYPE
+/]
+
 [#function getFrontDoorRoutingRule
   name=""
   frontendEndpoints=[]

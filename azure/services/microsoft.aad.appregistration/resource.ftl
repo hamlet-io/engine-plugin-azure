@@ -1,43 +1,11 @@
 [#ftl]
 
-[@addResourceProfile
+[@addPseudoResourceProfile
     service=AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
     resource=AZURE_APPLICATION_REGISTRATION_RESOURCE_TYPE
-    profile=
-        {
-            "apiVersion" : "pseudo",
-            "type" : "pseudo",
-            "outputMappings" : {
-                REFERENCE_ATTRIBUTE_TYPE : {
-                    "Property": "id"
-                }
-            }
-        }
 /]
 
-[@addResourceProfile
+[@addPseudoResourceProfile
     service=AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
-    resource=AZURE_AUTHENTICATION_PROVIDER_RESOURCE_TYPE
-    profile=
-        {
-            "apiVersion" : "pseudo",
-            "type" : "pseudo",
-            "outputMappings" : {}
-        }
-        
-/]
-
-[@addResourceProfile
-    service=AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE
-    resource=AZURE_APP_REGISTRATION_BACKEND_RESOURCE_TYPE
-    profile=
-        {
-            "apiVersion" : "pseudo",
-            "type" : "pseudo",
-            "outputMappings" : {
-                REFERENCE_ATTRIBUTE_TYPE: {
-                    "Property" : "id"
-                }
-            }
-        }
+    resource=AZURE_APPLICATION_REGISTRATION_CLIENT_RESOURCE_TYPE
 /]

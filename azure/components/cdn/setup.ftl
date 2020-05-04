@@ -164,6 +164,12 @@
                     )
                 ]]
 
+                [@armPseudoResource
+                    id=routingRuleResource.Id
+                    name=routingRuleResource.Name
+                    profile=routingRuleResource.Type
+                /]
+
                 [#break]
         [/#switch]
 
