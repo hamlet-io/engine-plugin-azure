@@ -55,7 +55,7 @@
    [@addToDefaultJsonOutput
         content=
             {
-                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                "$schema": ARMSchemas.Parameters,
                 "contentVersion": "1.0.0.0",
                 "parameters" : {
                     id : {
@@ -71,7 +71,7 @@
     [@addToDefaultJsonOutput
         content=
             {
-                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+                "$schema": ARMSchemas.Parameters,
                 "contentVersion": "1.0.0.0",
                 "parameters" : {
                     id : getKeyVaultParameter(vaultId, referenceName)
@@ -223,7 +223,7 @@
     [#if getOutputContent("resources")?has_content || logMessages?has_content]
         [@toJSON
             {
-                '$schema': "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                '$schema': ARMSchemas.Template,
                 "contentVersion": "1.0.0.0",
                 "parameters": getOutputContent("parameters"),
                 "variables": getOutputContent("variables"),
