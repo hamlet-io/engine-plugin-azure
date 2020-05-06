@@ -80,12 +80,6 @@
 
                 [#switch linkTargetCore.Type]
 
-                    [#case LB_PORT_COMPONENT_TYPE]
-                        [#local replyUrls += [
-                            linkTargetAttributes["AUTH_CALLBACK_URL"],
-                            linkTargetAttributes["AUTH_CALLBACK_INTERNAL_URL"]]]
-                        [#break]
-
                     [#case "external" ]
                     [#case EXTERNALSERVICE_COMPONENT_TYPE]
 
