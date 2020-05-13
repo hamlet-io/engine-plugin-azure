@@ -184,17 +184,14 @@
 [#macro createVMScaleSetExtension
   id
   name
-  publisher=""
-  type=""
-  typeHandlerVersion=""
-  autoUpgradeMinorVersion=false
+  scriptConfig
   settings={}
   protectedSettings={}
   provisionAfterExtensions=[]
   dependsOn=[]]
 
-  [#-- Settings should be listed even when empty. --]
 
+  [#-- Settings should be listed even when empty. --]
   [@armResource
     id=id
     name=name
@@ -203,10 +200,10 @@
     properties={
       "settings" : settings
     } +
-      attributeIfContent("publisher", publisher) +
-      attributeIfContent("type", type) +
-      attributeIfContent("typeHandlerVersion", typeHandlerVersion) +
-      attributeIfContent("autoUpgradeMinorVersion", autoUpgradeMinorVersion) +
+      attributeIfContent("publisher", scriptConfig.Publisher) +
+      attributeIfContent("type", scriptConfig.Type.Name) +
+      attributeIfContent("typeHandlerVersion", scriptConfig.Type.HandlerVersion) +
+      attributeIfTrue("autoUpgradeMinorVersion", scriptConfig.AutoUpgradeOnMinorVersion!false, scriptConfig.AutoUpgradeOnMinorVersion) +
       attributeIfContent("protectedSettings", protectedSettings) +
       attributeIfContent("provisionAfterExtensions", provisionAfterExtensions)
   /]
