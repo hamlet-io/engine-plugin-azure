@@ -353,10 +353,7 @@
     [@createVMScaleSetExtension
         id=extension.Id
         name=extension.Name
-        publisher=extensionScriptConfig.Publisher
-        type=extensionScriptConfig.Type.Name
-        typeHandlerVersion=extensionScriptConfig.Type.HandlerVersion
-        autoUpgradeMinorVersion=extensionScriptConfig.AutoUpgradeOnMinorVersion!true
+        scriptConfig=extensionScriptConfig
         protectedSettings=extProtectedSettings
         provisionAfterExtensions=provisionAfterExtensions
         dependsOn=[scaleSet.Reference]
