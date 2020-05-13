@@ -41,7 +41,7 @@
 
 
     [#local ipRulesConfiguration = []]
-    [#local networkAclsConfiguration = getStorageNetworkAcls("Deny", ipRulesConfiguration, virtualNetworkRulesConfiguration, "None")]
+    [#local networkAclsConfiguration = getStorageNetworkAcls("Deny", ipRulesConfiguration, virtualNetworkRulesConfiguration, "AzureServices")]
 
     [#-- Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
