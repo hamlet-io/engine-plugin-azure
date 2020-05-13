@@ -166,33 +166,34 @@
     [/#if]
 
     [#list resourceProfile.outputMappings as attributeType,attributes]
+
+        [#switch attributeType]
+            [#case DICTIONARY_ATTRIBUTE_TYPE]
+                [#local type = "object"]
+                [#break]
+
+            [#default]
+                [#local type = "string"]
+                [#break]
+        [/#switch]
+
         [#list attributes as attributeName,attributeValue]
 
             [#switch attributeValue]
             
                 [#case "id"]
                     [#local outputName = id]
-                    [#local type = "string"]
                     [#local value = getReference(id, name)]
                     [#break]
 
                 [#case "pseudo"]
                     [#local outputName = id]
-                    [#local type = "string"]
                     [#local value = name]
-                    [#break]
-
-                [#case "dictionary"]
-                    [#local outputName = formatAttributeId(id, propertySections)]
-                    [#local type = "object"]
-                    [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                    [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
                     [#break]
 
                 [#default]
                     [#local propertySections = attributeValue?split(".")]
                     [#local outputName = formatAttributeId(id, propertySections)]
-                    [#local type = "string"]
                     [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
                     [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
                     [#break]
