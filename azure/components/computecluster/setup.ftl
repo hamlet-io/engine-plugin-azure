@@ -321,6 +321,7 @@
     [/#if]
     [#local indices = indices?sort]
     
+    [#local extensionScriptConfig = {}]
     [#list indices as index]
 
         [#local extConfig = getBootstrapByIndex(index)]
@@ -337,6 +338,10 @@
             [#local extProtectedSettings += {"script" : extConfig.InitScript}]
         [/#if]
 
+        [#if (extConfig.Publisher)?has_content || (extConfig.Type)?has_content]
+            [#local extensionScriptConfig = 
+                mergeObjects(extensionScriptConfig, extConfig)]
+        [/#if]
     [/#list]
 
     [#local extProtectedSettings = mergeObjects(
@@ -348,12 +353,13 @@
     [@createVMScaleSetExtension
         id=extension.Id
         name=extension.Name
-        publisher=extConfig.Publisher!""
-        type=extConfig.Type.Name!""
-        typeHandlerVersion=extConfig.Type.HandlerVersion!""
-        autoUpgradeMinorVersion=extConfig.AutoUpgradeOnMinorVersion
+        publisher=extensionScriptConfig.Publisher
+        type=extensionScriptConfig.Type.Name
+        typeHandlerVersion=extensionScriptConfig.Type.HandlerVersion
+        autoUpgradeMinorVersion=extensionScriptConfig.AutoUpgradeOnMinorVersion!true
         protectedSettings=extProtectedSettings
         provisionAfterExtensions=provisionAfterExtensions
+        dependsOn=[scaleSet.Reference]
     /]
 
 [/#macro]
