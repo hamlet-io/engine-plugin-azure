@@ -36,6 +36,16 @@
     [#local storageAccountId     = dataAttributes["ACCOUNT_ID"]]
     [#local keyvaultId           = keyAttributes["KEYVAULT_ID"]]
 
+    [#-- Default Storage Config --]
+    [#local stageStorage = {
+        "Account" : {
+            "Id" : storageAccountId,
+            "Name" : storageName
+        },
+        "Container" : getRegistryPrefix("scripts", occurrence)?remove_ending("/"),
+        "Blob" : core.Name
+    }]
+
     [#-- Network Lookup --]
     [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
     [#local networkLink = occurrenceNetwork.Link!{} ]
@@ -88,6 +98,18 @@
                             [linkTargetResources["backendAddressPool"].Id]]
                         [#break]
                 [/#switch]
+                [#break]
+
+            [#case S3_COMPONENT_TYPE]
+                [#local stageStorage = {
+                    "Account" : {
+                        "Id" : linkTargetAttributes["ACCOUNT_ID"],
+                        "Name" : linkTargetAttributes["ACCOUNT_NAME"]
+                    },
+                    "Container" : linkTargetAttributes["CONTAINER_NAME"],
+                    "Blob" : core.Name
+                }]
+
                 [#break]
         [/#switch]
 
@@ -268,16 +290,16 @@
     [@addParametersToDefaultJsonOutput
         id="storage"
         parameter=formatAzureStorageAccountConnectionStringReference(
-            storageAccountId,
-            storageName,
+            stageStorage.Account.Id,
+            stageStorage.Account.Name,
             "keys[0].value"
         )
     /]
 
     [#local timestamp = datetimeAsString(.now)?replace("[^\\d]", '', 'r')]
-    [@addParametersToDefaultJsonOutput id="container" parameter=getRegistryPrefix("scripts", occurrence)?remove_ending("/") /]
-    [@addParametersToDefaultJsonOutput id="blob" parameter=productName /]
-    [@addParametersToDefaultJsonOutput id="file" parameter=productName + ".zip" /]
+    [@addParametersToDefaultJsonOutput id="container" parameter=stageStorage.Container /]
+    [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.Blob /]
+    [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.Blob + ".zip" /]
     [@addParametersToDefaultJsonOutput id="timestamp" parameter=timestamp /]
     [@armParameter name="storage" /]
     [@armParameter name="container" /]
