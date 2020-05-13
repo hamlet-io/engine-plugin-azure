@@ -127,9 +127,9 @@
       "Attributes": {
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
-        "PRIMARY_ENDPOINTS" : storageEndpoints?has_content?then(storageEndpoints.blob, ""),
-        "QUEUE_ENDPOINT": storageEndpoints?has_content?then(storageEndpoints.queue, ""),
-        "WEB_ENDPOINT": storageEndpoints?has_content?then(storageEndpoints.web, "")
+        "PRIMARY_ENDPOINTS" : contentIfContent(storageEndpoints.blob, ""),
+        "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
+        "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
       },
       "Roles": {
         "Inbound": {},
