@@ -46,6 +46,7 @@
                 }
             },
             "Attributes" : {
+                "ACCOUNT_ID" : storageAccountId,
                 "ACCOUNT_NAME" : getExistingReference(storageAccountId, NAME_ATTRIBUTE_TYPE),
                 "CONTAINER_NAME" : getExistingReference(containerId, NAME_ATTRIBUTE_TYPE),
                 "WEBSITE_URL" : getExistingReference(storageAccountId, URL_ATTRIBUTE_TYPE)
