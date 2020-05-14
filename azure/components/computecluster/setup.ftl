@@ -338,10 +338,9 @@
             [#local extProtectedSettings += {"script" : extConfig.InitScript}]
         [/#if]
 
-        [#if (extConfig.Publisher)?has_content || (extConfig.Type)?has_content]
-            [#local extensionScriptConfig = 
-                mergeObjects(extensionScriptConfig, extConfig)]
-        [/#if]
+        [#local extensionScriptConfig = 
+            mergeObjects(extensionScriptConfig, extConfig)]
+
     [/#list]
 
     [#local extProtectedSettings = mergeObjects(

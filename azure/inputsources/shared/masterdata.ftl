@@ -1148,6 +1148,7 @@
       "Bootstraps": {
         "stage" : {
           "Index" : 25,
+          "AutoUpgradeOnMinorVersion": true,
           "ProtectedSettings" : {
             "exec" : {
               "Key" : "commandToExecute",
