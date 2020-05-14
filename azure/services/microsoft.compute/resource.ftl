@@ -203,7 +203,7 @@
       attributeIfContent("publisher", scriptConfig.Publisher) +
       attributeIfContent("type", scriptConfig.Type.Name) +
       attributeIfContent("typeHandlerVersion", scriptConfig.Type.HandlerVersion) +
-      attributeIfTrue("autoUpgradeMinorVersion", scriptConfig.AutoUpgradeOnMinorVersion!false, scriptConfig.AutoUpgradeOnMinorVersion) +
+      attributeIfTrue("autoUpgradeMinorVersion", (scriptConfig.AutoUpgradeOnMinorVersion)!false, scriptConfig.AutoUpgradeOnMinorVersion) +
       attributeIfContent("protectedSettings", protectedSettings) +
       attributeIfContent("provisionAfterExtensions", provisionAfterExtensions)
   /]
