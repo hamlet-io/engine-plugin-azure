@@ -109,6 +109,7 @@
                         [
                             getFrontDoorBackend(
                                 webEndpoint?remove_beginning("https://")?remove_ending("/"),
+                                webEndpoint?remove_beginning("https://")?remove_ending("/"),
                                 "80",
                                 "443"
                             )
