@@ -65,7 +65,7 @@
                         "   info \"Generating Master Password... \"",
                         "   master_password=\"\"",
                         "   while ! [[ \"$\{master_password}\" =~ [[:alpha:]] && \"$\{master_password}\" =~ [[:digit:]] ]]; do",
-                        "   master_password=\"$(generateComplexString" +
+                        "   master_password=\"$(generateComplexString " +
                             "\"" + masterSecretLength + "\" )\"",
                         "   done",
                         "   info \"Uploading Master Password to Keyvault... \"",
