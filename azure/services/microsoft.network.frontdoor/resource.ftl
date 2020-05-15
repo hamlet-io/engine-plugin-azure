@@ -142,9 +142,15 @@
   priority=1
   weight=50]
 
-  [#return {} +
-    attributeIfContent("address", address) +
-    attributeIfContent("backendHostHeader", backendHostHeader) +
+  [#if !(backendHostHeader?has_content)]
+    [#local backendHostHeader = address]
+  [/#if]
+
+  [#return 
+    {
+      "address" : address,
+      "backendHostHeader", backendHostHeader
+    } +
     numberAttributeIfContent("httpPort", httpPort) +
     numberAttributeIfContent("httpsPort", httpsPort) +
     numberAttributeIfContent("priority", priority) +

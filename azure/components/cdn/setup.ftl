@@ -103,13 +103,16 @@
                 ]]
 
                 [#-- Create backend pools--]
+                [#local spaBackendPoolAddress = 
+                    webEndpoint?remove_beginning("https://")?remove_ending("/")]
+
                 [#local spaBackendPool = [
                     getFrontDoorBackendPool(
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                webEndpoint?remove_beginning("https://")?remove_ending("/"),
-                                webEndpoint?remove_beginning("https://")?remove_ending("/"),
+                                spaBackendPoolAddress,
+                                spaBackendPoolAddress,
                                 "80",
                                 "443"
                             )
