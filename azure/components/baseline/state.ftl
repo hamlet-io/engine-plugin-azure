@@ -127,7 +127,7 @@
       "Attributes": {
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
-        "PRIMARY_ENDPOINTS" : contentIfContent(storageEndpoints.blob, ""),
+        "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
         "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
         "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
       },
