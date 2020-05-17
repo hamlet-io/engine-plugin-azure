@@ -66,7 +66,6 @@
                 [#local storageAccount = spaBaselineAttributes["ACCOUNT_NAME"]]
                 [#local spaBaselineResources = spaBaselineLinks["OpsData"].State.Resources]
                 [#local operationsBlobContainer = spaBaselineResources["container"]]
-                [#local primaryEndpoint = spaBaselineAttributes["PRIMARY_ENDPOINT"]]
                 [#local webEndpoint = spaBaselineAttributes["WEB_ENDPOINT"]]
                 [#local backendPoolName = formatName(core.Id, SPA_COMPONENT_TYPE)]
 
@@ -104,12 +103,16 @@
                 ]]
 
                 [#-- Create backend pools--]
+                [#local spaBackendPoolAddress = 
+                    webEndpoint?remove_beginning("https://")?remove_ending("/")]
+
                 [#local spaBackendPool = [
                     getFrontDoorBackendPool(
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                webEndpoint?remove_beginning("https://")?remove_ending("/"),
+                                spaBackendPoolAddress,
+                                spaBackendPoolAddress,
                                 "80",
                                 "443"
                             )
