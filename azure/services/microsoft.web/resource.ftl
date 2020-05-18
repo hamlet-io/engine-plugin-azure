@@ -575,7 +575,7 @@
                 {
                     "ExtensionVersion" : "~3",
                     "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "NODE"
+                    "LinuxFXVersion" : "node|10"
                 }
             ]
             [#break]
@@ -584,8 +584,9 @@
             [#local runTime += 
                 {
                     "ExtensionVersion" : "~3",
-                    "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "NODE"
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "node|10",
+                    "DefaultVersion" : "~10"
                 }
             ]
             [#break]
@@ -595,7 +596,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]
@@ -606,7 +607,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]
@@ -617,7 +618,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]
