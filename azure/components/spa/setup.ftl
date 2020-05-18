@@ -43,7 +43,7 @@
 
   [#-- Add in container specifics including override of defaults --]
   [#local fragmentId = formatFragmentId(_context)]
-  [#-- [#include fragmentList?ensure_starts_with("/")] --]
+  [#include fragmentList?ensure_starts_with("/")]
 
   [#assign _context += getFinalEnvironment(occurrence, _context)]
 
@@ -121,12 +121,11 @@
     /]
   [/#if]
 
-  [#-- TODO(rossmurr4y): add when the CDN is implemeted
   [#if deploymentSubsetRequired("config", false)]
     [@addToDefaultJsonOutput
       content={ "RUN_ID" : commandLineOptions.Run.Id } + _context.Environment
     /]
-  [/#if] --]
+  [/#if]
 
   [#-- invalidate the old cached content on the CDN with an epilogue script --]
   [#--
