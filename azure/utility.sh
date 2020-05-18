@@ -8,9 +8,18 @@
 
 function az_get_storage_connection_string(){
   local storageAccountName="$1"; shift
+  local resourceGroup="$1"; shift
+
+  args=(
+    "name ${storageAccountName}"
+  )
+
+  if [[ -n "${resourceGroup}" ]]; then
+    args=("${args[@]}" "resource-group ${resourceGroup}")
+  fi
 
   az storage account show-connection-string \
-    --name "${storageAccountName}" | jq '.["connectionString"]' || return $?
+    ${args[@]/#/--} | jq '.["connectionString"]' || return $?
 }
 
 function az_check_blob_container_access() {
@@ -40,8 +49,11 @@ function az_copy_from_blob(){
   local containerName="$1"; shift
   local blobName="$1"; shift
   local fileName="$1"; shift
+  local resourceGroup="$1"; shift
 
-  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+  DEFAULT_RESOURCE_GROUP=""
+
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}" "${resourceGroup:DEFAULT_RESOURCE_GROUP}")
 
   az storage blob download \
     --connection-string "${connectionString}" \
@@ -89,8 +101,10 @@ function az_sync_with_blob(){
     fi
   done
 
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+
   args=(
-    "auth-mode login"
+    "connection-string ${connectionString}"
     "account-name ${storageAccountName}"
     "container ${containerName}"
     "source ${tmp_dir}"
@@ -105,7 +119,7 @@ function az_sync_with_blob(){
     args=("${args[@]}" "destination ${destinationSuffix}")
   fi
 
-  az storage blob sync ${args[@]/#/--} > /dev/null || return $?
+  az storage blob sync ${args[@]/#/--} || return $?
 }
 
 function az_delete_blob_dir(){

@@ -78,7 +78,7 @@
 
                 [#-- SPA Config File Settings --]
                 [#local configBlobContainer = originLinkTargetAttributes["CONFIG_STORAGE_CONTAINER"]]
-                [#local configPathPattern = originLinkTargetAttributes["CONFIG_PATH_PATTERN"]]
+                [#local forwardingPath = originLinkTargetAttributes["FORWARDING_PATH"]]
                 [#local configFile = originLinkTargetAttributes["CONFIG_FILE"]]
 
                 [#-- Establish the frontend endpoints --]
@@ -162,7 +162,7 @@
                             backendPoolName
                         ),
                         {},
-                        formatAbsolutePath(getSettingsFilePrefix(originLink))
+                        forwardingPath
                     )
                 ]]
 

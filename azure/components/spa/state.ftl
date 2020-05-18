@@ -26,6 +26,9 @@
         }
       },
       "Attributes": {
+        "FORWARDING_PATH": formatRelativePath(
+            getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"), 
+            "spa")?ensure_starts_with('/'),
         "CONFIG_PATH_PATTERN": solution.ConfigPathPattern,
         "CONFIG_STORAGE_CONTAINER": operationsBlobContainer,
         "CONFIG_FILE": formatRelativePath(configFilePath, configFileName),

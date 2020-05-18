@@ -67,13 +67,14 @@
                     "lambda",
                     productName,
                     occurrence,
-                    "lambda.zip"
+                    function.Name + ".zip",
+                    getExistingReference("ResourceGroup")
                 ) +
                 [
                     "    info \"$\{DEPLOYMENT_OPERATION} Function App ... \"",
                     "    az_functionapp_deploy" +
                         " \"" + getExistingReference("Subscription") + "\"" +
-                        " \"" + getExistingReference("ResourceGroup") + "\"" +
+                        " $\{RESOURCE_GROUP}" +
                         " \"" + function.Name + "\"" +
                         " \"" + "$\{functionFiles[0]}" + "\"" +
                         " $\{DEPLOYMENT_OPERATION} || return $?"
