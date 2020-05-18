@@ -101,8 +101,10 @@ function az_sync_with_blob(){
     fi
   done
 
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+
   args=(
-    "auth-mode login"
+    "connection-string ${connectionString}"
     "account-name ${storageAccountName}"
     "container ${containerName}"
     "source ${tmp_dir}"
@@ -117,7 +119,7 @@ function az_sync_with_blob(){
     args=("${args[@]}" "destination ${destinationSuffix}")
   fi
 
-  az storage blob sync ${args[@]/#/--} > /dev/null || return $?
+  az storage blob sync ${args[@]/#/--} || return $?
 }
 
 function az_delete_blob_dir(){
