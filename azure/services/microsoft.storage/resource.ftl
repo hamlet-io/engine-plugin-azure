@@ -247,7 +247,7 @@
 
 [#-- Convenience Script functions for interacting with Storage --]
 
-[#function getBuildScript filesArrayName registry product occurrence fileName]
+[#function getBuildScript filesArrayName registry product occurrence fileName resourceGroup=""]
 
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
     [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
@@ -268,7 +268,8 @@
                 "\"" + storageAccount + "\"" + " " +
                 "\"" + container + "\"" + " " +
                 "\"" + path + "\"" + " " +
-                "\"$\{tmpdir}/" + fileName + "\" || return $?",
+                "\"$\{tmpdir}/" + fileName + "\"" + " " +
+                "\"" + resourceGroup + "\" || return $?",
             "#",
             "addToArray" + " " +
                filesArrayName + " " +
