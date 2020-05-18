@@ -11,7 +11,10 @@
   [#local core = occurrence.Core ]
   [#local solution = occurrence.Configuration.Solution ]
   [#local settings = occurrence.Configuration.Settings ]
+  [#local attributes = occurrence.State.Attributes]
   [#local resources = occurrence.State.Resources]
+
+  [#local forwardingPath = attributes["FORWARDING_PATH"]]
 
   [#local fragment = getOccurrenceFragmentBase(occurrence)]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
@@ -99,10 +102,7 @@
           "spaFiles",
           storageAccount,
           r'\$web',
-          formatRelativePath(
-            getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
-            "spa"
-          )
+          forwardingPath
         ) +
         getLocalFileScript(
           "configFiles",
