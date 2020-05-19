@@ -947,28 +947,6 @@
                 }
               }
             },
-            "igw": {
-              "DeploymentUnits": [
-                "igw"
-              ],
-              "gateway": {
-                "Engine": "igw",
-                "Destinations": {
-                  "default": {
-                    "IPAddressGroups": "_global",
-                    "Links": {
-                      "Public": {
-                        "Tier": "mgmt",
-                        "Component": "vpc",
-                        "Version": "",
-                        "Instance": "",
-                        "RouteTable": "default"
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "vpcendpoint": {
               "DeploymentUnits": [
                 "vpcendpoint"
