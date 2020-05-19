@@ -187,8 +187,12 @@
                     [#break]
 
                 [#case "pseudo"]
-                    [#local outputName = id]
-                    [#local value = name]
+
+                    [@addToDefaultBashScriptOutput
+                        content=
+                        pseudoArmStackOutputScript(name + " Values", { id : name })
+                    /]
+
                     [#break]
 
                 [#default]

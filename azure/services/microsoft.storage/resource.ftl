@@ -61,6 +61,11 @@
         }
 /]
 
+[@addPseudoResourceProfile
+    service=AZURE_STORAGE_SERVICE
+    resource=AZURE_QUEUE_RESOURCE_TYPE
+/]
+
 [#function getStorageSku tier replication reasonCodes...]
     [#return
         {
