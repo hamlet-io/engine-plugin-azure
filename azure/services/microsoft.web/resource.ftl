@@ -583,10 +583,10 @@
         [#case "nodejs"]
             [#local runTime += 
                 {
-                    "ExtensionVersion" : "~3",
+                    "ExtensionVersion" : "~2",
                     "WorkerRunTime" : "node",
                     "LinuxFXVersion" : "node|10",
-                    "DefaultVersion" : "~10"
+                    "DefaultVersion" : "10.15.2"
                 }
             ]
             [#break]
