@@ -25,6 +25,7 @@
                 }
             },
             "Attributes" : {
+                "NAME" : queueName,
                 "URL": formatRelativePath(queueUrl, queueName)
             },
             "Roles" : {
