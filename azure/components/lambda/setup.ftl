@@ -21,17 +21,22 @@
 
     [#list occurrence.Occurrences![] as subOccurrence]
 
+        [#local subCore = subOccurrence.Core]
+        [#local subSolution = subOccurrence.Configuration.Solution]
+        [#local subResources = subOccurrence.State.Resources]
+        [#local function = subResources["function"]]
+
         [#local appSettings = []]
 
-        [#local fragment = getOccurrenceFragmentBase(occurrence)]
-        [#local contextLinks = getLinkTargets(occurrence)]
+        [#local fragment = getOccurrenceFragmentBase(subOccurrence)]
+        [#local contextLinks = getLinkTargets(subOccurrence)]
         [#assign _context =
             {
                 "Id" : fragment,
                 "Name" : fragment,
-                "Instance" : core.Instance.Id,
-                "Version" : core.Version.Id,
-                "DefaultEnvironment" : defaultEnvironment(occurrence, contextLinks, baselineLinks),
+                "Instance" : subCore.Instance.Id,
+                "Version" : subCore.Version.Id,
+                "DefaultEnvironment" : defaultEnvironment(subOccurrence, contextLinks, baselineLinks),
                 "Environment" : {},
                 "ContextSettings" : {},
                 "Links" : contextLinks,
@@ -42,18 +47,13 @@
                 "DefaultBaselineVariables" : false
             }
         ]
-        [#if solution.Fragment?has_content ]
+        [#if subSolution.Fragment?has_content ]
             [#local fragmentId = formatFragmentId(_context)]
             [#include fragmentList?ensure_starts_with("/")]
         [/#if]
         [#list getFinalEnvironment(occurrence, _context).Environment as key,value]
             [#local appSettings += [getWebAppSettingsPair(key, value)]]
         [/#list]
-
-        [#local subCore = subOccurrence.Core]
-        [#local subSolution = subOccurrence.Configuration.Solution]
-        [#local subResources = subOccurrence.State.Resources]
-        [#local function = subResources["function"]]
 
         [#-- Setting Kind here to make it easier to support Windows functionapps at a later time --]
         [#local functionKind = "functionapp,linux"]

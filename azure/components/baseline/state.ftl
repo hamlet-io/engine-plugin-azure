@@ -98,11 +98,12 @@
   [#local blobName = parent.State.Resources["blobService"].Name]
 
   [#if solution.Role == "staticWebsite" ]
-    [#local containerName = formatAzureResourceName('$web', AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+    [#local container = '$web']
   [#else]
-    [#local containerName = formatAzureResourceName(core.SubComponent.Id, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+    [#local container = core.SubComponent.Id]
   [/#if]
-
+  
+  [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
   [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
 
   [#local storageEndpoints = 
@@ -127,6 +128,7 @@
       "Attributes": {
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
+        "CONTAINER_NAME" : container,
         "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
         "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
         "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
