@@ -143,6 +143,23 @@
         [/#switch]
     [/#list]
 
+    [#switch solution.BasePathBehaviour!"ignore"]
+        [#case "ignore"]
+            [#local basePath = ""]
+            [#break]
+        [#case "prepend"]
+            [#local basePath = stagePath]
+            [#break]
+        [#case "split"]
+        [#default]
+            [@fatal
+                message="Unsupported BasePathValue."
+                context={ "BasePathBehaviour" : solution.BasePathBehaviour }
+                detail="The Azure provider only supports \"ignore\" and \"prepend\" values."
+            /]
+            [#break]
+    [/#switch]
+
     [#assign componentState =
         {
             "Resources" : {
@@ -170,7 +187,7 @@
             "Attributes" : {
                 "FQDN" : fqdn,
                 "SCHEME": "https",
-                "BASE_PATH": stagePath,
+                "BASE_PATH": basePath,
                 "SERVICE_PRINCIPAL" : getExistingReference(serviceId, SERVICE_PRINCIPAL_ATTRIBUTE_TYPE)
             },
             "Roles" : {
