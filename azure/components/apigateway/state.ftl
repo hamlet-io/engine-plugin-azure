@@ -25,13 +25,6 @@
         AZURE_API_MANAGEMENT_SERVICE_API,
         serviceName
     )]
- 
-    [#local schemaId = formatDependentResourceId(AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA, core.ShortName)]
-    [#local schemaName = formatAzureResourceName(
-        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-        apiName
-    )]
 
     [#local certificatePresent = isPresent(solution.Certificate)]
     [#local mappingPresent = isPresent(solution.Mapping)]
@@ -172,12 +165,6 @@
                     "Name" : apiName,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE_API,
                     "Reference" : getReference(apiId, apiName)
-                },
-                "schema" : {
-                    "Id" : schemaId,
-                    "Name" : schemaName,
-                    "Type" : AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-                    "Reference" : getReference(schemaId, schemaName)
                 }
             },
             "Attributes" : {
