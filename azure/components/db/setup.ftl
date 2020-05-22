@@ -6,7 +6,7 @@
 
 [#macro azure_db_arm_setup_solution occurrence]
 
-    [@debug message="Entering" context=occurrence enabled=true /]
+    [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core       = occurrence.Core]
     [#local solution   = occurrence.Configuration.Solution]
