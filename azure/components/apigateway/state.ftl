@@ -11,12 +11,6 @@
         core.ShortName,
         AZURE_API_MANAGEMENT_SERVICE
     )]
-    [#local authorizationserverId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER, core.FullName)]
-    [#local authorizationserverName = formatAzureResourceName(
-        formatName(AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER, core.ShortName),
-        AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER,
-        serviceName
-    )]
 
     [#local productId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_PRODUCT, core.ShortName)]
     [#local productName = formatAzureResourceName(
@@ -165,12 +159,6 @@
                     "ManagedIdentity" : apimManagedIdentity,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE,
                     "Reference" : getReference(serviceId, serviceName)
-                },
-                "authorizationserver" : {
-                    "Id": authorizationserverId,
-                    "Name" : authorizationserverName,
-                    "Type" : AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER,
-                    "Reference" : getReference(authorizationserverId, authorizationserverName)
                 },
                 "identityproviders" : identityProviders,
                 "product" : {

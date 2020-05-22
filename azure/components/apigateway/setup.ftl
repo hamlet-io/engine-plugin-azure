@@ -16,7 +16,6 @@
 
     [#-- resources --]
     [#local service           = resources["service"]]
-    [#local auth              = resources["authorizationserver"]]
     [#local identityproviders = resources["identityproviders"]]
     [#local product           = resources["product"]]
     [#local api               = resources["api"]]
