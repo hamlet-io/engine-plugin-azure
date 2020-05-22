@@ -11,12 +11,6 @@
         core.ShortName,
         AZURE_API_MANAGEMENT_SERVICE
     )]
-    [#local authorizationserverId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER, core.FullName)]
-    [#local authorizationserverName = formatAzureResourceName(
-        formatName(AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER, core.ShortName),
-        AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER,
-        serviceName
-    )]
 
     [#local productId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE_PRODUCT, core.ShortName)]
     [#local productName = formatAzureResourceName(
@@ -30,13 +24,6 @@
         formatName(AZURE_API_MANAGEMENT_SERVICE_API, core.ShortName),
         AZURE_API_MANAGEMENT_SERVICE_API,
         serviceName
-    )]
- 
-    [#local schemaId = formatDependentResourceId(AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA, core.ShortName)]
-    [#local schemaName = formatAzureResourceName(
-        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-        AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-        apiName
     )]
 
     [#local certificatePresent = isPresent(solution.Certificate)]
@@ -57,7 +44,7 @@
 
     [#local internalFqdn =
         formatDomainName(
-            apiName,
+            serviceName,
             "azure-api.net"
         )
     ]
@@ -156,6 +143,23 @@
         [/#switch]
     [/#list]
 
+    [#switch solution.BasePathBehaviour!"ignore"]
+        [#case "ignore"]
+            [#local basePath = ""]
+            [#break]
+        [#case "prepend"]
+            [#local basePath = stagePath]
+            [#break]
+        [#case "split"]
+        [#default]
+            [@fatal
+                message="Unsupported BasePathValue."
+                context={ "BasePathBehaviour" : solution.BasePathBehaviour }
+                detail="The Azure provider only supports \"ignore\" and \"prepend\" values."
+            /]
+            [#break]
+    [/#switch]
+
     [#assign componentState =
         {
             "Resources" : {
@@ -165,12 +169,6 @@
                     "ManagedIdentity" : apimManagedIdentity,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE,
                     "Reference" : getReference(serviceId, serviceName)
-                },
-                "authorizationserver" : {
-                    "Id": authorizationserverId,
-                    "Name" : authorizationserverName,
-                    "Type" : AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER,
-                    "Reference" : getReference(authorizationserverId, authorizationserverName)
                 },
                 "identityproviders" : identityProviders,
                 "product" : {
@@ -184,19 +182,12 @@
                     "Name" : apiName,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE_API,
                     "Reference" : getReference(apiId, apiName)
-                },
-                "schema" : {
-                    "Id" : schemaId,
-                    "Name" : schemaName,
-                    "Type" : AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA,
-                    "Reference" : getReference(schemaId, schemaName)
                 }
             },
             "Attributes" : {
                 "FQDN" : fqdn,
                 "SCHEME": "https",
-                "BASE_PATH": stagePath,
-                "SERVICE_PRINCIPAL" : getExistingReference(serviceId, SERVICE_PRINCIPAL_ATTRIBUTE_TYPE)
+                "BASE_PATH": basePath
             },
             "Roles" : {
                 "Inbound" : {},
