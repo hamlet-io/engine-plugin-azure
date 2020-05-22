@@ -44,7 +44,7 @@
 
     [#local internalFqdn =
         formatDomainName(
-            apiName,
+            serviceName,
             "azure-api.net"
         )
     ]
