@@ -187,8 +187,7 @@
             "Attributes" : {
                 "FQDN" : fqdn,
                 "SCHEME": "https",
-                "BASE_PATH": basePath,
-                "SERVICE_PRINCIPAL" : getExistingReference(serviceId, SERVICE_PRINCIPAL_ATTRIBUTE_TYPE)
+                "BASE_PATH": basePath
             },
             "Roles" : {
                 "Inbound" : {},

@@ -6,8 +6,8 @@
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service",
             "outputMappings" : {
-                SERVICE_PRINCIPAL_ATTRIBUTE_TYPE : {
-                    "Property" : "identity.principalId"
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
                 }
             }
         },

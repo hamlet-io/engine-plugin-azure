@@ -463,5 +463,5 @@ its own function to return the first split of the last segment --]
 
 [#-- Function for determining if a Managed Identity is required. --]
 [#function getAzureManagedIdentity linkTarget]
-    [#return linkTarget.Role?has_content?then({ "type" : "SystemAssigned" },{})]
+    [#return (linkTarget.Role)?has_content?then({ "type" : "SystemAssigned" },{})]
 [/#function]
