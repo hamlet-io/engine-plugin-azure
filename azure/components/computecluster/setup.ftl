@@ -309,6 +309,7 @@
 
     [#-- Construct Index List & Concatenate Exec commands --]
     [#local indices = []]
+    [#local extSettings = {}]
     [#local extProtectedSettings = {}]
     [#local commandsToExecute = []]
     [#local bootstrapProfile = getBootstrapProfile(occurrence, core.Type)]
@@ -333,6 +334,11 @@
                 [#local extProtectedSettings += { setting.Key : setting.Value }]
             [/#if]
         [/#list]
+        [#if extConfig.Settings??]
+            [#list extConfig.Settings?values as setting]
+                [#local extSettings += { setting.Key : setting.Value }]
+            [/#list]
+        [/#if]
 
         [#if extConfig.InitScript??]
             [#local extProtectedSettings += {"script" : extConfig.InitScript}]
@@ -353,6 +359,7 @@
         id=extension.Id
         name=extension.Name
         scriptConfig=extensionScriptConfig
+        settings=extSettings
         protectedSettings=extProtectedSettings
         provisionAfterExtensions=provisionAfterExtensions
         dependsOn=[scaleSet.Reference]

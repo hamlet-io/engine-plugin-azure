@@ -1167,7 +1167,7 @@
         },
         "timestamp" : {
           "Index" : 1000,
-          "ProtectedSettings" : {
+          "Settings" : {
             "addTimestamp" : {
               "Key" : "timestamp",
               "Value" : "[parameters('timestamp')]"
