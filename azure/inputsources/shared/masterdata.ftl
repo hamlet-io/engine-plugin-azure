@@ -1124,6 +1124,24 @@
       },
       "ScriptStores": {},
       "Bootstraps": {
+        "update-debian" : {
+          "Index" : 10,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "sudo apt update'"
+            }
+          }
+        },
+        "azcli-debian" : {
+          "Index" : 15,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'"
+            }
+          }
+        },
         "stage" : {
           "Index" : 25,
           "AutoUpgradeOnMinorVersion": true,
@@ -1143,7 +1161,7 @@
           "ProtectedSettings" : {
             "exec" : {
               "Key" : "commandToExecute",
-              "Value" : "unzip -DD ', parameters('file'), ' -d .'"
+              "Value" : "sudo apt install unzip && unzip -DD ', parameters('file'), ' -d .'"
             }
           }
         },
@@ -1178,7 +1196,7 @@
       "BootstrapProfiles": {
         "default": {
           "computecluster" : {
-            "Bootstraps" : ["stage", "unzip", "encode", "init-encoded", "timestamp"]
+            "Bootstraps" : [ "update-debian", "azcli-debian", "stage", "unzip", "encode", "init-encoded", "timestamp"]
           }
         }
       },
