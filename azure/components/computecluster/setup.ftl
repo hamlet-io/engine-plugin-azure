@@ -7,10 +7,11 @@
 [#macro azure_computecluster_arm_setup_application occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
-    [#local core      = occurrence.Core]
-    [#local solution  = occurrence.Configuration.Solution]
-    [#local resources = occurrence.State.Resources]
-    [#local links     = solution.Links]
+    [#local core          = occurrence.Core]
+    [#local solution      = occurrence.Configuration.Solution]
+    [#local resources     = occurrence.State.Resources]
+    [#local links         = solution.Links]
+    [#local buildSettings = occurrence.Configuration.Settings.Build]
 
     [#-- Resources --]
     [#local role       = resources["role"]]
@@ -22,29 +23,36 @@
     [#local publicIp   = resources["publicIp"]]
 
     [#-- Profiles --]
-    [#local sku            = getSkuProfile(occurrence, core.Type)]
-    [#local vmImage        = getVMImageProfile(occurrence, core.Type)]
-    [#local vmStorage      = getStorage(occurrence, core.Type)]
+    [#local sku       = getSkuProfile(occurrence, core.Type)]
+    [#local vmImage   = getVMImageProfile(occurrence, core.Type)]
+    [#local vmStorage = getStorage(occurrence, core.Type)]
 
     [#-- Baseline Lookup --]
-    [#local baselineLinks        = getBaselineLinks(occurrence, [ "AppData", "SSHKey" ], false, false)]
-    [#local dataAttributes       = baselineLinks["AppData"].State.Attributes]
-    [#local keyAttributes        = baselineLinks["SSHKey"].State.Attributes]
-    [#local baselineResources    = baselineLinks["SSHKey"].State.Resources]
-    [#local sshKey               = baselineResources["vmKeyPair"]]
-    [#local storageName          = dataAttributes["ACCOUNT_NAME"]]
-    [#local storageAccountId     = dataAttributes["ACCOUNT_ID"]]
-    [#local keyvaultId           = keyAttributes["KEYVAULT_ID"]]
+    [#local baselineLinks     = getBaselineLinks(occurrence, [ "AppData", "SSHKey" ], false, false)]
+    [#local dataAttributes    = baselineLinks["AppData"].State.Attributes]
+    [#local keyAttributes     = baselineLinks["SSHKey"].State.Attributes]
+    [#local baselineResources = baselineLinks["SSHKey"].State.Resources]
+    [#local sshKey            = baselineResources["vmKeyPair"]]
+    [#local storageName       = dataAttributes["ACCOUNT_NAME"]]
+    [#local storageAccountId  = dataAttributes["ACCOUNT_ID"]]
+    [#local keyvaultId        = keyAttributes["KEYVAULT_ID"]]
 
     [#-- Default Storage Config --]
-    [#local stageStorage = {
-        "Account" : {
-            "Id" : storageAccountId,
-            "Name" : storageName
-        },
-        "Container" : getRegistryPrefix("scripts", occurrence)?remove_ending("/"),
-        "Blob" : core.Name
-    }]
+    [#local stageStorage = 
+        {
+            "Account" : {
+                "Id" : storageAccountId,
+                "Name" : storageName
+            },
+            "Container" : getRegistryPrefix("scripts", occurrence)?remove_ending("/"),
+            "BlobName" : core.ShortName + ".zip",
+            "BlobPath" : formatRelativePath(
+                            productName,
+                            buildSettings["BUILD_UNIT"].Value,
+                            buildSettings["BUILD_REFERENCE"].Value,
+                            core.ShortName + ".zip")
+        }
+    ]
 
     [#-- Network Lookup --]
     [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
@@ -101,14 +109,21 @@
                 [#break]
 
             [#case S3_COMPONENT_TYPE]
-                [#local stageStorage = {
-                    "Account" : {
-                        "Id" : linkTargetAttributes["ACCOUNT_ID"],
-                        "Name" : linkTargetAttributes["ACCOUNT_NAME"]
-                    },
-                    "Container" : linkTargetAttributes["CONTAINER_NAME"],
-                    "Blob" : core.Name
-                }]
+                [#local stageStorage = 
+                    {
+                        "Account" : {
+                            "Id" : linkTargetAttributes["ACCOUNT_ID"],
+                            "Name" : linkTargetAttributes["ACCOUNT_NAME"]
+                        },
+                        "Container" : linkTargetAttributes["CONTAINER_NAME"],
+                        "BlobName" : core.ShortName + ".zip",
+                        "BlobPath" : formatRelativePath(
+                                        productName,
+                                        buildSettings["BUILD_UNIT"].Value,
+                                        buildSettings["BUILD_REFERENCE"].Value,
+                                        core.ShortName + ".zip")
+                    }
+                ]
 
                 [#break]
         [/#switch]
@@ -254,7 +269,14 @@
                                 nicIpConfigName
                             )
                         ) + 
-                        getIPConfiguration(nicIpConfigName, subnet.Reference)
+                        getIPConfiguration(nicIpConfigName, subnet.Reference,
+                            true,
+                            "",
+                            "default",
+                            15,
+                            [],
+                            "IPv4",
+                            "", "", "", "")
 
                     ]
                 )
@@ -298,8 +320,8 @@
 
     [#local timestamp = datetimeAsString(.now)?replace("[^\\d]", '', 'r')]
     [@addParametersToDefaultJsonOutput id="container" parameter=stageStorage.Container /]
-    [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.Blob /]
-    [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.Blob + ".zip" /]
+    [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.BlobPath /]
+    [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.BlobName /]
     [@addParametersToDefaultJsonOutput id="timestamp" parameter=timestamp /]
     [@armParameter name="storage" /]
     [@armParameter name="container" /]
