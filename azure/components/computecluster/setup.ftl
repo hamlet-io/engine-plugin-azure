@@ -129,7 +129,10 @@
                 [#break]
 
             [#case DB_COMPONENT_TYPE]
-                [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV")]
+
+                [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV") +
+                    [{ "DB_PASSWORD" : linkTargetAttributes["SECRET"] }] ]
+                    
                 [#list dbSecrets as dbSecret]
                     [#list dbSecret?values as secretName]
                         [@createKeyVaultParameterLookup
@@ -138,6 +141,11 @@
                         /]
                     [/#list]
                 [/#list]
+
+                [#local dbDetails = 
+                    [{ "DB_NAME" : linkTargetAttributes["DB_NAME"] },
+                    { "DB_USERNAME" : linkTargetAttributes["USERNAME"] } ]]
+
                 [#break]
 
         [/#switch]
@@ -346,12 +354,21 @@
 
         [#-- Inject ENV Variables --]
         [#if dbSecrets??]
+
             [#list dbSecrets as dbSecret]
                 [#list dbSecret as key,secretName]
                     [#local secretCmd = 'echo ' + key?ensure_ends_with("=', parameters('" + secretName + "'), ") + "' | sudo tee -a /etc/environment > /dev/null'" ]
                     [#local commandsToExecute += [secretCmd]]
                 [/#list]
             [/#list]
+
+            [#list dbDetails as dbDetail]
+                [#list dbDetail as key,value]
+                    [#local cmd = 'echo ' + key + "=" + value + " | sudo tee -a /etc/environment > /dev/null'" ]
+                    [#local commandsToExecute += [cmd]]
+                [/#list]
+            [/#list]
+
             [#local commandsToExecute += ["source /etc/environment'"]]
         [/#if]
 
@@ -359,6 +376,7 @@
             ?filter(x -> (bootstraps[x]).Index?has_content) as bootstrapName]
             [#local indices += [bootstraps[bootstrapName].Index]]
         [/#list]
+
     [/#if]
     [#local indices = indices?sort]
     
