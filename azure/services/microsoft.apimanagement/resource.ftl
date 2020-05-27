@@ -809,9 +809,8 @@
     dependsOn=[]]
 
     [@createKeyVaultParameterLookup
-        id=keyvaultSecret
-        vaultId=keyvaultId
         secretName=keyvaultSecret
+        vaultId=keyvaultId
     /]
 
     [@armResource

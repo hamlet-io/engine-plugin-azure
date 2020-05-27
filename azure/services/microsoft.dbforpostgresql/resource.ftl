@@ -127,9 +127,8 @@
 
             [#-- Create ARM Parameter File and Template Parameter Reference to the secret --]
             [@createKeyVaultParameterLookup
-                id=adminSecret
-                vaultId=keyvaultId
                 secretName=adminSecret
+                vaultId=keyvaultId
             /]
 
             [#-- Add parameter reference to Properties --]
