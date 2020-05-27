@@ -11,8 +11,9 @@
         AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE
     )]
     [#local databaseId = formatResourceId(AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE, core.ShortName)]
+    [#local databaseRawName = solution.DatabaseName!productName]
     [#local databaseName = formatAzureResourceName(
-        (solution.DatabaseName!productName),
+        databaseRawName,
         AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE,
         dbServerName
     )]
@@ -76,6 +77,7 @@
                 }
             },
             "Attributes" : {
+                "DB_NAME" : databaseName?keep_after_last("/"),
                 "USERNAME" : masterUsername,
                 "SECRET" : masterSecret
             },
