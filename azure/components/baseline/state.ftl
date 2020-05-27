@@ -30,7 +30,7 @@
   [#list occurrence.Configuration.Settings as config,settings]
     [#list settings?keys?filter(s -> s?starts_with("REGISTRIES") && s?ends_with("PREFIX")) as setting]
 
-        [#local registryName = getOccurrenceSettingValue(occurrence, setting)?remove_ending('/')]]
+        [#local registryName = getOccurrenceSettingValue(occurrence, setting)?remove_ending('/')]
         [#local registries += 
           {
             setting : {
