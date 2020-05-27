@@ -230,14 +230,26 @@ reference: https://tinyurl.com/y42ot42k --]
   )]
 [/#function]
 
+[#function getSettingSecrets settings prefix]
+  [#local secrets = []]
+  [#list settings?keys
+    ?filter(s -> s?starts_with(prefix) && s?ends_with("SECRET")) as setting]
+
+    [#local key = setting?remove_beginning(prefix + "_")?remove_ending("_SECRET")]
+    [#local secrets += [{ key : settings[setting] }]]
+
+  [/#list]
+  [#return secrets]
+[/#function]
+
 [#-- Creates a Parameter file (parameter generation contract pass req.)        --]
 [#-- with a parameter formatted in such a way that it retrieves a keyvault     --]
 [#-- secret during deployment, avoiding the secret ever being in the templates --]
 [#-- or in configuration.                                                      --]
 [#-- Also adds the parameter section to template.json that retrives the value. --]
-[#macro createKeyVaultParameterLookup id vaultId secretName type="securestring"]
+[#macro createKeyVaultParameterLookup vaultId secretName type="securestring"]
     [@addReferenceParameterToDefaultJsonOutput
-        id=id
+        id=secretName
         vaultId=vaultId
         referenceName=secretName
     /]

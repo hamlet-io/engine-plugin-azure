@@ -98,9 +98,8 @@
   [#if deploymentSubsetRequired("parameters", true)]
 
       [@createKeyVaultParameterLookup
-        id=sshPublicKeyParameterName
-        vaultId=baselineAttributes["KEYVAULT_ID"]
         secretName=sshPublicKeyParameterName
+        vaultId=baselineAttributes["KEYVAULT_ID"]
       /]
 
   [/#if]
