@@ -97,6 +97,7 @@
         [#local linkTargetConfiguration = linkTarget.Configuration]
         [#local linkTargetResources = linkTarget.State.Resources]
         [#local linkTargetAttributes = linkTarget.State.Attributes]
+        [#local linkTargetSettings = linkTarget.Configuration.Environment.General]
 
         [#switch linkTargetCore.Type]
             [#case LB_PORT_COMPONENT_TYPE]
@@ -126,6 +127,19 @@
                 ]
 
                 [#break]
+
+            [#case DB_COMPONENT_TYPE]
+                [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV")]
+                [#list dbSecrets as dbSecret]
+                    [#list dbSecret?values as secretName]
+                        [@createKeyVaultParameterLookup
+                            secretName=secretName
+                            vaultId=keyvaultId
+                        /]
+                    [/#list]
+                [/#list]
+                [#break]
+
         [/#switch]
 
     [/#list]
@@ -212,9 +226,8 @@
     [#local username = getOccurrenceSettingValue(occurrence, "MASTER_USERNAME", !solution.Enabled)]
     [#local keySecretName = sshKey.Name + "PublicKey"]
     [@createKeyVaultParameterLookup
-        id=keySecretName
-        vaultId=keyvaultId
         secretName=keySecretName
+        vaultId=keyvaultId
     /]
 
     [#local osConfig =
@@ -269,14 +282,7 @@
                                 nicIpConfigName
                             )
                         ) + 
-                        getIPConfiguration(nicIpConfigName, subnet.Reference,
-                            true,
-                            "",
-                            "default",
-                            15,
-                            [],
-                            "IPv4",
-                            "", "", "", "")
+                        getIPConfiguration(nicIpConfigName, subnet.Reference)
 
                     ]
                 )
@@ -337,6 +343,18 @@
     [#local bootstrapProfile = getBootstrapProfile(occurrence, core.Type)]
 
     [#if (bootstrapProfile.Bootstraps)??]
+
+        [#-- Inject ENV Variables --]
+        [#if dbSecrets??]
+            [#list dbSecrets as dbSecret]
+                [#list dbSecret as key,secretName]
+                    [#local secretCmd = 'echo ' + key?ensure_ends_with("=', parameters('" + secretName + "'), ") + "' | sudo tee -a /etc/environment > /dev/null'" ]
+                    [#local commandsToExecute += [secretCmd]]
+                [/#list]
+            [/#list]
+            [#local commandsToExecute += ["source /etc/environment'"]]
+        [/#if]
+
         [#list bootstrapProfile.Bootstraps
             ?filter(x -> (bootstraps[x]).Index?has_content) as bootstrapName]
             [#local indices += [bootstraps[bootstrapName].Index]]
