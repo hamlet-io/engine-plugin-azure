@@ -187,18 +187,22 @@
   scriptConfig
   settings={}
   protectedSettings={}
+  addTimestamp=true
   provisionAfterExtensions=[]
   dependsOn=[]]
 
+  [#-- Settings should be listed even when empty.                            --]
+  [#-- addTimestamp will force a deployment even when template is unchanged. --]
+  [#local timestamp = datetimeAsString(.now)?replace("[^\\d]", '', 'r')]
 
-  [#-- Settings should be listed even when empty. --]
   [@armResource
     id=id
     name=name
     profile=AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE
     dependsOn=dependsOn
     properties={
-      "settings" : settings
+      "settings" : settings +
+        attributeIfTrue("timestamp", addTimestamp, timestamp?number)
     } +
       attributeIfContent("publisher", scriptConfig.Publisher) +
       attributeIfContent("type", scriptConfig.Type.Name) +

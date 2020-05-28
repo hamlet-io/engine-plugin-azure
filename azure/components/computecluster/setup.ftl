@@ -332,16 +332,13 @@
         )
     /]
 
-    [#local timestamp = datetimeAsString(.now)?replace("[^\\d]", '', 'r')]
     [@addParametersToDefaultJsonOutput id="container" parameter=stageStorage.Container /]
     [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.BlobPath /]
     [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.BlobName /]
-    [@addParametersToDefaultJsonOutput id="timestamp" parameter=timestamp /]
     [@armParameter name="storage" /]
     [@armParameter name="container" /]
     [@armParameter name="blob" /]
     [@armParameter name="file" /]
-    [@armParameter name="timestamp" /]
 
     [#-- Construct Index List & Concatenate Exec commands --]
     [#local indices = []]
