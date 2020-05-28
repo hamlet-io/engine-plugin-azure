@@ -395,10 +395,6 @@
             [/#list]
         [/#if]
 
-        [#if extConfig.InitScript??]
-            [#local extProtectedSettings += {"script" : extConfig.InitScript}]
-        [/#if]
-
         [#local extensionScriptConfig = 
             mergeObjects(extensionScriptConfig, extConfig)]
 
