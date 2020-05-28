@@ -1170,7 +1170,7 @@
           "ProtectedSettings" : {
             "makeBase64" : {
               "Key" : "commandToExecute",
-              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh"
+              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh'"
             }
           }
         },
@@ -1181,7 +1181,12 @@
             "Name" : "CustomScript",
             "HandlerVersion" : "2.1"
           },
-          "InitScript" : "./init-encoded.sh"
+          "ProtectedSettings" : {
+            "initEncoded" : {
+              "Key" : "commandToExecute",
+              "Value" : "./init-encoded.sh"
+            }
+          }
         },
         "timestamp" : {
           "Index" : 1000,
