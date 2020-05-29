@@ -230,10 +230,10 @@ reference: https://tinyurl.com/y42ot42k --]
   )]
 [/#function]
 
-[#function getSettingSecrets settings prefix]
+[#function getSettingSecrets settings prefix=""]
   [#local secrets = []]
   [#list settings?keys
-    ?filter(s -> s?starts_with(prefix) && s?ends_with("SECRET")) as setting]
+    ?filter(s -> s?ends_with("SECRET") && prefix?has_content?then(s?starts_with(prefix), true)) as setting]
 
     [#local key = setting?remove_beginning(prefix + "_")?remove_ending("_SECRET")]
     [#local secrets += [{ key : settings[setting] }]]
