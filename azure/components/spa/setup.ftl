@@ -14,7 +14,7 @@
   [#local attributes = occurrence.State.Attributes]
   [#local resources = occurrence.State.Resources]
 
-  [#local forwardingPath = attributes["FORWARDING_PATH"]]
+  [#local forwardingPath = attributes["FORWARDING_PATH"]?remove_beginning("/")]
 
   [#local fragment = getOccurrenceFragmentBase(occurrence)]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
