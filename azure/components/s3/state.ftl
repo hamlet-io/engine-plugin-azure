@@ -21,10 +21,20 @@
     [#-- https://tinyurl.com/yxozph9o                                                   --]
     [#local accountName = formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName)]
     [#local blobName = "default"]
-    [#local containerName = formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName)]
+    [#local container = formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName)]
     [#local accountName = formatAzureResourceName(accountName, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
     [#local blobName = formatAzureResourceName(blobName, AZURE_BLOBSERVICE_RESOURCE_TYPE, accountName)]
-    [#local containerName = formatAzureResourceName(containerName, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+    [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+
+    [#local storageEndpoints = 
+        getExistingReference(
+            formatId(
+                storageAccountId
+                "properties",
+                "primaryEndpoints"
+            )
+        )
+    ]
 
     [#assign componentState=
         {
@@ -46,16 +56,16 @@
                 }
             },
             "Attributes" : {
-                "ACCOUNT_NAME" : getExistingReference(storageAccountId, NAME_ATTRIBUTE_TYPE),
-                "CONTAINER_NAME" : getExistingReference(containerId, NAME_ATTRIBUTE_TYPE),
-                "WEBSITE_URL" : getExistingReference(storageAccountId, URL_ATTRIBUTE_TYPE)
+                "ACCOUNT_ID" : storageAccountId,
+                "ACCOUNT_NAME" : accountName,
+                "CONTAINER_NAME" : container,
+                "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
+                "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
+                "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
             },
             "Roles" : {
-                [#-- TODO(rossmurr4y): impliment appropriate roles. --]
                 "Inbound" : {},
-                "Outbound" : {
-                    [#-- "all" : storageAllPermission(id) --]
-                }
+                "Outbound" : {}
             }
         }
     ]

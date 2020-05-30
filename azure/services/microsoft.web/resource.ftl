@@ -25,6 +25,9 @@
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"
+                },
+                URL_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.defaultHostName"
                 }
             }
         }
@@ -572,7 +575,7 @@
                 {
                     "ExtensionVersion" : "~3",
                     "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "NODE"
+                    "LinuxFXVersion" : "node|10"
                 }
             ]
             [#break]
@@ -580,9 +583,10 @@
         [#case "nodejs"]
             [#local runTime += 
                 {
-                    "ExtensionVersion" : "~3",
-                    "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "NODE"
+                    "ExtensionVersion" : "~2",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "node|10",
+                    "DefaultVersion" : "10.15.2"
                 }
             ]
             [#break]
@@ -592,7 +596,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]
@@ -603,7 +607,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]
@@ -614,7 +618,7 @@
                 {
                     "ExtensionVersion" : "~1",
                     "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE",
+                    "LinuxFXVersion" : "node|10",
                     "DefaultVersion" : language?split("nodejs")[1]
                 }
             ]

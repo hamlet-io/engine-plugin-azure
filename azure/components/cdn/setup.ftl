@@ -18,6 +18,10 @@
     [#local wafPolicy = resources["wafPolicy"]]
     [#local frontendEndpointName = formatName(frontDoor.Name, "frontend")]
     [#local frontDoorLBSettingsName = formatName(frontDoor.Name, "lb", "settings")]
+    [#local frontDoorFQDN = frontDoor.FrontDoorFQDN ]
+
+    [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
+    [#local wafRequired = (securityProfile.Enabled)!false ]
 
     [#-- Baseline lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
@@ -62,13 +66,11 @@
                 [#local storageAccount = spaBaselineAttributes["ACCOUNT_NAME"]]
                 [#local spaBaselineResources = spaBaselineLinks["OpsData"].State.Resources]
                 [#local operationsBlobContainer = spaBaselineResources["container"]]
-                [#local primaryEndpoint = spaBaselineAttributes["PRIMARY_ENDPOINT"]]
+                [#local webEndpoint = spaBaselineAttributes["WEB_ENDPOINT"]]
                 [#local backendPoolName = formatName(core.Id, SPA_COMPONENT_TYPE)]
 
                 [#-- Ports & Protocols --]
-                [#local spaFrontEndPort = ports[originLinkTargetAttributes["FRONTEND_PORT"]]]
-                [#local spaBackEndHttpPort = originLinkTargetAttributes["BACKEND_HTTP_PORT"]]
-                [#local spaBackEndHttpsPort = originLinkTargetAttributes["BACKEND_HTTPS_PORT"]]
+                [#local spaFrontEndPort = ports[originLinkTargetAttributes["BACKEND_PORT"]]]
                 [#local acceptedProtocols=[spaFrontEndPort.Protocol?capitalize]]
                 [#if spaFrontEndPort.Protocol == "HTTPS"]
                     [#local httpReRouteRequired = true]
@@ -76,17 +78,17 @@
 
                 [#-- SPA Config File Settings --]
                 [#local configBlobContainer = originLinkTargetAttributes["CONFIG_STORAGE_CONTAINER"]]
-                [#local configPathPattern = originLinkTargetAttributes["CONFIG_PATH_PATTERN"]]
+                [#local forwardingPath = originLinkTargetAttributes["FORWARDING_PATH"]]
                 [#local configFile = originLinkTargetAttributes["CONFIG_FILE"]]
 
                 [#-- Establish the frontend endpoints --]
                 [#local frontendEndpoints += [
                     getFrontDoorFrontendEndpoint(
                         frontendEndpointName,
-                        attributes["FQDN"],
+                        frontDoorFQDN,
                         "Disabled",
                         "0",
-                        getReference(wafPolicy.Id, wafPolicy.Name)
+                        wafRequired?then(getReference(wafPolicy.Id, wafPolicy.Name), "")
                     )
                 ]]
 
@@ -101,14 +103,18 @@
                 ]]
 
                 [#-- Create backend pools--]
-                  [#local spaBackendPool = [
+                [#local spaBackendPoolAddress = 
+                    webEndpoint?remove_beginning("https://")?remove_ending("/")]
+
+                [#local spaBackendPool = [
                     getFrontDoorBackendPool(
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                primaryEndpoint,
-                                spaBackEndHttpPort,
-                                spaBackEndHttpsPort
+                                spaBackendPoolAddress,
+                                spaBackendPoolAddress,
+                                "80",
+                                "443"
                             )
                         ],
                         getSubResourceReference(
@@ -154,9 +160,17 @@
                             frontDoor.Name,
                             "backendPools",
                             backendPoolName
-                        )
+                        ),
+                        {},
+                        forwardingPath
                     )
                 ]]
+
+                [@armPseudoResource
+                    id=routingRuleResource.Id
+                    name=routingRuleResource.Name
+                    profile=routingRuleResource.Type
+                /]
 
                 [#break]
         [/#switch]
@@ -218,14 +232,17 @@
             healthProbeSettings=healthProbeSettings
         /]
 
-        [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
 
-        [@createFrontDoorWAFPolicy
-            id=wafPolicy.Id
-            name=wafPolicy.Name
-            location=regionId
-            securityProfile=securityProfile
-        /]
+        [#if wafRequired ]
+            [@createFrontDoorWAFPolicy
+                id=wafPolicy.Id
+                name=wafPolicy.Name
+                location=regionId
+                securityProfile=securityProfile
+
+            /]
+        [/#if]
+
     [/#if]
 
     [#-- Epilogue --]

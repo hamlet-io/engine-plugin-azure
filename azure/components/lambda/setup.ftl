@@ -26,11 +26,39 @@
         [#local subResources = subOccurrence.State.Resources]
         [#local function = subResources["function"]]
 
+        [#local appSettings = []]
+
+        [#local fragment = getOccurrenceFragmentBase(subOccurrence)]
+        [#local contextLinks = getLinkTargets(subOccurrence)]
+        [#assign _context =
+            {
+                "Id" : fragment,
+                "Name" : fragment,
+                "Instance" : subCore.Instance.Id,
+                "Version" : subCore.Version.Id,
+                "DefaultEnvironment" : defaultEnvironment(subOccurrence, contextLinks, baselineLinks),
+                "Environment" : {},
+                "ContextSettings" : {},
+                "Links" : contextLinks,
+                "BaselineLinks" : baselineLinks,
+                "DefaultCoreVariables" : false,
+                "DefaultEnvironmentVariables" : true,
+                "DefaultLinkVariables" : false,
+                "DefaultBaselineVariables" : false
+            }
+        ]
+        [#if subSolution.Fragment?has_content ]
+            [#local fragmentId = formatFragmentId(_context)]
+            [#include fragmentList?ensure_starts_with("/")]
+        [/#if]
+        [#list getFinalEnvironment(occurrence, _context).Environment as key,value]
+            [#local appSettings += [getWebAppSettingsPair(key, value)]]
+        [/#list]
+
         [#-- Setting Kind here to make it easier to support Windows functionapps at a later time --]
         [#local functionKind = "functionapp,linux"]
 
         [#-- App Settings --]
-        [#local appSettings = []]
         [#local runTimeSettings = getWebAppRunTime(subSolution.RunTime)]
 
         [#local mandatoryAppSettings =
@@ -42,44 +70,49 @@
             } +
             attributeIfTrue("WEBSITE_NODE_DEFAULT_VERSION", runTimeSettings.DefaultVersion?has_content!false, runTimeSettings.DefaultVersion!"")
         ]
+
         [#list mandatoryAppSettings as settingName,settingValue]
             [#local appSettings += [getWebAppSettingsPair(settingName, settingValue)]]
         [/#list]
 
-        [#-- create the Function on Consumption plan     --]
-        [#-- linux function apps must have reserved=true --]
-        [@createWebApp
-            id=function.Id
-            name=function.Name
-            location=regionId
-            kind=functionKind
-            reserved=true
-            appSettings=appSettings
-            siteConfigLinuxFXVersion=runTimeSettings.LinuxFXVersion!""
-        /]
+        [#if deploymentSubsetRequired("lambda", true)]
+            [#-- create the Function on Consumption plan     --]
+            [#-- linux function apps must have reserved=true --]
+            [@createWebApp
+                id=function.Id
+                name=function.Name
+                location=regionId
+                kind=functionKind
+                reserved=true
+                appSettings=appSettings
+                siteConfigLinuxFXVersion=runTimeSettings.LinuxFXVersion!""
+            /]
+        [/#if]
 
-        [#-- Epilogue - Publish Function --]
-        [@addToDefaultBashScriptOutput
-            content=
-                [#-- copy zip function app locally --]
-                getBuildScript(
-                    "functionFiles",
-                    "lambda",
-                    productName,
-                    occurrence,
-                    "lambda.zip"
-                ) +
-                [
-                    "    info \"$\{DEPLOYMENT_OPERATION} Function App ... \"",
-                    "    az_functionapp_deploy" +
-                        " \"" + getExistingReference("Subscription") + "\"" +
-                        " \"" + getExistingReference("ResourceGroup") + "\"" +
-                        " \"" + function.Name + "\"" +
-                        " \"" + "$\{functionFiles[0]}" + "\"" +
-                        " $\{DEPLOYMENT_OPERATION} || return $?"
-                ]
-        /]
-
+        [#if deploymentSubsetRequired("epilogue", false)]
+            [#-- Epilogue - Publish Function --]
+            [@addToDefaultBashScriptOutput
+                content=
+                    [#-- copy zip function app locally --]
+                    getBuildScript(
+                        "functionFiles",
+                        "lambda",
+                        productName,
+                        occurrence,
+                        function.Name + ".zip",
+                        getExistingReference("ResourceGroup")
+                    ) +
+                    [
+                        "    info \"$\{DEPLOYMENT_OPERATION} Function App ... \"",
+                        "    az_functionapp_deploy" +
+                            " \"" + getExistingReference("Subscription") + "\"" +
+                            " $\{RESOURCE_GROUP}" +
+                            " \"" + function.Name + "\"" +
+                            " \"" + "$\{functionFiles[0]}" + "\"" +
+                            " $\{DEPLOYMENT_OPERATION} || return $?"
+                    ]
+            /]
+        [/#if]
     [/#list]
 
 [/#macro]

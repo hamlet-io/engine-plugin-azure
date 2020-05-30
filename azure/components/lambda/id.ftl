@@ -8,7 +8,8 @@
     services=
         [
             AZURE_STORAGE_SERVICE,
-            AZURE_WEB_SERVICE
+            AZURE_WEB_SERVICE,
+            AZURE_AUTHORIZATION_SERVICE
         ]
 /]
 
@@ -20,6 +21,7 @@
     services=
         [
             AZURE_STORAGE_SERVICE,
-            AZURE_WEB_SERVICE
+            AZURE_WEB_SERVICE,
+            AZURE_AUTHORIZATION_SERVICE
         ]
 /]

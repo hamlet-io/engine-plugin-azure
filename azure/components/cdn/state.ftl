@@ -13,6 +13,8 @@
         getResourceType(frontDoorId)
     )]
 
+    [#local frontDoorFqdn = formatDomainName(frontDoorName, 'azurefd.net')]
+
     [#if isPresent(solution.Certificate) ]
         [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers) ]
         [#local hostName = getHostName(certificateObject, occurrence) ]
@@ -28,6 +30,7 @@
                 "frontDoor" : {
                     "Id" : frontDoorId,
                     "Name" : frontDoorName,
+                    "FrontDoorFQDN" : frontDoorFqdn,
                     "Type" : AZURE_FRONTDOOR_RESOURCE_TYPE
                 },
                 "wafPolicy" : {
@@ -57,8 +60,8 @@
     [#local parentAttributes = parent.State.Attributes]
     [#local parentResources = parent.State.Resources]
     [#local frontDoorId = parentResources["frontDoor"].Id]
-    [#local frontDoorRouteId = 
-        formatDependentResourceId(AZURE_FRONTDOOR_RESOURCE_TYPE, core.Id)]
+    [#local frontDoorRouteId =
+        formatDependentResourceId(AZURE_FRONTDOOR_ROUTE_RESOURCE_TYPE, core.Id)]
 
     [#-- Set Default Path --]
     [#local pathPattern = solution.PathPattern]

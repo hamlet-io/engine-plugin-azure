@@ -11,19 +11,21 @@
 
     [#local storageAccount = baselineAttributes["ACCOUNT_NAME"]]
     [#local queueUrl = baselineAttributes["QUEUE_ENDPOINT"]]
-    [#local queueId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
+    [#local queueId = formatResourceId(AZURE_QUEUE_RESOURCE_TYPE, core.Id)]
     [#local queueName = formatAzureResourceName(core.ShortTypedName, getResourceType(queueId))]
-    [@debug message="baselineLinks" context=baselineLinks enabled=true /]
+    [@debug message="baselineLinks" context=baselineLinks enabled=false /]
     [#assign componentState =
         {
             "Resources" : {
                 "queue" : {
                     "Id" : queueId,
                     "Name" : queueName,
+                    "Type" : AZURE_QUEUE_RESOURCE_TYPE,
                     "StorageAccount": storageAccount
                 }
             },
             "Attributes" : {
+                "NAME" : queueName,
                 "URL": formatRelativePath(queueUrl, queueName)
             },
             "Roles" : {

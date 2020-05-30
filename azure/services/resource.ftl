@@ -57,6 +57,25 @@
     /]
 [/#macro]
 
+[#-- Pseudo Resource Profiles are for resources that do not correspond --]
+[#-- directly with an Azure ARM Resource type, but require an output.  --]
+[#macro addPseudoResourceProfile service resource]
+    [@addResourceProfile
+        service=service
+        resource=resource
+        profile=
+            {
+                "apiVersion" : "pseudo",
+                "type" : "pseudo",
+                "outputMappings" : {
+                    REFERENCE_ATTRIBUTE_TYPE: {
+                        "Property" : "pseudo"
+                    }
+                }
+            }
+    /]
+[/#macro]
+
 [#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
 a resource, be it previously deployed or within current template. This differs from
 the previous function as the ARM function will return a full object, from which attributes
@@ -91,53 +110,59 @@ can be referenced via dot notation. --]
         [#local fullOrPartReference = "'"]
     [/#if]
 
-    [#if isPartOfCurrentDeploymentUnit(resourceId)]
-        [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
+    [#if !(resourceProfile.type == "pseudo")]
+        [#if isPartOfCurrentDeploymentUnit(resourceId)]
+            [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
 
-            [#-- return a reference to the resourceId --]
-            [#local args = []]
-            [#list [subscriptionId, resourceGroupName, typeFull] as arg]
-                [#if arg?has_content]
-                    [#local args += [arg]]
-                [/#if]
-            [/#list]
+                [#-- return a reference to the resourceId --]
+                [#local args = []]
+                [#list [subscriptionId, resourceGroupName, typeFull] as arg]
+                    [#if arg?has_content]
+                        [#local args += [arg]]
+                    [/#if]
+                [/#list]
 
-            [#list nameSegments as segment]
-                [#local args += [segment]]
-            [/#list]
+                [#list nameSegments as segment]
+                    [#local args += [segment]]
+                [/#list]
 
-            [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
-        [#else]
-            [#if attributes?size = 1 && attributes?last = "name" ]
-                [#-- "name" isn't a referencable attribute - but we already have access to it. --]
-                [#return resourceName]
+                [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
             [#else]
-                [#-- return a reference to the specific resources attributes. --]
-                [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+                [#if attributes?size = 1 && attributes?last = "name" ]
+                    [#-- "name" isn't a referencable attribute - but we already have access to it. --]
+                    [#return resourceName]
+                [#else]
+                    [#-- return a reference to the specific resources attributes. --]
+                    [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
+                    [#return
+                        "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
+                    ]
+                [/#if]
+            [/#if]
+        [#else]
+            [#if ! (attributes?size = 0) ]
+                [#-- return a reference to the specific resources attributes in another Deployment Unit --]
+                [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
                 [#return
-                    "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
+                    "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
                 ]
+            [#else]
+                [#return getExistingReference(
+                    resourceId,
+                    attributeType,
+                    "",
+                    "",
+                    (subscriptionId?has_content)?then(
+                        subscriptionId,
+                        ""
+                    )
+                )]
             [/#if]
         [/#if]
     [#else]
-        [#if ! (attributes?size = 0) ]
-            [#-- return a reference to the specific resources attributes in another Deployment Unit --]
-            [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-            [#return
-                "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
-            ]
-        [#else]
-            [#return getExistingReference(
-                resourceId,
-                attributeType,
-                "",
-                "",
-                (subscriptionId?has_content)?then(
-                    subscriptionId,
-                    ""
-                )
-            )]
-        [/#if]
+        [#-- Pseudo-resources simply output their name.           --]
+        [#-- By doing so, a component can be considered deployed. --]
+        [#return resourceName]
     [/#if]
 [/#function]
 
@@ -252,7 +277,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
                 [#break]
             [#case "segment_out_names"]
                 [#-- This will always happen last --]
-                [#local name = formatRelativePath( (primaryParent!""), name) ]
+                [#local name = formatRelativePath( (primaryParent!""), name?remove_ending("-"))]
                 [#break]
             [#default]
                 [@fatal
@@ -298,7 +323,10 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
             {
                 "Mapping" : "COTFatal: ResourceProfile not found.",
                 "ServiceType" : serviceType,
-                "ResourceType" : resourceType
+                "ResourceType" : resourceType,
+                "apiVersion" : "COTFatal: ResourceProfile not found.",
+                "conditions" : [],
+                "type" : "Hamlet/UnknownType"
             }
         ]
     [/#if]
@@ -318,6 +346,23 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 its own function to return the first split of the last segment --]
 [#function getAzureResourceType resourceId]
     [#return resourceId?split("/")?last?split("X")[0]]
+[/#function]
+
+[#-- Formats a call to the Azure ARM "concat" function. --]
+[#function formatAzureConcatFunction segments...]
+    [#local parts = asArray(segments)?join("', '")]
+    [#return "[concat('" + parts + "')]"]
+[/#function]
+
+[#-- Formats a call to the Azure Arm "string() function     --]
+[#-- output the params as ARM parameters. This puts the     --]
+[#-- params in another file, keeping the template tidy and  --]
+[#-- allows us to easily call the ARM function "string()"   --]
+[#-- on them, to pass them inline as necessary.             --]
+[#-- This is particularly helpful when the string is huge.  --]
+[#function formatAzureStringFunction stringFormat="" parameters...]
+    [#local args = stringFormat?has_content?then([stringFormat, parameters], [parameters])]
+    [#return "[string(" + asFlattenedArray(args)?join("', '") + ")]"]
 [/#function]
 
 [#-- 
@@ -415,3 +460,8 @@ its own function to return the first split of the last segment --]
         ]
     [/#if]
 [/#macro]
+
+[#-- Function for determining if a Managed Identity is required. --]
+[#function getAzureManagedIdentity linkTarget]
+    [#return (linkTarget.Role)?has_content?then({ "type" : "SystemAssigned" },{})]
+[/#function]

@@ -33,6 +33,9 @@
 [#assign AZURE_NETWORK_APPLICATION_GATEWAY_SERVICE = "microsoft.network.applicationgateways"]
 [#assign AZURE_NETWORK_FRONTDOOR_SERVICE = "microsoft.network.frontdoor"]
 
+[#-- Microsoft.DBforPostgreSQL --]
+[#assign AZURE_DB_POSTGRES_SERVICE = "microsoft.dbforpostgresql"]
+
 [#-- Microsoft.Storage --]
 [#assign AZURE_STORAGE_SERVICE = "microsoft.storage"]
 
@@ -41,3 +44,4 @@
 
 [#-- Pseudo services --]
 [#assign AZURE_BASELINE_PSEUDO_SERVICE = "baseline"]
+[#assign AZURE_AAD_APP_REGISTRATION_PSEUDO_SERVICE = "microsoft.aad.appregistration"]

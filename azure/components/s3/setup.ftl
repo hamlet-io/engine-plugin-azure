@@ -31,22 +31,6 @@
 
         [#local storageCIDRs = getGroupCIDRs(publicAccessConfiguration.IPAddressGroups)]
 
-        [#list publicAccessConfiguration.Paths as publicPrefix]
-            [#if publicAccessConfiguration.Enabled ]
-
-                [#switch publicAccessConfiguration.Permissions ]
-                    [#case "ro" ]
-                        [#-- TODO - add RO config --]
-                        [#break]
-                    [#case "wo" ]
-                        [#-- TODO - add WO config --]
-                        [#break]
-                    [#case "rw" ]
-                        [#-- TODO - add RW config --]
-                        [#break]
-                [/#switch]
-            [/#if]
-        [/#list]
     [/#list]
 
 
@@ -57,7 +41,7 @@
 
 
     [#local ipRulesConfiguration = []]
-    [#local networkAclsConfiguration = getStorageNetworkAcls("Deny", ipRulesConfiguration, virtualNetworkRulesConfiguration, "None")]
+    [#local networkAclsConfiguration = getStorageNetworkAcls("Deny", ipRulesConfiguration, virtualNetworkRulesConfiguration, "AzureServices")]
 
     [#-- Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]

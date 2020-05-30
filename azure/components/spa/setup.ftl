@@ -11,7 +11,10 @@
   [#local core = occurrence.Core ]
   [#local solution = occurrence.Configuration.Solution ]
   [#local settings = occurrence.Configuration.Settings ]
+  [#local attributes = occurrence.State.Attributes]
   [#local resources = occurrence.State.Resources]
+
+  [#local forwardingPath = attributes["FORWARDING_PATH"]?remove_beginning("/")]
 
   [#local fragment = getOccurrenceFragmentBase(occurrence)]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
@@ -43,7 +46,7 @@
 
   [#-- Add in container specifics including override of defaults --]
   [#local fragmentId = formatFragmentId(_context)]
-  [#-- [#include fragmentList?ensure_starts_with("/")] --]
+  [#include fragmentList?ensure_starts_with("/")]
 
   [#assign _context += getFinalEnvironment(occurrence, _context)]
 
@@ -98,11 +101,8 @@
         syncFilesToBlobContainerScript(
           "spaFiles",
           storageAccount,
-          operationsBlobContainer,
-          formatRelativePath(
-            getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
-            "spa"
-          )
+          r'\$web',
+          forwardingPath
         ) +
         getLocalFileScript(
           "configFiles",
@@ -112,7 +112,7 @@
         syncFilesToBlobContainerScript(
           "configFiles",
           storageAccount,
-          operationsBlobContainer,
+          r'\$web',
           formatRelativePath(
             getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
             solution.ConfigPath
@@ -121,12 +121,11 @@
     /]
   [/#if]
 
-  [#-- TODO(rossmurr4y): add when the CDN is implemeted
   [#if deploymentSubsetRequired("config", false)]
     [@addToDefaultJsonOutput
       content={ "RUN_ID" : commandLineOptions.Run.Id } + _context.Environment
     /]
-  [/#if] --]
+  [/#if]
 
   [#-- invalidate the old cached content on the CDN with an epilogue script --]
   [#--

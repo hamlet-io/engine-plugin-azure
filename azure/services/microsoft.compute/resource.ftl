@@ -18,6 +18,17 @@
     }
 /]
 
+[@addResourceProfile
+  service=AZURE_VIRTUALMACHINE_SERVICE
+  resource=AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE
+  profile=
+    {
+      "apiVersion" : "2019-12-01",
+      "type" : "Microsoft.Compute/virtualMachineScaleSets/extensions",
+      "outputMappings" : {}
+    }
+/]
+
 [#function getVirtualMachineProfileLinuxConfigPublicKey
   path=""
   data=""]
@@ -90,14 +101,14 @@
 [/#function]
 
 [#function getVirtualMachineProfile
-  vmNamePrefix
-  adminName
   storageAccountType
   imagePublisher
   imageOffer
-  imageSku
+  image
   nicConfigurations
   linuxConfiguration={}
+  vmNamePrefix=""
+  adminName=""
   windowsConfiguration={}
   priority="Regular"
   imageVersion="latest"
@@ -105,12 +116,11 @@
 
   [#return 
     {
-      "osProfile" : {
-        "computerNamePrefix" : vmNamePrefix,
-        "adminUsername" : adminName
-      } +
-      attributeIfContent("linuxConfiguration", linuxConfiguration) +
-      attributeIfContent("windowsConfiguration", windowsConfiguration),
+      "osProfile" : {} +
+        attributeIfContent("computerNamePrefix", vmNamePrefix) +
+        attributeIfContent("adminUsername", adminName) +
+        attributeIfContent("linuxConfiguration", linuxConfiguration) +
+        attributeIfContent("windowsConfiguration", windowsConfiguration),
       "storageProfile" : {
         "osDisk" : {
           "createOption" : "FromImage",
@@ -121,7 +131,7 @@
         "imageReference" : {
           "publisher" : imagePublisher,
           "offer" : imageOffer,
-          "sku" : imageSku,
+          "sku" : image,
           "version" : imageVersion
         }
       },
@@ -167,6 +177,39 @@
         },
         "virtualMachineProfile" : vmProfile 
       }
+  /]
+
+[/#macro]
+
+[#macro createVMScaleSetExtension
+  id
+  name
+  scriptConfig
+  settings={}
+  protectedSettings={}
+  addTimestamp=true
+  provisionAfterExtensions=[]
+  dependsOn=[]]
+
+  [#-- Settings should be listed even when empty.                            --]
+  [#-- addTimestamp will force a deployment even when template is unchanged. --]
+  [#local timestamp = datetimeAsString(.now)?replace("[^\\d]", '', 'r')]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE
+    dependsOn=dependsOn
+    properties={
+      "settings" : settings +
+        attributeIfTrue("timestamp", addTimestamp, timestamp?number)
+    } +
+      attributeIfContent("publisher", scriptConfig.Publisher) +
+      attributeIfContent("type", scriptConfig.Type.Name) +
+      attributeIfContent("typeHandlerVersion", scriptConfig.Type.HandlerVersion) +
+      attributeIfTrue("autoUpgradeMinorVersion", (scriptConfig.AutoUpgradeOnMinorVersion)!false, scriptConfig.AutoUpgradeOnMinorVersion) +
+      attributeIfContent("protectedSettings", protectedSettings) +
+      attributeIfContent("provisionAfterExtensions", provisionAfterExtensions)
   /]
 
 [/#macro]

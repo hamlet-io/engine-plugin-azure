@@ -19,6 +19,35 @@
     )
   ]
 
+  [#local blobName = formatAzureResourceName(
+      "default",
+      AZURE_BLOBSERVICE_RESOURCE_TYPE,
+      storageAccountName
+    )
+  ]
+
+  [#local registries = {}]
+  [#list occurrence.Configuration.Settings as config,settings]
+    [#list settings?keys?filter(s -> s?starts_with("REGISTRIES") && s?ends_with("PREFIX")) as setting]
+
+        [#local registryName = getOccurrenceSettingValue(occurrence, setting)?remove_ending('/')]
+        [#local registries += 
+          {
+            setting : {
+              "Id": formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, registryName),
+              "Name": formatAzureResourceName(
+                registryName
+                AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+                blobName
+              ),
+              "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+            }
+          }
+        ]
+
+    [/#list]
+  [/#list]
+
   [#assign componentState=
     {
       "Resources" : {
@@ -34,7 +63,7 @@
         },
         "blobService" : {
             "Id" : formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id),
-            "Name" : "default",
+            "Name" : blobName,
             "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
         },
         "keyVault" : {
@@ -46,7 +75,8 @@
             "Id" : formatResourceId(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.Id),
             "Name" : formatName(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
-        }
+        },
+        "registries" : registries
       },
       "Attributes" : {
         "SEED_SEGMENT" : segmentSeedValue
@@ -65,21 +95,43 @@
 
   [#local storageAccountId = parent.State.Resources["storageAccount"].Id]
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
+  [#local blobName = parent.State.Resources["blobService"].Name]
+
+  [#if solution.Role == "staticWebsite" ]
+    [#local container = '$web']
+  [#else]
+    [#local container = core.SubComponent.Id]
+  [/#if]
+  
+  [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+  [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
+
+  [#local storageEndpoints = 
+    getExistingReference(
+      formatId(
+        storageAccountId
+        "properties",
+        "primaryEndpoints"
+      )
+    )
+  ]
 
   [#assign componentState =
     {
       "Resources": {
         "container" : {
-          "Id" : formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id),
-          "Name" : formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.SubComponent.Id),
+          "Id" : containerId,
+          "Name" : containerName,
           "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         }
       },
       "Attributes": {
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
-        "PRIMARY_ENDPOINT" : formatDomainName(storageAccountName, "blob.core.windows.net"),
-        "QUEUE_ENDPOINT": formatDomainName(storageAccountName, "queue.core.windows.net")
+        "CONTAINER_NAME" : container,
+        "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
+        "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
+        "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
       },
       "Roles": {
         "Inbound": {},

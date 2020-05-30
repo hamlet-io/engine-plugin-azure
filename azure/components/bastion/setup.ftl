@@ -37,7 +37,8 @@
   [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
   [#local baselineResources = baselineLinks["SSHKey"].State.Resources]
   [#local sshKeyPairResourceId = getExistingReference(baselineResources["vmKeyPair"].Id)]
-  [#local sshPublicKeyParameterName = "SSHPublicKey"]
+  [#local sshKey = baselineResources["vmKeyPair"]]
+  [#local sshPublicKeyParameterName = sshKey.Name + "PublicKey"]
 
   [#-- Resources                                        --]
   [#-- Add Reference Attribute to all for simple lookup --]
@@ -91,23 +92,15 @@
   [#local vmssProcessorType = vmssProcessorProfile[core.Type]]
   [#local vmssProcessor = vmssProcessorType.Processor]
   [#local vmssProcessorTier = vmssProcessor?split("_")[0]]
-  [#local vmssVMImageProfile = vmImageProfiles[BASTION_COMPONENT_TYPE]]
+  [#local vmssVMImageProfile = getVMImageProfile(occurrence, core.Type)]
   [#local vmssVMAdminName = BASTION_COMPONENT_TYPE]
 
   [#if deploymentSubsetRequired("parameters", true)]
 
-      [@addParametersToDefaultJsonOutput
-        id=sshKeyPairResourceId
-        parameter=
-          { 
-            sshPublicKeyParameterName : getKeyVaultParameter(
-              baselineAttributes["KEYVAULT_ID"], 
-              sshKeyPairResourceId?ensure_ends_with("PublicKey")
-            )
-          }
+      [@createKeyVaultParameterLookup
+        secretName=sshPublicKeyParameterName
+        vaultId=baselineAttributes["KEYVAULT_ID"]
       /]
-
-      [@armParameter name=sshPublicKeyParameterName /]
 
   [/#if]
   [#local vmssVMOSConfig = getVirtualMachineProfileLinuxConfig(
@@ -142,16 +135,17 @@
   )]
 
   [#local vmssVMNetworkProfile = getVirtualMachineNetworkProfile([vmssVMNICConfig])]
+  [#local vmssVMSkuProfile = getSkuProfile(occurrence, core.Type)]
 
   [#local vmssVMProfile = getVirtualMachineProfile(
-    core.Type,
-    vmssVMAdminName,
     "Standard_LRS",
     vmssVMImageProfile.Publisher,
     vmssVMImageProfile.Offering,
-    vmssVMImageProfile.SKU,
+    vmssVMImageProfile.Image,
     vmssVMNetworkProfile,
-    vmssVMOSConfig
+    vmssVMOSConfig,
+    core.Type,
+    vmssVMAdminName
   )]
 
   [@createVMScaleSet
@@ -159,9 +153,9 @@
     identity={"type": "SystemAssigned"}
     name=scaleSet.Name
     location=regionId
-    skuName=vmssProcessor
-    skuTier=vmssProcessorTier
-    skuCapacity=autoScaleConfig.MinUpdateInstances
+    skuName=vmssVMSkuProfile.Name
+    skuTier=vmssVMSkuProfile.Tier
+    skuCapacity=vmssVMSkuProfile.Capacity
     vmProfile=vmssVMProfile
     dependsOn=
       [

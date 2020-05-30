@@ -16,8 +16,8 @@
                 NAME_ATTRIBUTE_TYPE : {
                     "Property" : "name"
                 },
-                URL_ATTRIBUTE_TYPE : {
-                    "Property" : "properties.primaryEndpoints.blob"
+                DICTIONARY_ATTRIBUTE_TYPE : {
+                    "Property" : "properties.primaryEndpoints"
                 },
                 REGION_ATTRIBUTE_TYPE : {
                     "Property" : "properties.primaryLocation"
@@ -61,6 +61,11 @@
         }
 /]
 
+[@addPseudoResourceProfile
+    service=AZURE_STORAGE_SERVICE
+    resource=AZURE_QUEUE_RESOURCE_TYPE
+/]
+
 [#function getStorageSku tier replication reasonCodes...]
     [#return
         {
@@ -70,7 +75,7 @@
     ]
 [/#function]
 
-[#function getStorageCustomDomain name useSubDomainName=true]
+[#function getStorageCustomDomain name useSubDomainName=false]
     [#return
         {} +
         attributeIfContent("name", name) +
@@ -78,8 +83,8 @@
     ]
 [/#function]
 
-[#function getStorageNetworkAcls 
-    defaultAction 
+[#function getStorageNetworkAcls
+    defaultAction
     ipRules=[]
     virtualNetworkRules=[]
     bypass=""]
@@ -108,7 +113,7 @@
     [#return
         {
             "value" : value
-        } + 
+        } +
         attributeIfContent("action", action)
     ]
 [/#function]
@@ -201,7 +206,7 @@
                     "maxAgeInSeconds": (CORSBehaviour.MaxAge)?c
                 }
             ]
-            
+
             ]
         [/#if]
     [/#list]
@@ -214,9 +219,9 @@
         dependsOn=dependsOn
         resources=resources
         properties=
-            {} + 
+            {} +
             attributeIfContent("cors", attributeIfContent("CORSRules", CORSRules)) +
-            attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) + 
+            attributeIfContent("deleteRetentionPolicy", deleteRetentionPolicy) +
             attributeIfTrue("automaticSnapshotPolicyEnabled", automaticSnapshotPolicyEnabled, automaticSnapshotPolicyEnabled)
     /]
 [/#macro]
@@ -247,18 +252,29 @@
 
 [#-- Convenience Script functions for interacting with Storage --]
 
-[#function getBuildScript filesArrayName registry product occurrence fileName]
+[#function getBuildScript filesArrayName registry product occurrence fileName resourceGroup=""]
 
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
     [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
+
+    [#local container = getRegistryPrefix(registry, occurrence)?remove_ending("/")]
+    [#local fileName = getRegistryPrefix(registry, occurrence)?remove_ending("/")?ensure_ends_with(".zip") ]
+    [#local path = formatRelativePath(
+        product,
+        getOccurrenceBuildScopeExtension(occurrence),
+        getOccurrenceBuildUnit(occurrence),
+        getOccurrenceBuildReference(occurrence),
+        fileName
+    )]
 
     [#return
         [
             "az_copy_from_blob" + " " +
                 "\"" + storageAccount + "\"" + " " +
-                "\"" + registry + "\"" + " " +
-                "\"" + product + "\"" + " " +
-                "\"$\{tmpdir}/" + fileName + "\" || return $?",
+                "\"" + container + "\"" + " " +
+                "\"" + path + "\"" + " " +
+                "\"$\{tmpdir}/" + fileName + "\"" + " " +
+                "\"" + resourceGroup + "\" || return $?",
             "#",
             "addToArray" + " " +
                filesArrayName + " " +
@@ -268,10 +284,10 @@
     ]
 [/#function]
 
-[#function syncFilesToBlobContainerScript 
+[#function syncFilesToBlobContainerScript
     filesArrayName
     storageAccount
-    container 
+    container
     destination]
 
     [#return
@@ -293,7 +309,7 @@
             "    ;;",
             " esac",
             "#"
-        ] 
+        ]
     ]
 [/#function]
 
@@ -302,6 +318,12 @@
 
     [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
     [#return
-        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + storageId + "', '" + apiVersion + "')." + parameter + ")]"
+        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + getExistingReference(storageId) + "', '" + apiVersion + "')." + parameter + ")]"]
+[/#function]
+
+[#function formatAzureStorageListKeys storageId key=0]
+    [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
+    [#return
+        "[listKeys('" + storageId + "', '" + apiVersion + "').keys[" + key + "].value]"
     ]
 [/#function]

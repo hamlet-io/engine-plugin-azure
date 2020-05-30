@@ -31,6 +31,11 @@
     }
 /]
 
+[@addPseudoResourceProfile
+    service=AZURE_NETWORK_FRONTDOOR_SERVICE
+    resource=AZURE_FRONTDOOR_ROUTE_RESOURCE_TYPE
+/]
+
 [#function getFrontDoorRoutingRule
   name=""
   frontendEndpoints=[]
@@ -131,19 +136,25 @@
 
 [#function getFrontDoorBackend
   address
-  httpPort
-  httpsPort
+  backendHostHeader=""
+  httpPort=""
+  httpsPort=""
   priority=1
-  weight=50
-  backendHostHeader=""]
+  weight=50]
 
-  [#return {} +
-    attributeIfContent("address", address) +
+  [#if !(backendHostHeader?has_content)]
+    [#local backendHostHeader = address]
+  [/#if]
+
+  [#return 
+    {
+      "address" : address,
+      "backendHostHeader", backendHostHeader
+    } +
     numberAttributeIfContent("httpPort", httpPort) +
     numberAttributeIfContent("httpsPort", httpsPort) +
     numberAttributeIfContent("priority", priority) +
-    numberAttributeIfContent("weight", weight) +
-    attributeIfContent("backendHostHeader", backendHostHeader)
+    numberAttributeIfContent("weight", weight)
   ]
 [/#function]
 

@@ -5,7 +5,7 @@
 [/#macro]
 
 [#macro azure_lb_arm_setup_solution occurrence]
-    [@debug message="Entering LB Setup" context=occurrence enabled=true /]
+    [@debug message="Entering LB Setup" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]

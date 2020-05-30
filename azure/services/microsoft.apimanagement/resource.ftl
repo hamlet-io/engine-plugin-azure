@@ -5,7 +5,11 @@
         AZURE_API_MANAGEMENT_SERVICE : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service",
-            "outputMappings" : {}
+            "outputMappings" : {
+                REFERENCE_ATTRIBUTE_TYPE : {
+                    "Property" : "id"
+                }
+            }
         },
         AZURE_API_MANAGEMENT_SERVICE_API : {
             "apiVersion" : "2019-01-01",
@@ -382,12 +386,33 @@
     serviceUrl=""
     protocols=[]
     value=""
-    format=""
+    format="openapi"
     wsdlServiceName=""
     wsdlEndpointName=""
     apiType=""
     resources=[]
     dependsOn=[]]
+
+    [#if (! format?contains("-link")) && value?has_content]
+
+        [#-- output inline spec as an ARM parameter. This puts the  --]
+        [#-- spec in another file, keeping the template tidy and    --]
+        [#-- allows us to easily call the ARM function "string()"   --]
+        [#--  on it, to pass it inline to the API resource.         --]
+        [@addParametersToDefaultJsonOutput
+            id="openapi"
+            parameter=value
+        /]
+        [@armParameter
+            name="openapi"
+            type="object"
+        /]
+
+        [#-- Now that "value" has been converted to a Parameter,  --]
+        [#-- redirect "value" to the parameter name.              --]
+        [#local value = formatAzureStringFunction("", "parameters('openapi')")]
+
+    [/#if]
 
     [#local properties = {
             "path" : path
@@ -770,7 +795,8 @@
     id
     name
     clientId
-    clientSecret
+    keyvaultId
+    keyvaultSecret
     type=""
     signinTenant=""
     allowedTenants=[]
@@ -782,6 +808,11 @@
     resources=[]
     dependsOn=[]]
 
+    [@createKeyVaultParameterLookup
+        secretName=keyvaultSecret
+        vaultId=keyvaultId
+    /]
+
     [@armResource
         id=id
         name=name
@@ -791,7 +822,7 @@
         properties=
             {
                 "clientId": clientId,
-                "clientSecret": clientSecret
+                "clientSecret": getParameterReference(keyvaultSecret)
             } +
             attributeIfContent("type", type) +
             attributeIfContent("signinTenant", signinTenant) +

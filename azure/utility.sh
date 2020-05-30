@@ -8,9 +8,18 @@
 
 function az_get_storage_connection_string(){
   local storageAccountName="$1"; shift
+  local resourceGroup="$1"; shift
+
+  args=(
+    "name ${storageAccountName}"
+  )
+
+  if [[ -n "${resourceGroup}" ]]; then
+    args=("${args[@]}" "resource-group ${resourceGroup}")
+  fi
 
   az storage account show-connection-string \
-    --name "${storageAccountName}" | jq '.["connectionString"]' || return $?
+    ${args[@]/#/--} | jq '.["connectionString"]' || return $?
 }
 
 function az_check_blob_container_access() {
@@ -40,8 +49,11 @@ function az_copy_from_blob(){
   local containerName="$1"; shift
   local blobName="$1"; shift
   local fileName="$1"; shift
+  local resourceGroup="$1"; shift
 
-  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+  DEFAULT_RESOURCE_GROUP=""
+
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}" "${resourceGroup:DEFAULT_RESOURCE_GROUP}")
 
   az storage blob download \
     --connection-string "${connectionString}" \
@@ -80,7 +92,7 @@ function az_sync_with_blob(){
     if [[ -f "${file}" ]]; then
       case "$(fileExtension "${file}")" in
         zip)
-          unzip -DD "${file}" -d "${tmp_dir}"
+          unzip -DD -q "${file}" -d "${tmp_dir}"
           ;;
         *)
           cp "${file}" "${tmp_dir}"
@@ -89,17 +101,25 @@ function az_sync_with_blob(){
     fi
   done
 
+  connectionString=$(az_get_storage_connection_string "${storageAccountName}")
+
   args=(
-    "account-name ${accountName}"
+    "connection-string ${connectionString}"
+    "account-name ${storageAccountName}"
     "container ${containerName}"
     "source ${tmp_dir}"
   )
+
+  # -- Only show errors unless debugging --
+  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+    args=("${args[@]}" "only-show-errors" )
+  fi
 
   if [[ -n "${destinationSuffix}" ]]; then
     args=("${args[@]}" "destination ${destinationSuffix}")
   fi
 
-  az storage blob sync ${args[@]/#/--} > /dev/null || return $?
+  az storage blob sync ${args[@]/#/--} || return $?
 }
 
 function az_delete_blob_dir(){
@@ -108,9 +128,15 @@ function az_delete_blob_dir(){
   local pattern="$1"; shift
 
   args=(
+    "auth-mode login"
     "account-name ${storageAccountName}"
     "source ${sourcePath}"
   )
+
+  # -- Only show errors unless debugging --
+  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+    args=("${args[@]}" "only-show-errors" )
+  fi
 
   if [[ -n "${pattern}" ]]; then
     args=("${args[@]}" "pattern ${pattern}")
@@ -178,7 +204,7 @@ function az_add_secret() {
   local keyName="$1"; shift
   local secret="$1"; shift
 
-  info "Adding secret ${secret} to vault ${vaultName} ..."
+  info "Adding secret ${keyName} to vault ${vaultName} ..."
   if [[ -f ${secret} ]]; then
     az keyvault secret set --vault-name "${vaultName}" --name "${keyName}" --file "${secret}" 2>&1 > /dev/null
   else

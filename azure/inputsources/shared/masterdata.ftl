@@ -1,7 +1,6 @@
 [#ftl]
 
 [#macro azure_input_shared_masterdata_seed]
-  [@debug message="MASTERING" context={} enabled=true /]
   [@addMasterData
     data=
     {
@@ -794,23 +793,6 @@
             "NetworkACL": "Public"
           },
           "Components": {
-            "seg-cert": {
-              "DeploymentUnits": [
-                "cert"
-              ]
-            },
-            "seg-dns": {
-              "DeploymentUnits": [
-                "dns"
-              ],
-              "Enabled": false
-            },
-            "seg-dashboard": {
-              "DeploymentUnits": [
-                "dashboard"
-              ],
-              "Enabled": false
-            },
             "baseline": {
               "DeploymentUnits": [
                 "baseline"
@@ -854,6 +836,9 @@
                         "Offline": "_data"
                       }
                     }
+                  },
+                  "web" : {
+                    "Role" : "staticWebsite"
                   }
                 },
                 "Keys": {
@@ -962,50 +947,6 @@
                 }
               }
             },
-            "igw": {
-              "DeploymentUnits": [
-                "igw"
-              ],
-              "gateway": {
-                "Engine": "igw",
-                "Destinations": {
-                  "default": {
-                    "IPAddressGroups": "_global",
-                    "Links": {
-                      "Public": {
-                        "Tier": "mgmt",
-                        "Component": "vpc",
-                        "Version": "",
-                        "Instance": "",
-                        "RouteTable": "default"
-                      }
-                    }
-                  }
-                }
-              }
-            },
-            "nat": {
-              "DeploymentUnits": [
-                "nat"
-              ],
-              "gateway": {
-                "Engine": "natgw",
-                "Destinations": {
-                  "default": {
-                    "IPAddressGroups": "_global",
-                    "Links": {
-                      "Private": {
-                        "Tier": "mgmt",
-                        "Component": "vpc",
-                        "Version": "",
-                        "Instance": "",
-                        "RouteTable": "default"
-                      }
-                    }
-                  }
-                }
-              }
-            },
             "vpcendpoint": {
               "DeploymentUnits": [
                 "vpcendpoint"
@@ -1076,6 +1017,10 @@
             "Type": "StorageV2",
             "AccessTier": "Cool",
             "HnsEnabled": false
+          },
+          "computecluster": {
+            "Tier": "Standard",
+            "Replication": "LRS"
           }
         },
         "Blob": {
@@ -1108,6 +1053,14 @@
         "default": {
           "bastion": {
             "Processor": "Standard_B1s"
+          },
+          "db": {
+            "Processor": "GP_Gen5_2"
+          }
+        },
+        "basic": {
+          "db" : {
+            "Processor": "B_Gen5_1"
           }
         }
       },
@@ -1170,9 +1123,87 @@
         }
       },
       "ScriptStores": {},
-      "Bootstraps": {},
+      "Bootstraps": {
+        "update-debian" : {
+          "Index" : 10,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "sudo apt update'"
+            }
+          }
+        },
+        "azcli-debian" : {
+          "Index" : 15,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash'"
+            }
+          }
+        },
+        "stage" : {
+          "Index" : 25,
+          "AutoUpgradeOnMinorVersion": true,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "az storage blob download --connection-string ', parameters('storage'), ' -c ', parameters('container'), ' -n ', parameters('blob'), ' -f' , parameters('file')"
+            },
+            "systemAssignedIdentity" : {
+              "Key" : "managedIdentity",
+              "Value" : {}
+            }
+          }
+        },
+        "unzip" : {
+          "Index" : 30,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "sudo apt install unzip && unzip -DD ', parameters('file'), ' -d .'"
+            }
+          }
+        },
+        "encode" : {
+          "Index" : 75,
+          "ProtectedSettings" : {
+            "makeBase64" : {
+              "Key" : "commandToExecute",
+              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh'"
+            }
+          }
+        },
+        "init-encoded" : {
+          "Index" : 100,
+          "Publisher" : "Microsoft.Azure.Extensions",
+          "Type" : {
+            "Name" : "CustomScript",
+            "HandlerVersion" : "2.1"
+          },
+          "ProtectedSettings" : {
+            "initEncoded" : {
+              "Key" : "commandToExecute",
+              "Value" : "./init-encoded.sh"
+            }
+          }
+        },
+        "timestamp" : {
+          "Index" : 1000,
+          "Settings" : {
+            "addTimestamp" : {
+              "Key" : "timestamp",
+              "Value" : "[parameters('timestamp')]"
+            }
+          }
+        }
+      },
       "BootstrapProfiles": {
-        "default": {}
+        "default": {
+          "computecluster" : {
+            "Bootstraps" : [ "update-debian", "azcli-debian", "stage", "unzip", "encode", "init-encoded", "timestamp"]
+          }
+        }
       },
       "BaselineProfiles": {
         "default": {
@@ -1185,10 +1216,17 @@
       },
       "LogFilters": {},
       "VMImageProfiles" : {
-        "bastion" : {
-          "Publisher" : "Canonical",
-          "Offering" : "UbuntuServer",
-          "SKU" : "18.04-LTS"
+        "default" : {
+          "bastion" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "Image" : "18.04-LTS"
+          },
+          "computecluster" : {
+            "Publisher" : "Canonical",
+            "Offering" : "UbuntuServer",
+            "Image" : "18.04-LTS"
+          }
         }
       },
       "NetworkEndpointGroups": {
@@ -1216,10 +1254,36 @@
           ]
         }
       },
+      "PlacementProfiles": {
+        "default": {
+          "default": {
+            "Provider": "azure",
+            "Region": "australiaeast",
+            "DeploymentFramework": "arm"
+          }
+        }
+      },
       "DeploymentProfiles": {
         "default": {
           "Modes": {
             "*": {}
+          }
+        }
+      },
+      "SkuProfiles" : {
+        "default" : {
+          "apigateway" : {
+            "Name" : "Developer"
+          },
+          "bastion" : {
+            "Name" : "Standard_B1ms",
+            "Tier" : "Standard",
+            "Capacity" : 0
+          },
+          "computecluster" : {
+            "Name" : "Standard_B1ms",
+            "Tier" : "Standard",
+            "Capacity" : 1
           }
         }
       },

@@ -44,6 +44,12 @@
             ]
         /]
 
+        [@armPseudoResource
+            id=queue.Id
+            name=queue.Name
+            profile=queue.Type
+        /]
+
     [/#if]
 
 [/#macro]
