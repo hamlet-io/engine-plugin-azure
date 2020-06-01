@@ -67,7 +67,7 @@
     skuSize=""
     skuFamily=""
     version=""
-    sslEnforcement=""
+    sslEnforcement="Disabled"
     backupRetentionDays=""
     geoRedundandBackup=""
     storageGB=""
