@@ -155,6 +155,8 @@
 
           [#if subSolution.Role == "appdata"]
             [#local publicAccess = "Container"]
+          [#elseif subsolution.Role == "operations"]
+            [#local publicAccess = "Blob"]
           [#else]
             [#local publicAccess = "None"]
           [/#if]
