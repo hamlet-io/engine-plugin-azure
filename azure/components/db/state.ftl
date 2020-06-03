@@ -79,6 +79,7 @@
             "Attributes" : {
                 "DB_NAME" : databaseName?keep_after_last("/"),
                 "USERNAME" : masterUsername,
+                "FQDN" : getExistingReference(dbServerId, "fullyQualifiedDomainName"),
                 "SECRET" : masterSecret
             },
             "Roles" : {
