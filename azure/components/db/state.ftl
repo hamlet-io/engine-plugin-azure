@@ -53,6 +53,8 @@
         [#local masterSecret = getOccurrenceSettingValue(occurrence, "MASTER_SECRET", !solution.Enabled) ]
     [/#if]
 
+    [#local fqdn = getExistingReference(dbServerId, "fullyQualifiedDomainName")]
+
     [#assign componentState =
         {
             "Resources" : {
@@ -78,8 +80,8 @@
             },
             "Attributes" : {
                 "DB_NAME" : databaseName?keep_after_last("/"),
-                "USERNAME" : masterUsername,
-                "FQDN" : getExistingReference(dbServerId, "fullyQualifiedDomainName"),
+                "USERNAME" : masterUsername + '@' + fqdn,
+                "FQDN" : fqdn,
                 "SECRET" : masterSecret
             },
             "Roles" : {
