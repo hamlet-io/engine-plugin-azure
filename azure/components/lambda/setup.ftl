@@ -1,7 +1,7 @@
 [#ftl]
 
 [#macro azure_lambda_arm_generationcontract_application occurrence]
-    [@addDefaultGenerationContract subsets=["template", "epilogue"] /]
+    [@addDefaultGenerationContract subsets=["template", "parameters", "epilogue"] /]
 [/#macro]
 
 [#macro azure_lambda_arm_setup_application occurrence]
@@ -13,11 +13,13 @@
     [#local resources = occurrence.State.Resources]
 
     [#-- Baseline Links --]
-    [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
+    [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData", "SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["OpsData"].State.Attributes]
+    [#local keyAttributes = baselineLinks["SSHKey"].State.Attributes]
 
-    [#local storageAccountId = getExistingReference(baselineAttributes["ACCOUNT_ID"], "", "", "", "")]
+    [#local storageAccountId   = getExistingReference(baselineAttributes["ACCOUNT_ID"], "", "", "", "")]
     [#local storageAccountName = baselineAttributes["ACCOUNT_NAME"]]
+    [#local keyvaultId         = keyAttributes["KEYVAULT_ID"]]
 
     [#list occurrence.Occurrences![] as subOccurrence]
 
@@ -51,6 +53,21 @@
             [#local fragmentId = formatFragmentId(_context)]
             [#include fragmentList?ensure_starts_with("/")]
         [/#if]
+
+        [#if deploymentSubsetRequired("parameters", true)]
+            [#-- Establish Parameter Lookup for any Secrets in final env --]
+            [#local secrets = getSettingSecrets(_context.DefaultEnvironment, "")]
+            
+            [#list secrets as secret]
+                [#list secret?values as secretName]
+                    [@createKeyVaultParameterLookup
+                        vaultId=keyvaultId
+                        secretName=secretName
+                    /]
+                [/#list]
+            [/#list]
+        [/#if]
+
         [#list getFinalEnvironment(occurrence, _context).Environment as key,value]
             [#local appSettings += [getWebAppSettingsPair(key, value)]]
         [/#list]

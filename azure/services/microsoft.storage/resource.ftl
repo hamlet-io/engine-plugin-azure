@@ -318,7 +318,7 @@
 
     [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
     [#return
-        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + getExistingReference(storageId) + "', '" + apiVersion + "')." + parameter + ")]"]
+        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + storageId + "', '" + apiVersion + "')." + parameter + ")]"]
 [/#function]
 
 [#function formatAzureStorageListKeys storageId key=0]
