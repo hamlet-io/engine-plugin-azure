@@ -1148,7 +1148,7 @@
           "ProtectedSettings" : {
             "exec" : {
               "Key" : "commandToExecute",
-              "Value" : "az storage blob download --connection-string ', parameters('storage'), ' -c ', parameters('container'), ' -n ', parameters('blob'), ' -f' , parameters('file')"
+              "Value" : "az storage blob download --connection-string \"', parameters('storage'), '\" -c \"', parameters('container'), '\" -n \"', parameters('blob'), '\" -f \"' , parameters('file'), '\"'"
             },
             "systemAssignedIdentity" : {
               "Key" : "managedIdentity",
