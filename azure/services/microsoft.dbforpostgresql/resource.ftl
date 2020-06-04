@@ -10,7 +10,11 @@
         "conditions" : [ "max_length", "name_to_lower", "globally_unique" ],
         "max_name_length" : 63,
         "type" : "Microsoft.DBforPostgreSQL/servers",
-        "outputMappings" : {}
+        "outputMappings" : {
+            URL_ATTRIBUTE_TYPE : {
+                "Property" : "properties.fullyQualifiedDomainName"
+            }
+        }
     },
     AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",

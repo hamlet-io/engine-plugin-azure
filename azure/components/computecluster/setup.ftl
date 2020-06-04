@@ -326,7 +326,7 @@
     [@addParametersToDefaultJsonOutput
         id="storage"
         parameter=formatAzureStorageAccountConnectionStringReference(
-            stageStorage.Account.Id,
+            getExistingReference(stageStorage.Account.Id),
             stageStorage.Account.Name,
             "keys[0].value"
         )
