@@ -130,8 +130,34 @@
 
             [#case DB_COMPONENT_TYPE]
 
-                [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV") +
-                    [{ "DB_PASSWORD" : linkTargetAttributes["SECRET"] }] ]
+                [#local dbSecrets = []]
+
+                [#switch linkTargetConfiguration.Solution.Engine]
+                    [#case "postgres"]
+                        [#local dbDetails = {}]
+
+                        [#-- ENV Settings (non-secret) --]
+                        [#list linkTargetConfiguration.Settings.Product
+                            ?keys
+                            ?filter(s -> s?starts_with("ENV_"))
+                            ?filter(s -> !s?ends_with("SECRET")) as setting]
+                            
+                            [#local dbDetails += 
+                                { setting?remove_beginning("ENV_") : linkTargetConfiguration.Settings.Product[setting].Value }]
+                        [/#list]
+
+                        [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV") + 
+                            [{"DB_PASSWORD" : linkTargetAttributes["SECRET"]}]]
+
+                        [#-- ENV Attributes --]
+                        [#local dbDetails += 
+                            { 
+                                "DB_NAME" : linkTargetAttributes["DB_NAME"],
+                                "DB_USERNAME" : linkTargetAttributes["USERNAME"]
+                            } ]
+[@debug message="flibs" context=dbDetails enabled=true /]
+                        [#break]
+                [/#switch]
                     
                 [#list dbSecrets as dbSecret]
                     [#list dbSecret?values as secretName]
@@ -141,10 +167,6 @@
                         /]
                     [/#list]
                 [/#list]
-
-                [#local dbDetails = 
-                    [{ "DB_NAME" : linkTargetAttributes["DB_NAME"] },
-                    { "DB_USERNAME" : linkTargetAttributes["USERNAME"] } ]]
 
                 [#break]
 
@@ -359,11 +381,9 @@
                 [/#list]
             [/#list]
 
-            [#list dbDetails as dbDetail]
-                [#list dbDetail as key,value]
-                    [#local cmd = 'echo ' + key + "=" + value + " | sudo tee -a /etc/environment > /dev/null'" ]
-                    [#local commandsToExecute += [cmd]]
-                [/#list]
+            [#list dbDetails as key,value]
+                [#local cmd = 'echo ' + key + "=" + value?string + " | sudo tee -a /etc/environment > /dev/null'" ]
+                [#local commandsToExecute += [cmd]]
             [/#list]
 
             [#local commandsToExecute += ["source /etc/environment'"]]
