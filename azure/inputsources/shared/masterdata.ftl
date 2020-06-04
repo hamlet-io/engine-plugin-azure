@@ -1142,6 +1142,15 @@
             }
           }
         },
+        "docker-debian" : {
+          "Index" : 16,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "sudo apt install docker.io -y'"
+            }
+          }
+        },
         "stage" : {
           "Index" : 25,
           "AutoUpgradeOnMinorVersion": true,
@@ -1170,7 +1179,7 @@
           "ProtectedSettings" : {
             "makeBase64" : {
               "Key" : "commandToExecute",
-              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh'"
+              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh && chmod 755 ./init-encoded.sh'"
             }
           }
         },
@@ -1201,7 +1210,7 @@
       "BootstrapProfiles": {
         "default": {
           "computecluster" : {
-            "Bootstraps" : [ "update-debian", "azcli-debian", "stage", "unzip", "encode", "init-encoded", "timestamp"]
+            "Bootstraps" : [ "update-debian", "azcli-debian", "docker-debian", "stage", "unzip", "encode", "init-encoded", "timestamp"]
           }
         }
       },
