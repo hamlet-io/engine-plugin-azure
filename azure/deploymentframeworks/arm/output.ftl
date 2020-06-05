@@ -121,6 +121,13 @@
     /]
 [/#macro]
 
+[#macro armVariable name value]
+    [@mergeWithJsonOutput
+        name="variables"
+        content={ name : value }
+    /]
+[/#macro]
+
 [#macro armResource
     id
     name
