@@ -108,14 +108,15 @@
 
 [/#function]
 
-[#macro armParameter name type="securestring"]
+[#macro armParameter name type="securestring" default=""]
     [@mergeWithJsonOutput
         name="parameters"
         content=
             {
                 name : {
                     "type": type
-                }
+                } +
+                attributeIfContent("defaultValue", default)
             }
     /]
 [/#macro]

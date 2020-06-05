@@ -155,7 +155,7 @@
                                 "DB_NAME" : linkTargetAttributes["DB_NAME"],
                                 "DB_USERNAME" : linkTargetAttributes["USERNAME"]
                             } ]
-[@debug message="flibs" context=dbDetails enabled=true /]
+
                         [#break]
                 [/#switch]
                     
@@ -354,13 +354,10 @@
         )
     /]
 
-    [@addParametersToDefaultJsonOutput id="container" parameter=stageStorage.Container /]
-    [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.BlobPath /]
-    [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.BlobName /]
-    [@armParameter name="storage" /]
-    [@armParameter name="container" /]
-    [@armParameter name="blob" /]
-    [@armParameter name="file" /]
+    [@armParameter name="container" default=stageStorage.Container /]
+    [@armParameter name="blob" default=stageStorage.BlobPath /]
+    [@armParameter name="file" default=stageStorage.BlobName /]
+    [@armParameter name="storage" default="test" /]
 
     [#-- Construct Index List & Concatenate Exec commands --]
     [#local indices = []]
