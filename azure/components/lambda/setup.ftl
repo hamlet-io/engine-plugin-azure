@@ -86,7 +86,7 @@
 
         [#local mandatoryAppSettings =
             {
-                "AzureWebJobsStorage" : formatAzureStorageAccountConnectionStringReference(storageKeySecret, storageAccountName),
+                "AzureWebJobsStorage" : formatAzureStorageAccountConnectionStringReference(getParameterReference(storageKeySecret, false), storageAccountName),
                 "FUNCTIONS_EXTENSION_VERSION" : runTimeSettings.ExtensionVersion,
                 "FUNCTIONS_WORKER_RUNTIME" : runTimeSettings.WorkerRunTime,
                 "WEBSITE_RUN_FROM_PACKAGE" : 1

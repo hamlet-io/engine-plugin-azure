@@ -206,9 +206,12 @@ such an object Id through parent/grandparent Ids/Names --]
 
 [/#function]
 
-[#function getParameterReference parameterName]
+[#function getParameterReference parameterName boilerplate=true]
     [#return 
-        "[parameters('" + parameterName + "')]"
+        boilerplate?then(
+            "[parameters('" + parameterName + "')]",
+            "parameters('" + parameterName + "')"
+        )
     ]
 [/#function]
 

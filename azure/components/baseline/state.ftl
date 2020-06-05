@@ -88,8 +88,7 @@
         "registries" : registries
       },
       "Attributes" : {
-        "SEED_SEGMENT" : segmentSeedValue,
-        "STORAGE_KEY_SECRET" : secretName
+        "SEED_SEGMENT" : segmentSeedValue
       },
       "Roles" : {
         "Inbound": {},
@@ -106,6 +105,7 @@
   [#local storageAccountId = parent.State.Resources["storageAccount"].Id]
   [#local storageAccountName = parent.State.Resources["storageAccount"].Name]
   [#local blobName = parent.State.Resources["blobService"].Name]
+  [#local storageKey = parent.State.Resources["secret"].Name]
 
   [#if solution.Role == "staticWebsite" ]
     [#local container = '$web']
@@ -136,6 +136,7 @@
         }
       },
       "Attributes": {
+        "STORAGE_KEY_SECRET" : storageKey,
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
         "CONTAINER_NAME" : container,
