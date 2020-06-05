@@ -314,11 +314,11 @@
 [/#function]
 
 [#-- Formats a reference to a Storage Account connection string --]
-[#function formatAzureStorageAccountConnectionStringReference storageId, storageName parameter=""]
+[#function formatAzureStorageAccountConnectionStringReference storageKey, storageName parameter=""]
 
     [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
     [#return
-        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', listKeys('" + storageId + "', '" + apiVersion + "')." + parameter + ")]"]
+        "[concat('DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', " + storageKey + "')]"]
 [/#function]
 
 [#function formatAzureStorageListKeys storageId key=0]
