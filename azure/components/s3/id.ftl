@@ -44,6 +44,7 @@
     resourceGroup=DEFAULT_RESOURCE_GROUP
     services=
         [
-            AZURE_STORAGE_SERVICE
+            AZURE_STORAGE_SERVICE,
+            AZURE_KEYVAULT_SERVICE
         ]
 /]
