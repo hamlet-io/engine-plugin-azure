@@ -13,6 +13,7 @@
     [#local accountId = resources["storageAccount"].Id]
     [#local blobId = resources["blobService"].Id]
     [#local containerId = resources["container"].Id]
+    [#local secret = resources["secret"]]
 
     [#local accountName = resources["storageAccount"].Name]
     [#local blobName = resources["blobService"].Name]
@@ -20,10 +21,11 @@
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
-    [#-- Baseline component lookup
-    [#local baselineLinks = getBaselineLinks(occurrence, [ "CDNOriginKey" ])]
-    [#local baselineComponentIds = getBaselineComponentIds(baselineLinks)]
-    --]
+    [#-- Baseline Links --]
+    [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
+    [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
+    [#local keyVaultId = baselineAttributes["KEYVAULT_ID"]]
+    [#local keyVaultName = getExistingReference(keyVaultId, NAME_ATTRIBUTE_TYPE)]
 
     [#-- Add NetworkACL Configuration --]
     [#local virtualNetworkRulesConfiguration = []]
@@ -54,9 +56,6 @@
 
     [#if deploymentSubsetRequired("s3", true)]
 
-        [#-- TODO(rossmurr4y): Impliment tags. Currently the shared function getOccurrenceCoreTags
-        in gen3\engine\common.ftl just formats a call to the function getCfTemplateCoreTags, which is aws
-        provider specific. --]
         [@createStorageAccount
             id=accountId
             name=accountName
@@ -105,6 +104,24 @@
                     getReference(accountId, accountName),
                     getReference(blobId, blobName)
                 ]
+        /]
+
+        [#-- Set ConnectionKey as Secret --]
+        [@createKeyVaultSecret
+            id=secret.Id
+            name=formatAzureResourceName(
+                secret.Name,
+                secret.Type,
+                keyVaultName)
+            properties=
+                getKeyVaultSecretProperties(
+                    formatAzureStorageListKeys(
+                        getReference(accountId, accountName)
+                    )
+                )
+            dependsOn=[
+                getReference(accountId, accountName)
+            ]
         /]
 
     [/#if]
