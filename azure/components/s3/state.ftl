@@ -7,6 +7,7 @@
     [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
     [#local containerId = formatResourceId( AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id )]
     [#local blobId = formatResourceId( AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id )]
+    [#local secretId = formatResourceId(AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, core.Id )]
 
     [#local publicAccessEnabled = false]
     [#list solution.PublicAccess?values as publicPrefixConfiguration]
@@ -16,15 +17,13 @@
         [/#if]
     [/#list]
 
-    [#-- Process Resource Naming Conditions                                             --]
-    [#-- Note: it is a requirement that the blobService name is "default" in all cases. --]
-    [#-- https://tinyurl.com/yxozph9o                                                   --]
     [#local accountName = formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName)]
     [#local blobName = "default"]
     [#local container = formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName)]
     [#local accountName = formatAzureResourceName(accountName, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
     [#local blobName = formatAzureResourceName(blobName, AZURE_BLOBSERVICE_RESOURCE_TYPE, accountName)]
     [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
+    [#local secretName = formatSecretName(core.ShortName, "ConnectionKey")]
 
     [#local storageEndpoints = 
         getExistingReference(
@@ -53,12 +52,19 @@
                     "Id" : containerId,
                     "Name" : containerName,
                     "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+                },
+                "secret" : {
+                    "Id" : secretId,
+                    "Name" : secretName,
+                    "Type" : AZURE_KEYVAULT_SECRET_RESOURCE_TYPE,
+                    "Reference" : getReference(secretId, secretName)
                 }
             },
             "Attributes" : {
                 "ACCOUNT_ID" : storageAccountId,
                 "ACCOUNT_NAME" : accountName,
                 "CONTAINER_NAME" : container,
+                "KEY_SECRET" : secretName,
                 "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
                 "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
                 "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")

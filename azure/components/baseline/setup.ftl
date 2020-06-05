@@ -61,6 +61,7 @@
     [#-- Parent Component Resources --]
     [#local tenantId = formatAzureSubscriptionReference("tenantId")]
     [#local accountId = resources["storageAccount"].Id]
+    [#local secret = resources["secret"]]
     [#local accountName = resources["storageAccount"].Name]
     [#local blobId = resources["blobService"].Id]
     [#local blobName = resources["blobService"].Name]
@@ -103,6 +104,25 @@
           {}
         )
       isHnsEnabled=(storageProfile.HnsEnabled)!false
+    /]
+
+    [#-- Set ConnectionKey as Secret --]
+    [@createKeyVaultSecret
+        id=secret.Id
+        name=formatAzureResourceName(
+            secret.Name,
+            secret.Type,
+            keyvaultName)
+        properties=
+            getKeyVaultSecretProperties(
+                formatAzureStorageListKeys(
+                    getReference(accountId, accountName)
+                )
+            )
+        dependsOn=[
+            getReference(accountId, accountName),
+            getReference(keyvaultId, keyvaultName)
+        ]
     /]
 
     [@createBlobService
@@ -155,7 +175,7 @@
 
           [#if subSolution.Role == "appdata"]
             [#local publicAccess = "Container"]
-          [#elseif subsolution.Role == "operations"]
+          [#elseif subSolution.Role == "operations"]
             [#local publicAccess = "Blob"]
           [#else]
             [#local publicAccess = "None"]
