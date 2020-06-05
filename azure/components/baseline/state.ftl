@@ -26,6 +26,9 @@
     )
   ]
 
+  [#local secretId = formatResourceId(AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, core.Id )]
+  [#local secretName = formatSecretName(core.ShortName, "ConnectionKey")]
+
   [#local registries = {}]
   [#list occurrence.Configuration.Settings as config,settings]
     [#list settings?keys?filter(s -> s?starts_with("REGISTRIES") && s?ends_with("PREFIX")) as setting]
@@ -76,10 +79,17 @@
             "Name" : formatName(AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE, core.ShortName),
             "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
         },
+        "secret" : {
+          "Id" : secretId,
+          "Name" : secretName,
+          "Type" : AZURE_KEYVAULT_SECRET_RESOURCE_TYPE,
+          "Reference" : getReference(secretId, secretName)
+        },
         "registries" : registries
       },
       "Attributes" : {
-        "SEED_SEGMENT" : segmentSeedValue
+        "SEED_SEGMENT" : segmentSeedValue,
+        "STORAGE_KEY_SECRET" : secretName
       },
       "Roles" : {
         "Inbound": {},
