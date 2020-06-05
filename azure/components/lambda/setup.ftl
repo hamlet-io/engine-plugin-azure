@@ -17,7 +17,7 @@
     [#local baselineAttributes = baselineLinks["OpsData"].State.Attributes]
     [#local keyAttributes = baselineLinks["SSHKey"].State.Attributes]
 
-    [#local storageAccountId   = getExistingReference(baselineAttributes["ACCOUNT_ID"], "", "", "", "")]
+    [#local storageKeySecret   = baselineAttributes["STORAGE_KEY_SECRET"]]
     [#local storageAccountName = baselineAttributes["ACCOUNT_NAME"]]
     [#local keyvaultId         = keyAttributes["KEYVAULT_ID"]]
 
@@ -55,6 +55,12 @@
         [/#if]
 
         [#if deploymentSubsetRequired("parameters", true)]
+
+            [@createKeyVaultParameterLookup
+                vaultId=keyvaultId
+                secretName=storageKeySecret
+            /]
+
             [#-- Establish Parameter Lookup for any Secrets in final env --]
             [#local secrets = getSettingSecrets(_context.DefaultEnvironment, "")]
             
@@ -80,7 +86,7 @@
 
         [#local mandatoryAppSettings =
             {
-                "AzureWebJobsStorage" : formatAzureStorageAccountConnectionStringReference(storageAccountId, storageAccountName, "keys[0].value"),
+                "AzureWebJobsStorage" : formatAzureStorageAccountConnectionStringReference(storageKeySecret, storageAccountName),
                 "FUNCTIONS_EXTENSION_VERSION" : runTimeSettings.ExtensionVersion,
                 "FUNCTIONS_WORKER_RUNTIME" : runTimeSettings.WorkerRunTime,
                 "WEBSITE_RUN_FROM_PACKAGE" : 1
