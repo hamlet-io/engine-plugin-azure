@@ -50,7 +50,8 @@
                             productName,
                             buildSettings["BUILD_UNIT"].Value,
                             buildSettings["BUILD_REFERENCE"].Value,
-                            core.ShortName + ".zip")
+                            core.ShortName + ".zip"),
+            "KeySecret" : dataAttributes["STORAGE_KEY_SECRET"]
         }
     ]
 
@@ -122,7 +123,8 @@
                                         productName,
                                         buildSettings["BUILD_UNIT"].Value,
                                         buildSettings["BUILD_REFERENCE"].Value,
-                                        core.ShortName + ".zip")
+                                        core.ShortName + ".zip"),
+                        "KeySecret" : linkTargetAttributes["KEY_SECRET"]
                     }
                 ]
 
@@ -344,20 +346,24 @@
         dependsOn=[scaleSet.Reference]
     /]
 
-    [#-- Extensions --]
-    [@addParametersToDefaultJsonOutput
-        id="storage"
-        parameter=formatAzureStorageAccountConnectionStringReference(
-            getExistingReference(stageStorage.Account.Id),
-            stageStorage.Account.Name,
-            "keys[0].value"
-        )
+    [@createKeyVaultParameterLookup
+        secretName=stageStorage.KeySecret
+        vaultId=keyvaultId
     /]
 
+    [#-- Extensions --]
+    [@armParameter name=stageStorage.KeySecret /]
     [@armParameter name="container" default=stageStorage.Container /]
     [@armParameter name="blob" default=stageStorage.BlobPath /]
     [@armParameter name="file" default=stageStorage.BlobName /]
-    [@armParameter name="storage" default="test" /]
+    [@armParameter 
+        name="storage"
+        default=
+            formatAzureStorageAccountConnectionStringReference(
+                getParameterReference(stageStorage.KeySecret, false),
+                stageStorage.Account.Name
+            )
+    /]
 
     [#-- Construct Index List & Concatenate Exec commands --]
     [#local indices = []]
