@@ -80,6 +80,7 @@
 
     [#switch gwSolution.Engine]
       [#case "vpcendpoint"]
+      [#case "privateservice"]
         [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", region)]
         [#list networkEndpoints as id, networkEndpoint]
           [#if networkEndpoint.Type == "PrivateLink"]

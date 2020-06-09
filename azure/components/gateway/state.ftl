@@ -5,9 +5,9 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
   [#local engine = solution.Engine ]
- 
-  [#if engine == "vpcendpoint"]
-    [#-- 
+
+  [#if engine == "vpcendpoint" || engine == "privateservice" ]
+    [#--
       A private DNS Zone is required so we can force routing to the endpoint to remain within the
       VNet. If we don't then default routing may send traffic via the Internet.
     --]
@@ -33,7 +33,7 @@
         }
       }
     ]
-      
+
   [#else]
     [@fatal
       message="Unknown Engine Type"
@@ -53,10 +53,10 @@
 
   [#local resources = {}]
 
-  [#if engine == "vpcendpoint"]
+  [#if engine == "vpcendpoint" || engine == "privateservice" ]
 
     [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", region)]
-      
+
     [#list networkEndpoints as id, networkEndpoint]
 
       [#switch networkEndpoint.Type]
@@ -65,7 +65,7 @@
         [#case "PrivateLink"]
           [#-- TODO(rossmurr4y): impliment Azure Private Links --]
           [#break]
-      [/#switch] 
+      [/#switch]
 
     [/#list]
 
