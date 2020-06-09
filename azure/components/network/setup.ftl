@@ -170,7 +170,7 @@
 
             [#switch linkTarget.Core.Type]
               [#case NETWORK_GATEWAY_DESTINATION_COMPONENT_TYPE]
-                [#if linkTarget.State.Attributes.Engine = "vpcendpoint"]
+                [#if linkTarget.State.Attributes.Engine = "vpcendpoint" || linkTarget.State.Attributes.Engine = "privateservice" ]
                   [#local linkNetworkEndpointGroups = linkTargetConfiguration.Solution.NetworkEndpointGroups]
                   [#list linkNetworkEndpointGroups as group]
                     [#if !networkEndpointGroups?seq_contains(group)]
