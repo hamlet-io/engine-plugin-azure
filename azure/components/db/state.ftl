@@ -53,7 +53,7 @@
         [#local masterSecret = getOccurrenceSettingValue(occurrence, "MASTER_SECRET", !solution.Enabled) ]
     [/#if]
 
-    [#local fqdn = getExistingReference(dbServerId, "fullyQualifiedDomainName")]
+    [#local fqdn = getExistingReference(dbServerId, "propertiesXfullyQualifiedDomainName")]
 
     [#assign componentState =
         {
