@@ -132,8 +132,6 @@
 
             [#case DB_COMPONENT_TYPE]
 
-                [#local dbSecrets = []]
-
                 [#switch linkTargetConfiguration.Solution.Engine]
                     [#case "postgres"]
                         [#local dbDetails = {}]
@@ -148,8 +146,17 @@
                                 { setting?remove_beginning("ENV_") : linkTargetConfiguration.Settings.Product[setting].Value }]
                         [/#list]
 
-                        [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV") + 
-                            [{"DB_PASSWORD" : linkTargetAttributes["SECRET"]}]]
+                        [#local dbSecrets = getSettingSecrets(
+                            linkTargetSettings,
+                            linkTargetConfiguration.Solution["azure:SecretSettings"].Prefix!"")
+                            + [{"DB_PASSWORD" : linkTargetAttributes["SECRET"]}]]
+
+                        [#if linkTargetConfiguration.Solution["azure:Secrets"]??]
+                            [#list linkTargetConfiguration.Solution["azure:Secrets"]?values as secret]
+                                [#local dbSecrets += 
+                                    [{ secret.Setting : secret.Name }]]
+                            [/#list]
+                        [/#if]
 
                         [#-- ENV Attributes --]
                         [#local dbDetails += 
