@@ -204,11 +204,13 @@
 
             [/#switch]
 
-            [@armOutput
-                name=outputName
-                type=type
-                value=value
-            /]
+            [#if outputName??]
+                [@armOutput
+                    name=outputName
+                    type=type
+                    value=value
+                /]
+            [/#if]
 
         [/#list]
     [/#list]
