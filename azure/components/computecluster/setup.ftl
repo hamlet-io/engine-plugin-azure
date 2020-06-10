@@ -162,7 +162,8 @@
                         [#local dbDetails += 
                             { 
                                 "DB_NAME" : linkTargetAttributes["DB_NAME"],
-                                "DB_USERNAME" : linkTargetAttributes["USERNAME"]
+                                "DB_USERNAME" : linkTargetAttributes["USERNAME"],
+                                "DB_HOST" : linkTargetAttributes["FQDN"]
                             } ]
 
                         [#break]
