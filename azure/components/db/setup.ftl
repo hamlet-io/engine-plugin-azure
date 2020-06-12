@@ -24,7 +24,7 @@
     [#local configs  = resources["dbconfigs"]]
     [#local vnetRule = resources["dbvnetrule"]]
 
-    [#local masterAccount      = attributes["USERNAME"]]
+    [#local masterAccount      = attributes["USERNAME"]?keep_before("@")]
     [#local masterSecret       = attributes["SECRET"]]
     [#local masterSecretId     = formatId(db.Id, SECRET_ATTRIBUTE_TYPE)]
     [#local masterSecretLength = solution.GenerateCredentials.CharacterLength]

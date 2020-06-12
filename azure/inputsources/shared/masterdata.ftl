@@ -1142,13 +1142,22 @@
             }
           }
         },
+        "docker-debian" : {
+          "Index" : 16,
+          "ProtectedSettings" : {
+            "exec" : {
+              "Key" : "commandToExecute",
+              "Value" : "sudo apt install docker.io -y'"
+            }
+          }
+        },
         "stage" : {
           "Index" : 25,
           "AutoUpgradeOnMinorVersion": true,
           "ProtectedSettings" : {
             "exec" : {
               "Key" : "commandToExecute",
-              "Value" : "az storage blob download --connection-string ', parameters('storage'), ' -c ', parameters('container'), ' -n ', parameters('blob'), ' -f' , parameters('file')"
+              "Value" : "az storage blob download --connection-string ', parameters('storage'), ' -c ', parameters('container'), ' -n ', parameters('blob'), ' -f ', parameters('file')"
             },
             "systemAssignedIdentity" : {
               "Key" : "managedIdentity",
@@ -1165,16 +1174,7 @@
             }
           }
         },
-        "encode" : {
-          "Index" : 75,
-          "ProtectedSettings" : {
-            "makeBase64" : {
-              "Key" : "commandToExecute",
-              "Value" : "cat ./init.sh | base64 -w0 > ./init-encoded.sh'"
-            }
-          }
-        },
-        "init-encoded" : {
+        "init" : {
           "Index" : 100,
           "Publisher" : "Microsoft.Azure.Extensions",
           "Type" : {
@@ -1184,7 +1184,7 @@
           "ProtectedSettings" : {
             "initEncoded" : {
               "Key" : "commandToExecute",
-              "Value" : "./init-encoded.sh"
+              "Value" : "chmod 755 ./init.sh && ./init.sh"
             }
           }
         },
@@ -1201,7 +1201,7 @@
       "BootstrapProfiles": {
         "default": {
           "computecluster" : {
-            "Bootstraps" : [ "update-debian", "azcli-debian", "stage", "unzip", "encode", "init-encoded", "timestamp"]
+            "Bootstraps" : [ "update-debian", "azcli-debian", "docker-debian", "stage", "unzip", "init", "timestamp"]
           }
         }
       },
