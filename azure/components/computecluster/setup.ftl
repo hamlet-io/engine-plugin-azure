@@ -387,17 +387,17 @@
 
             [#list dbSecrets as dbSecret]
                 [#list dbSecret as key,secretName]
-                    [#local secretCmd = 'echo ' + key?ensure_ends_with("=', parameters('" + secretName + "'), ") + "' | sudo tee -a /etc/environment > /dev/null'" ]
+                    [#local secretCmd = 'export ' + key?ensure_ends_with("=', parameters('" + secretName + "')")]
                     [#local commandsToExecute += [secretCmd]]
                 [/#list]
             [/#list]
 
             [#list dbDetails as key,value]
-                [#local cmd = 'echo ' + key + "=" + value?string + " | sudo tee -a /etc/environment > /dev/null'" ]
+                [#local cmd = 'export ' + key + "=" + value?string?ensure_ends_with("'")]
                 [#local commandsToExecute += [cmd]]
             [/#list]
 
-            [#local commandsToExecute += ["source /etc/environment'"]]
+            [#local commandsToExecute += ["env | sort | sudo tee -a /etc/environment > /dev/null'"]]
         [/#if]
 
         [#list bootstrapProfile.Bootstraps
