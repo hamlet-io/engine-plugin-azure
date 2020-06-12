@@ -9,6 +9,16 @@
             "Type": STRING_TYPE,
             "Values" : [ "Enabled", "Disabled" ],
             "Default" : "Disabled"
+        },
+        {
+            "Names" : "Secrets",
+            "Subobjects" : true,
+            "Children" : secretChildrenConfiguration
+        },
+        {
+            "Names" : "SecretSettings",
+            "Description" : "Configuration for Secrets that are defined in Settings.",
+            "Children" : secretSettingsConfiguration
         }
     ]
     provider=AZURE_PROVIDER

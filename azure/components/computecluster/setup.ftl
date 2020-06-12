@@ -50,7 +50,8 @@
                             productName,
                             buildSettings["BUILD_UNIT"].Value,
                             buildSettings["BUILD_REFERENCE"].Value,
-                            core.ShortName + ".zip")
+                            core.ShortName + ".zip"),
+            "KeySecret" : dataAttributes["STORAGE_KEY_SECRET"]
         }
     ]
 
@@ -122,7 +123,8 @@
                                         productName,
                                         buildSettings["BUILD_UNIT"].Value,
                                         buildSettings["BUILD_REFERENCE"].Value,
-                                        core.ShortName + ".zip")
+                                        core.ShortName + ".zip"),
+                        "KeySecret" : linkTargetAttributes["KEY_SECRET"]
                     }
                 ]
 
@@ -130,8 +132,42 @@
 
             [#case DB_COMPONENT_TYPE]
 
-                [#local dbSecrets = getSettingSecrets(linkTargetSettings, "ENV") +
-                    [{ "DB_PASSWORD" : linkTargetAttributes["SECRET"] }] ]
+                [#switch linkTargetConfiguration.Solution.Engine]
+                    [#case "postgres"]
+                        [#local dbDetails = {}]
+
+                        [#-- ENV Settings (non-secret) --]
+                        [#list linkTargetConfiguration.Settings.Product
+                            ?keys
+                            ?filter(s -> s?starts_with("ENV_"))
+                            ?filter(s -> !s?ends_with("SECRET")) as setting]
+                            
+                            [#local dbDetails += 
+                                { setting?remove_beginning("ENV_") : linkTargetConfiguration.Settings.Product[setting].Value }]
+                        [/#list]
+
+                        [#local dbSecrets = getSettingSecrets(
+                            linkTargetSettings,
+                            linkTargetConfiguration.Solution["azure:SecretSettings"].Prefix!"")
+                            + [{"DB_PASSWORD" : linkTargetAttributes["SECRET"]}]]
+
+                        [#if linkTargetConfiguration.Solution["azure:Secrets"]??]
+                            [#list linkTargetConfiguration.Solution["azure:Secrets"]?values as secret]
+                                [#local dbSecrets += 
+                                    [{ secret.Setting : secret.Name }]]
+                            [/#list]
+                        [/#if]
+
+                        [#-- ENV Attributes --]
+                        [#local dbDetails += 
+                            { 
+                                "DB_NAME" : linkTargetAttributes["DB_NAME"],
+                                "DB_USERNAME" : linkTargetAttributes["USERNAME"],
+                                "DB_HOST" : linkTargetAttributes["FQDN"]
+                            } ]
+
+                        [#break]
+                [/#switch]
                     
                 [#list dbSecrets as dbSecret]
                     [#list dbSecret?values as secretName]
@@ -141,10 +177,6 @@
                         /]
                     [/#list]
                 [/#list]
-
-                [#local dbDetails = 
-                    [{ "DB_NAME" : linkTargetAttributes["DB_NAME"] },
-                    { "DB_USERNAME" : linkTargetAttributes["USERNAME"] } ]]
 
                 [#break]
 
@@ -322,23 +354,24 @@
         dependsOn=[scaleSet.Reference]
     /]
 
-    [#-- Extensions --]
-    [@addParametersToDefaultJsonOutput
-        id="storage"
-        parameter=formatAzureStorageAccountConnectionStringReference(
-            getExistingReference(stageStorage.Account.Id),
-            stageStorage.Account.Name,
-            "keys[0].value"
-        )
+    [@createKeyVaultParameterLookup
+        secretName=stageStorage.KeySecret
+        vaultId=keyvaultId
     /]
 
-    [@addParametersToDefaultJsonOutput id="container" parameter=stageStorage.Container /]
-    [@addParametersToDefaultJsonOutput id="blob" parameter=stageStorage.BlobPath /]
-    [@addParametersToDefaultJsonOutput id="file" parameter=stageStorage.BlobName /]
-    [@armParameter name="storage" /]
-    [@armParameter name="container" /]
-    [@armParameter name="blob" /]
-    [@armParameter name="file" /]
+    [#-- Extensions --]
+    [@armParameter name=stageStorage.KeySecret /]
+    [@armParameter name="container" default=stageStorage.Container /]
+    [@armParameter name="blob" default=stageStorage.BlobPath /]
+    [@armParameter name="file" default=stageStorage.BlobName /]
+    [@armParameter 
+        name="storage"
+        default=
+            formatAzureStorageAccountConnectionStringReference(
+                getParameterReference(stageStorage.KeySecret, false),
+                stageStorage.Account.Name
+            )
+    /]
 
     [#-- Construct Index List & Concatenate Exec commands --]
     [#local indices = []]
@@ -359,11 +392,9 @@
                 [/#list]
             [/#list]
 
-            [#list dbDetails as dbDetail]
-                [#list dbDetail as key,value]
-                    [#local cmd = 'echo ' + key + "=" + value + " | sudo tee -a /etc/environment > /dev/null'" ]
-                    [#local commandsToExecute += [cmd]]
-                [/#list]
+            [#list dbDetails as key,value]
+                [#local cmd = 'echo ' + key + "=" + value?string + " | sudo tee -a /etc/environment > /dev/null'" ]
+                [#local commandsToExecute += [cmd]]
             [/#list]
 
             [#local commandsToExecute += ["source /etc/environment'"]]
