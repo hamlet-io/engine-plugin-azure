@@ -15,14 +15,14 @@ fi
 
 echo "Output Dir: ${TEST_OUTPUT_DIR}"
 echo "Generating unit list..."
-${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l unitlist
+${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l unitlist
 UNIT_LIST="$(jq -r '.DeploymentUnits | join(" ")' < "${TEST_OUTPUT_DIR}/unitlistconfig.json")"
 
 for unit in $UNIT_LIST; do
     echo "Creating templates for $unit ..."
-    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l segment -u $unit > /dev/null 2>&1 || true
-    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l solution -u $unit > /dev/null 2>&1 || true
-    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l application -u $unit > /dev/null 2>&1 || true
+    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l segment -u $unit > /dev/null 2>&1 || true
+    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l solution -u $unit > /dev/null 2>&1 || true
+    ${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l application -u $unit > /dev/null 2>&1 || true
 done
 
 hamlet test generate --directory "${TEST_OUTPUT_DIR}" -o "${TEST_OUTPUT_DIR}/test_templates.py"
