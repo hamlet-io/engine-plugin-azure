@@ -29,6 +29,8 @@ done
 
 hamlet test generate --directory "${TEST_OUTPUT_DIR}" -o "${TEST_OUTPUT_DIR}/test_templates.py"
 
+pushd $(pwd)
 cd "${TEST_OUTPUT_DIR}" || exit
 echo "Running Tests..."
 hamlet test run -t "./test_templates.py"
+popd || exit

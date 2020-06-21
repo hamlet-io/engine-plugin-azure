@@ -4,6 +4,7 @@
 [#assign AZURETEST_FRAMEWORK = "arm"]
 
 [#assign testScenarios = [
+    "baseline",
     "s3"
 ]]
 
