@@ -20,17 +20,41 @@ echo "Generating unit list..."
 UNIT_LIST="$(jq -r '.DeploymentUnits | join(" ")' < "${TEST_OUTPUT_DIR}/unitlistconfig.json")"
 
 for unit in $UNIT_LIST; do
-    echo "Creating templates for $unit ..."
-    echo "output will be: ${TEST_OUTPUT_DIR} and unit is ${unit}"
-    echo "trying segment..." && "${GENERATION_DIR}"/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l segment -u "${unit}" > /dev/null 2>&1 || true
-    [[ ! -e "${TEST_OUTPUT_DIR}/*${unit}*-testcase.json" ]] && echo "trying solution..." && "${GENERATION_DIR}"/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l solution -u "${unit}" > /dev/null 2>&1 || true
-    [[ ! -e "${TEST_OUTPUT_DIR}/*${unit}*-testcase.json" ]] && echo "trying application..." && "${GENERATION_DIR}"/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l application -u "${unit}" > /dev/null 2>&1 || true
+
+    args=(
+        '-i mock'
+        '-p azure'
+        '-p azuretest'
+        '-f arm'
+        '-r westus'
+        "-o ${TEST_OUTPUT_DIR}"
+    )
+
+    case "${unit}" in
+        segment-*)
+            args=("${args[@]}" '-l segment')
+            ;;
+        solution-*)
+            args=("${args[@]}" '-l solution')
+            ;;
+        application-*)
+            args=("${args[@]}" '-l application')
+            ;;
+        *)
+            return
+            ;;
+    esac
+
+    args=("${args[@]}" "-u ${unit}")
+
+    echo "Generating Tests: $unit ..."
+    ${GENERATION_DIR}/createTemplate.sh ${args[@]} > /dev/null 2>&1 || true
 done
 
 hamlet test generate --directory "${TEST_OUTPUT_DIR}" -o "${TEST_OUTPUT_DIR}/test_templates.py"
 
-pushd $(pwd)
-cd "${TEST_OUTPUT_DIR}" || exit
+pushd $(pwd) || return
+cd "${TEST_OUTPUT_DIR}" || return
 echo "Running Tests..."
 hamlet test run -t "./test_templates.py"
-popd || exit
+popd || return

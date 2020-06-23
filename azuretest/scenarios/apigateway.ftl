@@ -3,7 +3,34 @@
 [#macro azuretest_scenario_apigateway]
 
     [@addScenario
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-apigateway-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#",
+                    "FORMATS" : ["mockformat"]
+                }
+            },
+            {
+                "Type" : "Settings",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-apigateway-base",
+                "Settings" : {
+                    "apigw": {
+                        "Internal": true,
+                        "Value": {
+                            "Type": "lambda",
+                            "Proxy": false,
+                            "BinaryTypes": ["*/*"],
+                            "ContentHandling": "CONVERT_TO_TEXT",
+                            "Variable": "LAMBDA_API_LAMBDA"
+                        }
+                    }
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "api" : {
@@ -12,8 +39,11 @@
                             "apigateway" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-apigateway-base" ]
+                                        "DeploymentUnits" : [ "application-az-apigateway-base" ]
                                     }
+                                },
+                                "Profiles" : {
+                                    "Testing" : [ "Component" ]
                                 },
                                 "Certificate": {
                                     "Enabled" : false
@@ -36,7 +66,7 @@
                         "JSON" : {
                             "Match" : {
                                 "APIMID" : {
-                                    "Path" : "",
+                                    "Path" : "outputs.apiManagementServiceXmockedupXintegrationXapiXapigateway.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
