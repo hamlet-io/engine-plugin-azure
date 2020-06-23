@@ -196,46 +196,23 @@
     [/#if]
 
     [#-- Scaling Policies --]
-    [#local profiles = []]
+    [#if (solution["azure:ScalingProfiles"]!{})?has_content]
 
-    [#list solution.azure\:ScalingProfiles as profileName, profile]
-        [#local rules = []]
-        [#list profile.ScalingRules as name, rule]
-            [#local rules += [getAutoScaleRule(
-                rule.MetricName,
-                scaleSet.Reference,
-                rule.TimeGrain,
-                rule.Statistic,
-                rule.TimeWindow,
-                rule.TimeAggregation,
-                rule.Operator,
-                rule.Threshold,
-                rule.Direction,
-                rule.ActionType,
-                rule.Cooldown,
-                rule.ActionValue!""
-            )]]
+        [#local profiles = []]
+        [#list solution["azure:ScalingProfiles"] as name, profile]
+            [#local profiles += 
+                [getAutoScaleProfile(name, scaleSet.Reference, profile)]]
         [/#list]
 
-        [#local profiles +=
-            [getAutoScaleProfile(
-                profileName,
-                profile.MinCapacity,
-                profile.MaxCapacity,
-                profile.DefaultCapacity,
-                rules
-            )]]
-
-    [/#list]
-
-    [@createAutoscaleSettings
-        id=autoscale.Id
-        name=autoscale.Name
-        location=regionId
-        targetId=scaleSet.Reference
-        profiles=profiles
-        dependsOn=[scaleSet.Reference]
-    /]
+        [@createAutoscaleSettings
+            id=autoscale.Id
+            name=autoscale.Name
+            location=regionId
+            targetId=scaleSet.Reference
+            profiles=profiles
+            dependsOn=[scaleSet.Reference]
+        /]
+    [/#if]
 
     [#-- Network Security Group Rules --]
     [#local priority = 200]

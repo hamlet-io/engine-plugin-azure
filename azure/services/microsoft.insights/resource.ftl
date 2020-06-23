@@ -15,7 +15,27 @@
     }
 /]
 
-[#function getAutoScaleRule
+[#function getAutoScaleProfileSchedule
+  frequency
+  timeZone
+  daysOfWeek
+  hours
+  minutes]
+
+  [#return
+    {
+      "frequency" : frequency,
+      "schedule" : {
+        "timeZone" : timeZone,
+        "days" : asFlattenedArray(daysOfWeek),
+        "hours" : asFlattenedArray(hours),
+        "minutes" : asFlattenedArray(minutes)
+      }
+    }
+  ]
+[/#function]
+
+[#function getAutoScaleMetricRule
   metricName
   resourceId
   timeGrain
@@ -52,29 +72,50 @@
 
 [/#function]
 
-[#function getAutoScaleProfile
-  name
-  minCapacity
-  maxCapacity
-  defaultCapacity
-  rules
-  fixedDate={}
-  recurrence={}]
+[#function getAutoScaleProfile name objectId profile]
+
+  [#local rules = []]
+  [#local schedule = {}]
+
+  [#list profile.Rules as name, rule]
+    [#local rules += [
+      getAutoScaleMetricRule(
+        rule.MetricName,
+        objectId,
+        rule.TimeGrain,
+        rule.Statistic,
+        rule.TimeWindow,
+        rule.TimeAggregation,
+        rule.Operator,
+        rule.Threshold,
+        rule.Direction,
+        rule.ActionType,
+        rule.Cooldown,
+        rule.ActionValue!""
+      )]]
+  [/#list]
+  
+  [#if profile.Schedule.Enabled || profile.Schedule.Configured]
+    [#local schedule = 
+      getAutoScaleProfileSchedule(
+        profile.Schedule.Frequency,
+        profile.Schedule.TimeZone,
+        profile.Schedule.Days,
+        profile.Schedule.Hours,
+        profile.Schedule.Minutes)]
+  [/#if]
 
   [#return 
     {
       "name" : name,
       "capacity" : {
-        "minimum" : minCapacity,
-        "maximum" : maxCapacity,
-        "default" : defaultCapacity
+        "minimum" : profile.MinCapacity,
+        "maximum" : profile.MaxCapacity,
+        "default" : profile.DefaultCapacity
       },
       "rules" : rules
     } +
-    attributeIfContent("fixedDate", fixedDate) +
-    attributeIfContent("recurrence", recurrence)
-  ]
-
+    attributeIfContent("recurrence", schedule)]
 [/#function]
 
 [#macro createAutoscaleSettings

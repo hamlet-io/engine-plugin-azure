@@ -2,7 +2,13 @@
 
 [@addResourceGroupInformation
   type=BASTION_COMPONENT_TYPE
-  attributes=[]
+  attributes=[
+    {
+      "Names" : "ScalingProfiles",
+      "SubObjects" : true,
+      "Children" : autoScaleProfileChildrenConfiguration
+    }
+  ]
   provider=AZURE_PROVIDER
   resourceGroup=DEFAULT_RESOURCE_GROUP
   services=

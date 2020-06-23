@@ -165,37 +165,25 @@
 
 
   [#-- AutoScale Policy --]
-  [#if autoScaleConfig.Enabled]
+  [#if autoScaleConfig.Enabled
+    && (solution["azure:ScalingProfiles"]!{})?has_content]
 
-    [#-- TODO: rossmurr4y
-    Add autoscaling configuration for the VMSS.
-    
-    [#local autoScaleTargetId = autoScalePolicy.Reference]
+      [#local profiles = []]
+      [#list solution["azure:ScalingProfiles"] as name, profile]
+          [#local profiles += 
+              getAutoScaleProfile(name, scaleSet.Reference, profile)]
+      [/#list]
 
-    [#local autoScaleRule = getAutoScaleRule()]
-
-    [#local autoScaleProfile = getAutoScaleProfile(
-      "scale-to-zero-when-unused",
-      autoScaleConfig.MinUpdateInstances,
-      "1",
-      autoScaleConfig.MinUpdateInstances,
-      [autoScaleRule])]
-
-    [@createAutoscaleSettings
-      id=autoScalePolicy.Id
-      name=autoScalePolicy.Name
-      location=regionId
-      targetId=autoScaleTargetId
-      profiles=[autoScaleProfile]
-      enabled=autoScaleConfig.Enabled
-      dependsOn=
-        [
-          autoScaleTargetId
-        ]
-    /]
-    --]
+      [@createAutoscaleSettings
+        id=autoScalePolicy.Id
+        name=autoScalePolicy.Name
+        location=regionId
+        targetId=autoScalePolicy.Reference
+        profiles=profiles
+        enabled=autoScaleConfig.Enabled
+        dependsOn=[autoScalePolicy.Reference]
+      /]
+  
   [/#if]
-
-  [#-- NSG Rule - Allow SSH Inbound --]
 
 [/#macro]
