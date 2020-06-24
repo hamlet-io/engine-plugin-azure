@@ -41,7 +41,6 @@ for unit in $UNIT_LIST; do
             args=("${args[@]}" '-l application')
             ;;
         *)
-            return
             ;;
     esac
 
