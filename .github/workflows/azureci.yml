@@ -1,0 +1,19 @@
+name: Hamlet CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container: hamletio/hamlet:latest
+    steps:
+      - name: Use Checkout
+      - uses: actions/checkout@v2
+        with:
+          path: '/opt/hamlet/engine/plugins/azure'
+      - run: . /opt/hamlet/engine/plugins/azure/test/run_azure_template_tests.sh
