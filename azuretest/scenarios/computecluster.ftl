@@ -3,7 +3,26 @@
 [#macro azuretest_scenario_computecluster]
 
     [@addScenario
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-computecluster-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#"
+                }
+            },
+            {
+                "Type" : "Settings",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-computecluster-base",
+                "Settings" : {
+                    "Master" : {
+                        "Username" : "bojangles"
+                    }
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "app" : {
@@ -12,7 +31,7 @@
                             "computecluster" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-computecluster-base" ]
+                                        "DeploymentUnits" : [ "application-az-computecluster-base" ]
                                     }
                                 },
                                 "Profiles" : {
@@ -75,7 +94,7 @@
                         "JSON" : {
                             "Match" : {
                                 "ScaleSetID" : {
-                                    "Path" : "",
+                                    "Path" : "outputs.vmssXsettingsXappXcomputecluster.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }

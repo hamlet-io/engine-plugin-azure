@@ -4,7 +4,7 @@
 [#assign AZURETEST_FRAMEWORK = "arm"]
 
 [#assign testScenarios = [
-    [#-- "adaptor", requires ability to mock a fragment --]
+    [#-- "adaptor", TODO : requires ability to mock a fragment --]
     "apigateway",
     "baseline",
     "bastion",
@@ -12,9 +12,13 @@
     "computecluster",
     "db",
     [#-- "gateway", github.com/hamlet-io/engine-plugin-azure/pull/53 --]
-    "lambda",
+    [#-- "lambda", fragments --]
+    "lb",
     "network",
     "s3"
+    [#-- "spa", fragments --]
+    [#-- "sqs", TODO : requires bash structural testing --]
+    [#-- "userpool" bash --]
 ]]
 
 [@updateScenarioList

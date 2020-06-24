@@ -12,7 +12,7 @@
                             "lambda" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-lambda-base" ]
+                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
                                     }
                                 },
                                 "Profiles" : {

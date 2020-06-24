@@ -12,7 +12,7 @@
                             "S3" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-s3-base" ]
+                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
                                     }
                                 },
                                 "Lifecycle" : {

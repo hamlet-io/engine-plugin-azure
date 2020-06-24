@@ -12,7 +12,7 @@
                             "db" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-db-base" ]
+                                        "DeploymentUnits" : [ "solution-az-db-base" ]
                                     }
                                 },
                                 "Profiles" : {

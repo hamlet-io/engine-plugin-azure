@@ -1,22 +1,28 @@
 [#ftl]
 
-[#macro azuretest_scenario_baseline]
+[#macro azuretest_scenario_lb]
 
     [@addScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "mgmt" : {
+                "elb" : {
                     "Components" : {
-                        "baseline" : {
-                            "baseline" : {
+                        "lb" : {
+                            "lb" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "segment-az-baseline-base" ]
+                                        "DeploymentUnits" : [ "solution-az-lb-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
+                                },
+                                "Engine" : "application",
+                                "Ports" : {
+                                    "testport" : {
+                                        "Enabled" : true
+                                    }
                                 }
                             }
                         }
@@ -24,13 +30,13 @@
                 }
             },
             "TestCases" : {
-                "basebaselinetemplate" : {
+                "baselbtemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "BaselineStorageID" : {
-                                    "Path" : "outputs.storageXmgmtXbaseline.value",
+                                "AppGatewayID" : {
+                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlb.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -40,8 +46,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "baseline" : {
-                        "TestCases" : [ "basebaselinetemplate" ]
+                    "lb" : {
+                        "TestCases" : [ "baselbtemplate" ]
                     }
                 }
             }

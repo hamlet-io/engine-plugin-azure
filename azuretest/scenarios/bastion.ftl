@@ -12,7 +12,7 @@
                             "bastion" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-bastion-base" ]
+                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
                                     }
                                 },
                                 "Enabled" : true,
