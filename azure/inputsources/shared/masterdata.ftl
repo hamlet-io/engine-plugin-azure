@@ -1329,7 +1329,6 @@
           "Active": false,
           "IPAddressGroups": []
         },
-        "ConsoleOnly": false,
         "S3": {
           "IncludeTenant": false
         },
