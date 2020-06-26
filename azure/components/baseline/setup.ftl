@@ -354,11 +354,24 @@
       ]
     )]
 
-    [#local keyVaultAccessPolicyObject = getKeyVaultAccessPolicyObject(
-      tenantId,
-      keyvaultAdminsId,
-      defaultKeyVaultPermissions
-    )]
+    [#local keyVaultAdmins = keyvaultAdminsId?split(",") ]
+
+    [#local keyVaultAccessRules = []]
+    [#list keyVaultAdmins as keyvaultAdmin ]
+
+        [#local keyVaultAccessRules += [ getKeyVaultAccessPolicyObject(
+        tenantId,
+        keyvaultAdmin,
+        defaultKeyVaultPermissions
+      ) ]]
+    [/#list]
+
+    [#if ! keyVaultAccessRules?has_content ]
+      [@fatal
+        message="No KeyVault Admins have been defined"
+        context="To create a keyvault create a new group or user Id and add the setting AZURE_ADMINISTRATORS_GROUP"
+      /]
+    [/#if]
 
     [@createKeyVault
       id=keyvaultId
@@ -368,7 +381,7 @@
         getKeyVaultProperties(
           tenantId,
           getKeyVaultSku("A", "standard"),
-          [keyVaultAccessPolicyObject],
+          keyVaultAccessRules,
           "",
           true,
           true,
