@@ -12,7 +12,8 @@
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
         }
-      }
+      },
+      "global" : true
     }
 /]
 
