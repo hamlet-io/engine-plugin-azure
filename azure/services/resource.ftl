@@ -33,8 +33,13 @@
             },
             {
                 "Names" : "outputMappings",
-                "type" : OBJECT_TYPE,
+                "Type" : OBJECT_TYPE,
                 "Mandatory" : true
+            },
+            {
+                "Names" : "global",
+                "Type" : BOOLEAN_TYPE,
+                "Default" : false
             }
         ]
     }

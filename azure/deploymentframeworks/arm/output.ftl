@@ -147,6 +147,7 @@
     parentNames=[]]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
+    [#local resourceLocation = resourceProfile.global?then("global", location)]
 
     [#if !(resourceProfile.type == "pseudo")]
         [@addToJsonOutput
@@ -159,7 +160,7 @@
                     "properties": properties
                 } +
                 attributeIfContent("identity", identity) +
-                attributeIfContent("location", location) +
+                attributeIfContent("location", resourceLocation) +
                 attributeIfContent("dependsOn", dependsOn) +
                 attributeIfContent("tags", tags) +
                 attributeIfContent("comments", comments) +
