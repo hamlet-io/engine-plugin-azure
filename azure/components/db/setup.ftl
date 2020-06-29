@@ -131,11 +131,14 @@
                     ] + configReferences
                 /]
 
+                [#-- TODO(rossmurr4y): 
+                    refactor `ignoreMissingEndpoint` alongside Service Endpoints.
+                --]
                 [@createPostgresServerVNetRule
                     id=vnetRule.Id
                     name=vnetRule.Name
                     subnetId=subnet.Reference
-                    ignoreMissingEndpoint=sku.Processor?starts_with("B")?then(true, false)
+                    ignoreMissingEndpoint=true
                     dependsOn=[
                         server.Reference
                     ]
