@@ -22,6 +22,8 @@
         {
             "apiVersion": "2019-08-01",
             "type" : "Microsoft.Web/sites",
+            "conditions" : [ "max_length", "globally_unique"],
+            "max_name_length" : 60,
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"
