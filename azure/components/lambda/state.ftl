@@ -30,7 +30,7 @@
 
     [#local core = occurrence.Core]
     [#local functionId = formatResourceId(AZURE_WEB_APP_RESOURCE_TYPE, core.Id)]
-    [#local functionName = core.ShortName]
+    [#local functionName = formatAzureResourceName(core.ShortFullName, AZURE_WEB_APP_RESOURCE_TYPE)]
 
     [#assign componentState =
         {
