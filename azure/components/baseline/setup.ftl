@@ -351,7 +351,8 @@
         ["aad", "admins"],
         [productName, "administrators"],
         [productName, "admins"]
-      ]
+      ],
+      true
     )]
 
     [#local keyVaultAdmins = keyvaultAdminsId?split(",") ]

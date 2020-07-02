@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azuretest_scenario_s3]
+[#macro azuretest_scenario_lambda]
 
     [@addScenario
         settingSets=[]
@@ -8,23 +8,23 @@
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "lambda" : {
+                            "lambda" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
+                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
+                                },
+                                "Functions" : {
+                                    "api" : {
+                                        "Handler" : "src/handler.api",
+                                        "RunTime" : "nodejs",
+                                        "Fragment" : "_mockfrag",
+                                        "Links" : {}
+                                    }
                                 }
                             }
                         }
@@ -32,13 +32,13 @@
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "baselambdatemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "AppServicePlanID" : {
+                                    "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,11 +48,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "lambda" : {
+                        "TestCases" : [ "baselambdatemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

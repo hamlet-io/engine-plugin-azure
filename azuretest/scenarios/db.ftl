@@ -1,30 +1,35 @@
 [#ftl]
 
-[#macro azuretest_scenario_s3]
+[#macro azuretest_scenario_db]
 
     [@addScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "db" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "database" : {
+                            "db" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
+                                        "DeploymentUnits" : [ "solution-az-db-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
+                                },
+                                "DatabaseName" : "mockdb",
+                                "Engine" : "postgres",
+                                "EngineVersion" : "11",
+                                "Port" : "postgresql",
+                                "GenerateCredentials" : {
+                                    "Enabled" : true,
+                                    "MasterUserName" : "mockuser",
+                                    "CharacterLength" : 20
+                                },
+                                "Size" : 20,
+                                "azure:SecretSettings": {
+                                    "Prefix": "MOCK"
                                 }
                             }
                         }
@@ -32,13 +37,13 @@
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "basedbtemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "DatabaseID" : {
+                                    "Path" : "outputs.postgresdbXdbXdatabase.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,11 +53,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "db" : {
+                        "TestCases" : [ "basedbtemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

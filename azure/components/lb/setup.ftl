@@ -128,6 +128,7 @@
                         [#local gatewayIPConfigExists = true]
                     [/#if]
                     [#-- Frontend Setup --]
+                    [#local sslCertificate = []]
                     [#if listener.Name == "https"]
                         [#-- User Assigned Identity is required for the    --]
                         [#-- App Gateway to request its Cert from KeyVault --]
@@ -140,10 +141,10 @@
 
                         [#-- KeyVault Cert's have a "Secret Identifier" that allows --]
                         [#-- their lookup without storing it manually as a secret.  --]
-                        [#local sslCertificate = getAppGatewaySslCertificate(
+                        [#local sslCertificate = [getAppGatewaySslCertificate(
                             sslCert.Name,
                             getExistingReference(sslCert.Id, AZURE_KEYVAULT_SECRET_RESOURCE_TYPE)
-                        )]
+                        )]]
                     [/#if]
 
                     [#-- Only one IPv4 and one IPv6 IP Configuration can be applied --]
@@ -379,7 +380,7 @@
                 requestRoutingRules=requestRoutingRules
                 redirectConfigurations=redirectConfigurations
                 urlPathMaps=urlPathMaps
-                sslCertificates=[sslCertificate]
+                sslCertificates=sslCertificate
                 identity=identityObj!{}
                 dependsOn=appGatewayDependencies
             /]

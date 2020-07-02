@@ -1,28 +1,22 @@
 [#ftl]
 
-[#macro azuretest_scenario_s3]
+[#macro azuretest_scenario_bastion]
 
     [@addScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "mgmt" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "ssh" : {
+                            "bastion" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
+                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
                                     }
                                 },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
-                                    }
-                                },
+                                "Enabled" : true,
+                                "MultiAZ": false,
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 }
@@ -32,13 +26,13 @@
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "basebastiontemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "ScaleSetID" : {
+                                    "Path" : "outputs.vmssXmanagementXsshXbastion.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,11 +42,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "bastion" : {
+                        "TestCases" : [ "basebastiontemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

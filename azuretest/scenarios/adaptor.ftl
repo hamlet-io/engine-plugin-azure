@@ -1,44 +1,37 @@
 [#ftl]
 
-[#macro azuretest_scenario_s3]
+[#macro azuretest_scenario_adaptor]
 
     [@addScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "mgmt" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "adaptortest" : {
+                            "adaptor" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
+                                        "DeploymentUnits" : [ "azure-adaptor-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
-                                }
+                                },
+                                "Fragment" : "MockFragment"
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "bases3template" : {
-                    "OutputSuffix" : "template.json",
+                "baseadaptortemplate" : {
+                    "OutputSuffix" : "prologue.sh",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "LinkedId" : {
+                                    "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,11 +41,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "adaptor" : {
+                        "TestCases" : [ "baseadaptortemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

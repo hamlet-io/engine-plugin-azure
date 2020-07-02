@@ -1,30 +1,28 @@
 [#ftl]
 
-[#macro azuretest_scenario_s3]
+[#macro azuretest_scenario_lb]
 
     [@addScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "elb" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "lb" : {
+                            "lb" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
+                                        "DeploymentUnits" : [ "solution-az-lb-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
+                                },
+                                "Engine" : "application",
+                                "Ports" : {
+                                    "testport" : {
+                                        "Enabled" : true
+                                    }
                                 }
                             }
                         }
@@ -32,13 +30,13 @@
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "baselbtemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "AppGatewayID" : {
+                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlb.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,11 +46,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "lb" : {
+                        "TestCases" : [ "baselbtemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}
