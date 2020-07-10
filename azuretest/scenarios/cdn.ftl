@@ -17,7 +17,7 @@
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ],
-                                    "Security" : "high"
+                                    "Security" : "default"
                                 },
                                 "Certificate": {
                                     "Host" : "mawk"

@@ -238,51 +238,119 @@
 
 [/#macro]
 
-[#function getFrontDoorWAFPolicyMatchCondition
-  matchVariable
-  operator
-  matchValue
-  selector=""
-  negateCondition=False
-  transforms=[]]
+[#function formatAzureWAFCustomRule priority rule valueSet={}]
 
-  [#return 
-    {
-      "matchVariable": matchVariable,
-      "operator": operator,
-      "matchValue": matchValue
-    } +
-    attributeIfContent("selector", selector) +
-    attributeIfTrue("negateCondition", negateCondition, negateCondition) +
-    attributeIfContent("transforms", transforms)
-  ]
+    [#local name = rule.NameSuffix?split("-")?map(n -> n?capitalize)?join("")]
+    [#local ruleType = rule.Conditions[0].Type]
+
+    [#local conditions = asFlattenedArray(rule.Conditions
+      ?map(c -> getAzureWAFConditions(ruleType, c.Filters, valueSet, c.Negated!false)))]
+
+    [#-- Rate Limit Processing --]
+    [#local rateLimitConditions = conditions
+      ?filter(c -> c.RuleType == "RateLimitRule")]
+
+    [#local ruleTypeAzure = rateLimitConditions
+      ?has_content
+      ?then("RateLimitRule", "MatchRule")]
+
+    [#local rateLimitConfig = {}]
+    [#if rateLimitConditions?has_content]
+      [#local rateLimitConfig = rateLimitConditions
+        ?filter(c.RateLimit)]
+    [/#if]
+
+    [#return {
+      "name" : name,
+      "priority" : priority,
+      "ruleType" : ruleTypeAzure,
+      "matchConditions" : conditions?map(c -> c.MatchCondition),
+      "action" : rule.Action?capitalize} +
+        attributeIfContent("rateLimitThreshold", rateLimitConfig)]
 [/#function]
 
-[#function getFrontDoorWAFPolicyCustomRule
-  priority
-  ruleType
-  matchConditions
-  action
-  name=""
-  rateLimitDurationInMinutes=""
-  rateLimitThreshold=""]
+[#function getAzureWAFConditions type filters=[] valueSet={} negated=false]
 
-  [#return 
-    {
-      "priority": priority,
-      "ruleType": ruleType,
-      "matchConditions": matchConditions,
-      "action": action
-    } +
-    attributeIfContent("name", name) +
-    attributeIfContent("rateLimitDurationInMinutes", rateLimitDurationInMinutes) +
-    attributeIfContent("rateLimitThreshold", rateLimitThreshold)
-  ]
+  [#local conditions = []]
+  [#if (WAFConditions[type].ResourceType)?has_content]
+    [#list filters
+      ?filter(f -> f?is_hash) as filter]
+
+      [#local matchValues = filters?filter(f -> f?is_string)]
+
+      [#switch type]
+        [#case AWS_WAF_SQL_INJECTION_MATCH_CONDITION_TYPE]
+          [#--[#local conditions += formatAzWAFSqlInjectionMatchCondition(filter, valueSet, negated)]--]
+          [#break]
+        [#case AWS_WAF_XSS_MATCH_CONDITION_TYPE]
+          [#--[#local conditions += formatAzWAFXssMatchCondition(filter, valueSet, negated)]--]
+          [#break]
+        [#case AWS_WAF_IP_MATCH_CONDITION_TYPE]
+          [#local conditions += formatAzWAFIPMatchCondition(
+            [{"Targets" : "ips"}],
+            {"ips" : asFlattenedArray(matchValues) },
+            negated)]
+          [#break]
+        [#case AWS_WAF_GEO_MATCH_CONDITION_TYPE]
+          [#local conditions += formatAzWAFGeoMatchCondition(
+            [{"Targets" : "countrycodes"}],
+            {"countrycodes" : asFlattenedArray(matchValues) },
+            negated)]
+          [#break]
+        [#case AWS_WAF_BYTE_MATCH_CONDITION_TYPE]
+          [#local conditions += formatAzWAFByteMatchCondition(filter, valueSet, negated)]
+          [#break]
+        [#case AWS_WAF_SIZE_CONSTRAINT_CONDITION_TYPE]
+          [#local conditions += formatAzWAFSizeConstraint(filter, valueSet, negated)]
+          [#break]
+      [/#switch]
+    [/#list]
+  [/#if]
+  [#return conditions]
+[/#function]
+
+[#-- Translate Hamlet values into ARM --]
+[#function formatAzureMatchValues fields]
+  [#local uniqueFieldTypes = 
+    getUniqueArrayElements(fields?map(f -> f.Type))]
+
+  [#local uniqueFieldValues =
+    getUniqueArrayElements(fields
+      ?filter(f -> (f.Data!"")?has_content)
+      ?map(f -> f.Data))]
+
+  [#return {
+    "Variables" : uniqueFieldTypes,
+    "Values" : uniqueFieldValues }]
+[/#function]
+
+[#function formatAzureTransform transform]
+  [#-- Empty items are not supported --]
+  [#local dict = {
+    "NONE" : "",
+    "CMD_LINE" : "",
+    "COMPRESS_WHITE_SPACE" : "Trim",
+    "URL_DECODE" : "UrlDecode",
+    "LOWERCASE" : "Lowercase",
+    "HTML_ENTITY_DECODE" : ""}]
+  [#return dict[transform]!""]
+[/#function]
+
+[#function getAzureOperator operator]
+  [#local dict = {
+    "EQ" : "Equal",
+    "NE" : "NotEqual",
+    "LE" : "LessThanOrEqual",
+    "LT" : "LessThan",
+    "GE" : "GreaterThanOrEqual",
+    "GT" : "GreaterThan",
+    "STARTS_WITH" : "BeginsWith",
+    "ENDS_WITH" : "EndsWith"}]
+  [#return dict[operator]!operator ]
 [/#function]
 
 [#function getFrontDoorWAFPolicyManagedRuleSetGroupOverrideObject id action=""]
-  [#return 
-    { "ruleId": id } +
+  [#return { "ruleId": id } +
     attributeIfContent("action", action)]
 [/#function]
 
@@ -310,57 +378,43 @@
 [#macro createFrontDoorWAFPolicy
   id
   name
-  location=""
-  securityProfile={}
-  redirectUrl=""
-  customBlockResponseStatusCode=""
-  customBlockResponseBody=""
+  securityProfile
+  enforceOWASP=false
+  location=regionId
   dependsOn=[]]
 
-  [#local mode = securityProfile.Enabled?then("Prevention", "Detection")]
+  [#local mode = "Detection"]
+  [#if securityProfile.Enabled]
+    [#local mode = "Prevention"]
+  [/#if]
+
   [#local wafProfile = wafProfiles[securityProfile.WAFProfile]]
   [#local wafValueSet = wafValueSets[securityProfile.WAFValueSet]]
-  [#local customRules = []]
+
+  [#-- Azure Managed Rules       --]
+  [#-- This applies OWASP Top 10 --]
+  [#local managedRules = []]
+  [#if enforceOWASP]
+    [#local managedRules =
+      getFrontDoorWAFPolicyManagedRuleSetList([
+        getFrontDoorWAFPolicyManagedRuleSet(
+          "DefaultRuleSet",
+          "1.0",
+          [],
+          [])])]
+  [/#if]
 
   [#-- Custom Rules --]
-  [#-- TODO(rossmurr4y): implement custom rules for WAF --]
-  [#--[#local wafRules = getWAFProfileRules(
-    wafProfile,
-    blueprintObject.WAFRuleGroups,
-    blueprintObject.WAFRules,
-    blueprintObject.WAFConditions)]
+  [#local customAzureRules = []]
+  [#local customWafRules =
+    getWAFProfileRules(wafProfile, wafRuleGroups, wafRules, wafConditions)]
 
-  [#list wafRules as rule]
-
-    [#local matchConditions = []]
-    
-    [#list rule.Conditions as condition]  
-
-      [#if condition?is_hash]
-        [#local matchConditions += []]
-      [/#if]
-    [/#list]
-
-    [#local customRules += [getFrontDoorWAFPolicyCustomRule(
-      rule.NameSuffix,
-      rule.Action?capitalize,
-      "1",
-      rule.Conditions[0].Type?ends_with("Match")?then("MatchRule", "RateLimitRule"),
-      matchConditions
-      ""
-      ""
-    )]]
-  [/#list] --]
-
-  [#-- Azure Managed Rules --]
-  [#local managedRules =
-    getFrontDoorWAFPolicyManagedRuleSetList([
-      getFrontDoorWAFPolicyManagedRuleSet(
-        "DefaultRuleSet",
-        "1.0"
-      )
-    ])
-  ]
+  [#local priority = 1]
+  [#list customWafRules as rule]
+    [#local customAzureRules += [
+      formatAzureWAFCustomRule(priority, rule, wafValueSet)]]
+    [#local priority += 100]
+  [/#list]
 
   [@armResource
     id=id
@@ -370,14 +424,219 @@
     dependsOn=dependsOn
     properties={} +
       attributeIfContent("customRules", {} +
-        attributeIfContent("rules", customRules)
+        attributeIfContent("rules", customAzureRules)
       ) +
       attributeIfContent("managedRules", managedRules) +
       attributeIfContent("policySettings", {} +
         attributeIfContent("mode", mode) +
-        attributeIfContent("redirectUrl", redirectUrl) +
-        attributeIfContent("customBlockResponseStatusCode", customBlockResponseStatusCode) +
-        attributeIfContent("customBlockResponseBody", customBlockResponseBody)
+        attributeIfContent("redirectUrl", "") +
+        attributeIfContent("customBlockResponseStatusCode", "") +
+        attributeIfContent("customBlockResponseBody", "")
       )
   /]
 [/#macro]
+
+[#function formatAzureWAFMatchCondition
+  variable
+  operator
+  value
+  negated=false
+  transforms=[]
+  selector=""]
+
+  [#local azTransforms = 
+    getWAFValueList(transforms, valueSet)
+      ?map(t -> formatAzureTransform(t))
+      ?filter(t -> t?has_content)]
+
+  [#local azureWAFMatch = formatAzureWAFMatchVariable(variable)]
+
+  [#return {
+    "RuleType" : azureWAFMatch.RuleType,
+    "MatchCondition" : {
+      "matchVariable" : azureWAFMatch.Variable,
+      "operator" : getAzureOperator(operator),
+      "matchValue" : asFlattenedArray(value)
+        ?map(v -> asString(v, ""))
+    } +
+      attributeIfContent("selector", selector) +
+      attributeIfTrue("negateCondition", negated, negated) +
+      attributeIfContent("transforms", azTransforms)
+  } +
+    attributeIfTrue(
+      "RateLimit",
+      (azureWAFMatch.RuleType == "RateLimitRule"),
+      {
+        "Threshold" : value
+      })
+  ]
+
+[/#function]
+
+[#function formatAzureWAFMatchVariable type]
+
+  [#local t = type?lower_case]
+  [#local result = {
+    "RuleType" : "",
+    "Variable" : ""
+  }]
+
+  [#switch true]
+
+    [#case t?starts_with("badcookie")]
+    [#case t?ends_with("cookies")]
+    [#case t?ends_with("cookie")]
+      [#local result = mergeObjects(result, {"Variable" : "Cookies"})]
+      [#break]
+
+    [#case t?starts_with("query")]
+    [#case t?ends_with("query")]
+    [#case t?starts_with("sql")]
+      [#local result = mergeObjects(result, {"Variable" : "QueryString"})]
+      [#break]
+
+    [#case t?ends_with("ips")]
+    [#case t?ends_with("countrycodes")]
+      [#local result = mergeObjects(result, {"Variable" : "RemoteAddr"})]
+      [#break]
+
+    [#case t?ends_with("body")]
+      [#local result = mergeObjects(result, {"Variable" : "RequestBody"})]
+      [#break]
+
+    [#case t?ends_with("headers")]
+    [#case t?ends_with("header")]
+      [#local result = mergeObjects(result,
+        {
+          "Variable" : "RequestHeader"
+        })]
+      [#break]
+
+    [#case t?ends_with("uri")]
+    [#case t?starts_with("uri")]
+    [#case type?starts_with("badtokens")]
+    [#case type?ends_with("tokens")]
+      [#local result = mergeObjects(result, {"Variable" : "RequestUri"})]
+      [#break]
+      
+    [#default]
+      [@fatal
+        message="WAF Match RuleType could not be determined."
+        context={ "Type" : type } 
+      /]
+      [#break]
+  [/#switch]
+
+  [#-- Rule Types --]
+  [#switch true]
+
+    [#case type?ends_with("paths")]
+    [#case type?starts_with("admin")]
+    [#case type?starts_with("login")]
+      [#local result = mergeObjects(result, {"RuleType" : "RateLimitRule"})]
+      [#break]
+
+    [#default]
+      [#local result = mergeObjects(result, {"RuleType" : "MatchRule"})]
+      [#break]
+
+  [/#switch]
+
+  [#return result]
+[/#function]
+
+[#function formatAzWAFByteMatchCondition filter={} valueSet={} negated=false]
+  [#local result = [] ]
+  [#list getWAFValueList(filter.FieldsToMatch, valueSet) as match]
+    [#list getWAFValueList(filter.Constraints, valueSet) as constraint]
+                  
+      [#local result += [
+        formatAzureWAFMatchCondition(
+          match.Type,
+          constraint,
+          getWAFValueList(filter.Targets, valueSet)![],
+          negated,
+          transformations,
+          match.Data!"")]]
+
+    [/#list]
+  [/#list]
+  [#return result]
+[/#function]
+
+[#function formatAzWAFIPMatchCondition filter={} valueSet={} negated=false]
+  [#local result= [] ]
+    [#local result += [
+      formatAzureWAFMatchCondition(
+        "ips",
+        "IPMatch",
+        getWAFValueList(filter.Targets, valueSet)![], 
+        negated)]]
+  [#return result]
+[/#function]
+
+[#function formatAzWAFGeoMatchCondition filter={} valueSet={} negated=false]
+  [#return [
+    formatAzureWAFMatchCondition(
+      "countrycodes",
+      "GeoMatch",
+      getWAFValueList(filter.Targets, valueSet)![],
+      negated)]]
+[/#function]
+
+[#function formatAzWAFSizeConstraint filter={} valueSet={} negated=false]
+  [#local result = []]
+  [#local sizes = getWAFValueList(filter.Sizes, valueSet)]
+  
+  [#list sizes as size]
+    [#list getWAFValueList(filter.FieldsToMatch, valueSet) as match]
+      [#list getWAFValueList(filter.Operators, valueSet) as operator]
+
+        [#local result += [
+          formatAzureWAFMatchCondition(
+            match.Type,
+            operator,
+            size,
+            negated,
+            filter.Transformations,
+            match.Data!"")]]
+
+      [/#list]
+    [/#list]
+  [/#list]
+  [#return result]
+[/#function]
+
+[#function formatAzWAFSqlInjectionMatchCondition filter={} valueSet={} negated=false]
+  [#local result = [] ]
+  [#list getWAFValueList(filter.FieldsToMatch, valueSet) as match]
+
+      [#local result += [
+        formatAzureWAFMatchCondition(
+          match.Type,
+          "Contains",
+          [],
+          negated,
+          filter.Transformations,
+          match.Data!"")]]
+
+  [/#list]
+  [#return result]
+[/#function]
+
+[#function formatAzWAFXssMatchCondition filter={} valueSet={} negated=false]
+  [#local result = [] ]
+  [#list getWAFValueList(filter.FieldsToMatch, valueSet) as match]
+    
+    [#local result += [
+      formatAzureWAFMatchCondition(
+        match.Type,
+        "Contains",
+        [],
+        negated,
+        filter.Transformations,
+        match.Data!"")]]
+
+  [/#list]
+  [#return result]
+[/#function]

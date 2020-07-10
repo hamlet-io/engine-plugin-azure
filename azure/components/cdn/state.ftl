@@ -5,11 +5,8 @@
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
 
-    [#local segmentSeedId = formatSegmentSeedId() ]
-    [#local segmentSeed = getExistingReference(segmentSeedId)]
-
     [#local frontDoorId = formatResourceId(AZURE_FRONTDOOR_RESOURCE_TYPE, core.Id)]
-    [#local frontDoorName = formatName( core.FullName, segmentSeed) ]
+    [#local frontDoorName = core.FullName]
     [#local wafPolicyId = formatDependentResourceId(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Id)]
     [#local wafPolicyName = formatAzureResourceName(
         formatName(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Tier, core.Component)
@@ -34,12 +31,14 @@
                     "Id" : frontDoorId,
                     "Name" : frontDoorName,
                     "FrontDoorFQDN" : frontDoorFqdn,
-                    "Type" : AZURE_FRONTDOOR_RESOURCE_TYPE
+                    "Type" : AZURE_FRONTDOOR_RESOURCE_TYPE,
+                    "Reference": getReference(frontDoorId, frontDoorName)
                 },
                 "wafPolicy" : {
                     "Id" : wafPolicyId,
                     "Name" : wafPolicyName,
-                    "Type" : AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
+                    "Type" : AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE,
+                    "Reference": getReference(wafPolicyId, wafPolicyName)
                 }
             },
             "Attributes" : {
@@ -85,7 +84,8 @@
                     "Name" : core.Name,
                     "Type" : AZURE_FRONTDOOR_ROUTE_RESOURCE_TYPE,
                     "PathPattern" : pathPattern,
-                    "DefaultPath" : isDefaultPath
+                    "DefaultPath" : isDefaultPath,
+                    "Reference": getReference(frontDoorRouteId, core.Name)
                 }
             },
             "Attributes" : {

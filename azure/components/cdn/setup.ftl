@@ -13,7 +13,6 @@
     [#local attributes = occurrence.State.Attributes]
     [#local solution = occurrence.Configuration.Solution]
 
-    [#local wafPresent = isPresent(solution.WAF)]
     [#local frontDoor = resources["frontDoor"]]
     [#local wafPolicy = resources["wafPolicy"]]
     [#local frontendEndpointName = formatName(frontDoor.Name, "frontend")]
@@ -21,8 +20,8 @@
     [#local frontDoorFQDN = frontDoor.FrontDoorFQDN ]
 
     [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
-    [#local wafRequired = (securityProfile.Enabled)!false ]
-
+    [#local wafRequired = (securityProfile.Enabled)!false]
+  
     [#-- Baseline lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
@@ -88,7 +87,7 @@
                         frontDoorFQDN,
                         "Disabled",
                         "0",
-                        wafRequired?then(getReference(wafPolicy.Id, wafPolicy.Name), "")
+                        wafRequired?then(wafPolicy.Reference, "")
                     )
                 ]]
 
@@ -230,16 +229,15 @@
             backendPools=backendPools
             frontendEndpoints=frontendEndpoints
             healthProbeSettings=healthProbeSettings
+            dependsOn=wafRequired?then([wafPolicy.Reference], [])
         /]
-
-
-        [#if wafRequired ]
+       
+        [#if wafRequired]
             [@createFrontDoorWAFPolicy
                 id=wafPolicy.Id
                 name=wafPolicy.Name
-                location=regionId
                 securityProfile=securityProfile
-
+                enforceOWASP=solution.WAF.OWASP
             /]
         [/#if]
 
