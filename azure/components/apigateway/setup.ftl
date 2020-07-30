@@ -21,7 +21,7 @@
     [#local api               = resources["api"]]
 
     [#local sku = getSkuProfile(occurrence, core.Type)]
-    
+
     [#-- Determine the stage variables required --]
     [#local stageVariables = {} ]
     [#local fragment = getOccurrenceFragmentBase(occurrence) ]
@@ -106,7 +106,7 @@
                 [#break]
             [#case USERPOOL_COMPONENT_TYPE]
                 [#if isLinkTargetActive(linkTarget)]
-                    [#local aadAppRegistrations += 
+                    [#local aadAppRegistrations +=
                         {
                             link.Name : {
                                 "Name" : link.Name,
@@ -122,7 +122,7 @@
     [/#list]
 
     [#-- Retrieve the OpenApi Spec from the registry --]
-    [#-- and write it out to definition.json         --] 
+    [#-- and write it out to definition.json         --]
     [#if deploymentSubsetRequired("pregeneration", false)]
         [@addToDefaultBashScriptOutput
             content=
@@ -149,9 +149,15 @@
 
     [#-- Get the definition that was        --]
     [#-- created/updated in "pregeneration" --]
-    [#if definitionsObject[core.Id]??]
+    [#if deploymentSubsetRequired(APIGATEWAY_COMPONENT_TYPE, true) ]
+        [#if ! definitionsObject[core.Id]??]
+            [@fatal
+                message="No API definition exists."
+                context=definitionsObject
+            /]
+        [/#if]
 
-        [#local openapiDefinition = definitionsObject[core.Id]]
+        [#local openapiDefinition = (definitionsObject[core.Id])!{}]
 
         [#-- Open API Integrations --]
         [#local openapiIntegrations = getOccurrenceSettingValue(occurrence, [["apigw"], ["Integrations"]], true) ]
@@ -163,7 +169,7 @@
         [/#if]
 
         [#-- Open API Context --]
-        [#local openapiContext = 
+        [#local openapiContext =
             {
                 "Account" : accountObject.AzureId,
                 "Region" : region,
@@ -199,7 +205,7 @@
         [#-- Extend Spec with extensions.                                        --]
         [#-- Azure only supports two openapi extensions, all others are skipped. --]
         [#-- Extensions: x-ms-paths & x-servers                                  --]
-        [#local extendedDefinition = 
+        [#local extendedDefinition =
             azExtendOpenapiDefinition(
                 openapiDefinition,
                 openapiIntegrations,
@@ -241,9 +247,6 @@
             publisherName=service.ContactName
             identity=service.ManagedIdentity
         /]
-
-    [#else]
-        [@fatal message="No API definition exists." context=definitionsObject /]
     [/#if]
 
 [/#macro]
