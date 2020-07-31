@@ -8,7 +8,7 @@
     [#-- Process Resource Naming Conditions --]
     [#local serviceId = formatResourceId(AZURE_API_MANAGEMENT_SERVICE, core.FullName)]
     [#local serviceName = formatAzureResourceName(
-        core.ShortName,
+        core.FullName,
         AZURE_API_MANAGEMENT_SERVICE
     )]
 
@@ -80,7 +80,7 @@
     [#local apimManagedIdentity = {}]
     [#local identityProviders = {}]
     [#list solution.Links?values?filter(l -> l?is_hash) as link]
-        
+
         [#local linkTarget = getLinkTarget(occurrence, link, false)]
 
         [#if !linkTarget?has_content]
@@ -88,7 +88,7 @@
         [/#if]
 
         [#local apimManagedIdentity = mergeObjects(
-            apimManagedIdentity, 
+            apimManagedIdentity,
             getAzureManagedIdentity(linkTarget)
         )]
 
@@ -101,7 +101,7 @@
                     [#local subCore = subOccurrence.Core]
                     [#local subAttributes = subOccurrence.State.Attributes]
                     [#local authProviders = subAttributes["AuthProviders"]![]]
-    
+
                     [#switch subCore.Type]
 
                         [#case USERPOOL_CLIENT_COMPONENT_TYPE]
@@ -118,7 +118,7 @@
                                 )]
 
                                 [#if isLinkTargetActive(subOccurrence)]
-                                    [#local identityProviders += 
+                                    [#local identityProviders +=
                                         {
                                             subCore.Id : {
                                                 "Id" : identityproviderId,
@@ -131,7 +131,7 @@
                                         }
                                     ]
                                 [/#if]
-                                
+
                             [/#list]
                             [#break]
 

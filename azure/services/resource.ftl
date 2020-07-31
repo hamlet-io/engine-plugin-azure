@@ -2,7 +2,7 @@
 
 [#-- Azure Resource Profiles --]
 [#assign azureResourceProfiles = {}]
-[#assign azureResourceProfilesConfiguration = 
+[#assign azureResourceProfilesConfiguration =
     {
         "Properties" : [
             {
@@ -55,7 +55,7 @@
     [#-- Update outputMappings from profile
         Though outputMappings are now accessible from the profile, its important to use
         "outputMapping" variable to support cross-provider implementation.          --]
-    [@addOutputMapping 
+    [@addOutputMapping
         provider=AZURE_PROVIDER
         resourceType=resource
         mappings=profile.outputMappings
@@ -174,7 +174,7 @@ can be referenced via dot notation. --]
 [#-- Some Azure resources need to be referened by their resourceId without being
 a resource themselves. This function will create the correct ARM reference to
 such an object Id through parent/grandparent Ids/Names --]
-[#function getSubReference 
+[#function getSubReference
     resourceId
     resourceName
     childType
@@ -212,7 +212,7 @@ such an object Id through parent/grandparent Ids/Names --]
 [/#function]
 
 [#function getParameterReference parameterName boilerplate=true]
-    [#return 
+    [#return
         boilerplate?then(
             "[parameters('" + parameterName + "')]",
             "parameters('" + parameterName + "')"
@@ -250,16 +250,16 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
  ]
 [/#function]
 
-[#-- 
-    Azure has strict rules around resource name "segments" (parts seperated by a '/'). 
+[#--
+    Azure has strict rules around resource name "segments" (parts seperated by a '/').
     The rules that must be adhered to are:
-        - A root level resource must have one less segment in the name than the 
+        - A root level resource must have one less segment in the name than the
             resource type (typically just the 1 segment).
         - Child resources must have the same number of segments as the child type.
             (this is typically 1 for the child, and 1 per parent resource.)
 --]
 [#function formatAzureResourceName name profile primaryParent=""]
-    
+
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local conditions = resourceProfile.conditions]
     [#local conditions += ["segment_out_names"]]
@@ -270,7 +270,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
                 [#break]
             [#case "globally_unique"]
                 [#local segmentSeed = getStackOutput(AZURE_PROVIDER, formatSegmentResourceId("seed"))]
-                [#local name = name?ensure_ends_with(segmentSeed)]
+                [#local name = formatName(name, segmentSeed)]
                 [#break]
             [#case "max_length"]
                 [#if name?length > resourceProfile.max_name_length]
@@ -373,7 +373,7 @@ its own function to return the first split of the last segment --]
     [#return "[string(" + asFlattenedArray(args)?join("', '") + ")]"]
 [/#function]
 
-[#-- 
+[#--
     Azure has some default tags to reference standard IP ranges.
     We use that here as Azure does not accept 0.0.0.0/0 as reference to Internet.
 --]
@@ -414,7 +414,7 @@ its own function to return the first split of the last segment --]
             ]
             [#break]
         [#case "Microsoft.Storage"]
-            [#local endpoints = 
+            [#local endpoints =
                 {
                     "blob"  : "blob.core.windows.net/",
                     "dfs"   : "dfs.core.windows.net/",
@@ -437,7 +437,7 @@ its own function to return the first split of the last segment --]
             /]
     [/#switch]
 
-    [#local endpoint = 
+    [#local endpoint =
         "https://" +
         resourceName +
         extensions?join(".")?ensure_starts_with(".")?ensure_ends_with(".") +
@@ -453,17 +453,17 @@ its own function to return the first split of the last segment --]
 
 [#macro internalMergeResourceProfiles service resource profile]
     [#if profile?has_content ]
-        [#assign azureResourceProfiles = 
+        [#assign azureResourceProfiles =
             mergeObjects(
                 azureResourceProfiles,
-                { 
+                {
                     service : {
                         resource : getCompositeObject(
                             azureResourceProfilesConfiguration.Attributes,
                             profile
                         )
                     }
-                } 
+                }
             )
         ]
     [/#if]
