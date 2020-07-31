@@ -1,6 +1,6 @@
 [#ftl]
 
-[#assign apiManagementResourceprofiles = 
+[#assign apiManagementResourceprofiles =
     {
         AZURE_API_MANAGEMENT_SERVICE : {
             "apiVersion" : "2019-01-01",
@@ -233,10 +233,10 @@
     [#return
         {
             "storeName" : storeName
-        } + 
+        } +
         attributeIfContent("encodedCertificate", encodedCertificate) +
         attributeIfContent("certificatePassword", certificatePwd) +
-        attributeIfContent("certificate", 
+        attributeIfContent("certificate",
             attributeIfContent("expiry", certificateExpiry) +
             attributeIfContent("thumbprint", certificateThumbprint) +
             attributeIfContent("subject", certificateSubject)
@@ -251,7 +251,7 @@
     skuCapacity=""
     vnetSubnetId=""]
 
-    [#return 
+    [#return
         {
             "location": location,
             "sku" : {
@@ -259,7 +259,7 @@
             } +
             attributeIfContent("capacity", skuCapacity)
         } +
-        attributeIfContent("virtualNetworkConfiguration", 
+        attributeIfContent("virtualNetworkConfiguration",
             attributeIfContent("subnetResourceId", vnetSubnetId)
         )
     ]
@@ -281,13 +281,13 @@
         {
             "type" : type,
             "hostName" : hostname
-        } + 
+        } +
         attributeIfContent("keyVaultId", keyVaultId) +
         attributeIfContent("encodedCertificate", encodedCertificate) +
-        attributeIfContent("certificatePassword", certificatePwd) + 
+        attributeIfContent("certificatePassword", certificatePwd) +
         attributeIfTrue("defaultSslBinding", defaultSslBinding, defaultSslBinding) +
         attributeIfTrue("negotiateClientCertificate", negotiateClientCertificate, negotiateClientCertificate) +
-        attributeIfContent("certificate", 
+        attributeIfContent("certificate",
             attributeIfContent("expiry", certificateExpiry) +
             attributeIfContent("thumbprint", certificateThumbprint) +
             attributeIfContent("subject", certificateSubject)
@@ -321,14 +321,14 @@
         [#local enableClientCertificate = false]
     [/#if]
 
-    [#local sku = 
+    [#local sku =
         {
             "name" : skuName
         } +
         numberAttributeIfContent("capacity", skuCapacity)
     ]
 
-    [#local properties = 
+    [#local properties =
         {
             "publisherEmail" : publisherEmail,
             "publisherName" : publisherName
@@ -393,37 +393,16 @@
     resources=[]
     dependsOn=[]]
 
-    [#if (! format?contains("-link")) && value?has_content]
-
-        [#-- output inline spec as an ARM parameter. This puts the  --]
-        [#-- spec in another file, keeping the template tidy and    --]
-        [#-- allows us to easily call the ARM function "string()"   --]
-        [#--  on it, to pass it inline to the API resource.         --]
-        [@addParametersToDefaultJsonOutput
-            id="openapi"
-            parameter=value
-        /]
-        [@armParameter
-            name="openapi"
-            type="object"
-        /]
-
-        [#-- Now that "value" has been converted to a Parameter,  --]
-        [#-- redirect "value" to the parameter name.              --]
-        [#local value = formatAzureStringFunction("", "parameters('openapi')")]
-
-    [/#if]
-
     [#local properties = {
             "path" : path
         } +
         attributeIfContent("description", description) +
-        attributeIfContent("authenticationSettings", 
-            attributeIfContent("oAuth2", 
+        attributeIfContent("authenticationSettings",
+            attributeIfContent("oAuth2",
                 attributeIfContent("authorizationServerId", oAuth2AuthServerId) +
                 attributeIfContent("scope", oAuth2Scope)
             ) +
-            attributeIfContent("openid", 
+            attributeIfContent("openid",
                 attributeIfContent("openidProviderId", openIdProviderId) +
                 attributeIfContent("bearerTokenSendingMethods", openIdBearerTokenSendingMethods)
             )
@@ -435,7 +414,7 @@
         attributeIfContent("apiRevisionDescription", apiRevisionDescription) +
         attributeIfContent("apiVersionDescription", apiVersionDescription) +
         attributeIfContent("apiVersionSetId", apiVersionSetId) +
-        attributeIfContent("apiVersionSet", 
+        attributeIfContent("apiVersionSet",
             attributeIfContent("name", apiVersionSetName) +
             attributeIfContent("description", apiVersionSetDescription) +
             attributeIfContent("versioningScheme", apiVersionSetVersioningScheme) +
@@ -449,7 +428,7 @@
         attributeIfContent("protocols", protocols) +
         attributeIfContent("value", value) +
         attributeIfContent("format", format) +
-        attributeIfContent("wsdlSelector", 
+        attributeIfContent("wsdlSelector",
             attributeIfContent("wsdlServiceName", wsdlServiceName) +
             attributeIfContent("wsdlEndpointName", wsdlEndpointName)
         ) +
@@ -492,7 +471,7 @@
     resourceOwnerPassword=""
     dependsOn=[]]
 
-    [#local properties = 
+    [#local properties =
         {
             "displayName": displayName,
             "clientRegistrationEndpoint": clientRegistrationEndpoint,
@@ -535,7 +514,7 @@
     required=false
     values=[]]
 
-    [#return 
+    [#return
         {
             "name" : name,
             "type" : type
@@ -558,7 +537,7 @@
     typeName=""
     formParameters=[]]
 
-    [#return 
+    [#return
         {
             "contentType" : contentType
         } +
@@ -609,7 +588,7 @@
         } +
         attributeIfContent("templateParameters", templateParameters) +
         attributeIfContent("description", description) +
-        attributeIfContent("request", 
+        attributeIfContent("request",
             attributeIfContent("description", requestDescription) +
             attributeIfContent("queryParameters", requestQueryParameters) +
             attributeIfContent("headers", requestHeaders) +
@@ -779,7 +758,7 @@
                 )
             ) +
             attributeIfContent("properties",
-                attributeIfContent("serviceFabricCluster", 
+                attributeIfContent("serviceFabricCluster",
                     attributeIfContent("managementEndpoints", serviceFabricClusterManagementEndpoints) +
                     attributeIfContent("clientCertificatethumbprint", serviceFabricClusterClientCertificateThumbprint) +
                     numberAttributeIfContent("maxPartitionResolutionRetries", serviceFabricClusterMaxPartitionResolutionRetries) +

@@ -149,7 +149,7 @@
 
     [#-- Get the definition that was        --]
     [#-- created/updated in "pregeneration" --]
-    [#if deploymentSubsetRequired(APIGATEWAY_COMPONENT_TYPE, true) ]
+    [#if deploymentSubsetRequired("parameters", true) ]
         [#if ! definitionsObject[core.Id]??]
             [@fatal
                 message="No API definition exists."
@@ -213,6 +213,22 @@
                 true
             )]
 
+        [#-- output inline spec as an ARM parameter. This puts the  --]
+        [#-- spec in another file, keeping the template tidy and    --]
+        [#-- allows us to easily call the ARM function "string()"   --]
+        [#--  on it, to pass it inline to the API resource.         --]
+
+        [@addParametersToDefaultJsonOutput
+            id="openapi"
+            parameter=extendedDefinition
+        /]
+        [@armParameter
+            name="openapi"
+            type="object"
+        /]
+    [/#if]
+
+    [#if deploymentSubsetRequired(APIGATEWAY_COMPONENT_TYPE, true) ]
         [#list identityproviders?values as identityprovider]
             [@createApiManagementServiceIdentityProvider
                 id=identityprovider.Id
@@ -227,7 +243,7 @@
         [@createApiManagementServiceApi
             id=api.Id
             name=api.Name
-            value=extendedDefinition
+            value=formatAzureStringFunction("", "parameters('openapi')")
             path=attributes["BASE_PATH"]
             dependsOn=[service.Reference]
         /]
