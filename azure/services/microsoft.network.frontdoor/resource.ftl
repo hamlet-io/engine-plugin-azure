@@ -7,7 +7,7 @@
     {
       "apiVersion" : "2019-05-01",
       "type" : "Microsoft.Network/frontDoors",
-      "conditions" : [ "name_to_lower", "globally_unique", "alphanumerichypens_only", "max_length" ],
+      "conditions" : [ "name_to_lower", "globally_unique", "alphanumerichyphens_only", "max_length" ],
       "max_name_length" : 64,
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {

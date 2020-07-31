@@ -5,7 +5,7 @@
         AZURE_API_MANAGEMENT_SERVICE : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service",
-            "conditions" : [ "name_to_lower", "globally_unique", "alphanumerichypens_only", "max_length" ],
+            "conditions" : [ "name_to_lower", "globally_unique", "alphanumerichyphens_only", "max_length" ],
             "max_name_length" : 50,
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
