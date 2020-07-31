@@ -1,13 +1,14 @@
 [#ftl]
 
-[@addResourceProfile 
+[@addResourceProfile
   service=AZURE_NETWORK_FRONTDOOR_SERVICE
   resource=AZURE_FRONTDOOR_RESOURCE_TYPE
   profile=
     {
       "apiVersion" : "2019-05-01",
       "type" : "Microsoft.Network/frontDoors",
-      "conditions" : [ "alphanumeric_only" ],
+      "conditions" : [ "name_to_lower", "globally_unique", "alphanumerichypens_only", "max_length" ],
+      "max_name_length" : 64,
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
@@ -17,7 +18,7 @@
     }
 /]
 
-[@addResourceProfile 
+[@addResourceProfile
   service=AZURE_NETWORK_FRONTDOOR_SERVICE
   resource=AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
   profile=
@@ -57,7 +58,7 @@
   [#switch routeODataType]
 
     [#case "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration"]
-      [#local routeConfig = 
+      [#local routeConfig =
         {
           "@odata.type" : routeODataType,
           "forwardingProtocol" : forwardingProtocol?capitalize?ensure_ends_with("Only"),
@@ -68,7 +69,7 @@
       ]
       [#break]
     [#case "#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration"]
-      [#local routeConfig = 
+      [#local routeConfig =
         {
           "@odata.type" : routeODataType,
           "redirectType" : routeRedirectType,
@@ -82,7 +83,7 @@
       [#break]
   [/#switch]
 
-  [#local properties = 
+  [#local properties =
     {
       "routeConfiguration" : routeConfig
     } +
@@ -147,7 +148,7 @@
     [#local backendHostHeader = address]
   [/#if]
 
-  [#return 
+  [#return
     {
       "address" : address,
       "backendHostHeader", backendHostHeader
@@ -165,7 +166,7 @@
   loadBalancingSettings={}
   healthProbeSettings={}]
 
-  [#local properties = 
+  [#local properties =
     {
       "loadBalancingSettings" : loadBalancingSettings
     }  +
@@ -231,7 +232,7 @@
       attributeIfContent("backendPools", backendPools) +
       attributeIfContent("frontendEndpoints", frontendEndpoints) +
       attributeIfContent("backendPoolsSettings", {} +
-        attributeIfContent("enforceCertificateNameCheck", backendEnforceCertNameCheck) + 
+        attributeIfContent("enforceCertificateNameCheck", backendEnforceCertNameCheck) +
         attributeIfContent("sendRecvTimeoutSeconds", backendSendRecvTimeoutSeconds)
       )
   /]
@@ -246,7 +247,7 @@
   negateCondition=False
   transforms=[]]
 
-  [#return 
+  [#return
     {
       "matchVariable": matchVariable,
       "operator": operator,
@@ -267,7 +268,7 @@
   rateLimitDurationInMinutes=""
   rateLimitThreshold=""]
 
-  [#return 
+  [#return
     {
       "priority": priority,
       "ruleType": ruleType,
@@ -281,14 +282,14 @@
 [/#function]
 
 [#function getFrontDoorWAFPolicyManagedRuleSetGroupOverrideObject id action=""]
-  [#return 
+  [#return
     { "ruleId": id } +
     attributeIfContent("action", action)]
 [/#function]
 
 [#function getFrontDoorWAFPolicyManagedRuleSetGroupOverride name rules=[]]
-  [#return 
-    { "ruleGroupName": name } + 
+  [#return
+    { "ruleGroupName": name } +
     attributeIfContent("rules", rules)]
 [/#function]
 
@@ -333,8 +334,8 @@
   [#list wafRules as rule]
 
     [#local matchConditions = []]
-    
-    [#list rule.Conditions as condition]  
+
+    [#list rule.Conditions as condition]
 
       [#if condition?is_hash]
         [#local matchConditions += []]
