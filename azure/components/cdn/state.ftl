@@ -9,7 +9,11 @@
     [#local segmentSeed = getExistingReference(segmentSeedId)]
 
     [#local frontDoorId = formatResourceId(AZURE_FRONTDOOR_RESOURCE_TYPE, core.Id)]
-    [#local frontDoorName = formatName( core.FullName, segmentSeed) ]
+    [#local frontDoorName = formatAzureResourceName(
+        core.FullName,
+        AZURE_FRONTDOOR_RESOURCE_TYPE
+    )]
+
     [#local wafPolicyId = formatDependentResourceId(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Id)]
     [#local wafPolicyName = formatAzureResourceName(
         formatName(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Tier, core.Component)

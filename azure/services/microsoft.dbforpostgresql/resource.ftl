@@ -118,14 +118,14 @@
 
     [#local properties = { "createMode" : createMode } +
         attributeIfContent("version", version) +
-        attributeIfContent("sslEnforcement", sslEnforcement) + 
+        attributeIfContent("sslEnforcement", sslEnforcement) +
         attributeIfContent("storageProfile", storageProfile)
     ]
 
     [#switch createMode]
         [#case "Default"]
             [#local dbadmin = getServerCreateModeDefault(
-                adminName, 
+                adminName,
                 adminSecret
             )]
 
