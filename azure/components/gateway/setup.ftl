@@ -81,7 +81,7 @@
     [#switch gwSolution.Engine]
       [#case "vpcendpoint"]
       [#case "privateservice"]
-        [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", region)]
+        [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", regionId)]
         [#list networkEndpoints as id, networkEndpoint]
           [#if networkEndpoint.Type == "PrivateLink"]
             [#-- TODO(rossmurr4y): impliment Azure Private Links --]

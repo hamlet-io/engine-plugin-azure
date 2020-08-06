@@ -55,7 +55,7 @@
 
   [#if engine == "vpcendpoint" || engine == "privateservice" ]
 
-    [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", region)]
+    [#local networkEndpoints = getNetworkEndpoints(solution.NetworkEndpointGroups, "a", regionId)]
 
     [#list networkEndpoints as id, networkEndpoint]
 
