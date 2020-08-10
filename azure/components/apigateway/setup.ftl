@@ -141,7 +141,7 @@
                             "\"" + core.Name + "\"" + " " +
                             "\"" + accountId + "\"" + " " +
                             "\"" + accountObject.AzureId + "\"" + " " +
-                            "\"" + region + "\"" + " || return $?",
+                            "\"" + regionId + "\"" + " || return $?",
                     "#"
                 ]
         /]
@@ -172,7 +172,7 @@
         [#local openapiContext =
             {
                 "Account" : accountObject.AzureId,
-                "Region" : region,
+                "Region" : regionId,
                 "AADAppRegistrations" : aadAppRegistrations,
                 "LambdaAuthorizers" : lambdaAuthorizers,
                 "FQDN" : attributes["FQDN"],

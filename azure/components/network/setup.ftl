@@ -184,13 +184,13 @@
           [/#if]
         [/#list]
 
-        [#local networkEndpoints = getNetworkEndpoints(networkEndpointGroups, "a", region)]
+        [#local networkEndpoints = getNetworkEndpoints(networkEndpointGroups, "a", regionId)]
 
         [#local serviceEndpoints = []]
         [#local serviceEndpointPolicies = []]
         [#if tierId == "mgmt"]
           [#list networkEndpoints?keys as endpointId]
-            [#local serviceEndpoints += [getSubnetServiceEndpoint(endpointId, [region])]]
+            [#local serviceEndpoints += [getSubnetServiceEndpoint(endpointId, [regionId])]]
           [/#list]
         [/#if]
 
