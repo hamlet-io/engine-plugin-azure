@@ -7,7 +7,7 @@
         {
             "apiVersion" : "2019-04-01",
             "type" : "Microsoft.Storage/storageAccounts",
-            "conditions" : [ "alphanumeric_only", "name_to_lower", "globally_unique", "max_length" ],
+            "conditions" : [ "name_to_lower", "globally_unique", "alphanumeric_only", "max_length" ],
             "max_name_length" : 24,
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
@@ -323,7 +323,7 @@
 
 [#function formatAzureStorageListKeys storageId key=0]
     [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
-    
+
     [#if storageId?starts_with("[")]
         [#-- child function, don't quote + remove boilerplate --]
         [#local storageId =
@@ -337,7 +337,7 @@
                 ?ensure_starts_with("'")
                 ?ensure_ends_with("'")]
     [/#if]
-    
+
     [#return
         "[listKeys(" + storageId + ", '" + apiVersion + "').keys[" + key + "].value]"
     ]

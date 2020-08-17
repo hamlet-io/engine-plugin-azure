@@ -17,15 +17,14 @@
         [/#if]
     [/#list]
 
-    [#local accountName = formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.ShortName)]
     [#local blobName = "default"]
     [#local container = formatName(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.ShortName)]
-    [#local accountName = formatAzureResourceName(accountName, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
+    [#local accountName = formatAzureResourceName(core.ShortName, AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
     [#local blobName = formatAzureResourceName(blobName, AZURE_BLOBSERVICE_RESOURCE_TYPE, accountName)]
     [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
     [#local secretName = formatSecretName(core.ShortName, "ConnectionKey")]
 
-    [#local storageEndpoints = 
+    [#local storageEndpoints =
         getExistingReference(
             formatId(
                 storageAccountId
