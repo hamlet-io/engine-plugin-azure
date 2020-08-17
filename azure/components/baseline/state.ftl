@@ -3,7 +3,7 @@
 [#macro azure_baseline_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
-  
+
   [#local segmentSeedId = formatSegmentSeedId() ]
   [#if !(getExistingReference(segmentSeedId)?has_content) ]
     [#local segmentSeedValue = (commandLineOptions.Run.Id + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
@@ -12,9 +12,9 @@
   [/#if]
 
   [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
-  [#local storageAccountName = 
+  [#local storageAccountName =
     formatAzureResourceName(
-      formatName(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, segmentSeedValue),
+      formatName(core.ShortName, segmentSeedValue),
       AZURE_STORAGEACCOUNT_RESOURCE_TYPE
     )
   ]
@@ -34,7 +34,7 @@
     [#list settings?keys?filter(s -> s?starts_with("REGISTRIES") && s?ends_with("PREFIX")) as setting]
 
         [#local registryName = getOccurrenceSettingValue(occurrence, setting)?remove_ending('/')]
-        [#local registries += 
+        [#local registries +=
           {
             setting : {
               "Id": formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, registryName),
@@ -112,11 +112,11 @@
   [#else]
     [#local container = core.SubComponent.Id]
   [/#if]
-  
+
   [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
   [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
 
-  [#local storageEndpoints = 
+  [#local storageEndpoints =
     getExistingReference(
       formatId(
         storageAccountId
@@ -163,7 +163,7 @@
 [#macro azure_baselinekey_arm_state occurrence parent={}]
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
-  
+
   [#local resources = {}]
 
   [#switch solution.Engine]
