@@ -1021,6 +1021,21 @@
           "computecluster": {
             "Tier": "Standard",
             "Replication": "LRS"
+          },
+          "ecs" : {
+            "Volumes" : {
+              "Size" : 128
+            }
+          },
+          "service" : {
+            "Volumes" : {
+              "Size" : 128
+            }
+          },
+          "task" : {
+            "Volumes" : {
+              "Size" : 128
+            }
           }
         },
         "Blob": {
@@ -1056,6 +1071,24 @@
           },
           "db": {
             "Processor": "GP_Gen5_2"
+          },
+          "ECS" : {
+            "Processor" : "Standard_B2s",
+            "DesiredCount" : 1,
+            "MaxCount": 2,
+            "MinCount" : 2
+          },
+          "service" : {
+            "Processor" : "Standard_B2s",
+            "DesiredCount" : 1,
+            "MaxCount": 2,
+            "MinCount" : 2
+          },
+          "task" : {
+            "Processor" : "Standard_B2s",
+            "DesiredCount" : 1,
+            "MaxCount": 2,
+            "MinCount" : 2
           }
         },
         "basic": {
@@ -1226,6 +1259,15 @@
             "Publisher" : "Canonical",
             "Offering" : "UbuntuServer",
             "Image" : "18.04-LTS"
+          },
+          "ecs" : {
+            "Image" : "AKSUbuntu-1604-2020.08.06"
+          },
+          "service" : {
+            "Image" : "AKSUbuntu-1604-2020.08.06"
+          },
+          "task" : {
+            "Image" : "AKSUbuntu-1604-2020.08.06"
           }
         }
       },

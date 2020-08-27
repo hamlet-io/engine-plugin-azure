@@ -19,6 +19,9 @@
 [#-- Microsoft.Compute --]
 [#assign AZURE_VIRTUALMACHINE_SERVICE = "microsoft.compute"]
 
+[#-- Microsoft.ContainerService --]
+[#assign AZURE_CONTAINER_SERVICE = "microsoft.containerservice"]
+
 [#-- Microsoft.Insights --]
 [#assign AZURE_INSIGHTS_SERVICE = "microsoft.insights"]
 
