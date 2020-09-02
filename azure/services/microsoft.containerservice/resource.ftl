@@ -73,6 +73,30 @@
         attributeIfContent("nodeImageVersion", imageProfile.Image!"")]
 [/#function]
 
+[#function getContainerClusterOSProfile adminName="azureuser" os="" publicKeyData=""]
+    [#if os?has_content]
+        [#if os?contains("Windows")]
+            [#return
+                {
+                    "windowsProfile" : {
+                        "adminUsername" : adminName
+                    }
+                }]
+        [#else]
+            [#return 
+                {
+                    "linuxProfile" : {
+                        "adminUsername" : adminName,
+                        "ssh" : {
+                            "publicKeys" : [ { "keyData" : publicKeyData }]
+                        }
+                    }
+                }]
+        [/#if]
+    [/#if]
+    [#return {}]
+[/#function]
+
 [#macro createContainerCluster
     id
     name
@@ -81,9 +105,11 @@
     poolProfiles=[]
     identity={}
     scaleRules=[]
+    osProfile={}
     dependsOn=[]]
     
     [#local properties = {} +
+        osProfile +
         attributeIfContent("agentPoolProfiles", poolProfiles)]
 
     [@armResource
