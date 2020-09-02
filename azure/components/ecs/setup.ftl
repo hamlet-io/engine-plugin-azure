@@ -31,11 +31,16 @@
 
     [/#list]
 
+    [#local clusterHostSku = getObjectAttributes(
+        getSkuProfile(occurrence, core.Type),
+        ["Name", "Tier"]
+    )]
+
     [@createContainerCluster
         id=cluster.Id
         name=cluster.Name
         location=regionId
-        sku={}
+        sku=clusterHostSku
         poolProfiles=[getContainerAgentPoolProfile(core.ShortName, occurrence)]
     /]
 

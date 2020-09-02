@@ -1326,6 +1326,10 @@
             "Name" : "Standard_B1ms",
             "Tier" : "Standard",
             "Capacity" : 1
+          },
+          "ecs" : {
+            "Name" : "Basic",
+            "Tier" : "Free"
           }
         }
       },

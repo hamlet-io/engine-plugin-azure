@@ -44,6 +44,19 @@
             ]
         },
         {
+            "Names" : "ecs",
+            "Children" : [
+                {
+                    "Names" : "Name",
+                    "Type" : STRING_TYPE
+                },
+                {
+                    "Names" : "Tier",
+                    "Type" : STRING_TYPE
+                }
+            ]
+        },
+        {
             "Names" : "s3",
             "Children" : [
                 {
