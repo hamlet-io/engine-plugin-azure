@@ -12,6 +12,6 @@
     resourceGroup=DEFAULT_RESOURCE_GROUP
     services=
         [
-            AZURE_CONTAINER_SERVICE
+            AZURE_WEB_SERVICE
         ]
 /]

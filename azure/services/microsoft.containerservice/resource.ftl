@@ -36,7 +36,7 @@
     [#-- Profiles --]
     [#local processorProfile = 
         getProcessor(occurrence, "ECS", solution.Profiles.Processor)]
-    [#local networkProfile = getOccurrenceNetwork(occurrence)]
+
     [#local storageProfile = getStorage(occurrence, "ecs")]
     [#local imageProfile = getVMImageProfile(occurrence, "ecs")]
     [#local autoScaleProfile = {}]
@@ -73,6 +73,13 @@
         attributeIfContent("nodeImageVersion", imageProfile.Image!"")]
 [/#function]
 
+[#function getContainerClusterNetworkProfile occurrence]
+    [#local result = {}]
+    [#local networkProfile = getOccurrenceNetwork(occurrence)]
+
+    [#return result]
+[/#function]
+
 [#function getContainerClusterOSProfile adminName="azureuser" os="" publicKeyData=""]
     [#if os?has_content]
         [#if os?contains("Windows")]
@@ -106,11 +113,13 @@
     identity={}
     scaleRules=[]
     osProfile={}
+    networkProfile={}
     dependsOn=[]]
     
     [#local properties = {} +
         osProfile +
-        attributeIfContent("agentPoolProfiles", poolProfiles)]
+        attributeIfContent("agentPoolProfiles", poolProfiles) +
+        attributeIfContent("networkProfile", networkProfile)]
 
     [@armResource
         id=id
