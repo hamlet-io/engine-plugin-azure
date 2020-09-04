@@ -54,7 +54,7 @@
                                         "DefaultCapacity" : 1,
                                         "ScalingRules" : {
                                             "workerUp" : {
-                                                "MetricName" : "Percentage CPU",
+                                                "MetricName" : "CpuPercentage",
                                                 "TimeGrain" : "PT1M",
                                                 "Statistic" : "Average",
                                                 "TimeWindow" : "PT5M",
@@ -67,7 +67,7 @@
                                                 "ActionValue" : 1
                                             },
                                             "workerDown" : {
-                                                "MetricName" : "Percentage CPU",
+                                                "MetricName" : "CpuPercentage",
                                                 "TimeGrain" : "PT1M",
                                                 "Statistic" : "Average",
                                                 "TimeWindow" : "PT5M",

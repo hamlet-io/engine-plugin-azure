@@ -1,5 +1,28 @@
 [#ftl]
 
+[#assign skuChildAttributes = [
+    {
+        "Names" : "Name",
+        "Type" : STRING_TYPE
+    },
+    {
+        "Names" : "Tier",
+        "Type" : STRING_TYPE
+    },
+    {
+        "Names" : "Capacity",
+        "Type" : NUMBER_TYPE
+    },
+    {
+        "Names" : "Size",
+        "Type" : [ NUMBER_TYPE, STRING_TYPE ]
+    },
+    {
+        "Names" : "Family",
+        "Type" : STRING_TYPE
+    }
+]]
+
 [@addReference
     type=SKU_PROFILE_REFERENCE_TYPE
     pluralType="SkuProfiles"
@@ -44,17 +67,8 @@
             ]
         },
         {
-            "Names" : "ecs",
-            "Children" : [
-                {
-                    "Names" : "Name",
-                    "Type" : STRING_TYPE
-                },
-                {
-                    "Names" : "Tier",
-                    "Type" : STRING_TYPE
-                }
-            ]
+            "Names" : "containerhost",
+            "Children" : skuChildAttributes
         },
         {
             "Names" : "s3",
@@ -76,28 +90,7 @@
         },
         {
             "Names" : "db",
-            "Children" : [
-                {
-                    "Names" : "Name",
-                    "Type" : STRING_TYPE
-                },
-                {
-                    "Names" : "Tier",
-                    "Type" : STRING_TYPE
-                },
-                {
-                    "Names" : "Capacity",
-                    "Type" : NUMBER_TYPE
-                },
-                {
-                    "Names" : "Size",
-                    "Type" : NUMBER_TYPE
-                },
-                {
-                    "Names" : "Family",
-                    "Type" : STRING_TYPE
-                }
-            ]
+            "Children" : skuChildAttributes
         },
         {
             "Names" : "secretstore",

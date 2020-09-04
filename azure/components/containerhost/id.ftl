@@ -1,7 +1,8 @@
 [#ftl]
 
 [@addResourceGroupInformation
-    type=COMPUTECLUSTER_COMPONENT_TYPE
+    type=CONTAINERHOST_COMPONENT_TYPE
+    provider=AZURE_PROVIDER
     attributes=[
         {
             "Names" : "ScalingProfiles",
@@ -9,13 +10,10 @@
             "Children" : azureScalingProfilesChildren
         }
     ]
-    provider=AZURE_PROVIDER
     resourceGroup=DEFAULT_RESOURCE_GROUP
     services=
         [
-            AZURE_VIRTUALMACHINE_SERVICE,
-            AZURE_INSIGHTS_SERVICE,
-            AZURE_NETWORK_SERVICE,
-            AZURE_AUTHORIZATION_SERVICE
+            AZURE_WEB_SERVICE,
+            AZURE_INSIGHTS_SERVICE
         ]
 /]

@@ -15,68 +15,6 @@
     }
 /]
 
-[#function getAutoScaleRule
-  metricName
-  resourceId
-  timeGrain
-  statistic
-  timeWindow
-  timeAggregation
-  operator
-  threshold
-  direction
-  actionType
-  cooldown
-  actionValue=""]
-
-  [#return
-    {
-      "metricTrigger" : {
-        "metricName" : metricName,
-        "metricResourceUri" : resourceId,
-        "timeGrain" : timeGrain,
-        "statistic" : statistic,
-        "timeWindow" : timeWindow,
-        "timeAggregation" : timeAggregation,
-        "operator" : operator,
-        "threshold" : threshold
-      },
-      "scaleAction" : {
-        "direction" : direction,
-        "type" : actionType,
-        "cooldown" : cooldown
-      } +
-      attributeIfContent("value", actionValue)
-    }
-  ]
-
-[/#function]
-
-[#function getAutoScaleProfile
-  name
-  minCapacity
-  maxCapacity
-  defaultCapacity
-  rules
-  fixedDate={}
-  recurrence={}]
-
-  [#return 
-    {
-      "name" : name,
-      "capacity" : {
-        "minimum" : minCapacity,
-        "maximum" : maxCapacity,
-        "default" : defaultCapacity
-      },
-      "rules" : rules
-    } +
-    attributeIfContent("fixedDate", fixedDate) +
-    attributeIfContent("recurrence", recurrence)
-  ]
-
-[/#function]
-
 [#macro createAutoscaleSettings
   id
   name
