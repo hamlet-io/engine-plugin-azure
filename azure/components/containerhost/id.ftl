@@ -5,9 +5,24 @@
     provider=AZURE_PROVIDER
     attributes=[
         {
-            "Names" : "ScalingProfiles",
-            "SubObjects" : true,
-            "Children" : azureScalingProfilesChildren
+            "Names" : "Profiles",
+            "Children" : [
+                {
+                    "Names" : "Sku",
+                    "Type" : STRING_TYPE,
+                    "Default" : "default"
+                },
+                {
+                    "Names" : "VMImage",
+                    "Type" : STRING_TYPE,
+                    "Default" : "default"
+                },
+                {
+                    "Names" : "Scaling",
+                    "Subobjects" : true,
+                    "Children" : azureScalingProfilesChildren
+                }
+            ] 
         }
     ]
     resourceGroup=DEFAULT_RESOURCE_GROUP

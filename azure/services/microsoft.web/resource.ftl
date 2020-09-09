@@ -49,8 +49,8 @@
 
 [#function getAppServicePlanProperties profiles]
 
-    [#local image = profiles.Image?has_content
-        ?then(profiles.Image.Offering!"", "")]
+    [#local image = profiles.VMImage?has_content
+        ?then(profiles.VMImage.Offering!"", "")]
     
     [#return {} +
         attributeIfContent(
@@ -71,13 +71,17 @@
 [/#function]
 
 [#function getAppServicePlanSku profiles]
-    [#return {
-            "name" : profiles.SKU.Name,
-            "tier" : profiles.SKU.Tier,
-            "size" : profiles.SKU.Size,
-            "family" : profiles.SKU.Family,
-            "capacity" : profiles.SKU.Capacity
-        }]
+    [#if profiles.Sku?has_content]
+        [#return {
+                "name" : profiles.Sku.Name,
+                "tier" : profiles.Sku.Tier,
+                "size" : profiles.Sku.Size,
+                "family" : profiles.Sku.Family,
+                "capacity" : profiles.Sku.Capacity
+            }]
+    [#else]
+        [#return {}]
+    [/#if]
 [/#function]
 
 [#macro createAppServicePlan

@@ -1060,9 +1060,8 @@
                     "Processor": "GP_Gen5_2"
                 },
                 "containerhost": {
-                    "Processor": "",
                     "MaxCount": 2,
-                    "MinCount": 0,
+                    "MinCount": 1,
                     "DesiredCount": 1
                 },
                 "containerservice": {},

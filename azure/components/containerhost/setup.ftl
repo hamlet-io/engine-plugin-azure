@@ -12,7 +12,7 @@
     [#local solution = occurrence.Configuration.Solution]
     [#local isAutoScaling = solution.AutoScaling.Enabled]
     [#local resources = occurrence.State.Resources]
-    [#local profiles = getOccurrenceReferenceProfiles(occurrence)]
+    [#local profiles = getOccurrenceProfiles(occurrence)]
 
     [#switch solution.Engine]
         [#default]
@@ -32,7 +32,7 @@
                     id=autoscaleSettings.Id
                     name=autoscaleSettings.Name
                     location=regionId
-                    profiles=profiles.Scale
+                    profiles=getAutoScaleProfiles(occurrence, profiles host.Reference)
                     targetId=host.Reference
                     dependsOn=[host.Reference]
                 /]
