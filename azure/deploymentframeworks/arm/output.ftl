@@ -363,7 +363,9 @@
         [#local resourceScope = getResourceRelativeScope(id)]
     [/#if]
     [#local resourceProfile = getAzureResourceProfile(profile)]
+    [#local templateOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
+    [#local resourceScope = scope?has_content?then(scope, resourceProfile.scope)]
 
     [#-- Construct Current Resource Object --]
     [#if !(resourceScope.Level == "pseudo")]
@@ -393,7 +395,6 @@
         [#case "subscription"]
         [#case "resourceGroup"]
             [#local deploymentOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
-            [#local templateOutputs = constructArmOutputsFromMappings(id, name, "template", resourceProfile.outputMappings)]
             [@armResource
                 id=formatResourceId(AZURE_DEPLOYMENT_RESOURCE_TYPE, id)
                 name=formatAzureResourceName(name, AZURE_DEPLOYMENT_RESOURCE_TYPE)
@@ -419,7 +420,6 @@
             [#break]
 
         [#case "template"]
-            [#local templateOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
             [@addToJsonOutput
                 name="resources"
                 content=[resourceContent]
@@ -433,16 +433,20 @@
         [#case "pseudo"]
             [@mergeWithJsonOutput
                 name="outputs"
-                content=resourceOutputs
+                content=templateOutputs
             /]
             [#break]
 
         [#default]
             [@fatal
                 message="Unknown or missing resource scope."
-                context=resourceScope
+                context={
+                        "DefaultResourceScope" : resourceProfile.scope
+                    } +
+                    attributeIfContent("OverwriteScope", scope)
             /]
             [#break]
+
     [/#switch]
 [/#macro]
 
