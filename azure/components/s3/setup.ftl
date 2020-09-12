@@ -113,6 +113,7 @@
                 secret.Name,
                 secret.Type,
                 keyVaultName)
+            vaultId=keyVaultId
             properties=
                 getKeyVaultSecretProperties(
                     formatAzureStorageListKeys(

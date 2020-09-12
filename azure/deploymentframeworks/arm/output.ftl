@@ -37,19 +37,67 @@
     }]
 [/#function]
 
-[#macro armOutput name type value condition=""]
-    [@mergeWithJsonOutput
-        name="outputs"
-        content=
-            {
-                name : {
-                    "type" : type,
-                    "value" : value
-                } +
-                attributeIfContent("condition", condition)
-            }
-    /]
-[/#macro]
+[#function getArmOutput name type value condition=""]  
+    [#return {
+        name : {
+            "type" : type,
+            "value" : value
+        } +
+        attributeIfContent("condition", condition)
+    }]
+[/#function]]
+
+[#function constructArmOutputsFromMappings id name scope mappings=[]]
+    [#local result = {}]
+    [#switch scope]
+        [#case "resourceGroup"]
+
+            [#-- redirect values to nested resource outputs --]
+            [#list mappings as attributeType,attributes]
+                [#local dataType = getOutputMappingDataType(attributeType)]
+                [#list attributes as attributeName,attributeValue]
+                    [#if attributeValue == "id"]
+                        [#local outputName = id]
+                        [#local value = getReference(id, name)]
+                    [#else]
+                        [#local propertySections = attributeValue?split(".")]
+                        [#local outputName = formatAttributeId(id, propertySections)]
+                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                    [/#if]
+                    [#local result += getArmOutput(outputName, dataType, value)]
+                [/#list]
+            [/#list]
+            [#break]
+
+        [#case "template"]
+            [#list mappings as attributeType,attributes]
+
+                [#local dataType = getOutputMappingDataType(attributeType)]
+                [#list attributes as attributeName,attributeValue]
+                    [#if attributeValue == "id"]
+                        [#local outputName = id]
+                        [#local value = getReference(id, name)]
+                        [#break]
+                    [#else]
+                        [#local propertySections = attributeValue?split(".")]
+                        [#local outputName = formatAttributeId(id, propertySections)]
+                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
+                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                        [#break]
+                    [/#if]
+                    [#local result += getArmOutput(outputName, dataType, value)]
+                [/#list]
+            [/#list]
+            [#break]
+
+        [#case "pseudo"]
+            [#return getArmOutput(name, "string", "pseudo")]
+            [#break]
+
+    [/#switch]
+    [#return result]
+[/#function]
 
 [#macro addParametersToDefaultJsonOutput id parameter]
    [@addToDefaultJsonOutput
@@ -128,6 +176,51 @@
     /]
 [/#macro]
 
+[#function getOutputMappingDataType type]
+    [#switch type]
+        [#case DICTIONARY_ATTRIBUTE_TYPE]
+            [#return "object"]
+            [#break]
+
+        [#default]
+            [#return "string"]
+            [#break]
+    [/#switch]
+[/#function]
+
+[#-- returns the difference in scope of a resource relative to the current deployment unit --]
+[#function getResourceRelativeScope id]
+
+    [#local targetScope = mergeObjects(
+            getStackOutputObject((commandLineOptions.Deployment.Provider.Names)[0], id),
+            getExistingReference(id, "ResourceGroup"),
+            getExistingReference(id, "Subscription"))]
+
+    [#local currentScope = {
+        "Subscription" : accountObject.AzureId,
+        "Region" : regionId,
+        "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name,
+        "DeploymentUnit" : getDeploymentUnit()}]
+
+    [#local relativeScope = {} +
+        attributeIfTrue("Subscription", (currentScope.Subscription != targetScope.Subscription), targetScope.Subscription) +
+        attributeIfTrue("Region", (currentScope.Region != targetScope.Region), targetScope.Region) + 
+        attributeIfTrue("ResourceGroup", (currentScope.ResourceGroup != targetScope.ResourceGroup), targetScope.ResourceGroup) +
+        attributeIfTrue("DeploymentUnit", (currentScope.DeploymentUnit != targetScope.DeploymentUnit), targetScope.DeploymentUnit)]
+    
+    [#-- scope identifier --]
+    [#if relativeScope?keys?seq_contains("Subscription")]
+        [#local relativeScope += { "Scope" : "subscription" }]
+    [#elseif relativeScope?keys?seq_contains("ResourceGroup") || relativeScope?keys?seq_contains("DeploymentUnit")]
+        [#local relativeScope += { "Scope" : "resourceGroup" }]
+    [#elseif isPartOfCurrentDeploymentUnit(id)]
+        [#local relativeScope += { "Scope" : "template" }]
+    [#else]
+        
+    [/#if]
+    [#return relativeScope]
+[/#function]
+
 [#macro armResource
     id
     name
@@ -144,21 +237,25 @@
     plan={}
     zones=[]
     resources=[]
-    parentNames=[]]
+    parentNames=[]
+    resourceGroup=""
+    scope=""]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
+    [#local resourceOutputs = constructArmOutputsFromMappings(resourceProfile.outputMappings)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
+    [#local resourceScope = scope?has_content?then(scope, resourceProfile.scope)]
 
+    [#-- Construct Current Resource Object --]
     [#if !(resourceProfile.type == "pseudo")]
-        [@addToJsonOutput
-            name="resources"
-            content=[
-                {
+        [#local resourceContent = {
                     "name": name,
                     "type": resourceProfile.type,
                     "apiVersion": resourceProfile.apiVersion,
                     "properties": properties
                 } +
+                attributeIfContent("resourceGroup", resourceGroup) +
+                attributeIfContent("subscriptionId", subscriptionId) +
                 attributeIfContent("identity", identity) +
                 attributeIfContent("location", resourceLocation) +
                 attributeIfContent("dependsOn", dependsOn) +
@@ -169,68 +266,61 @@
                 attributeIfContent("kind", kind) +
                 attributeIfContent("plan", plan) +
                 attributeIfContent("zones", zones) +
-                attributeIfContent("resources", resources)
-            ]
-        /]
+                attributeIfContent("resources", resources)]
     [/#if]
 
-    [#list resourceProfile.outputMappings as attributeType,attributes]
+    [#switch resourceScope]
 
-        [#switch attributeType]
-            [#case DICTIONARY_ATTRIBUTE_TYPE]
-                [#local type = "object"]
-                [#break]
+        [#case "resourceGroup"]
+            [@armResource
+                id=formatResourceId(AZURE_DEPLOYMENT_RESOURCE_TYPE, id)
+                name=formatAzureResourceName(name, AZURE_DEPLOYMENT_RESOURCE_TYPE)
+                profile=AZURE_DEPLOYMENT_RESOURCE_TYPE
+                properties=
+                    {
+                        "template": {
+                            "$schema": ARMSchemas.Template,
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {},
+                            "resources": [resourceContent],
+                            "outputs": resourceOutputs
+                        }
+                    }
+                scope="template"
+                resourceGroup=resourceGroup
+                dependsOn=dependsOn
+            /]
+            [@mergeWithJsonOutput
+                name="outputs"
+                content=resourceOutputs
+            /]
+            [#break]
 
-            [#default]
-                [#local type = "string"]
-                [#break]
-        [/#switch]
-
-        [#list attributes as attributeName,attributeValue]
-
-            [#switch attributeValue]
-            
-                [#case "id"]
-                    [#local outputName = id]
-                    [#local value = getReference(id, name)]
-                    [#break]
-
-                [#case "pseudo"]
-
-                    [@addToDefaultBashScriptOutput
-                        content=
-                        pseudoArmStackOutputScript(name + " Values", { id : name })
-                    /]
-
-                    [#break]
-
-                [#default]
-                    [#local propertySections = attributeValue?split(".")]
-                    [#local outputName = formatAttributeId(id, propertySections)]
-                    [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                    [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
-                    [#break]
-
-            [/#switch]
-
-            [#if outputName??]
-                [@armOutput
-                    name=outputName
-                    type=type
-                    value=value
+        [#case "template"]
+        [#case "pseudo"]
+            [#if !(resourceProfile.type == "pseudo")]
+                [@addToJsonOutput
+                    name="resources"
+                    content=[resourceContent]
                 /]
             [/#if]
+            [@mergeWithJsonOutput
+                name="outputs"
+                content=resourceOutputs
+            /]
+            [#break]
 
-        [/#list]
-    [/#list]
-[/#macro]
+        [#default]
+            [@fatal
+                message="Unknown or missing resource scope."
+                context={
+                    "DefaultResourceScope" : resourceProfile.scope
+                } +
+                attributeIfContent("OverwriteScope" : scope)
+            /]
+            [#break]
 
-[#macro armPseudoResource id name profile]
-    [@armResource
-        id=id
-        name=name
-        profile=profile
-    /]
+    [/#switch]
 [/#macro]
 
 [#macro arm_output_resource level="" include=""]

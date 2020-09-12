@@ -200,6 +200,7 @@ reference: https://tinyurl.com/y42ot42k --]
   name
   tags={}
   properties={}
+  resourceGroup=""
   dependsOn=[]]
 
   [@armResource
@@ -208,6 +209,7 @@ reference: https://tinyurl.com/y42ot42k --]
     profile=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
     tags=tags
     properties=properties
+    resourceGroup=resourceGroup
     dependsOn=dependsOn
   /]
 [/#macro]
