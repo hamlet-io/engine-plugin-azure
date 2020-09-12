@@ -89,76 +89,43 @@
     /]
 [/#macro]
 
-[#-- formats an ARM function call without boilerplate --]
-[#function formatRawArmFunction function parts args...]
-    [#return function + "(" + concatenate(asFlattenedArray(parts), ", ") + ")" + concatenate(asFlattenedArray(args, true), ".")]
+[#-- formats an ARM Function --]
+[#-- Usage --]
+[#--    formatRawArmFunction("reference", [<resourceId>], "properties", "primaryEndpoints") --]
+[#--    formatRawArmFunction("concat", ["quick", "brown", "fox"])                           --]
+[#--    formatRawArmFunction("subscription", [], "id")                                      --]
+[#-- Results                                                                                --]
+[#--    "reference(<resourceId>).properties.primaryEndpoints"                               --]
+[#--    "concat('quick', 'brown', 'fox')"                                                   --]
+[#--    "subscription().id"                                                                 --]
+[#function formatRawArmFunction function parts=[] args...]
+    [#local parameters = parts?has_content?then( r"'" + concatenate(asFlattenedArray(parts), r"', '") + r"'", "")]
+    [#local attributes = args?has_content?then(concatenate(asFlattenedArray(["."] + args), "."), "")]
+    [#return function + "(" + parameters + ")" + attributes]
 [/#function]
 
-[#function formatArmFunction function parts args...]
-    [#return "[" + function + "(" + concatenate(asFlattenedArray(parts), ", ") + ")" + concatenate(asFlattenedArray(args, true), ".") + "]" ]
+[#function formatArmFunction function parts=[] args...]
+    [#return "[" + formatRawArmFunction(function, parts, args) + "]" ]
 [/#function]
 
-[#function formatReference 
-    id
-    name
-    resourceGroup=""
-    type
-    scope="template"
-    attributes...]
-    [#local parts = []]
-
-    [#switch true]
-        [#case ]
-
-    [/#switch]
-
-    [#local attributes = concatenate(asFlattenedArray(attributes, true), ".")]
-    [#return concatenate(parts, ', ')]
-[/#function]
-
-[#function getReference
-    resourceId
-    name,
-    scope="template"
-    attributeType=REFERENCE_ATTRIBUTE_TYPE
-    subscriptionId=""
-    resourceGroup=""
-    args...]
-
-    [#local type = getResourceType(resourceId)]
-    [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local nameSegments = getAzureResourceNameSegments(name)]
-
-    [#local nameSegments = getAzureResourcePropertySegments(resourceName)]
-
-        [#case "subscription"]
-            [#local parts = [subscriptionId, resourceGroup, type, nameSegments]]
-            [#break]
-
-        [#case "resourceGroup"]
-            [#local parts = [resourceGroup, type, nameSegments] ]
-            [#break]
-
-        [#case "template"]
-            [#local parts = [name]]
-            [#break]
-
-        [#case "pseudo"]
-            [#-- Pseudo resources only output their name --]
-            [#return name]
-            [#break]
-            
-    [/#switch]
-
-    [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
-        [#-- ARM Function will resolve to a Resource Identifier --]
-        [#return formatArmFunction("resourceId", parts, args)]
-    [#else]
-        [#-- ARM Function will resolve to a Resource Attribute --]
-        [#local rawResourceIdFunction = formatRawArmFunction("resourceId", parts)]
-        [#local resourceIdentifier = [rawResourceIdFunction, resourceProfile.apiVersion, 'Full']]
-        [#return formatArmFunction("reference", parts, args)]
+[#function getReference id attributeType="" resourceType=""]
+    [#if isPartOfCurrentDeploymentUnit(id)]
+        [#if attributeType?has_content]
+            [#if !(resourceType?has_content)]
+                [@fatal
+                    message="GetReference Resource Type and Attribute Type must be assigned together."
+                    context={ "Id" : id, "ResourceType" : resourceType, "AttributeType" : attributeType }
+                /]
+            [/#if]
+            [#local mapping = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType)]
+            [#if mapping.Property?has_content]
+                [#local args = mapping.Property?split(".")]
+            [/#if]
+            [#return formatArmFunction("reference", [id, 'Full'], args)]
+        [/#if]
+        [#return formatArmFunction("reference", [id, 'Full'], "id")]
     [/#if]
+    [#return getExistingReference(id, attributeType)]
 [/#function]
 
 [#-- Some Azure resources need to be referened by their resourceId without being

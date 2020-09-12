@@ -32,7 +32,7 @@
                 "Id" : configId,
                 "Name" : configName,
                 "Type" : AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE,
-                "Reference": getReference(configId, configName)
+                "Reference": getReference(configName)
             }}]
     [/#list]
 
@@ -62,20 +62,20 @@
                     "Id" : dbServerId,
                     "Name" : dbServerName,
                     "Type" : AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE,
-                    "Reference": getReference(dbServerId, dbServerName)
+                    "Reference": getReference(dbServerName)
                 },
                 "database" : {
                     "Id" : databaseId,
                     "Name" : databaseName,
                     "Type" : AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE,
-                    "Reference": getReference(databaseId, databaseName)
+                    "Reference": getReference(databaseName)
                 },
                 "dbconfigs" : configs,
                 "dbvnetrule" : {
                     "Id" : vnetRuleId,
                     "Name" : vnetRuleName,
                     "Type" : AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE,
-                    "Reference": getReference(vnetRuleId, vnetRuleName)
+                    "Reference": getReference(vnetRuleName)
                 }
             },
             "Attributes" : {

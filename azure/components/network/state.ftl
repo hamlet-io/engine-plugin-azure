@@ -61,7 +61,7 @@
             "Name": networkTier.Name,
             "Address": subnetCIDRs[tierId?index],
             "Type": AZURE_SUBNET_RESOURCE_TYPE,
-            "Reference" : getReference(subnetId, networkTier.Name, resourceProfile.type)
+            "Reference" : getReference(networkTier.Name)
           }
         }
       }
@@ -96,7 +96,7 @@
           "Id" : nsgId,
           "Name" : nsgName,
           "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
-          "Reference" : getReference(nsgId, nsgName)
+          "Reference" : getReference(nsgName)
         }
       } +
       attributeIfTrue(

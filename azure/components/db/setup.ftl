@@ -137,7 +137,7 @@
                 [@createPostgresServerVNetRule
                     id=vnetRule.Id
                     name=vnetRule.Name
-                    subnetId=subnet.Reference
+                    subnetId=getReference(subnet.Id)
                     ignoreMissingEndpoint=true
                     dependsOn=[
                         server.Reference
