@@ -89,93 +89,75 @@
     /]
 [/#macro]
 
-[#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
-a resource, be it previously deployed or within current template. This differs from
-the previous function as the ARM function will return a full object, from which attributes
-can be referenced via dot notation. --]
+[#-- formats an ARM function call without boilerplate --]
+[#function formatRawArmFunction function parts args...]
+    [#return function + "(" + concatenate(asFlattenedArray(parts), ", ") + ")" + concatenate(asFlattenedArray(args, true), ".")]
+[/#function]
+
+[#function formatArmFunction function parts args...]
+    [#return "[" + function + "(" + concatenate(asFlattenedArray(parts), ", ") + ")" + concatenate(asFlattenedArray(args, true), ".") + "]" ]
+[/#function]
+
+[#function formatReference 
+    id
+    name
+    resourceGroup=""
+    type
+    scope="template"
+    attributes...]
+    [#local parts = []]
+
+    [#switch true]
+        [#case ]
+
+    [/#switch]
+
+    [#local attributes = concatenate(asFlattenedArray(attributes, true), ".")]
+    [#return concatenate(parts, ', ')]
+[/#function]
+
 [#function getReference
     resourceId
-    resourceName,
-    typeFull=""
-    outputType=REFERENCE_ATTRIBUTE_TYPE
+    name,
+    scope="template"
+    attributeType=REFERENCE_ATTRIBUTE_TYPE
     subscriptionId=""
-    resourceGroupName=""
-    fullResource=true
-    attributes...]
+    resourceGroup=""
+    args...]
 
-    [#-- get short type - used for apiVersion + conditions --]
-    [#local resourceType = getResourceType(resourceId)]
+    [#local type = getResourceType(resourceId)]
     [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local apiVersion = resourceProfile.apiVersion]
-    [#local conditions = resourceProfile.conditions]
+    [#local nameSegments = getAzureResourceNameSegments(name)]
 
     [#local nameSegments = getAzureResourcePropertySegments(resourceName)]
 
-    [#-- get long type - used for referencing resources in ARM functions --]
-    [#if typeFull == ""]
-        [#local typeFull = resourceProfile.type]
-    [/#if]
+        [#case "subscription"]
+            [#local parts = [subscriptionId, resourceGroup, type, nameSegments]]
+            [#break]
 
-    [#-- Provide a full resource object or just the properties object --]
-    [#if fullResource]
-        [#local fullOrPartReference = "', 'Full'"]
+        [#case "resourceGroup"]
+            [#local parts = [resourceGroup, type, nameSegments] ]
+            [#break]
+
+        [#case "template"]
+            [#local parts = [name]]
+            [#break]
+
+        [#case "pseudo"]
+            [#-- Pseudo resources only output their name --]
+            [#return name]
+            [#break]
+            
+    [/#switch]
+
+    [#if outputType == REFERENCE_ATTRIBUTE_TYPE]
+        [#-- ARM Function will resolve to a Resource Identifier --]
+        [#return formatArmFunction("resourceId", parts, args)]
     [#else]
-        [#local fullOrPartReference = "'"]
-    [/#if]
-
-    [#if !(resourceProfile.type == "pseudo")]
-        [#if isPartOfCurrentDeploymentUnit(resourceId)]
-            [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
-
-                [#-- return a reference to the resourceId --]
-                [#local args = []]
-                [#list [subscriptionId, resourceGroupName, typeFull] as arg]
-                    [#if arg?has_content]
-                        [#local args += [arg]]
-                    [/#if]
-                [/#list]
-
-                [#list nameSegments as segment]
-                    [#local args += [segment]]
-                [/#list]
-
-                [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
-            [#else]
-                [#if attributes?size = 1 && attributes?last = "name" ]
-                    [#-- "name" isn't a referencable attribute - but we already have access to it. --]
-                    [#return resourceName]
-                [#else]
-                    [#-- return a reference to the specific resources attributes. --]
-                    [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-                    [#return
-                        "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
-                    ]
-                [/#if]
-            [/#if]
-        [#else]
-            [#if ! (attributes?size = 0) ]
-                [#-- return a reference to the specific resources attributes in another Deployment Unit --]
-                [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-                [#return
-                    "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
-                ]
-            [#else]
-                [#return getExistingReference(
-                    resourceId,
-                    attributeType,
-                    "",
-                    "",
-                    (subscriptionId?has_content)?then(
-                        subscriptionId,
-                        ""
-                    )
-                )]
-            [/#if]
-        [/#if]
-    [#else]
-        [#-- Pseudo-resources simply output their name.           --]
-        [#-- By doing so, a component can be considered deployed. --]
-        [#return resourceName]
+        [#-- ARM Function will resolve to a Resource Attribute --]
+        [#local rawResourceIdFunction = formatRawArmFunction("resourceId", parts)]
+        [#local resourceIdentifier = [rawResourceIdFunction, resourceProfile.apiVersion, 'Full']]
+        [#return formatArmFunction("reference", parts, args)]
     [/#if]
 [/#function]
 
