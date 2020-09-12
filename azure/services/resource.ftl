@@ -52,7 +52,7 @@
     }
 ]
 
-[#macro addResourceProfile service resource profile]
+[#macro addResourceProfile service resource profile={}]
     [@internalMergeResourceProfiles
         service=service
         resource=resource
@@ -75,6 +75,7 @@
     [@addResourceProfile
         service=service
         resource=resource
+        scope="pseudo"
         profile=
             {
                 "apiVersion" : "pseudo",
