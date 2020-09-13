@@ -1,20 +1,19 @@
 #!groovy
+def slackChannel = '#devops-framework'
 
 pipeline {
     options {
         timestamps()
-        disableConcurrentBuilds()
-        quietPeriod(30)
+        durabilityHint('PERFORMANCE_OPTIMIZED')
     }
 
-    agent none
+    agent {
+        label 'hamlet-latest'
+    }
 
     stages {
 
         stage('Run Azure Template Tests') {
-            agent {
-                label 'hamlet-latest'
-            }
             environment {
                 GENERATION_PLUGIN_DIRS = "${WORKSPACE}"
             }
@@ -26,16 +25,22 @@ pipeline {
         }
 
         stage('Trigger Docker Build') {
-            when {
-                branch 'master'
-                beforeAgent true
-            }
-            agent none
             steps {
                 build (
-                    job: '../docker-hamlet/master'
+                    job: '../docker-hamlet/master',
+                    wait: false
                 )
             }
+        }
+    }
+
+    post {
+        failure {
+            slackSend (
+                message: "*Failure* | <${BUILD_URL}|${JOB_NAME}>",
+                channel: "${slackChannel}",
+                color: "#D20F2A"
+            )
         }
     }
 }
