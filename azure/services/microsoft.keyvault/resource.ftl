@@ -197,18 +197,20 @@ reference: https://tinyurl.com/y42ot42k --]
 [#macro createKeyVaultSecret
   id
   name
-  tags={}
   properties={}
-  resourceGroup=""
+  resourceGroupId=""
+  subscriptionId=""
+  parentId=""
   dependsOn=[]]
 
   [@armResource
     id=id
     name=name
     profile=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
-    tags=tags
     properties=properties
-    resourceGroup=resourceGroup
+    resourceGroupId=resourceGroupId
+    subscriptionId=subscriptionId
+    parentId=parentId
     dependsOn=dependsOn
   /]
 [/#macro]
