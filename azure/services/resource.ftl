@@ -45,7 +45,7 @@
                 "Names" : "scope",
                 "Description" : "The default deployment scope for a given resource type. Defaults to the parent template.",
                 "Type" : STRING_TYPE,
-                "Values" : [ "resourceGroup", "template", "pseudo" ],
+                "Values" : [ "subscription", "resourceGroup", "template", "pseudo" ],
                 "Default" : "template"
             }
         ]
