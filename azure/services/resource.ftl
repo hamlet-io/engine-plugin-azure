@@ -108,7 +108,7 @@ can be referenced via dot notation. --]
     [#local apiVersion = resourceProfile.apiVersion]
     [#local conditions = resourceProfile.conditions]
 
-    [#local nameSegments = getAzureResourceNameSegments(resourceName)]
+    [#local nameSegments = getAzureResourcePropertySegments(resourceName)]
 
     [#-- get long type - used for referencing resources in ARM functions --]
     [#if typeFull == ""]
@@ -308,8 +308,8 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 
 [/#function]
 
-[#function getAzureResourceNameSegments resourceName]
-    [#return resourceName?split("/")]
+[#function getAzureResourcePropertySegments property]
+    [#return property?split("/")]
 [/#function]
 
 [#function getAzureResourceProfile resourceType serviceType=""]

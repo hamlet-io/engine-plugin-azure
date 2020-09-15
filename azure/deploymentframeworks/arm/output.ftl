@@ -189,18 +189,15 @@
 [/#function]
 
 [#-- scope of a resource relative to the current runtime state. --]
-[#function getResourceRelativeScope id, name]
+[#function getResourceRelativeScope id]
     [#-- scope determination:                                                                       --]
-    [#--    * check for resource parents. Evaluate root parent if exists.                           --]
     [#--    * determine current runtime scope.                                                      --]
     [#--    * compare with scope of evaluated resource.                                             --]
     [#--    * construct relativeScope - attributes indicate a variance from the current resource.   --]
     [#--    * assign a scope level - a label identifying the scope.                                 --]
     [#--        * ensure scope level does not go below the resource scope marker.                   --]
     [#--          The marker indicates the minimum scope to which a resource exists.                --]
-    [#local nameSegments = getAzureResourceNameSegments(name)?first]
-    
-    [#local resourceProfileScope = getAzureResourceProfile(getType(id).Scope)]
+    [#local resourceProfileScope = getAzureResourceProfile(getResourceType(id).Scope)]
 
     [#local targetScope = mergeObjects(
             getStackOutputObject((commandLineOptions.Deployment.Provider.Names)[0], id),
@@ -269,12 +266,18 @@
     zones=[]
     resources=[]
     resourceGroupId=""
-    subscriptionId=""]
+    subscriptionId=""
+    parentId=""]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local resourceOutputs = constructArmOutputsFromMappings(resourceProfile.outputMappings)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
-    [#local resourceScope = getResourceRelativeScope(id, name)]
+    
+    [#if parentId?has_content]
+        [#local resourceScope = getResourceRelativeScope(parentId)]
+    [#else]
+        [#local resourceScope = getResourceRelativeScope(id)]
+    [/#if]
 
     [#-- Construct Current Resource Object --]
     [#if !(resourceScope.Level == "pseudo")]
