@@ -214,7 +214,6 @@
     [@armResource
         id=id
         name=name
-        parentNames=[accountName]
         profile=AZURE_BLOBSERVICE_RESOURCE_TYPE
         dependsOn=dependsOn
         resources=resources
@@ -239,7 +238,6 @@
     [@armResource
         id=id
         name=name
-        parentNames=[accountName, blobName]
         profile=AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         resources=resources
         dependsOn=dependsOn

@@ -187,7 +187,6 @@ reference: https://tinyurl.com/y42ot42k --]
   [@armResource
     id=id
     name=name
-    parentNames=[vaultName]
     profile=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     properties=properties
     dependsOn=dependsOn
