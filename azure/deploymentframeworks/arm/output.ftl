@@ -188,8 +188,19 @@
     [/#switch]
 [/#function]
 
-[#-- returns the difference in scope of a resource relative to the current deployment unit --]
-[#function getResourceRelativeScope id]
+[#-- scope of a resource relative to the current runtime state. --]
+[#function getResourceRelativeScope id, name]
+    [#-- scope determination:                                                                       --]
+    [#--    * check for resource parents. Evaluate root parent if exists.                           --]
+    [#--    * determine current runtime scope.                                                      --]
+    [#--    * compare with scope of evaluated resource.                                             --]
+    [#--    * construct relativeScope - attributes indicate a variance from the current resource.   --]
+    [#--    * assign a scope level - a label identifying the scope.                                 --]
+    [#--        * ensure scope level does not go below the resource scope marker.                   --]
+    [#--          The marker indicates the minimum scope to which a resource exists.                --]
+    [#local nameSegments = getAzureResourceNameSegments(name)?first]
+    
+    [#local resourceProfileScope = getAzureResourceProfile(getType(id).Scope)]
 
     [#local targetScope = mergeObjects(
             getStackOutputObject((commandLineOptions.Deployment.Provider.Names)[0], id),
@@ -208,16 +219,36 @@
         attributeIfTrue("ResourceGroup", (currentScope.ResourceGroup != targetScope.ResourceGroup), targetScope.ResourceGroup) +
         attributeIfTrue("DeploymentUnit", (currentScope.DeploymentUnit != targetScope.DeploymentUnit), targetScope.DeploymentUnit)]
     
-    [#-- scope identifier --]
+    [#-- scope level --]
+    [#-- The existence of attributes in the relativeScope object indicate --]
+    [#-- cross-scope at that level.                                       --]
+    [#local scopeLevels = ["template", "resourceGroup", "subscription", "pseudo"] ]
+    [#local resourceDefaultScopeLevel = resourceProfileScope]
     [#if relativeScope?keys?seq_contains("Subscription")]
-        [#local relativeScope += { "Scope" : "subscription" }]
+        [#local relativeScopeLevel = "subscription"]
     [#elseif relativeScope?keys?seq_contains("ResourceGroup") || relativeScope?keys?seq_contains("DeploymentUnit")]
-        [#local relativeScope += { "Scope" : "resourceGroup" }]
+        [#local relativeScopeLevel = "resourceGroup" ]
     [#elseif isPartOfCurrentDeploymentUnit(id)]
-        [#local relativeScope += { "Scope" : "template" }]
+        [#local relativeScopeLevel = "template"]
     [#else]
-        
+        [@fatal
+            message="Resource relative scope could not be determined."
+            context={
+                "ResourceId" : id,
+                "CurrentScope" : currentScope,
+                "RelativeScope" : relativeScope
+            }
+        /]
     [/#if]
+
+    [#-- Use the relative level only down to the level of the default. --]
+    [#-- Some resources only exist at the higher scopes.               --]
+    [#if scopeLevels?seq_index_of(relativeScopeLevel) < scopeLevels?seq_index_of(resourceDefaultScopeLevel)]
+        [#local relativeScope += { "Level" : resourceDefaultScopeLevel }]
+    [#else]
+        [#local relativeScope += { "Level" : relativeScopeLevel }]
+    [/#if]
+
     [#return relativeScope]
 [/#function]
 
@@ -237,17 +268,16 @@
     plan={}
     zones=[]
     resources=[]
-    parentNames=[]
-    resourceGroup=""
-    scope=""]
+    resourceGroupId=""
+    subscriptionId=""]
 
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local resourceOutputs = constructArmOutputsFromMappings(resourceProfile.outputMappings)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
-    [#local resourceScope = scope?has_content?then(scope, resourceProfile.scope)]
+    [#local resourceScope = getResourceRelativeScope(id, name)]
 
     [#-- Construct Current Resource Object --]
-    [#if !(resourceProfile.type == "pseudo")]
+    [#if !(resourceScope.Level == "pseudo")]
         [#local resourceContent = {
                     "name": name,
                     "type": resourceProfile.type,
@@ -269,8 +299,9 @@
                 attributeIfContent("resources", resources)]
     [/#if]
 
-    [#switch resourceScope]
+    [#switch resourceScope.Level]
 
+        [#case "subscription"]
         [#case "resourceGroup"]
             [@armResource
                 id=formatResourceId(AZURE_DEPLOYMENT_RESOURCE_TYPE, id)
@@ -286,7 +317,7 @@
                             "outputs": resourceOutputs
                         }
                     }
-                scope="template"
+                scope=resourceScope.Level
                 resourceGroup=resourceGroup
                 dependsOn=dependsOn
             /]
@@ -297,13 +328,17 @@
             [#break]
 
         [#case "template"]
+            [@addToJsonOutput
+                name="resources"
+                content=[resourceContent]
+            /]
+            [@mergeWithJsonOutput
+                name="outputs"
+                content=resourceOutputs
+            /]
+            [#break]
+
         [#case "pseudo"]
-            [#if !(resourceProfile.type == "pseudo")]
-                [@addToJsonOutput
-                    name="resources"
-                    content=[resourceContent]
-                /]
-            [/#if]
             [@mergeWithJsonOutput
                 name="outputs"
                 content=resourceOutputs
@@ -313,13 +348,9 @@
         [#default]
             [@fatal
                 message="Unknown or missing resource scope."
-                context={
-                    "DefaultResourceScope" : resourceProfile.scope
-                } +
-                attributeIfContent("OverwriteScope" : scope)
+                context=resourceScope
             /]
             [#break]
-
     [/#switch]
 [/#macro]
 
