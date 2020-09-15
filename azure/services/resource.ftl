@@ -482,3 +482,11 @@ its own function to return the first split of the last segment --]
     [#return (linkTarget.Role)?has_content?then({ "type" : "SystemAssigned" },{})]
 [/#function]
 
+[#-- Services that must always be available to the provider --]
+[@includeServicesConfiguration
+    provider=AZURE_PROVIDER
+    deploymentFramework=AZURE_RESOURCE_MANAGER_DEPLOYMENT_FRAMEWORK
+    services=[
+        AZURE_RESOURCES_SERVICE
+    ]
+/]
