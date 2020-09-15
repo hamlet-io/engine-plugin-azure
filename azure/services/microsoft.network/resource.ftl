@@ -148,7 +148,6 @@
   [@armResource
     id=id
     name=name
-    parentNames=[nsgName]
     profile=AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE
     dependsOn=dependsOn
     properties=  
@@ -339,7 +338,6 @@
   [@armResource
     id=id
     name=name
-    parentNames=[vnetName]
     profile=AZURE_SUBNET_RESOURCE_TYPE
     properties={} +
       attributeIfContent("addressPrefix", addressPrefix) +
