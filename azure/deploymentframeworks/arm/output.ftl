@@ -189,6 +189,39 @@
     [/#switch]
 [/#function]
 
+[#-- Deconstruct a resourceId value into discovered scopes --]
+[#function getResourceScopeFromResourcePath id]
+    [#local segments = getAzureResourcePropertySegments(id)]
+    [#local subscriptionIndex = segments?seq_index_of("subscriptions")!""]
+    [#local resourceGroupIndex = segments?seq_index_of("resourceGroups")!""]
+    [#local providerIndex = segments?seq_index_of("providers")!""]
+    [#local parentSegments = segments?filter(s -> segments?seq_index_of(s) > (providerIndex + 1))![]]
+    [#local end = segments?size - 1]
+    [#local parents = []]
+
+    [#-- Segments remaining in an Id after the provider value are parents --]
+    [#if parentSegments?has_content]
+        [#list parentSegments as segment]
+            [#if segment?item_parity == "odd" && segment?has_next]
+                [#local segmentIndex = parentSegments?seq_index_of(segment)]
+                [#local parents += [
+                    {
+                        "Index" : segment?counter,
+                        "Name" : parentSegments[segmentIndex + 1],
+                        "Type" : parentSegments[segmentIndex]
+                    }
+                ]]
+            [/#if]
+        [/#list]
+    [/#if]
+
+    [#return {} +
+        attributeIfContent("Subscription", segments?sequence[subscriptionIndex + 1]!"") +
+        attributeIfContent("ResourceGroup", segments?sequence[resourceGroupIndex + 1]!"") +
+        attributeIfContent("Provider", segments?sequence[providerIndex + 1]!"") +
+        attributeIfContent("Parents", parents)]
+[/#function]
+
 [#-- scope of a resource relative to the current runtime state. --]
 [#function getResourceRelativeScope id]
     [#-- scope determination:                                                                       --]
@@ -202,29 +235,24 @@
     [#local currentScope = {
         "Subscription" : accountObject.AzureId,
         "Region" : regionId,
-        "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name,
-        "DeploymentUnit" : getDeploymentUnit()
+        "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name
     }]
 
     [#if isPartOfCurrentDeploymentUnit(id)]
         [#local relativeScope = {}]
     [#else]
-        [#local targetDeploymentUnit = getExistingReference(id, "DeploymentUnit")]
-        [#local targetRegion = getExistingReference(id, "Region")]
-        [#local targetSubscription = getExistingReference(id, "Subscription")]
-        [#local targetScope =
-            getStackOutputObject(
-                AZURE_PROVIDER,
-                id,
-                targetDeploymentUnit,
-                targetRegion,
-                targetSubscription)]
-
-        [#local relativeScope = {} +
-            attributeIfTrue("Subscription", (currentScope.Subscription != targetScope.Account)!true, targetScope.Account) +
-            attributeIfTrue("Region", (currentScope.Region != targetScope.Region)!true, targetScope.Region) + 
-            attributeIfTrue("ResourceGroup", (currentScope.ResourceGroup != targetScope.ResourceGroup)!true, targetScope.ResourceGroup) +
-            attributeIfTrue("DeploymentUnit", (currentScope.DeploymentUnit != targetScope.DeploymentUnit)!true, targetScope.DeploymentUnit)]
+        [#local resourceId = getExistingReference(id)]    
+        [#if resourceId?has_content]
+            [#local targetScope = getResourceScopeFromResourcePath(resourceId)]
+            [#local relativeScope = {} +
+                attributeIfTrue("Subscription", !currentScope.Subscription?matches(targetScope.Subscription!""), targetScope.Subscription!"") +
+                attributeIfTrue("ResourceGroup", !currentScope.ResourceGroup?matches(targetScope.ResourceGroup!""), targetScope.ResourceGroup!"")]
+        [#else]
+            [@fatal
+                message="Could not find existing reference for Id"
+                context={ "Id" : id }
+            /]
+        [/#if]
     [/#if]
 
     [#-- scope level --]
@@ -257,7 +285,6 @@
     [#else]
         [#local relativeScope += { "Level" : relativeScopeLevel }]
     [/#if]
-
     [#return relativeScope]
 [/#function]
 
@@ -331,8 +358,8 @@
                             "outputs": resourceOutputs
                         }
                     }
-                scope=resourceScope.Level
-                resourceGroup=resourceGroup
+                resourceGroupId=resourceGroupId
+                subscriptionId=subscriptionId
                 dependsOn=dependsOn
             /]
             [@mergeWithJsonOutput
