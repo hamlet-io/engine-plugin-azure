@@ -198,8 +198,6 @@ reference: https://tinyurl.com/y42ot42k --]
   id
   name
   properties={}
-  resourceGroupId=""
-  subscriptionId=""
   parentId=""
   dependsOn=[]]
 
@@ -208,8 +206,6 @@ reference: https://tinyurl.com/y42ot42k --]
     name=name
     profile=AZURE_KEYVAULT_SECRET_RESOURCE_TYPE
     properties=properties
-    resourceGroupId=resourceGroupId
-    subscriptionId=subscriptionId
     parentId=parentId
     dependsOn=dependsOn
   /]
