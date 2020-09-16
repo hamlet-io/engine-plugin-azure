@@ -310,6 +310,8 @@
     
     [#if parentId?has_content]
         [#local resourceScope = getResourceRelativeScope(parentId)]
+        [#local resourceGroupId = resourceScope.ResourceGroup!""]
+        [#local subscriptionId = resourceScope.Subscription!""]
     [#else]
         [#local resourceScope = getResourceRelativeScope(id)]
     [/#if]
