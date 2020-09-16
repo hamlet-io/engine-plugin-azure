@@ -49,33 +49,28 @@
 
 [#function constructArmOutputsFromMappings id name scope mappings=[]]
     [#local result = {}]
-    [#switch scope]
-        [#case "subscription"]
-        [#case "resourceGroup"]
+    [#list mappings as attributeType,attributes]
+        [#local dataType = getOutputMappingDataType(attributeType)]
+        [#list attributes as attributeName,attributeValue]
 
-            [#-- redirect values to nested resource outputs --]
-            [#list mappings as attributeType,attributes]
-                [#local dataType = getOutputMappingDataType(attributeType)]
-                [#list attributes as attributeName,attributeValue]
+            [#switch scope]
+
+                [#case "subscription"]
+                [#case "resourceGroup"]
                     [#if attributeValue == "id"]
+                        [#local typeFull = getAzureResourceProfile(AZURE_DEPLOYMENT_RESOURCE_TYPE).type]
+                        [#local propertySections = attributeValue?split(".")]
                         [#local outputName = id]
-                        [#local value = getReference(id, name)]
+                        [#local value = getReference(id, name, typeFull, "", "", "", true, "outputs." + outputName + ".value")]
                     [#else]
+                        [#local typeFull = getAzureResourceProfile(AZURE_DEPLOYMENT_RESOURCE_TYPE).type]
                         [#local propertySections = attributeValue?split(".")]
                         [#local outputName = formatAttributeId(id, propertySections)]
-                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
+                        [#local value = getReference(id, name, typeFull, attributeType, "", "", true, "outputs." + outputName + ".value")]
                     [/#if]
-                    [#local result += getArmOutput(outputName, dataType, value)]
-                [/#list]
-            [/#list]
-            [#break]
+                    [#break]
 
-        [#case "template"]
-            [#list mappings as attributeType,attributes]
-
-                [#local dataType = getOutputMappingDataType(attributeType)]
-                [#list attributes as attributeName,attributeValue]
+                [#case "template"]
                     [#if attributeValue == "id"]
                         [#local outputName = id]
                         [#local value = getReference(id, name)]
@@ -87,16 +82,16 @@
                         [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
                         [#break]
                     [/#if]
-                    [#local result += getArmOutput(outputName, dataType, value)]
-                [/#list]
-            [/#list]
-            [#break]
+                    [#break]
 
-        [#case "pseudo"]
-            [#return getArmOutput(name, "string", "pseudo")]
-            [#break]
+                [#case "pseudo"]
+                    [#return getArmOutput(name, "string", "pseudo")]
+                    [#break]
 
-    [/#switch]
+            [/#switch]
+            [#local result += getArmOutput(outputName, dataType, value)]
+        [/#list]
+    [/#list]
     [#return result]
 [/#function]
 
@@ -317,7 +312,6 @@
     [/#if]
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
-    [#local resourceOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
 
     [#-- Construct Current Resource Object --]
     [#if !(resourceScope.Level == "pseudo")]
@@ -346,6 +340,8 @@
 
         [#case "subscription"]
         [#case "resourceGroup"]
+            [#local deploymentOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
+            [#local templateOutputs = constructArmOutputsFromMappings(id, name, "template", resourceProfile.outputMappings)]
             [@armResource
                 id=formatResourceId(AZURE_DEPLOYMENT_RESOURCE_TYPE, id)
                 name=formatAzureResourceName(name, AZURE_DEPLOYMENT_RESOURCE_TYPE)
@@ -357,7 +353,7 @@
                             "contentVersion": "1.0.0.0",
                             "parameters": {},
                             "resources": [resourceContent],
-                            "outputs": resourceOutputs
+                            "outputs": templateOutputs
                         }
                     }
                 resourceGroupId=resourceGroupId
@@ -366,18 +362,19 @@
             /]
             [@mergeWithJsonOutput
                 name="outputs"
-                content=resourceOutputs
+                content=deploymentOutputs
             /]
             [#break]
 
         [#case "template"]
+            [#local templateOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
             [@addToJsonOutput
                 name="resources"
                 content=[resourceContent]
             /]
             [@mergeWithJsonOutput
                 name="outputs"
-                content=resourceOutputs
+                content=templateOutputs
             /]
             [#break]
 
