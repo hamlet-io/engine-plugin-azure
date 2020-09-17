@@ -116,12 +116,12 @@
         properties=
             getKeyVaultSecretProperties(
                 formatAzureStorageListKeys(
-                    getReference(accountId, accountName)
+                    getReference(accountName)
                 )
             )
         dependsOn=[
-            getReference(accountId, accountName),
-            getReference(keyvaultId, keyvaultName)
+            getReference(accountName),
+            getReference(keyvaultName)
         ]
     /]
 
@@ -138,7 +138,7 @@
       automaticSnapshotPolicyEnabled=(solution.Lifecycle.BlobAutoSnapshots)!false
       dependsOn=
         [
-          getReference(accountId, accountName)
+          getReference(accountName)
         ]
     /]
 
@@ -153,8 +153,8 @@
         publicAccess="None"
         dependsOn=
           [
-            getReference(accountId, accountName),
-            getReference(blobId, blobName)
+            getReference(accountName),
+            getReference(blobName)
           ]
       /]
     [/#list]
@@ -189,8 +189,8 @@
             publicAccess=publicAccess
             dependsOn=
               [
-                getReference(accountId, accountName),
-                getReference(blobId, blobName)
+                getReference(accountName),
+                getReference(blobName)
               ]
           /]
         [/#if]

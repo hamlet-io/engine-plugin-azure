@@ -64,7 +64,7 @@
                     "Id" : secretId,
                     "Name" : secretName,
                     "Type" : AZURE_KEYVAULT_SECRET_RESOURCE_TYPE,
-                    "Reference" : getReference(secretId, secretName)
+                    "Reference" : getReference(secretName)
                 }
             },
             "Attributes" : {

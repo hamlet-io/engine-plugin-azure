@@ -240,13 +240,13 @@
     [#-- Network Security Group Rules --]
     [#local priority = 200]
     [#list nsgRules?values as rule]
-
-        [#local destination = getReference(
-            publicIp.Id,
-            publicIp.Name,
-            "", "", "", "",
-            true,
-            "properties.ipAddress")]
+        
+        [#local destination = 
+            getReference(
+                publicIp.Id,
+                IP_ADDRESS_ATTRIBUTE_TYPE,
+                AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE)]
+                
         [@createNetworkSecurityGroupSecurityRule
             id=rule.Id
             name=rule.Name

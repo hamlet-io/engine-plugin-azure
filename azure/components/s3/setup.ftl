@@ -89,7 +89,7 @@
             resources=[]
             dependsOn=
                 [
-                    getReference(accountId, accountName)
+                    getReference(accountName)
                 ]
         /]
 
@@ -101,8 +101,8 @@
             publicAccess=solution.PublicAccess.Enabled
             dependsOn=
                 [
-                    getReference(accountId, accountName),
-                    getReference(blobId, blobName)
+                    getReference(accountName),
+                    getReference(blobName)
                 ]
         /]
 
@@ -117,11 +117,11 @@
             properties=
                 getKeyVaultSecretProperties(
                     formatAzureStorageListKeys(
-                        getReference(accountId, accountName)
+                        getReference(accountName)
                     )
                 )
             dependsOn=[
-                getReference(accountId, accountName)
+                getReference(accountName)
             ]
         /]
 

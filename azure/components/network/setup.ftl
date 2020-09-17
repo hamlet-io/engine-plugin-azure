@@ -43,13 +43,9 @@
     [#-- tag "GatewayManager" https://github.com/MicrosoftDocs/azure-docs/issues/38691--]
     [#if (resources["subnets"]["elb"]!{})?has_content]
 
-      [#local elbNSG =
-        {
-          "Id" : formatDependentNetworkSecurityGroupId(vnetId, "elb"),
-          "Name" : formatName(networkSecurityGroupName, "elb"),
-          "Reference" : getReference(formatDependentNetworkSecurityGroupId(vnetId, "elb"), formatName(networkSecurityGroupName, "elb"))
-        }
-      ]
+      [#if resources["elbNSG"]?has_content]
+        [#local elbNSG = resources["elbNSG"]]
+      [/#if]
 
       [@createNetworkSecurityGroup
         id=elbNSG.Id
@@ -138,14 +134,13 @@
 
         [#-- Determine dependencies --]
         [#local dependencies = [
-            getReference(vnetId, vnetName)
+            getReference(vnetName)
         ]]
 
         [#if subnetIndex > 0]
           [#local previousSubnet = resources["subnets"]?values[subnetIndex - 1].subnet]
           [#local dependencies += [
             getReference(
-              previousSubnet.Id,
               formatAzureResourceName(
                 previousSubnet.Name,
                 AZURE_SUBNET_RESOURCE_TYPE,
@@ -196,7 +191,7 @@
 
         [#-- Add routeTable details if applicable --]
         [#if routeTableResource?has_content]
-          [#local dependencies += [getReference(routeTableResource.Id, routeTableResource.Name)]]
+          [#local dependencies += [getReference(routeTableResource.Id)]]
         [/#if]
 
         [#if networkTier.Name == "elb"]
@@ -204,7 +199,7 @@
           [#local dependencies += [elbNSG.Reference]]
         [#else]
           [#local networkSecurityGroupReference = getSubResourceReference(
-            getReference(networkSecurityGroupId, networkSecurityGroupName)
+            getReference(networkSecurityGroupName)
           )]
         [/#if]
 
@@ -215,7 +210,7 @@
           addressPrefix=subnet.Address
           networkSecurityGroup=networkSecurityGroupReference
           routeTable={} + routeTableResource?has_content?then(
-            getSubResourceReference(getReference(routeTableResource.Id, routeTableResource.Name)),
+            getSubResourceReference(getReference(routeTableResource.Id)),
             {}
           )
           serviceEndpoints=serviceEndpoints
@@ -274,7 +269,7 @@
             direction=direction
             dependsOn=
               [
-                getReference(nsgId, nsgName)
+                getReference(nsgName)
               ]
           /]
 

@@ -46,7 +46,7 @@
                     "ClientAppId" : clientAppId,
                     "Name" : name,
                     "Type" : AZURE_APPLICATION_REGISTRATION_CLIENT_RESOURCE_TYPE,
-                    "Reference" : getReference(id, name)
+                    "Reference" : getReference(name)
                 }
             },
             "Attributes" : parentAttributes + {

@@ -48,31 +48,31 @@
                     "Name" : name,
                     "Type" : resourceType,
                     "Sku" : "Standard_v2",
-                    "Reference" : getReference(id, name)
+                    "Reference" : getReference(name)
                 },
                 "publicIP" : {
                     "Id" : ipId,
                     "Name" : ipName,
                     "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                    "Reference" : getReference(ipId, ipName)
+                    "Reference" : getReference(ipName)
                 },
                 "identity" : {
                     "Id" : identityId,
                     "Name" : identityName,
                     "Type" : AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE,
-                    "PrincipalId" : getReference(identityId, identityName, "", "", "", "", false, "principalId"),
-                    "Reference" : getReference(identityId, identityName)
+                    "PrincipalId" : getReference(identityId, ALLOCATION_ATTRIBUTE_TYPE, AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE),
+                    "Reference" : getReference(identityName)
                 },
                 "accessPolicy" : {
                     "Id" : accessPolicyId,
                     "Name" : accessPolicyName,
                     "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE,
                     "KeyVault" : keyVaultName,
-                    "Reference" : getReference(accessPolicyId, accessPolicyName)
+                    "Reference" : getReference(accessPolicyName)
                 }
             },
             "Attributes" : {
-                "INTERNAL_FQDN" : getExistingReference(id, DNS_ATTRIBUTE_TYPE)
+                "INTERNAL_FQDN" : getReference(id, DNS_ATTRIBUTE_TYPE, resourceType)
             },
             "Roles" : {
                 "Inbound" : {},

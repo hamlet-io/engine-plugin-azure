@@ -81,6 +81,19 @@
     )]
   [/#list]
 
+  [#local elbNSG = {}]
+  [#if (subnets["elb"]!{})?has_content]
+    [#local elbNsgId = formatDependentNetworkSecurityGroupId(vnetId, "elb")]
+    [#local elbNsgName = formatName(nsgName, "elb")]
+    [#local elbNSG = 
+      {
+        "Id" : elbNsgId,
+        "Name" : elbNsgName,
+        "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+        "Reference" : getReference(elbNsgName)
+      }]
+  [/#if]
+
   [#assign componentState =
     {
       "Resources" : {
@@ -99,6 +112,7 @@
           "Reference" : getReference(nsgName)
         }
       } +
+      attributeIfContent("elbNSG", elbNSG) +
       attributeIfTrue(
         "flowlogs",
         nsgFlowLogEnabled,

@@ -48,7 +48,7 @@
                             "Id" : nsgRuleId,
                             "Name" : nsgRuleName,
                             "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-                            "Reference" : getReference(nsgRuleId, nsgRuleName),
+                            "Reference" : getReference(nsgRuleName),
                             "Port" : port.Name
                         } +
                         attributeIfTrue("CIDR", (cidrCount == 1), portCIDRs[0]) +
@@ -70,7 +70,7 @@
                 "Id" : ipId,
                 "Name" : ipName,
                 "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                "Reference" : getReference(ipId, ipName)
+                "Reference" : getReference(ipName)
             }]
     [/#if]
 
@@ -81,33 +81,33 @@
                     "Id" : roleId,
                     "Name" : roleName,
                     "Type" : AZURE_ROLE_ASSIGNMENT_RESOURCE_TYPE,
-                    "Reference" : getReference(roleId, roleName),
+                    "Reference" : getReference(roleName),
                     "Assignment" : storageRole
                 },
                 "scaleSet" : {
                     "Id" : scaleSetId,
                     "Name" : scalesetName,
                     "Type" : AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE,
-                    "PrincipalId" : getReference(scaleSetId, scalesetName, "", "", "", "", true, "identity.principalId"),
-                    "Reference" : getReference(scaleSetId, scalesetName)
+                    "PrincipalId" : getReference(scaleSetId, ALLOCATION_ATTRIBUTE_TYPE, AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE),
+                    "Reference" : getReference(scalesetName)
                 },
                 "networkInterface" : {
                     "Id" : nicId,
                     "Name" : nicName,
                     "Type" : AZURE_NETWORK_INTERFACE_RESOURCE_TYPE,
-                    "Reference": getReference(nicId, nicName)
+                    "Reference": getReference(nicName)
                 },
                 "autoscale" : {
                     "Id" : autoscaleId,
                     "Name" : autoscaleName,
                     "Type" : AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE,
-                    "Reference" : getReference(autoscaleId, autoscaleName)
+                    "Reference" : getReference(autoscaleName)
                 },
                 "bootstrap" : {
                     "Id" : extensionId,
                     "Name" : extensionName,
                     "Type" : AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE,
-                    "Reference" : getReference(extensionId, extensionName)
+                    "Reference" : getReference(extensionName)
                 },
                 "nsgRules": nsgRules,
                 "publicIp" : publicIp

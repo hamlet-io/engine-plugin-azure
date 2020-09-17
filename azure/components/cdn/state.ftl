@@ -43,7 +43,8 @@
                 "wafPolicy" : {
                     "Id" : wafPolicyId,
                     "Name" : wafPolicyName,
-                    "Type" : AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
+                    "Type" : AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE,
+                    "Reference" : getReference(wafPolicyName)
                 }
             },
             "Attributes" : {

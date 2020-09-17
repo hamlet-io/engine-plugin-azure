@@ -88,7 +88,7 @@
                         frontDoorFQDN,
                         "Disabled",
                         "0",
-                        wafRequired?then(getReference(wafPolicy.Id, wafPolicy.Name), "")
+                        wafRequired?then(wafPolicy.Reference, "")
                     )
                 ]]
 

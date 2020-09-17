@@ -30,7 +30,7 @@
     getResourceType(subnetResource.Id),
     networkVnetResource.Name
   )]
-  [#local subnetReference = getReference(subnetResource.Id, subnetName)]
+  [#local subnetReference = getReference(subnetResource.Id)]
 
   [#-- Baseline Component Lookup --]
   [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]

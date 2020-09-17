@@ -23,7 +23,11 @@
   AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE : {
     "apiVersion" : "2019-09-01",
     "type" : "Microsoft.Network/publicIPAddresses",
-    "outputMappings" : {}
+    "outputMappings" : {
+      IP_ADDRESS_ATTRIBUTE_TYPE : {
+        "Property" : "properties.ipAddress"
+      }
+    }
   },
   AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
@@ -293,7 +297,6 @@
 
 [#function getSubnetLink
   id=""
-  resourceName=""
   linkedResourceType=""
   resourceLink=""]
 
@@ -304,7 +307,7 @@
 
   [#return {} +
     attributeIfContent("id", getReference(id)) +
-    attributeIfContent("name", getReference(resourceName)) +
+    attributeIfContent("name", getReference(id, NAME_ATTRIBUTE_TYPE)!"") +
     attributeIfContent("properties", properties)
   ]
 [/#function]
