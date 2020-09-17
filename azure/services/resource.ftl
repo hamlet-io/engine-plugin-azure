@@ -40,6 +40,13 @@
                 "Names" : "global",
                 "Type" : BOOLEAN_TYPE,
                 "Default" : false
+            },
+            {
+                "Names" : "scope",
+                "Description" : "The default deployment scope for a given resource type. Defaults to the parent template.",
+                "Type" : STRING_TYPE,
+                "Values" : [ "subscription", "resourceGroup", "template", "pseudo" ],
+                "Default" : "template"
             }
         ]
     }
@@ -474,3 +481,4 @@ its own function to return the first split of the last segment --]
 [#function getAzureManagedIdentity linkTarget]
     [#return (linkTarget.Role)?has_content?then({ "type" : "SystemAssigned" },{})]
 [/#function]
+
