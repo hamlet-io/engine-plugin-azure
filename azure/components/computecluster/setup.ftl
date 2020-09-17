@@ -263,7 +263,7 @@
     [/#list]
 
     [#-- Scale Set Config --]
-    [#local username = getOccurrenceSettingValue(occurrence, "MASTER_USERNAME", !solution.Enabled)]
+    [#local username = getOccurrenceSettingValue(occurrence, "MASTER_USERNAME", true)]
     [#local keySecretName = sshKey.Name + "PublicKey"]
     [@createKeyVaultParameterLookup
         secretName=keySecretName

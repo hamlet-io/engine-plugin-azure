@@ -5,8 +5,10 @@
     resource=AZURE_APP_SERVICE_PLAN_RESOURCE_TYPE
     profile=
         {
-            "apiVersion" : "2019-08-01",
+            "apiVersion" : "2020-06-01",
             "type" : "Microsoft.Web/serverfarms",
+            "conditions" : [ "max_length", "alphanumerichyphens_only"],
+            "max_name_length" : 40,
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"
@@ -20,7 +22,7 @@
     resource=AZURE_WEB_APP_RESOURCE_TYPE
     profile=
         {
-            "apiVersion": "2019-08-01",
+            "apiVersion": "2020-06-01",
             "type" : "Microsoft.Web/sites",
             "conditions" : [ "max_length", "globally_unique"],
             "max_name_length" : 60,
@@ -45,77 +47,61 @@
     ]
 [/#function]
 
+[#function getAppServicePlanProperties profiles]
+
+    [#local image = profiles.VMImage?has_content
+        ?then(profiles.VMImage.Offering!"", "")]
+    
+    [#return {} +
+        attributeIfContent(
+            "reserved",
+            image, 
+            image?contains("Windows")?then(false, true)
+    )]
+[/#function]
+
+[#function getAppServicePlanKind profiles]
+    [#local image = profiles.Image?has_content
+        ?then(profiles.Image.Offering!"", "")]
+    [#if image?has_content]
+        [#return image?contains("Windows")?then("windows", "linux")]
+    [#else]
+        [#return ""]
+    [/#if]
+[/#function]
+
+[#function getAppServicePlanSku profiles]
+    [#if profiles.Sku?has_content]
+        [#return {
+                "name" : profiles.Sku.Name,
+                "tier" : profiles.Sku.Tier,
+                "size" : profiles.Sku.Size,
+                "family" : profiles.Sku.Family,
+                "capacity" : profiles.Sku.Capacity
+            }]
+    [#else]
+        [#return {}]
+    [/#if]
+[/#function]
+
 [#macro createAppServicePlan
     id
     name
     location
-    kind="linux"
-    skuName=""
-    skuTier=""
-    skuSize=""
-    skuFamily=""
-    skuInstanceCapacity=""
-    skuCapacityMin=""
-    skuCapacityMax=""
-    skuCapacityDefault=""
-    skuCapacityScaleType=""
-    skuLocations=[]
-    skuCapabilities=[]
-    workerTier=""
-    appServiceEnvironmentId=""
-    perSiteScaling=false
-    maxElasticWorkerCount=""
-    isSpot=false
-    spotExpirationTime=""
-    freeOfferExpirationTime=""
-    reserved=false
-    hyperV=false
-    targetWorkerCount=""
-    targetWorkerSizeId=""
+    sku
+    properties
+    kind=""
     dependsOn=[]]
-
-    [#local skuCapacity = {} +
-        attributeIfContent("minimum", skuCapacityMin) +
-        attributeIfContent("maximum", skuCapacityMax) +
-        attributeIfContent("default", skuCapacityDefault) +
-        attributeIfContent("scaleType", skuCapacityScaleType)
-    ]
-
-    [#local sku = {} +
-        attributeIfContent("name", skuName) +
-        attributeIfContent("tier", skuTier) +
-        attributeIfContent("size", skuSize) +
-        attributeIfContent("family", skuFamily) +
-        attributeIfContent("capacity", skuInstanceCapacity) +
-        attributeIfContent("skuCapacity", skuCapacity) +
-        attributeIfContent("locations", skuLocations) +
-        attributeIfContent("capabilities", skuCapabilities)
-    ]
 
     [@armResource
         id=id
         name=name
         profile=AZURE_APP_SERVICE_PLAN_RESOURCE_TYPE
         location=location
-        sku=sku
+        kind=kind
         dependsOn=dependsOn
-        properties={} +
-            attributeIfContent("workerTierName", workerTier) +
-            attributeIfContent("hostingEnvironmentProfile", 
-                appServiceEnvironmentId?has_content?then(
-                    getSubResourceReference(appServiceEnvironmentId),
-                    ""
-                )
-            ) +
-            attributeIfTrue("perSiteScaling", perSiteScaling, perSiteScaling) +
-            numberAttributeIfContent("maximumElasticWorkerCount", maxElasticWorkerCount) +
-            attributeIfTrue("isSpot", isSpot, isSpot) +
-            attributeIfContent("spotExpirationTime", spotExpirationTime) +
-            attributeIfContent("freeOfferExpirationTime", freeOfferExpirationTime) +
-            attributeIfTrue("reserved", reserved, reserved) +
-            attributeIfTrue("hyperV", hyperV, hyperV) +
-            attributeIfContent("targetWorkerCount", targetWorkerCount) +
-            attributeIfContent("targetWorkerSizeId", targetWorkerSizeId)
+        sku=sku
+        properties=properties
     /]
 
 [/#macro]
