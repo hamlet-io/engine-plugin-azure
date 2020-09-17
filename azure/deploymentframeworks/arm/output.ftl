@@ -186,11 +186,13 @@
 
 [#-- Deconstruct a resourceId value into discovered scopes --]
 [#function getResourceScopeFromResourcePath id]
-    [#local segments = getAzureResourcePropertySegments(id)]
+    [#local segments = getAzureResourceNameSegments(id)]
     [#local subscriptionIndex = segments?seq_index_of("subscriptions")!""]
     [#local resourceGroupIndex = segments?seq_index_of("resourceGroups")!""]
     [#local providerIndex = segments?seq_index_of("providers")!""]
-    [#local parentSegments = segments?filter(s -> segments?seq_index_of(s) > (providerIndex + 1))![]]
+    [#local resourceIndex = segments?size - 2]
+    [#local resourceSegments = segments?filter(s -> segments?seq_index_of(s) >= resourceIndex)]
+    [#local parentSegments = segments?filter(s -> segments?seq_index_of(s) > (providerIndex + 1) && segments?seq_index_of(s) < resourceIndex)![]]
     [#local end = segments?size - 1]
     [#local parents = []]
 
@@ -210,7 +212,13 @@
         [/#list]
     [/#if]
 
-    [#return {} +
+    [#return 
+        {
+            "Resource" : {
+                "Name" : segments?sequence[resourceIndex + 1],
+                "Type" : segments?sequence[resourceIndex]
+            }
+        } +
         attributeIfContent("Subscription", segments?sequence[subscriptionIndex + 1]!"") +
         attributeIfContent("ResourceGroup", segments?sequence[resourceGroupIndex + 1]!"") +
         attributeIfContent("Provider", segments?sequence[providerIndex + 1]!"") +
