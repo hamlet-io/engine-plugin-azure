@@ -14,46 +14,41 @@ else
     mkdir -p "${TEST_OUTPUT_DIR}"
 fi
 
-echo "Output Dir: ${TEST_OUTPUT_DIR}"
-echo "Generating unit list..."
-"${GENERATION_DIR}"/createTemplate.sh -i mock -p azure -p azuretest -f arm -r westus -o "${TEST_OUTPUT_DIR}" -l unitlist
-UNIT_LIST="$(jq -r '.DeploymentUnits | join(" ")' < "${TEST_OUTPUT_DIR}/unitlistconfig.json")"
+echo " - Output Dir: ${TEST_OUTPUT_DIR}"
+echo ""
+echo "--- Generating Management Contract ---"
+echo ""
 
-for unit in $UNIT_LIST; do
+${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l unitlist
+UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.DeploymentUnit)"' < ${TEST_OUTPUT_DIR}/unitlist-managementcontract.json`
+readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
+for unit in "${UNIT_LIST[@]}";  do
     args=(
         '-i mock'
         '-p azure'
         '-p azuretest'
         '-f arm'
-        '-r westus'
         "-o ${TEST_OUTPUT_DIR}"
+        '-x'
     )
 
-    case "${unit}" in
-        segment-*)
-            args=("${args[@]}" '-l segment')
-            ;;
-        solution-*)
-            args=("${args[@]}" '-l solution')
-            ;;
-        application-*)
-            args=("${args[@]}" '-l application')
-            ;;
-        *)
-            ;;
-    esac
+    args=("${args[@]}" "${unit}")
 
-    args=("${args[@]}" "-u ${unit}")
-
-    echo "Generating Tests: $unit ..."
-    ${GENERATION_DIR}/createTemplate.sh ${args[@]} > /dev/null 2>&1 || true
+    echo ""
+    echo "--- Generating $unit ---"
+    echo ""
+    ${GENERATION_DIR}/createTemplate.sh ${args[@]} || exit $?
 done
+
+
+echo ""
+echo "--- Running Tests ---"
+echo ""
 
 hamlet test generate --directory "${TEST_OUTPUT_DIR}" -o "${TEST_OUTPUT_DIR}/test_templates.py"
 
-pushd $(pwd) || return
-cd "${TEST_OUTPUT_DIR}" || return
-echo "Running Tests..."
+pushd $(pwd)
+cd "${TEST_OUTPUT_DIR}"
 hamlet test run -t "./test_templates.py"
-popd || return
+popd
