@@ -206,6 +206,32 @@
     [#local end = segments?size - 1]
     [#local parents = []]
 
+    [#-- Validation --]
+    [#local required = [ subscriptionIndex, resourceGroupIndex, providerIndex, resourceSegments]]
+    [#local minSegmentLength = 8]
+    [#local validScope = true]
+    [#if segments?size < minSegmentLength]
+        [@fatal 
+            message="Resource Path is too short to determine scope."
+            context={ "Path" : id }
+        /]
+        [#local validScope = false]
+    [/#if]
+    [#list required as segment]
+        [#if ! segment?has_content]
+            [@fatal
+                messaage="ResourceId missing mandatory segments."
+                context={
+                    "SubscriptionPresent" : subscriptionIndex?has_content,
+                    "ResourceGroupPresent" : resourceGroupIndex?has_content,
+                    "ProviderPresent" : providerIndex?has_content,
+                    "ResourcePresent" : resourceSegments?has_content
+                }
+            /]
+        [/#if]
+        [#local validScope = false]
+    [/#list]
+
     [#-- Segments remaining in an Id after the provider value are parents --]
     [#if parentSegments?has_content]
         [#list parentSegments as segment]
@@ -222,17 +248,21 @@
         [/#list]
     [/#if]
 
-    [#return 
-        {
-            "Resource" : {
-                "Name" : segments?sequence[resourceIndex + 1],
-                "Type" : segments?sequence[resourceIndex]
-            }
-        } +
-        attributeIfContent("Subscription", segments?sequence[subscriptionIndex + 1]!"") +
-        attributeIfContent("ResourceGroup", segments?sequence[resourceGroupIndex + 1]!"") +
-        attributeIfContent("Provider", segments?sequence[providerIndex + 1]!"") +
-        attributeIfContent("Parents", parents)]
+    [#if validScope]
+        [#return 
+            {
+                "Resource" : {
+                    "Name" : segments?sequence[resourceIndex + 1],
+                    "Type" : segments?sequence[resourceIndex]
+                }
+            } +
+            attributeIfContent("Subscription", segments?sequence[subscriptionIndex + 1]!"") +
+            attributeIfContent("ResourceGroup", segments?sequence[resourceGroupIndex + 1]!"") +
+            attributeIfContent("Provider", segments?sequence[providerIndex + 1]!"") +
+            attributeIfContent("Parents", parents)]
+    [#else]
+        [#return {}]
+    [/#if]
 [/#function]
 
 [#-- scope of a resource relative to the current runtime state. --]
