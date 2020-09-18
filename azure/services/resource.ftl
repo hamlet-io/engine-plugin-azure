@@ -168,6 +168,31 @@ such an object Id through parent/grandparent Ids/Names --]
 
 [/#function]
 
+[#function constructResourceId subscription resourceGroup provider resource parents=[]]
+    [#if ! resource?is_hash]
+        [@fatal
+            message="Cannot construct resourceId with provided resource. Resource must be a hash, with Name and Type attributes."
+            context={
+                "Subscription" : subscription,
+                "ResourceGroup" : resourceGroup,
+                "Provider" : provider,
+                "Resource" : resource,
+                "Parents" : parents![]
+            }
+        /]
+    [/#if]
+    [#local parts = [
+        "subscriptions",
+        subscription,
+        "resourceGroups",
+        resourceGroup,
+        "providers",
+        provider,
+        resource.Type,
+        resource.Name ]]
+    [#return formatPath(true, parts)]
+[/#function]
+
 [#function getParameterReference parameterName boilerplate=true]
     [#return
         boilerplate?then(
