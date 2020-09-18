@@ -118,19 +118,25 @@
                             )
                         ],
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
-                                frontDoor.Name,
-                                "loadBalancingSettings"
-                                frontDoorLBSettingsName
+                            getChildReference(
+                                frontDoor.Name, 
+                                [
+                                    getResourceObject(
+                                        frontDoorLBSettingsName,
+                                        "loadBalancingSettings"
+                                    )
+                                ]
                             )
                         ),
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
+                            getChildReference(
                                 frontDoor.Name,
-                                "healthProbeSettings"
-                                healthProbeSettingsName
+                                [
+                                    getResourceObject(
+                                        healthProbeSettingsName,
+                                        "healthProbeSettings"
+                                    )
+                                ]
                             )
                         )
                     )
@@ -143,11 +149,14 @@
                         routingRuleResource.Name,
                         [
                             getSubResourceReference(
-                                getSubReference(
-                                    frontDoor.Id,
+                                getChildReference(
                                     frontDoor.Name,
-                                    "frontendEndpoints",
-                                    frontendEndpointName
+                                    [
+                                        getResourceObject(
+                                            frontendEndpointName,
+                                            "frontendEndpoints"
+                                        )
+                                    ]
                                 )
                             )
                         ],
@@ -155,11 +164,14 @@
                         routingRulePathPattern,
                         "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",
                         spaFrontEndPort.Protocol?capitalize,
-                        getSubReference(
-                            frontDoor.Id,
+                        getChildReference(
                             frontDoor.Name,
-                            "backendPools",
-                            backendPoolName
+                            [
+                                getResourceObject(
+                                    backendPoolName,
+                                    "backendPools"
+                                )
+                            ]
                         ),
                         {},
                         forwardingPath
@@ -194,11 +206,14 @@
                     "HttpToHttpsRedirect",
                     [
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
+                            getChildReference(
                                 frontDoor.Name,
-                                "frontendEndpoints",
-                                frontendEndpointName
+                                [
+                                    getResourceObject(
+                                        frontendEndpointName,
+                                        "frontendEndpoints"
+                                    )
+                                ]
                             )
                         )
                     ],

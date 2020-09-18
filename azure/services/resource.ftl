@@ -99,7 +99,19 @@
 [#--    "concat('quick', 'brown', 'fox')"                                                   --]
 [#--    "subscription().id"                                                                 --]
 [#function formatRawArmFunction function parts=[] args...]
-    [#local parameters = parts?has_content?then( r"'" + concatenate(asFlattenedArray(parts), r"', '") + r"'", "")]
+
+    [#local stringifiedParts = []]
+    [#list asFlattenedArray(parts) as part]
+        [#if part?matches(r"(\w*)\(.*\)(\w||\.)*")]
+            [#-- Regex pattern for a raw ARM function                --]
+            [#-- "function(<part>, <part>).<potential-attributes>"   --]
+            [#-- Do not string-ify them or they will not interpolate --]
+            [#local stringifiedParts += [part]]
+        [#else]
+            [#local stringifiedParts += [r"'" + part + r"'"]]
+        [/#if]
+    [/#list]
+    [#local parameters = stringifiedParts?has_content?then( concatenate(asFlattenedArray(stringifiedParts), r", "), "")]
     [#local attributes = args?has_content?then(concatenate(asFlattenedArray(["."] + args), "."), "")]
     [#return function + "(" + parameters + ")" + attributes]
 [/#function]
@@ -128,44 +140,16 @@
     [#return getExistingReference(id, attributeType)]
 [/#function]
 
-[#-- Some Azure resources need to be referened by their resourceId without being
-a resource themselves. This function will create the correct ARM reference to
-such an object Id through parent/grandparent Ids/Names --]
-[#function getSubReference
-    resourceId
-    resourceName
-    childType
-    childName
-    grandChildType=""
-    grandChildName=""
-    subscriptionId=""
-    resourceGroupName=""
-    fullResource=false
-    attributes...]
-
-    [#local names = [resourceName, childName]]
-    [#if grandChildName?has_content]
-        [#local names += [grandChildName]]
-    [/#if]
-
-    [#local types = [getAzureResourceProfile(getResourceType(resourceId)).type, childType]]
-    [#if grandChildType?has_content]
-        [#local types += [grandChildType]]
-    [/#if]
-
-    [#return
-        getReference(
-            resourceId,
-            names?join('/'),
-            types?join('/'),
-            REFERENCE_ATTRIBUTE_TYPE,
-            subscriptionId,
-            resourceGroupName,
-            fullResource,
-            attributes
+[#function getChildReference parentName children]
+    [#return 
+        formatArmFunction(
+            "concat",
+            [
+                formatRawArmFunction("reference", [parentName, 'Full'], "id"),
+                children?map(c -> formatPath(true, c.Type, c.Name))
+            ]
         )
     ]
-
 [/#function]
 
 [#function constructResourceId subscription resourceGroup provider resource parents=[]]
@@ -191,6 +175,13 @@ such an object Id through parent/grandparent Ids/Names --]
         resource.Type,
         resource.Name ]]
     [#return formatPath(true, parts)]
+[/#function]
+
+[#function getResourceObject name type index=0]
+    [#return {
+        "Index" : index,
+        "Name" : name,
+        "Type" : type }]
 [/#function]
 
 [#function getParameterReference parameterName boilerplate=true]

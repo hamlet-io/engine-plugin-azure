@@ -315,11 +315,14 @@
                     true,
                     [
                         getSubResourceReference(
-                            getSubReference(
-                                nic.Id,
+                            getChildReference(
                                 nic.Name,
-                                "ipConfigurations",
-                                nicIpConfigName
+                                [
+                                    getResourceObject(
+                                        nicIpConfigName,
+                                        "ipConfigurations"
+                                    )
+                                ]
                             )
                         ) +
                         getIPConfiguration(nicIpConfigName, subnet.Reference)

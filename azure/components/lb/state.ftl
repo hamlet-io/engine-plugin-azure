@@ -149,7 +149,7 @@
                         "Name" : name,
                         "Priority" : solution.Priority + secondaryDomainObject?counter,
                         "RedirectFrom" : formatDomainName(hostName, secondaryDomainObject),
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "redirectConfigurations", name)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(name, "redirectConfigurations")])
                     }
                 }
             ]
@@ -177,58 +177,58 @@
                     "listener" : {
                         "Id" : listenerId,
                         "Name" : listenerName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "httpListeners", listenerName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(listenerName, "httpListeners")])
                     },
                     "frontendPort" : {
                         "Id" : frontendPortId,
                         "Name" : sourcePortId,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "frontendPorts", sourcePortId)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(sourcePortId, "frontendPorts")])
                     },
                     "frontendIPConfiguration" : {
                         "Id" : frontendIPConfigId,
                         "Name" : frontendIPConfigName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "frontendIPConfigurations", frontendIPConfigName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(frontendIPConfigName, "frontendIPConfigurations")])
                     },
                     "gatewayIPConfiguration" : {
                         "Id" : gatewayIPConfigId,
                         "Name" : gatewayIPConfigName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "gatewayIPConfigurations", gatewayIPConfigName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(gatewayIPConfigName, "gatewayIPConfigurations")])
                     },
                     "routingRule" : {
                         "Id" : routingRuleId,
                         "Name" : sourcePortName,
                         "Priority" : solution.Priority,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "requestRoutingRules", sourcePortName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(sourcePortName, "requestRoutingRules")])
                     },
                     "backendSettingsCollection" : {
                         "Id" : backendSettingsId,
                         "Name" : destinationPortName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "backendHttpSettingsCollection", destinationPortName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(destinationPortName, "backendHttpSettingsCollection")])
                     },
                     "backendAddressPool" : {
                         "Id" : backendAddressPoolId,
                         "Name" : backendAddressPoolName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "backendAddressPools", backendAddressPoolName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(backendAddressPoolName, "backendAddressPools")])
                     },
                     "urlPathMap": {
                         "Id" : urlPathMapId,
                         "Name" : urlPathMapName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "urlPathMaps", urlPathMapName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(urlPathMapName, "urlPathMaps")])
                     },
                     "pathRule" : {
                         "Id" : pathRuleId,
                         "Name" : pathRuleName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "urlPathMaps", urlPathMapName, "pathRules", pathRuleName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(urlPathMapName, "urlPathMaps"), getResourceObject(pathRuleName, "pathRules")])
                     },
                     "redirectConfiguration" : {
                         "Id" : redirectConfigId,
                         "Name" : redirectConfigName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "redirectConfigurations", redirectConfigName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(redirectConfigName, "redirectConfigurations")])
                     },
                     "sslCertificate" : {
                         "Id" : sslCertId,
                         "Name" : sslCertName,
-                        "SubReference" : getSubReference(lb.Id, lb.Name, "sslCertificates", sslCertName)
+                        "SubReference" : getChildReference(lb.Name, [getResourceObject(sslCertName, "sslCertificates")])
                     }
                 },
                 "Attributes" : {
