@@ -233,6 +233,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 --]
 [#function formatAzureResourceName name profile primaryParent=""]
 
+    [#local name = name?split(":")?last]
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local conditions = resourceProfile.conditions]
     [#local conditions += ["segment_out_names"]]
@@ -324,11 +325,6 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 
-[#-- Due to azure resource names having multiple segments, Azure requires
-its own function to return the first split of the last segment --]
-[#function getAzureResourceType resourceId]
-    [#return resourceId?split("/")?last?split("X")[0]]
-[/#function]
 
 [#-- Formats a call to the Azure ARM "concat" function. --]
 [#function formatAzureConcatFunction segments...]
