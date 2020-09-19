@@ -196,7 +196,7 @@
 
 [#-- Deconstruct a resourceId value into discovered scopes --]
 [#function getResourceScopeFromResourcePath id]
-    [#local segments = getAzureResourceNameSegments(id)]
+    [#local segments = getAzureResourcePropertySegments(id)]
     [#local subscriptionIndex = segments?seq_index_of("subscriptions")!""]
     [#local resourceGroupIndex = segments?seq_index_of("resourceGroups")!""]
     [#local providerIndex = segments?seq_index_of("providers")!""]
