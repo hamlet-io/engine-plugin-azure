@@ -75,7 +75,6 @@
     [@addResourceProfile
         service=service
         resource=resource
-        scope="pseudo"
         profile=
             {
                 "apiVersion" : "pseudo",

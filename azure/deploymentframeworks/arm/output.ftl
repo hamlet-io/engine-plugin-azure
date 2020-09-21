@@ -47,65 +47,60 @@
     }]
 [/#function]
 
+[#-- Uses a resources' output mappings with the provided scope to          --]
+[#-- construct an "outputs" object. Resources that are nested inside a     --]
+[#-- "Deployment" resource (any resource with a scope of "resourceGroup" or--]
+[#-- "subscription") will also have their outputs nested. In order to      --]
+[#-- have them output alongside non-nested resource outputs, outputs at the--]
+[#-- "template" scope must be structured to point to the values of the     --]
+[#-- nested resource output values.                                        --]
 [#function constructArmOutputsFromMappings id name scope mappings=[]]
     [#local result = {}]
-    [#list mappings as attributeType,attributes]
-        [#local dataType = getOutputMappingDataType(attributeType)]
-        [#list attributes as attributeName,attributeValue]
+    [#switch scope]
+        [#case "resourceGroup"]
 
-            [#switch scope]
+            [#-- redirect values to nested resource outputs --]
+            [#list mappings as attributeType,attributes]
+                [#list attributes as attributeName,attributeValue]
 
-                [#case "subscription"]
-                [#case "resourceGroup"]
-                    [#local typeFull = getAzureResourceProfile(AZURE_DEPLOYMENT_RESOURCE_TYPE).type]
-                    [#if typeFull?has_content]
-                        [#local propertySections = attributeValue?split(".")]
-                        [#if attributeValue == "id"]
-                            [#local outputName = id]
-                            [#local value = getReference(id, name, typeFull, "", "", "", true, "outputs." + outputName + ".value")]
-                        [#else]
-                            [#local outputName = formatAttributeId(id, propertySections)]
-                            [#local value = getReference(id, name, typeFull, attributeType, "", "", true, "outputs." + outputName + ".value")]
-                        [/#if]
-                    [/#if]
-                    [#break]
-
-                [#case "template"]
                     [#if attributeValue == "id"]
                         [#local outputName = id]
-                        [#local value = getReference(id, name)]
+                    [#else]
+                        [#local outputName = formatAttributeId(id, attributeName)]
+                    [/#if]
+
+                    [#local dataType = getOutputMappingDataType(attributeType)]
+                    [#local value = formatArmFunction("reference", [outputName, 'Full'], "outputs", id, "value")]
+                    [#local result += getArmOutput(outputName, dataType, value)]
+                [/#list]
+            [/#list]
+            [#break]
+
+        [#case "template"]s
+            [#list mappings as attributeType,attributes]
+
+                [#local dataType = getOutputMappingDataType(attributeType)]
+                [#list attributes as attributeName,attributeValue]
+                    [#if attributeValue == "id"]
+                        [#local outputName = id]
+                        [#local value = getReference(name)]
                         [#break]
                     [#else]
-                        [#local propertySections = attributeValue?split(".")]
-                        [#local outputName = formatAttributeId(id, propertySections)]
-                        [#local typeFull = getAzureResourceProfile(getResourceType(id)).type]
-                        [#if typeFull?has_content]
-                            [#local value = getReference(id, name, typeFull, attributeType, "", "", true, attributeValue)]
-                        [/#if]
+                        [#local outputName = formatAttributeId(id, attributeName)]
+                        [#local value = getReference(id, attributeType, getResourceType(id))]
                         [#break]
                     [/#if]
-                    [#break]
+                    [#local result += getArmOutput(outputName, dataType, value)]
+                [/#list]
+            [/#list]
+            [#break]
 
-                [#case "pseudo"]
-                    [#return getArmOutput(name, "string", "pseudo")]
-                    [#break]
+        [#-- Pseudo resources simply output their name so they can be verified as deployed --]
+        [#case "pseudo"]
+            [#return getArmOutput(name, "string", "pseudo")]
+            [#break]
 
-                [#default]
-                    [@fatal
-                        message="Invalid resource scope."
-                        context={
-                            "Id" : id,
-                            "Name" : name,
-                            "Scope" : scope
-                        }
-                    /]
-                    [#break]
-            [/#switch]
-            [#if outputName?has_content && dataType?has_content && value?has_content]
-                [#local result += getArmOutput(outputName, dataType, value)]
-            [/#if]
-        [/#list]
-    [/#list]
+    [/#switch]
     [#return result]
 [/#function]
 
@@ -366,9 +361,10 @@
     [#local templateOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
     [#local resourceLocation = resourceProfile.global?then("global", location)]
     [#local resourceScope = scope?has_content?then(scope, resourceProfile.scope)]
+    [#local resourceOutputs = constructArmOutputsFromMappings(id, name, resourceScope, resourceProfile.outputMappings)]
 
     [#-- Construct Current Resource Object --]
-    [#if !(resourceScope.Level == "pseudo")]
+    [#if !(resourceScope == "pseudo")]
         [#local resourceContent = {
                     "name": name,
                     "type": resourceProfile.type,
@@ -390,7 +386,11 @@
                 attributeIfContent("resources", resources)]
     [/#if]
 
-    [#switch resourceScope.Level]
+    [#-- Resource scopes above "template" should be nested inside of a --]
+    [#-- "Deployment" resource. This resource is used to deploy across --]
+    [#-- scopes (other resource groups or subscriptions), whilst       --]
+    [#-- keeping the resource definition in the same deployment unit.  --]
+    [#switch resourceScope]
 
         [#case "subscription"]
         [#case "resourceGroup"]
@@ -406,7 +406,11 @@
                             "contentVersion": "1.0.0.0",
                             "parameters": {},
                             "resources": [resourceContent],
-                            "outputs": templateOutputs
+                            "outputs": constructArmOutputsFromMappings(
+                                            id,
+                                            name,
+                                            "template",
+                                            resourceProfile.outputMappings)
                         }
                     }
                 resourceGroupId=resourceGroupId
