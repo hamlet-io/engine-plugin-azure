@@ -92,8 +92,12 @@
 
                 [#default]
                     [@fatal
-                        message=""
-                        context={}
+                        message="Invalid resource scope."
+                        context={
+                            "Id" : id,
+                            "Name" : name,
+                            "Scope" : scope
+                        }
                     /]
                     [#break]
             [/#switch]
