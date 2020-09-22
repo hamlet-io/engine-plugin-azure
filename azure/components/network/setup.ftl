@@ -59,7 +59,6 @@
                 formatName("elb", "AllowGatewayManager"),
                 AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
                 elbNSG.Name)
-        nsgName=elbNSG.Name
         description="Grants the GatewayManager access to App Gateway resources"
         destinationPortProfileName="gatewaymanager"
         sourceAddressPrefix="*"
@@ -79,7 +78,6 @@
                 formatName("elb", "AllowAzureLoadBalancer"),
                 AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
                 elbNSG.Name)
-        nsgName=elbNSG.Name
         description="Grants the GatewayManager access to App Gateway resources"
         destinationPortProfileName="any"
         sourceAddressPrefix="AzureLoadBalancer"
@@ -206,7 +204,6 @@
         [@createSubnet
           id=subnet.Id
           name=subnetName
-          vnetName=vnetName
           addressPrefix=subnet.Address
           networkSecurityGroup=networkSecurityGroupReference
           routeTable={} + routeTableResource?has_content?then(
@@ -259,7 +256,6 @@
               formatName(tierId,ruleId),
               getResourceType(formatDependentSecurityRuleId(vnetId, formatName(tierId,ruleId))),
               nsgName)
-            nsgName=nsgName
             description=description
             destinationPortProfileName=ruleConfig.Destination.Port
             sourceAddressPrefix=sourceAddressPrefix

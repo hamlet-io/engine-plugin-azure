@@ -186,7 +186,6 @@
 [#macro createBlobService
     id
     name
-    accountName
     CORSBehaviours=[]
     deleteRetentionPolicy={}
     automaticSnapshotPolicyEnabled=false
@@ -228,8 +227,6 @@
 [#macro createBlobServiceContainer
     id
     name
-    accountName
-    blobName
     publicAccess=""
     metadata={}
     resources=[]

@@ -128,7 +128,6 @@
     [@createBlobService
       id=blobId
       name=blobName
-      accountName=accountName
       CORSBehaviours=solution.CORSBehaviours
       deleteRetentionPolicy=
         (solution.Lifecycle.BlobRetentionDays)?has_content?then(
@@ -148,8 +147,6 @@
       [@createBlobServiceContainer
         id=registry.Id
         name=registry.Name
-        accountName=accountName
-        blobName=blobName
         publicAccess="None"
         dependsOn=
           [
@@ -184,8 +181,6 @@
           [@createBlobServiceContainer
             id=containerId
             name=containerName
-            accountName=accountName
-            blobName=blobName
             publicAccess=publicAccess
             dependsOn=
               [

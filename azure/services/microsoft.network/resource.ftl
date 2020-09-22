@@ -120,8 +120,7 @@
 
 [#macro createNetworkSecurityGroupSecurityRule
   id
-  name
-  nsgName
+  name  
   access
   direction
   sourceAddressPrefix=""
@@ -325,7 +324,6 @@
 [#macro createSubnet
   id
   name
-  vnetName
   addressPrefix=""
   addressPrefixes=[]
   networkSecurityGroup={}

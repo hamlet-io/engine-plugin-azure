@@ -250,7 +250,6 @@
         [@createNetworkSecurityGroupSecurityRule
             id=rule.Id
             name=rule.Name
-            nsgName=nsg.Name
             access="allow"
             direction="Inbound"
             sourceAddressPrefix=rule.CIDR!""
