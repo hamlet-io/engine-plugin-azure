@@ -318,22 +318,6 @@
 
 [#function formatAzureStorageListKeys storageId key=0]
     [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
-
-    [#if storageId?starts_with("[")]
-        [#-- child function, don't quote + remove boilerplate --]
-        [#local storageId =
-            storageId
-                ?remove_beginning("[")
-                ?remove_ending("]")]
-    [#else]
-        [#-- raw storageId, add quotations --]
-        [#local storageId =
-            storageId
-                ?ensure_starts_with("'")
-                ?ensure_ends_with("'")]
-    [/#if]
-
-    [#return
-        "[listKeys(" + storageId + ", '" + apiVersion + "').keys[" + key + "].value]"
-    ]
+    [#local args = [ r"keys[" + key + r"]", "value"]]
+    [#return formatArmFunction("listKeys", [storageId, apiVersion], args)]
 [/#function]
