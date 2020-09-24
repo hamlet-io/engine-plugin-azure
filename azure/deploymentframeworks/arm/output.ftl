@@ -65,14 +65,15 @@
                 [#list attributes as attributeName,attributeValue]
 
                     [#if attributeType == REFERENCE_ATTRIBUTE_TYPE || attributeValue == REFERENCE_ATTRIBUTE_TYPE]
-                        [#local outputName = id]
+                        [#local outputId = id]
                     [#else]
-                        [#local outputName = formatAttributeId(id, attributeType)]
+                        [#local outputId = formatAttributeId(id, attributeType)]
                     [/#if]
 
+                    [#local profile = getAzureResourceProfile(getResourceType(id))]
                     [#local dataType = getOutputMappingDataType(attributeType)]
-                    [#local value = formatArmFunction("reference", [outputName, 'Full'], "outputs", id, "value")]
-                    [#local result += getArmOutput(outputName, dataType, value)]
+                    [#local value = formatArmFunction("reference", [name, profile.apiVersion, 'Full'], "outputs", outputId, "value")]
+                    [#local result += getArmOutput(outputId, dataType, value)]
                 [/#list]
             [/#list]
             [#break]
@@ -324,12 +325,11 @@
         [#local relativeScopeLevel = "pseudo"]
     [#elseif relativeScope?keys?seq_contains("Subscription")]
         [#local relativeScopeLevel = "subscription"]
-    [#elseif relativeScope?keys?seq_contains("ResourceGroup") || relativeScope?keys?seq_contains("DeploymentUnit")]
+    [#elseif relativeScope?keys?seq_contains("ResourceGroup")]
         [#local relativeScopeLevel = "resourceGroup" ]
     [#else]
         [#local relativeScopeLevel = "template"]
     [/#if]
-
     [#-- Use the relative level only down to the level of the default. --]
     [#-- Some resources only exist at the higher scopes.               --]
     [#if scopeLevels?seq_index_of(relativeScopeLevel) < scopeLevels?seq_index_of(resourceProfileScope)]
@@ -402,7 +402,8 @@
 
         [#case "subscription"]
         [#case "resourceGroup"]
-            [#local deploymentOutputs = constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)]
+            [#local deploymentResourceName = formatAzureResourceName(name, AZURE_DEPLOYMENT_RESOURCE_TYPE)]
+            [#local deploymentOutputs = constructArmOutputsFromMappings(id, deploymentResourceName, resourceScope.Level, resourceProfile.outputMappings)]
             [@armResource
                 id=formatResourceId(AZURE_DEPLOYMENT_RESOURCE_TYPE, id)
                 name=formatAzureResourceName(name, AZURE_DEPLOYMENT_RESOURCE_TYPE)
