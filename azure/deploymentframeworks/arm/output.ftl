@@ -70,9 +70,8 @@
                         [#local outputId = formatAttributeId(id, attributeType)]
                     [/#if]
 
-                    [#local profile = getAzureResourceProfile(getResourceType(id))]
                     [#local dataType = getOutputMappingDataType(attributeType)]
-                    [#local value = formatArmFunction("reference", [name, profile.apiVersion, 'Full'], "outputs", outputId, "value")]
+                    [#local value = formatArmFunction("reference", [name], "outputs", outputId, "value")]
                     [#local result += getArmOutput(outputId, dataType, value)]
                 [/#list]
             [/#list]
