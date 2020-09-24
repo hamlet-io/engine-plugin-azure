@@ -381,7 +381,6 @@
                 } +
                 attributeIfContent("identity", identity) +
                 attributeIfContent("location", resourceLocation) +
-                attributeIfContent("dependsOn", dependsOn) +
                 attributeIfContent("tags", tags) +
                 attributeIfContent("comments", comments) +
                 attributeIfContent("copy", copy) +
@@ -434,7 +433,8 @@
         [#case "template"]
             [#local resourceContent += {} +
                 attributeIfContent("resourceGroup", resourceGroupId) +
-                attributeIfContent("subscriptionId", subscriptionId)]
+                attributeIfContent("subscriptionId", subscriptionId) + 
+                attributeIfContent("dependsOn", dependsOn)]
             [@addToJsonOutput
                 name="resources"
                 content=[resourceContent]
