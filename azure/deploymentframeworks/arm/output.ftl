@@ -410,6 +410,7 @@
                 profile=AZURE_DEPLOYMENT_RESOURCE_TYPE
                 properties=
                     {
+                        "mode" : "Incremental",
                         "template": {
                             "$schema": ARMSchemas.Template,
                             "contentVersion": "1.0.0.0",
