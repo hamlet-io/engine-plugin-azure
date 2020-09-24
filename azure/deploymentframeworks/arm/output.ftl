@@ -379,8 +379,6 @@
                     "apiVersion": resourceProfile.apiVersion,
                     "properties": properties
                 } +
-                attributeIfContent("resourceGroup", resourceGroupId) +
-                attributeIfContent("subscriptionId", subscriptionId) +
                 attributeIfContent("identity", identity) +
                 attributeIfContent("location", resourceLocation) +
                 attributeIfContent("dependsOn", dependsOn) +
@@ -434,6 +432,9 @@
             [#break]
 
         [#case "template"]
+            [#local resourceContent += {} +
+                attributeIfContent("resourceGroup", resourceGroupId) +
+                attributeIfContent("subscriptionId", subscriptionId)]
             [@addToJsonOutput
                 name="resources"
                 content=[resourceContent]
