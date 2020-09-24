@@ -124,8 +124,8 @@
                                                 "Id" : identityproviderId,
                                                 "Name" : identityproviderName,
                                                 "Type" : AZURE_API_MANAGEMENT_SERVICE_IDENTITY_PROVIDER,
-                                                "Reference" : getReference(identityproviderName),
-                                                "ObjectId" : subAttributes["CLIENT_OBJECT_ID"]!getExistingReference(subCore.Id),
+                                                "Reference" : getReference(identityproviderId, identityproviderName),
+                                                "ObjectId" : subAttributes["CLIENT_OBJECT_ID"]!getReference(subCore.Id),
                                                 "SecretId" : identityProviderSecretId
                                             }
                                         }
@@ -168,20 +168,20 @@
                     "Name" : serviceName,
                     "ManagedIdentity" : apimManagedIdentity,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE,
-                    "Reference" : getReference(serviceName)
+                    "Reference" : getReference(serviceId, serviceName)
                 },
                 "identityproviders" : identityProviders,
                 "product" : {
                     "Id": productId,
                     "Name" : productName,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE_PRODUCT,
-                    "Reference" : getReference(productName)
+                    "Reference" : getReference(productId, productName)
                 },
                 "api" : {
                     "Id" : apiId,
                     "Name" : apiName,
                     "Type" : AZURE_API_MANAGEMENT_SERVICE_API,
-                    "Reference" : getReference(apiName)
+                    "Reference" : getReference(apiId, apiName)
                 }
             },
             "Attributes" : {

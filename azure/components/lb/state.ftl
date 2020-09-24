@@ -8,7 +8,7 @@
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
     [#local keyVaultId = baselineAttributes["KEYVAULT_ID"]]
-    [#local keyVaultName = getExistingReference(keyVaultId, NAME_ATTRIBUTE_TYPE)]
+    [#local keyVaultName = getReference(formatId(keyVaultId, NAME_ATTRIBUTE_TYPE))]
 
     [#-- Name Processing --]
     [#local id = formatResourceId(AZURE_APPLICATION_GATEWAY_RESOURCE_TYPE, core.FullName)]
@@ -48,31 +48,31 @@
                     "Name" : name,
                     "Type" : resourceType,
                     "Sku" : "Standard_v2",
-                    "Reference" : getReference(name)
+                    "Reference" : getReference(id, name)
                 },
                 "publicIP" : {
                     "Id" : ipId,
                     "Name" : ipName,
                     "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                    "Reference" : getReference(ipName)
+                    "Reference" : ipId, ipName)
                 },
                 "identity" : {
                     "Id" : identityId,
                     "Name" : identityName,
                     "Type" : AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE,
                     "PrincipalId" : getReference(identityId, ALLOCATION_ATTRIBUTE_TYPE, AZURE_USER_ASSIGNED_IDENTITY_RESOURCE_TYPE),
-                    "Reference" : getReference(identityName)
+                    "Reference" : getReference(identityId, identityName)
                 },
                 "accessPolicy" : {
                     "Id" : accessPolicyId,
                     "Name" : accessPolicyName,
                     "Type" : AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE,
                     "KeyVault" : keyVaultName,
-                    "Reference" : getReference(accessPolicyName)
+                    "Reference" : getReference(accessPolicyId, accessPolicyName)
                 }
             },
             "Attributes" : {
-                "INTERNAL_FQDN" : getReference(id, DNS_ATTRIBUTE_TYPE, resourceType)
+                "INTERNAL_FQDN" : getReference(id, name, DNS_ATTRIBUTE_TYPE)
             },
             "Roles" : {
                 "Inbound" : {},

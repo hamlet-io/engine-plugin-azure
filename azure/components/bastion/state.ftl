@@ -25,37 +25,37 @@
           "Id" : scaleSetId,
           "Name": scaleSetName,
           "Type": AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE,
-          "Reference": getReference(scaleSetName)
+          "Reference": getReference(scalseSetId, scaleSetName)
         },
         "autoScalePolicy" : {
           "Id" : autoScalePolicyId,
           "Name" : autoScalePolicyName,
           "Type" : AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE,
-          "Reference" : getReference(autoScalePolicyName)
+          "Reference" : getReference(autoScalePolicyId, autoScalePolicyName)
         },
         "networkInterface" : {
           "Id" : networkInterfaceId,
           "Name" : networkInterfaceName,
           "Type" : AZURE_NETWORK_INTERFACE_RESOURCE_TYPE,
-          "Reference": getReference(networkInterfaceName)
+          "Reference": getReference(networkInterfaceId, networkInterfaceName)
         },
         "publicIPPrefix": {
           "Id" : publicIPPrefixId,
           "Name" : publicIPPrefixName,
           "Type" : AZURE_PUBLIC_IP_ADDRESS_PREFIX_RESOURCE_TYPE,
-          "Reference" : getReference(publicIPPrefixName)
+          "Reference" : getReference(publicIPPrefixId, publicIPPrefixName)
         },
         "publicIP": {
           "Id" : publicIPId,
           "Name" : publicIPName,
           "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-          "Reference" : getReference(publicIPName)
+          "Reference" : getReference(publicIPId, publicIPName)
         },
         "networkSecurityGroupRule": {
           "Id" : nsgRuleId,
           "Name" : nsgRuleName,
           "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-          "Reference" : getReference(nsgRuleName)
+          "Reference" : getReference(nsgRuleId, nsgRuleName)
         }
       },
       "Attributes" : {},

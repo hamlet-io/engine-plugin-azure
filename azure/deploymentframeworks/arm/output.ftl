@@ -288,7 +288,7 @@
     [#if isPartOfCurrentDeploymentUnit(id)]
         [#local relativeScope = {}]
     [#else]
-        [#local resourceId = getExistingReference(id)]
+        [#local resourceId = getReference(id)]    
         [#if resourceId?has_content]
             [#local targetScope = getResourceScopeFromResourcePath(resourceId)]
 

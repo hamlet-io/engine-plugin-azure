@@ -36,7 +36,7 @@
   [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
   [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
   [#local baselineResources = baselineLinks["SSHKey"].State.Resources]
-  [#local sshKeyPairResourceId = getExistingReference(baselineResources["vmKeyPair"].Id)]
+  [#local sshKeyPairResourceId = getReference(baselineResources["vmKeyPair"].Id)]
   [#local sshKey = baselineResources["vmKeyPair"]]
   [#local sshPublicKeyParameterName = sshKey.Name + "PublicKey"]
 

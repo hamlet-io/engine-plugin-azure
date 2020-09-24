@@ -46,12 +46,12 @@
                     "ClientAppId" : clientAppId,
                     "Name" : name,
                     "Type" : AZURE_APPLICATION_REGISTRATION_CLIENT_RESOURCE_TYPE,
-                    "Reference" : getReference(name)
+                    "Reference" : getReference(id, name)
                 }
             },
             "Attributes" : parentAttributes + {
-                "CLIENT_APP_ID" : getExistingReference(clientAppId),
-                "CLIENT_OBJECT_ID" : getExistingReference(id)
+                "CLIENT_APP_ID" : getReference(clientAppId),
+                "CLIENT_OBJECT_ID" : getReference(id)
             },
             "Roles" : {
                 "Inbound" : {},

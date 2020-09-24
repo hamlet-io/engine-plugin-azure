@@ -28,7 +28,7 @@
     [#-- Segment Seed --]
     [#local segmentSeedId = resources["segmentSeed"].Id]
     [#local segmentSeedValue = resources["segmentSeed"].Value]
-    [#if !(getExistingReference(segmentSeedId)?has_content)]
+    [#if !(getReference(segmentSeedId)?has_content)]
 
       [#if deploymentSubsetRequired("prologue", false)]
         [@addToDefaultBashScriptOutput

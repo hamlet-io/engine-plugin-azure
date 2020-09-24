@@ -135,6 +135,13 @@
 [#-- particular combination of reference requirements               --]
 [#function getReference id name="" attributeType=""]
 
+    [#if id?is_hash 
+        && id?keys?seq_contains("Id")
+        && id?keys?seq_contains("Name")]
+        [#local name = id.Name]
+        [#local id = id.Id]
+    [/#if]
+
     [#if ! isPartOfCurrentDeploymentUnit(id)]
         [#return getExistingReference(id, attributeType)]
     [/#if]
@@ -143,7 +150,8 @@
     [#local resourceType = getResourceType(id)]
     [#if resourceType?has_content]
         [#local profile = getAzureResourceProfile(resourceType)]
-    [#else]
+    [/#if]
+    [#if ! ((profile!{})?has_content)]
         [@fatal
             message="Could not find the resource type."
             context={"Id" : id, "Profiles" : azureResourceProfiles}
@@ -364,11 +372,9 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 
 [#-- Get stack output --]
 [#function getExistingReference resourceId attributeType="" inRegion="" inDeploymentUnit="" inAccount=""]
-    [#local attributeType = (attributeType == REFERENCE_ATTRIBUTE_TYPE)?then(
-                                "",
-                                attributeType
-    )]
-
+    [#local attributeType = 
+        (attributeType == REFERENCE_ATTRIBUTE_TYPE)
+            ?then("", attributeType )]
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 

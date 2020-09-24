@@ -244,8 +244,8 @@
         [#local destination = 
             getReference(
                 publicIp.Id,
-                IP_ADDRESS_ATTRIBUTE_TYPE,
-                AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE)]
+                publicIp.Name,
+                IP_ADDRESS_ATTRIBUTE_TYPE)]
                 
         [@createNetworkSecurityGroupSecurityRule
             id=rule.Id
@@ -281,9 +281,9 @@
     [#local nicIpConfig =
         getIPConfiguration(
             nicIpConfigName,
-            getExistingReference(subnet.Id),
-            true,
-            publicIp.Reference,
+            getReference(subnet.Id),
+            true, 
+            publicIp.Reference, 
             "", "", [], "", "", "", "Dynamic", "IPv4", [],
             appGatewayBackendAddressPoolIds,
             lbBackendAddressPoolIds,

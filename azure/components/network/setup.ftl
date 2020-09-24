@@ -132,13 +132,14 @@
 
         [#-- Determine dependencies --]
         [#local dependencies = [
-            getReference(vnetName)
+            getReference(vnetId, vnetName)
         ]]
 
         [#if subnetIndex > 0]
           [#local previousSubnet = resources["subnets"]?values[subnetIndex - 1].subnet]
           [#local dependencies += [
             getReference(
+              previousSubnet.Id,
               formatAzureResourceName(
                 previousSubnet.Name,
                 AZURE_SUBNET_RESOURCE_TYPE,
@@ -189,7 +190,7 @@
 
         [#-- Add routeTable details if applicable --]
         [#if routeTableResource?has_content]
-          [#local dependencies += [getReference(routeTableResource.Id)]]
+          [#local dependencies += [getReference(routeTableResource)]]
         [/#if]
 
         [#if networkTier.Name == "elb"]
@@ -197,7 +198,7 @@
           [#local dependencies += [elbNSG.Reference]]
         [#else]
           [#local networkSecurityGroupReference = getSubResourceReference(
-            getReference(networkSecurityGroupName)
+            getReference(networkSecurityGroupId, networkSecurityGroupName)
           )]
         [/#if]
 
@@ -207,7 +208,7 @@
           addressPrefix=subnet.Address
           networkSecurityGroup=networkSecurityGroupReference
           routeTable={} + routeTableResource?has_content?then(
-            getSubResourceReference(getReference(routeTableResource.Id)),
+            getSubResourceReference(getReference(routeTableResource)),
             {}
           )
           serviceEndpoints=serviceEndpoints
@@ -265,7 +266,7 @@
             direction=direction
             dependsOn=
               [
-                getReference(nsgName)
+                getReference(nsgId, nsgName)
               ]
           /]
 

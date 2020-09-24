@@ -57,7 +57,7 @@
     [@createPrivateDnsZoneVnetLink
       id=dnsZoneLinkId
       name=dnsZoneLinkName
-      vnetId=getReference(networkResources["vnet"].Name)
+      vnetId=getReference(networkResources["vnet"])
       autoRegistrationEnabled=true
     /]
 

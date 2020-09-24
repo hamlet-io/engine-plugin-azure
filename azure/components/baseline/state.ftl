@@ -5,10 +5,10 @@
   [#local solution = occurrence.Configuration.Solution]
 
   [#local segmentSeedId = formatSegmentSeedId() ]
-  [#if !(getExistingReference(segmentSeedId)?has_content) ]
+  [#if !(getReference(segmentSeedId)?has_content) ]
     [#local segmentSeedValue = (commandLineOptions.Run.Id + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
   [#else]
-    [#local segmentSeedValue = getExistingReference(segmentSeedId) ]
+    [#local segmentSeedValue = getReference(segmentSeedId) ]
   [/#if]
 
   [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
@@ -117,11 +117,10 @@
   [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
 
   [#local storageEndpoints =
-    getExistingReference(
+    getReference(
       formatId(
-        storageAccountId
-        "properties",
-        "primaryEndpoints"
+        storageAccountId,
+        DICTIONARY_ATTRIBUTE_TYPE
       )
     )
   ]

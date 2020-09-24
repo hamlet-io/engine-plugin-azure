@@ -21,7 +21,7 @@
   [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
   [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
   [#local operationsBlobContainer = baselineLinks["OpsData"].State.Resources["container"].Name]
-  [#--[#local operationsBlobContainer = getExistingReference(baselineComponentIds["OpsData"])] --]
+  [#--[#local operationsBlobContainer = getReference(baselineComponentIds["OpsData"])] --]
   [#local contextLinks = getLinkTargets(occurrence)]
 
   [#local distributions = []]
