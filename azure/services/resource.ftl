@@ -119,24 +119,71 @@
     [#return "[" + formatRawArmFunction(function, parts, args) + "]" ]
 [/#function]
 
-[#function getReference id attributeType="" resourceType=""]
-    [#if isPartOfCurrentDeploymentUnit(id)]
-        [#if attributeType?has_content]
-            [#if !(resourceType?has_content)]
-                [@fatal
-                    message="GetReference Resource Type and Attribute Type must be assigned together."
-                    context={ "Id" : id, "ResourceType" : resourceType, "AttributeType" : attributeType }
-                /]
-            [/#if]
-            [#local mapping = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType)]
-            [#if mapping.Property?has_content]
-                [#local args = mapping.Property?split(".")]
-            [/#if]
-            [#return formatArmFunction("reference", [id, 'Full'], args)]
-        [/#if]
-        [#return formatArmFunction("reference", [id, 'Full'], "id")]
+[#-- ARM Function Dependencies                                      --]
+[#-- ARM allows the referencing of a resource through two functions --]
+[#-- "reference"                                                    --]
+[#--    + returns the resource as an object                         --]
+[#--    + only valid on resource properties or in outputs           --]
+[#--    + can be accessed via name or resource identifier           --]
+[#--    - cannot be used to establish dependencies                  --]
+[#-- "resourceId"                                                   --]
+[#--    + returns the resource identifier as a string               --]
+[#--    + can be used everywhere                                    --]
+[#--    - the required arguments change based on scope              --]
+[#--    - cannot be used to retrieve resource attributes            --]
+[#-- getReference combines both as necessary to construct any       --]
+[#-- particular combination of reference requirements               --]
+[#function getReference id name="" attributeType=""]
+
+    [#if ! isPartOfCurrentDeploymentUnit(id)]
+        [#return getExistingReference(id, attributeType)]
     [/#if]
-    [#return getExistingReference(id, attributeType)]
+    
+    [#-- Reference Properties --]
+    [#local resourceType = getResourceType(id)]
+    [#if resourceType?has_content]
+        [#local profile = getAzureResourceProfile(resourceType)]
+    [#else]
+        [@fatal
+            message="Could not find the resource type."
+            context={"Id" : id, "Profiles" : azureResourceProfiles}
+        /]
+        [#return ""]
+    [/#if]
+
+    [#-- To access the properties of a resource in the same scope              --]
+    [#-- it is necessary to wrap a "resourceId" function in a                  --]
+    [#-- "reference" function.                                                 --]
+    [#-- Example: "[reference(resourceId(<type>, <name>), 'Full').properties]" --]
+    [#if attributeType?has_content && resourceType?has_content]
+        [#local nameSegments = getAzureResourcePropertySegments(name)]
+        [#local resourceId = formatRawArmFunction("resourceId", [profile.type, nameSegments])]
+        [#local propertyPath = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType).Property!""]
+        [#if propertyPath?has_content]
+            [#local args = propertyPath?split(".")]
+        [/#if]
+        [#local functionType = "reference"]
+        [#local parts = [resourceId, profile.apiVersion, 'Full']]
+
+    [#elseif attributeType?has_content]
+        [#-- "reference" function required --]
+        [#local propertyPath = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType).Property!""]
+        [#if propertyPath?has_content]
+            [#local args = propertyPath?split(".")]
+        [/#if]
+        [#local functionType = "reference"]
+        [#local parts = [id, profile.apiVersion, 'Full']]
+
+    [#else]
+        [#-- "resourceId" function required --]
+        [#local functionType = "resourceId"]
+        [#local nameSegments = getAzureResourcePropertySegments(name)]
+        [#local parts = [profile.type, nameSegments]]
+        [#local args = []]
+
+    [/#if]
+
+    [#return formatArmFunction(functionType, parts, args)]
 [/#function]
 
 [#function getChildReference parentName children]
@@ -301,16 +348,17 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
     [#if profileObj?has_content]
         [#return profileObj]
     [#else]
-        [#return
-            {
-                "Mapping" : "HamletFatal: ResourceProfile not found.",
+        [@fatal 
+            message="Resource Profile not found"
+            context={
                 "ServiceType" : serviceType,
                 "ResourceType" : resourceType,
                 "apiVersion" : "HamletFatal: ResourceProfile not found.",
                 "conditions" : [],
                 "type" : "Hamlet/UnknownType"
             }
-        ]
+        /]
+        [#return {}]
     [/#if]
 [/#function]
 

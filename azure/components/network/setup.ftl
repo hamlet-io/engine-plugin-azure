@@ -318,7 +318,7 @@
       [@createNetworkWatcherFlowLog
         id=flowLogNSGId
         name=flowLogNSGName
-        targetResourceId=networkSecurityGroupId
+        targetResourceId=getReference(networkSecurityGroupId, networkSecurityGroupName)
         storageId=flowLogStorageId
         enabled=true
         trafficAnalyticsInterval="0"

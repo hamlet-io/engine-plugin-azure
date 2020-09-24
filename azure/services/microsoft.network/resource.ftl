@@ -282,7 +282,7 @@
   actions=[]]
 
   [#local properties = {} +
-    attributeIfContent("id", getReference(id)) +
+    attributeIfContent("id", getReference(id, name)) +
     attributeIfContent("serviceName", serviceName) +
     attributeIfContent("actions", actions)
   ]
@@ -296,6 +296,7 @@
 
 [#function getSubnetLink
   id=""
+  name=""
   linkedResourceType=""
   resourceLink=""]
 
@@ -306,7 +307,7 @@
 
   [#return {} +
     attributeIfContent("id", getReference(id)) +
-    attributeIfContent("name", getReference(id, NAME_ATTRIBUTE_TYPE)!"") +
+    attributeIfContent("name", getReference(id, name, NAME_ATTRIBUTE_TYPE)!"") +
     attributeIfContent("properties", properties)
   ]
 [/#function]
@@ -447,7 +448,7 @@
     name=name
     profile=AZURE_NETWORK_WATCHER_RESOURCE_TYPE
     properties={ "enabled" : true } +
-      attributeIfContent("targetResourceId", getReference(targetResourceId)) +
+      attributeIfContent("targetResourceId", targetResourceId) +
       attributeIfContent("targetResourceGuid", targetResourceGuid) +
       attributeIfContent("storageId", storageId) +
       attributeIfContent("flowAnalyticsConfiguration", flowAnalyticsConfiguration) +
