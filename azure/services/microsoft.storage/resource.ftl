@@ -316,8 +316,9 @@
         "[concat('''DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', " + storageKey + ", '''')]"]
 [/#function]
 
-[#function formatAzureStorageListKeys storageId key=0]
-    [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
+[#function formatAzureStorageListKeys storageId storageName key=0]
+    [#local profile = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
+    [#local resourceId = formatRawArmFunction("resourceId", [profile.type, storageName])]
     [#local args = [ r"keys[" + key + r"]", "value"]]
-    [#return formatArmFunction("listKeys", [storageId, apiVersion], args)]
+    [#return formatArmFunction("listKeys", [resourceId, profile.apiVersion], args)]
 [/#function]

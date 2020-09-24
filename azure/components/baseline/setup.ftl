@@ -115,7 +115,7 @@
             keyvaultName)
         properties=
             getKeyVaultSecretProperties(
-                formatAzureStorageListKeys(accountName)
+                formatAzureStorageListKeys(accountId, accountName)
             )
         dependsOn=[
             getReference(accountId, accountName),

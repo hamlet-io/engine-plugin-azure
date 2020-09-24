@@ -85,7 +85,7 @@
                         [#local outputName = id]
                         [#local value = getReference(id, name)]
                     [#elseif attributeType == NAME_ATTRIBUTE_TYPE || attributeValue == NAME_ATTRIBUTE_TYPE]
-                        [#local outputName = formatAttributeId(id, NAME_ATTRIBUTE_TYPE)]
+                        [#local outputName = formatId(id, NAME_ATTRIBUTE_TYPE)]
                         [#local value = name]
                     [#else]
                         [#local outputName = formatAttributeId(id, attributeType)]

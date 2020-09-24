@@ -135,7 +135,7 @@
 [#-- particular combination of reference requirements               --]
 [#function getReference id name="" attributeType=""]
 
-    [#if id?is_hash 
+    [#if id?is_hash
         && id?keys?seq_contains("Id")
         && id?keys?seq_contains("Name")]
         [#local name = id.Name]
