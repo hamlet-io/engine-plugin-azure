@@ -1,9 +1,9 @@
 [#ftl]
-[#macro azure_adaptor_arm_generationcontract_application occurrence]
+[#macro azure_adaptor_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["prologue", "config", "epilogue"] /]
 [/#macro]
 
-[#macro azure_adaptor_arm_setup_application occurrence]
+[#macro azure_adaptor_arm_deployment occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core]

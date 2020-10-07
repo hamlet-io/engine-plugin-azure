@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_userpool_arm_generationcontract_solution occurrence]
+[#macro azure_userpool_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["prologue"] /]
 [/#macro]
 
-[#macro azure_userpool_arm_setup_solution occurrence]
+[#macro azure_userpool_arm_deployment occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core]
@@ -38,7 +38,7 @@
 
         [#-- Resource SubComponent Processing --]
         [#if subCore.Type == USERPOOL_RESOURCE_COMPONENT_TYPE]
-            
+
             [#local subLinkTarget = getLinkTarget(subOccurrence, subSolution.Server.Link, false)]
 
             [#if !subLinkTarget?has_content]
@@ -90,7 +90,7 @@
                         [#if linkTargetAttributes["AUTH_SIGNOUT_URL"]?has_content]
                             [#local logoutUrls += [linkTargetAttributes["AUTH_SIGNOUT_URL"]]]
                         [/#if]
-                        
+
                         [#break]
 
                     [#case USERPOOL_AUTHPROVIDER_COMPONENT_TYPE]
@@ -116,14 +116,14 @@
                     attributeIfTrue("oauth2-allow-implicit-flow", flows?seq_contains("implicit"), true) +
                     attributeIfTrue("available-to-other-tenants", otherTenants, otherTenants)
                 ]
-                
+
             [/#if]
 
         [/#if]
 
     [/#list]
 
-    [#local creationcliArgs += {} + 
+    [#local creationcliArgs += {} +
         attributeIfContent("reply-urls", replyUrls?join(' '))]
 
     [#local updatesCliArgs += {} +
@@ -176,7 +176,7 @@
                 ]
             ) +
             [
-                "   create|update)",   
+                "   create|update)",
                 "       az ad app create " + args?join(" ") + " > $tmp/registration.json",
                 "       objectId=$(runJQ -r '.objectId' < $tmp/registration.json)",
                 "       clientId=$(runJQ -r '.appId' < $tmp/registration.json)"

@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_spa_arm_generationcontract_application occurrence]
+[#macro azure_spa_arm_deployment_generationcontract occurrence]
   [@addDefaultGenerationContract subsets=["prologue", "config", "epilogue"] /]
 [/#macro]
 
-[#macro azure_spa_arm_setup_application occurrence]
+[#macro azure_spa_arm_deployment occurrence]
 
   [@debug message="Entering SPA Setup" context=occurrence enabled=false /]
 

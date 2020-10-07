@@ -1,9 +1,9 @@
 [#ftl]
-[#macro azure_bastion_arm_generationcontract_segment occurrence]
+[#macro azure_bastion_arm_deployment_generationcontract occurrence]
   [@addDefaultGenerationContract subsets=[ "template", "parameters"] /]
 [/#macro]
 
-[#macro azure_bastion_arm_setup_segment occurrence]
+[#macro azure_bastion_arm_deployment occurrence]
 
   [@debug message="Entering Bastion Setup" context=occurrence enabled=false /]
   [#local core = occurrence.Core]
@@ -26,7 +26,7 @@
   [#local networkVnetResource = networkResources["vnet"]]
   [#local subnetResource = getSubnet(core.Tier, networkResources)]
   [#local subnetName = formatAzureResourceName(
-    subnetResource.Name, 
+    subnetResource.Name,
     getResourceType(subnetResource.Id),
     networkVnetResource.Name
   )]
@@ -169,7 +169,7 @@
 
     [#-- TODO: rossmurr4y
     Add autoscaling configuration for the VMSS.
-    
+
     [#local autoScaleTargetId = autoScalePolicy.Reference]
 
     [#local autoScaleRule = getAutoScaleRule()]

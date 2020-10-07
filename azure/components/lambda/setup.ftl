@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_lambda_arm_generationcontract_application occurrence]
+[#macro azure_lambda_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["template", "parameters", "epilogue"] /]
 [/#macro]
 
-[#macro azure_lambda_arm_setup_application occurrence]
+[#macro azure_lambda_arm_deployment occurrence]
 
     [@debug message="Entering Function ARM Setup" context=occurrence enabled=false /]
 
@@ -63,7 +63,7 @@
 
             [#-- Establish Parameter Lookup for any Secrets in final env --]
             [#local secrets = getSettingSecrets(_context.DefaultEnvironment, "")]
-            
+
             [#list secrets as secret]
                 [#list secret?values as secretName]
                     [@createKeyVaultParameterLookup

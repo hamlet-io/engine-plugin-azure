@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_cdn_arm_generationcontract_solution occurrence]
+[#macro azure_cdn_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["template", "epilogue"] /]
 [/#macro]
 
-[#macro azure_cdn_arm_setup_solution occurrence]
+[#macro azure_cdn_arm_deployment occurrence]
 
     [@debug message="Entering CDN Component Setup" context=occurrence enabled=false /]
 
@@ -103,7 +103,7 @@
                 ]]
 
                 [#-- Create backend pools--]
-                [#local spaBackendPoolAddress = 
+                [#local spaBackendPoolAddress =
                     webEndpoint?remove_beginning("https://")?remove_ending("/")]
 
                 [#local spaBackendPool = [
