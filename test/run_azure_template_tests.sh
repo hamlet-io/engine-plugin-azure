@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 echo "###############################################"
 echo "# Running template tests for the AZURE provider #"
@@ -19,26 +20,28 @@ echo ""
 echo "--- Generating Management Contract ---"
 echo ""
 
-${GENERATION_DIR}/createTemplate.sh -i mock -p azure -p azuretest -f arm -o "${TEST_OUTPUT_DIR}" -l unitlist
+default_args=(
+    '-i mock'
+    '-p azure'
+    '-p azuretest'
+    '-f arm'
+    "-o ${TEST_OUTPUT_DIR}"
+    '-x'
+)
+
+${GENERATION_DIR}/createTemplate.sh -e unitlist ${default_args[@]}
 UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.DeploymentUnit)"' < ${TEST_OUTPUT_DIR}/unitlist-managementcontract.json`
 readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
 for unit in "${UNIT_LIST[@]}";  do
-    args=(
-        '-i mock'
-        '-p azure'
-        '-p azuretest'
-        '-f arm'
-        "-o ${TEST_OUTPUT_DIR}"
-        '-x'
-    )
 
-    args=("${args[@]}" "${unit}")
+    unit_args=("${default_args[@]}" "${unit}")
 
     echo ""
     echo "--- Generating $unit ---"
     echo ""
-    ${GENERATION_DIR}/createTemplate.sh ${args[@]} || exit $?
+    ${GENERATION_DIR}/createTemplate.sh -e deploymenttest ${unit_args[@]}
+    ${GENERATION_DIR}/createTemplate.sh -e deployment ${unit_args[@]}
 done
 
 

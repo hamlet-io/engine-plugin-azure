@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_db_arm_generationcontract_solution occurrence]
+[#macro azure_db_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["prologue", "parameters", "template"] /]
 [/#macro]
 
-[#macro azure_db_arm_setup_solution occurrence]
+[#macro azure_db_arm_deployment occurrence]
 
     [@debug message="Entering" context=occurrence enabled=false /]
 
@@ -12,10 +12,10 @@
     [#local solution   = occurrence.Configuration.Solution]
     [#local resources  = occurrence.State.Resources]
     [#local attributes = occurrence.State.Attributes]
-   
+
     [#local engine = solution.Engine]
     [#local engineVersion = solution.EngineMinorVersion?has_content?then(
-    solution.EngineVersion + solution.EngineMinorVersion, 
+    solution.EngineVersion + solution.EngineMinorVersion,
     solution.EngineVersion)]
 
     [#-- Resources --]
@@ -92,7 +92,7 @@
     [#-- Resource Creation --]
     [#if !hibernate]
         [#switch engine]
-            
+
             [#case "postgres"]
 
                 [@createPostgresServer
@@ -131,7 +131,7 @@
                     ] + configReferences
                 /]
 
-                [#-- TODO(rossmurr4y): 
+                [#-- TODO(rossmurr4y):
                     refactor `ignoreMissingEndpoint` alongside Service Endpoints.
                 --]
                 [@createPostgresServerVNetRule
@@ -147,5 +147,5 @@
                 [#break]
 
         [/#switch]
-    [/#if]  
+    [/#if]
 [/#macro]

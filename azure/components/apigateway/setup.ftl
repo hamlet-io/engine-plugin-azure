@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_apigateway_arm_generationcontract_application occurrence]
+[#macro azure_apigateway_arm_deployment_generationcontract_application occurrence]
     [@addDefaultGenerationContract subsets=["pregeneration", "parameters", "template"] /]
 [/#macro]
 
-[#macro azure_apigateway_arm_setup_application occurrence]
+[#macro azure_apigateway_arm_deployment_application occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core          = occurrence.Core]

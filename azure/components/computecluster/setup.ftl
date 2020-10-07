@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_computecluster_arm_generationcontract_application occurrence ]
+[#macro azure_computecluster_arm_deployment_generationcontract occurrence ]
     [@addDefaultGenerationContract subsets=[ "parameters", "template"] /]
 [/#macro]
 
-[#macro azure_computecluster_arm_setup_application occurrence]
+[#macro azure_computecluster_arm_deployment_application occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core          = occurrence.Core]
@@ -38,7 +38,7 @@
     [#local keyvaultId        = keyAttributes["KEYVAULT_ID"]]
 
     [#-- Default Storage Config --]
-    [#local stageStorage = 
+    [#local stageStorage =
         {
             "Account" : {
                 "Id" : storageAccountId,
@@ -111,7 +111,7 @@
                 [#break]
 
             [#case S3_COMPONENT_TYPE]
-                [#local stageStorage = 
+                [#local stageStorage =
                     {
                         "Account" : {
                             "Id" : linkTargetAttributes["ACCOUNT_ID"],
@@ -141,8 +141,8 @@
                             ?keys
                             ?filter(s -> s?starts_with("ENV_"))
                             ?filter(s -> !s?ends_with("SECRET")) as setting]
-                            
-                            [#local dbDetails += 
+
+                            [#local dbDetails +=
                                 { setting?remove_beginning("ENV_") : linkTargetConfiguration.Settings.Product[setting].Value }]
                         [/#list]
 
@@ -153,14 +153,14 @@
 
                         [#if linkTargetConfiguration.Solution["azure:Secrets"]??]
                             [#list linkTargetConfiguration.Solution["azure:Secrets"]?values as secret]
-                                [#local dbSecrets += 
+                                [#local dbSecrets +=
                                     [{ secret.Setting : secret.Name }]]
                             [/#list]
                         [/#if]
 
                         [#-- ENV Attributes --]
-                        [#local dbDetails += 
-                            { 
+                        [#local dbDetails +=
+                            {
                                 "DB_NAME" : linkTargetAttributes["DB_NAME"],
                                 "DB_USERNAME" : linkTargetAttributes["USERNAME"],
                                 "DB_HOST" : linkTargetAttributes["FQDN"]
@@ -168,7 +168,7 @@
 
                         [#break]
                 [/#switch]
-                    
+
                 [#list dbSecrets as dbSecret]
                     [#list dbSecret?values as secretName]
                         [@createKeyVaultParameterLookup
@@ -240,7 +240,7 @@
     [#-- Network Security Group Rules --]
     [#local priority = 200]
     [#list nsgRules?values as rule]
-        
+
         [#local destination = getReference(
             publicIp.Id,
             publicIp.Name,
@@ -279,12 +279,12 @@
         )]
 
     [#local nicIpConfigName = nic.Name + "ipConfig"]
-    [#local nicIpConfig = 
+    [#local nicIpConfig =
         getIPConfiguration(
             nicIpConfigName,
             getExistingReference(subnet.Id),
-            true, 
-            publicIp.Reference, 
+            true,
+            publicIp.Reference,
             "", "", [], "", "", "", "Dynamic", "IPv4", [],
             appGatewayBackendAddressPoolIds,
             lbBackendAddressPoolIds,
@@ -301,7 +301,7 @@
     /]
 
     [#local storageAccountType = [vmStorage.Tier, vmStorage.Replication]?join('_')]
-    
+
     [#local vmProfile =
         getVirtualMachineProfile(
             storageAccountType,
@@ -321,7 +321,7 @@
                                 "ipConfigurations",
                                 nicIpConfigName
                             )
-                        ) + 
+                        ) +
                         getIPConfiguration(nicIpConfigName, subnet.Reference)
 
                     ]
@@ -364,7 +364,7 @@
     [@armParameter name="container" default=stageStorage.Container /]
     [@armParameter name="blob" default=stageStorage.BlobPath /]
     [@armParameter name="file" default=stageStorage.BlobName /]
-    [@armParameter 
+    [@armParameter
         name="storage"
         default=
             formatAzureStorageAccountConnectionStringReference(
@@ -407,7 +407,7 @@
 
     [/#if]
     [#local indices = indices?sort]
-    
+
     [#local extensionScriptConfig = {}]
     [#list indices as index]
 
@@ -426,7 +426,7 @@
             [/#list]
         [/#if]
 
-        [#local extensionScriptConfig = 
+        [#local extensionScriptConfig =
             mergeObjects(extensionScriptConfig, extConfig)]
 
     [/#list]

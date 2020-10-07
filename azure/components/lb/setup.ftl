@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_lb_arm_generationcontract_solution occurrence]
+[#macro azure_lb_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["template"] /]
 [/#macro]
 
-[#macro azure_lb_arm_setup_solution occurrence]
+[#macro azure_lb_arm_deployment occurrence]
     [@debug message="Entering LB Setup" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core]
@@ -22,7 +22,7 @@
         [#return]
     [/#if]
     [#local networkResources = networkLinkTarget.State.Resources]
-    
+
     [#-- LB Resources --]
     [#local lb = resources["lb"]]
     [#local publicIP = resources["publicIP"]]
@@ -33,7 +33,7 @@
     [#-- Instantiate LB Configs --]
     [#switch engine]
         [#case "application"]
-            [#local gatewayIPConfigExists = false]     
+            [#local gatewayIPConfigExists = false]
             [#local listenerPortsSeen = []]
             [#local frontendIPAddress = {}]
             [#local portProtocols = []]
@@ -156,7 +156,7 @@
                                     publicIP.Reference
                                 )
                             ]]
-                            [#local frontendIPAddress += { 
+                            [#local frontendIPAddress += {
                                 "Configuration" : frontendIPConfiguration.SubReference,
                                 "Assigned" : true
                             }]
@@ -287,7 +287,7 @@
                     [/#list]
 
                     [#if ! redirectTargetListener?has_content]
-                        [@fatal 
+                        [@fatal
                             message="Target Listener for Redirect does not exist."
                             context=
                                 {
@@ -354,7 +354,7 @@
             /]
 
             [#if sslCertificate?has_content]
-                [#local identityObj = 
+                [#local identityObj =
                     {
                         "type" : "UserAssigned",
                         "userAssignedIdentities" : {

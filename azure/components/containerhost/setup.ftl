@@ -1,10 +1,10 @@
 [#ftl]
 
-[#macro azure_containerhost_arm_generationcontract_solution occurrence]
+[#macro azure_containerhost_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets=["template"] /]
 [/#macro]
 
-[#macro azure_containerhost_arm_setup_solution occurrence]
+[#macro azure_containerhost_arm_deployment occurrence]
 
     [@debug message="Entering Function ARM Setup" context=occurrence enabled=false /]
 

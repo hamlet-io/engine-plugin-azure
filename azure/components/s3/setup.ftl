@@ -1,9 +1,9 @@
 [#ftl]
-[#macro azure_s3_arm_generationcontract_solution occurrence]
+[#macro azure_s3_arm_deployment_generationcontract occurrence]
     [@addDefaultGenerationContract subsets="template" /]
 [/#macro]
 
-[#macro azure_s3_arm_setup_solution occurrence]
+[#macro azure_s3_arm_deployment occurrence]
 
     [#local core = occurrence.Core ]
     [#local solution = occurrence.Configuration.Solution ]

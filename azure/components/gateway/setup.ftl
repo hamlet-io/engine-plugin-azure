@@ -6,11 +6,11 @@
   privateEndpoint resources. Leaving large portions of the macro
   intact so as to outline the future structure.
 --]
-[#macro azure_gateway_arm_generationcontract_segment occurrence]
+[#macro azure_gateway_arm_deployment_generationcontract occurrence]
   [@addDefaultGenerationContract subsets="template" /]
 [/#macro]
 
-[#macro azure_gateway_arm_setup_segment occurrence]
+[#macro azure_gateway_arm_deployment occurrence]
 
   [#local gwCore = occurrence.Core]
   [#local gwSolution = occurrence.Configuration.Solution]

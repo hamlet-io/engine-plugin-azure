@@ -37,7 +37,7 @@
     }]
 [/#function]
 
-[#function getArmOutput name type value condition=""]  
+[#function getArmOutput name type value condition=""]
     [#return {
         name : {
             "type" : type,
@@ -215,7 +215,7 @@
     [#local minSegmentLength = 8]
     [#local validScope = true]
     [#if segments?size < minSegmentLength]
-        [@fatal 
+        [@fatal
             message="Resource Path is too short to determine scope."
             context={ "Path" : id }
         /]
@@ -253,7 +253,7 @@
     [/#if]
 
     [#if validScope]
-        [#return 
+        [#return
             {
                 "Resource" : {
                     "Name" : segments?sequence[resourceIndex + 1],
@@ -288,7 +288,7 @@
     [#if isPartOfCurrentDeploymentUnit(id)]
         [#local relativeScope = {}]
     [#else]
-        [#local resourceId = getExistingReference(id)]    
+        [#local resourceId = getExistingReference(id)]
         [#if resourceId?has_content]
             [#local targetScope = getResourceScopeFromResourcePath(resourceId)]
             [#local relativeScope = {} +
@@ -354,7 +354,7 @@
     resourceGroupId=""
     subscriptionId=""
     parentId=""]
-    
+
     [#if parentId?has_content]
         [#local resourceScope = getResourceRelativeScope(parentId)]
         [#local resourceGroupId = resourceScope.ResourceGroup!""]
@@ -452,7 +452,12 @@
     [#if include?has_content]
         [#include include?ensure_starts_with("/")]
     [#else]
-        [@processComponents level /]
+        [@processModelFlow
+            level=level
+            framework=AZURE_RESOURCE_MANAGER_DEPLOYMENT_FRAMEWORK
+            model=commandLineOptions.Deployment.Framework.Model
+            flow=commandLineOptions.Deployment.Framework.Flow
+        /]
     [/#if]
 
     [#if getOutputContent("resources")?has_content || logMessages?has_content]

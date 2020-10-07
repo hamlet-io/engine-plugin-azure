@@ -1,9 +1,9 @@
 [#ftl]
-[#macro azure_baseline_arm_generationcontract_segment occurrence]
+[#macro azure_baseline_arm_deployment_generationcontract occurrence]
   [@addDefaultGenerationContract subsets=["prologue", "template", "epilogue"] /]
 [/#macro]
 
-[#macro azure_baseline_arm_setup_segment occurrence]
+[#macro azure_baseline_arm_deployment occurrence]
     [@debug message="Entering" context=occurrence enabled=false /]
 
     [#local core = occurrence.Core ]

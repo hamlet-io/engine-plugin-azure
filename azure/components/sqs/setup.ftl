@@ -1,6 +1,6 @@
 [#ftl]
 
-[#macro azure_sqs_arm_generationcontract_solution occurrence]
+[#macro azure_sqs_arm_deployment_generationcontract occurrence]
     [#-- Queue creation is not yet available within ARM                --]
     [#-- No template is therefore required - all work done through CLI --]
     [#-- TODO(rossmurr4y): Keep an eye on ARM support:                 --]
@@ -8,7 +8,7 @@
     [@addDefaultGenerationContract subsets=["prologue"] /]
 [/#macro]
 
-[#macro azure_sqs_arm_setup_solution occurrence]
+[#macro azure_sqs_arm_deployment occurrence]
 
     [@debug message="Entering SQS Setup" context=occurrence enabled=false /]
 
