@@ -2,7 +2,7 @@
 
 [#-- Get stack output --]
 [#function azure_input_composite_stackoutput_filter outputFilter]
-  [#return 
+  [#return
     {
       "Subscription" : (outputFilter.Account)!accountObject.AzureId,
       "Region" : outputFilter.Region,
@@ -37,7 +37,7 @@
                   [#local stackOutput += { "Region" : outputValue["value"] }]
                   [#break]
                 [#case "subscription"]
-                  [#-- convert Azure languague "subscription to COT language "Account" --]
+                  [#-- convert Azure languague "subscription to Hamlet language "Account" --]
                   [#local stackOutput += { "Account" : outputValue["value"] }]
                   [#break]
                 [#default]

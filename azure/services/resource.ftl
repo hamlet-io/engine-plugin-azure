@@ -337,10 +337,10 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
     [#else]
         [#return
             {
-                "Mapping" : "COTFatal: ResourceProfile not found.",
+                "Mapping" : "HamletFatal: ResourceProfile not found.",
                 "ServiceType" : serviceType,
                 "ResourceType" : resourceType,
-                "apiVersion" : "COTFatal: ResourceProfile not found.",
+                "apiVersion" : "HamletFatal: ResourceProfile not found.",
                 "conditions" : [],
                 "type" : "Hamlet/UnknownType"
             }
