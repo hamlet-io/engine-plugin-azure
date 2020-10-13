@@ -30,11 +30,11 @@
             [#-- Use Load Balancer resource --]
             [#-- TODO(rossmurr4y)                       --]
             [#-- Implement network load balancer engine --]
-            [#local resourceType = "COTFatal: Unsupported LB Engine"]
+            [#local resourceType = "HamletFatal: Unsupported LB Engine"]
             [#break]
 
         [#default]
-            [#local resourceType = "COTFatal: Unknown LB Engine"]
+            [#local resourceType = "HamletFatal: Unknown LB Engine"]
             [#break]
 
     [/#switch]

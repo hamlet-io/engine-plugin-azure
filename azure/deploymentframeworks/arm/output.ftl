@@ -471,7 +471,7 @@
                     getOutputContent("outputs") +
                     getArmTemplateCoreOutputs()
             } +
-            attributeIfContent("COTMessages", logMessages)
+            attributeIfContent("HamletMessages", logMessages)
         /]
     [/#if]
 [/#macro]
