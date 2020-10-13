@@ -5,6 +5,7 @@ pipeline {
     options {
         timestamps()
         durabilityHint('PERFORMANCE_OPTIMIZED')
+        timeout(time: 1, unit: 'HOURS')
     }
 
     agent {
