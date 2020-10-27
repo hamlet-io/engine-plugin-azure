@@ -1,44 +1,52 @@
 [#ftl]
 
-[#macro azuretest_scenario_cdn]
+[@addScenario
+    name="lambda"
+    description="Testing scenario for the azure lambda component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+
+[#macro azuretest_scenario_lambda parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "web" : {
+                "app" : {
                     "Components" : {
-                        "cdn" : {
-                            "cdn" : {
+                        "lambda" : {
+                            "lambda" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-cdn-base" ]
+                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ],
-                                    "Security" : "high"
+                                    "Testing" : [ "Component" ]
                                 },
-                                "Certificate": {
-                                    "Host" : "mawk"
-                                },
-                                "WAF": {
-                                    "OWASP" : true
-                                },
-                                "Routes" : {}
+                                "Functions" : {
+                                    "api" : {
+                                        "Handler" : "src/handler.api",
+                                        "RunTime" : "nodejs",
+                                        "Fragment" : "_mockfrag",
+                                        "Links" : {}
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basecdntemplate" : {
+                "baselambdatemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "FrontDoorID" : {
-                                    "Path" : "outputs.frontdoorXwebXcdn.value",
+                                "AppServicePlanID" : {
+                                    "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,8 +56,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "cdn" : {
-                        "TestCases" : [ "basecdntemplate" ]
+                    "lambda" : {
+                        "TestCases" : [ "baselambdatemplate" ]
                     }
                 }
             }

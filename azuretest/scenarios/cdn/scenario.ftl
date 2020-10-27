@@ -1,36 +1,51 @@
 [#ftl]
 
-[#macro azuretest_scenario_baseline]
+[@addScenario
+    name="cdn"
+    description="Testing scenario for the azure cdn component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_cdn parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "mgmt" : {
+                "web" : {
                     "Components" : {
-                        "baseline" : {
-                            "baseline" : {
+                        "cdn" : {
+                            "cdn" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "segment-az-baseline-base" ]
+                                        "DeploymentUnits" : [ "solution-az-cdn-base" ]
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                }
+                                    "Testing" : [ "Component" ],
+                                    "Security" : "high"
+                                },
+                                "Certificate": {
+                                    "Host" : "mawk"
+                                },
+                                "WAF": {
+                                    "OWASP" : true
+                                },
+                                "Routes" : {}
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basebaselinetemplate" : {
+                "basecdntemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "BaselineStorageID" : {
-                                    "Path" : "outputs.storageXmgmtXbaseline.value",
+                                "FrontDoorID" : {
+                                    "Path" : "outputs.frontdoorXwebXcdn.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -40,8 +55,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "baseline" : {
-                        "TestCases" : [ "basebaselinetemplate" ]
+                    "cdn" : {
+                        "TestCases" : [ "basecdntemplate" ]
                     }
                 }
             }

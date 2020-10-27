@@ -1,18 +1,25 @@
 [#ftl]
 
-[#macro azuretest_scenario_userpool]
+[@addScenario
+    name="sqs"
+    description="Testing scenario for the azure sqs component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_sqs parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "dir" : {
+                "app" : {
                     "Components" : {
-                        "userpool" : {
-                            "userpool" : {
+                        "sqs" : {
+                            "sqs" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-userpool-base" ]
+                                        "DeploymentUnits" : [ "solution-az-sqs-base" ]
                                     }
                                 },
                                 "Profiles" : {
@@ -24,7 +31,7 @@
                 }
             },
             "TestCases" : {
-                "baseuserpooltemplate" : {
+                "basesqstemplate" : {
                     "OutputSuffix" : "prologue.sh",
                     "Structural" : {
                         "Bash" : {
@@ -37,11 +44,11 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "userpool" : {
-                        "TestCases" : [ "baseuserpooltemplate" ]
+                    "sqs" : {
+                        "TestCases" : [ "basesqstemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

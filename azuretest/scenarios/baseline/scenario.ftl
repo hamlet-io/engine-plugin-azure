@@ -1,37 +1,43 @@
 [#ftl]
 
-[#macro azuretest_scenario_gateway]
+[@addScenario
+    name="baseline"
+    description="Testing scenario for the azure baseline component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_baseline parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "gateway" : {
-                            "gateway" : {
+                        "baseline" : {
+                            "baseline" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-gateway-base" ]
+                                        "DeploymentUnits" : [ "segment-az-baseline-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
-                                },
-                                "Engine" : "vpcendpoint"
+                                }
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basegatewaytemplate" : {
+                "basebaselinetemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "ID" : {
-                                    "Path" : "",
+                                "BaselineStorageID" : {
+                                    "Path" : "outputs.storageXmgmtXbaseline.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -41,8 +47,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "gateway" : {
-                        "TestCases" : [ "basegatewaytemplate" ]
+                    "baseline" : {
+                        "TestCases" : [ "basebaselinetemplate" ]
                     }
                 }
             }

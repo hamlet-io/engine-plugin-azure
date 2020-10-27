@@ -1,8 +1,15 @@
 [#ftl]
 
-[#macro azuretest_scenario_network]
+[@addScenario
+    name="network"
+    description="Testing scenario for the azure network component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_network parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
