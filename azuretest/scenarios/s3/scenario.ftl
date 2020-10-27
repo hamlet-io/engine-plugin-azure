@@ -1,22 +1,35 @@
 [#ftl]
 
-[#macro azuretest_scenario_bastion]
+[@addScenario
+    name="s3"
+    description="Testing scenario for the azure s3 component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_s3 parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "mgmt" : {
+                "app" : {
                     "Components" : {
-                        "ssh" : {
-                            "bastion" : {
+                        "stage" : {
+                            "S3" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
+                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
                                     }
                                 },
-                                "Enabled" : true,
-                                "MultiAZ": false,
+                                "Lifecycle" : {
+                                    "Versioning" : true
+                                },
+                                "PublicAccess" : {
+                                    "default" : {
+                                        "IPAddressGroups" : [ "_localnet" ]
+                                    }
+                                },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 }
@@ -26,13 +39,13 @@
                 }
             },
             "TestCases" : {
-                "basebastiontemplate" : {
+                "bases3template" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "ScaleSetID" : {
-                                    "Path" : "outputs.vmssXmanagementXsshXbastion.value",
+                                "StorageID" : {
+                                    "Path" : "outputs.storageXappXstage.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -42,8 +55,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "bastion" : {
-                        "TestCases" : [ "basebastiontemplate" ]
+                    "s3" : {
+                        "TestCases" : [ "bases3template" ]
                     }
                 }
             }

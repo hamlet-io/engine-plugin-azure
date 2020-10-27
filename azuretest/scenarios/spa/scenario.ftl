@@ -1,8 +1,15 @@
 [#ftl]
 
-[#macro azuretest_scenario_spa]
+[@addScenario
+    name="spa"
+    description="Testing scenario for the azure spa component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+[#macro azuretest_scenario_spa parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
@@ -41,7 +48,7 @@
                         "TestCases" : [ "basespatemplate" ]
                     }
                 }
-            }            
+            }
         }
         stackOutputs=[]
         commandLineOption={}

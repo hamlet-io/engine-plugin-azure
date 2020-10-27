@@ -1,36 +1,44 @@
 [#ftl]
 
-[#macro azuretest_scenario_adaptor]
+[@addScenario
+    name="gateway"
+    description="Testing scenario for the azure gateway component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+
+[#macro azuretest_scenario_gateway parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "adaptortest" : {
-                            "adaptor" : {
+                        "gateway" : {
+                            "gateway" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-adaptor-base" ]
+                                        "DeploymentUnits" : [ "azure-gateway-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
-                                "Fragment" : "MockFragment"
+                                "Engine" : "vpcendpoint"
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "baseadaptortemplate" : {
-                    "OutputSuffix" : "prologue.sh",
+                "basegatewaytemplate" : {
+                    "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "LinkedId" : {
+                                "ID" : {
                                     "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
@@ -41,8 +49,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "adaptor" : {
-                        "TestCases" : [ "baseadaptortemplate" ]
+                    "gateway" : {
+                        "TestCases" : [ "basegatewaytemplate" ]
                     }
                 }
             }

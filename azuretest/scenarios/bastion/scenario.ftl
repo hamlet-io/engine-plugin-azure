@@ -1,30 +1,32 @@
 [#ftl]
 
-[#macro azuretest_scenario_lambda]
+[@addScenario
+    name="bastion"
+    description="Testing scenario for the azure bastion component"
+    provider=AZURETEST_PROVIDER
+    properties=[]
+/]
 
-    [@addScenario
+
+[#macro azuretest_scenario_bastion parameters]
+
+    [@loadScenario
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "mgmt" : {
                     "Components" : {
-                        "lambda" : {
-                            "lambda" : {
+                        "ssh" : {
+                            "bastion" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
+                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
                                     }
                                 },
+                                "Enabled" : true,
+                                "MultiAZ": false,
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
-                                },
-                                "Functions" : {
-                                    "api" : {
-                                        "Handler" : "src/handler.api",
-                                        "RunTime" : "nodejs",
-                                        "Fragment" : "_mockfrag",
-                                        "Links" : {}
-                                    }
                                 }
                             }
                         }
@@ -32,13 +34,13 @@
                 }
             },
             "TestCases" : {
-                "baselambdatemplate" : {
+                "basebastiontemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "AppServicePlanID" : {
-                                    "Path" : "",
+                                "ScaleSetID" : {
+                                    "Path" : "outputs.vmssXmanagementXsshXbastion.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,8 +50,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "lambda" : {
-                        "TestCases" : [ "baselambdatemplate" ]
+                    "bastion" : {
+                        "TestCases" : [ "basebastiontemplate" ]
                     }
                 }
             }
