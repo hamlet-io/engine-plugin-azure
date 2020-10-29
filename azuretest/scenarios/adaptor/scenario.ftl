@@ -7,7 +7,7 @@
     properties=[]
 /]
 
-[#macro azuretest_scenario_adaptor parameters]
+[#macro azuretest_scenario_adaptor ]
 
     [@loadScenario
         settingSets=[]

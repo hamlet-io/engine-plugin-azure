@@ -72,7 +72,7 @@
             },
             "Solution" : {
                 "Profiles" : {
-                    "Scenarios" : [ "azure-provider-testin" ]
+                    "Scenarios" : [ "azure-provider-testing" ]
                 }
             }
         }

@@ -7,7 +7,7 @@
     properties=[]
 /]
 
-[#macro azuretest_scenario_computecluster parameters]
+[#macro azuretest_scenario_computecluster ]
 
     [@loadScenario
         settingSets=[

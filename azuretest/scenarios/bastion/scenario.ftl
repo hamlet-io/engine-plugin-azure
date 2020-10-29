@@ -8,7 +8,7 @@
 /]
 
 
-[#macro azuretest_scenario_bastion parameters]
+[#macro azuretest_scenario_bastion ]
 
     [@loadScenario
         settingSets=[]

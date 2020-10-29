@@ -7,7 +7,7 @@
     properties=[]
 /]
 
-[#macro azuretest_scenario_apigateway parameters ]
+[#macro azuretest_scenario_apigateway ]
 
     [@loadScenario
         settingSets=[
