@@ -8,7 +8,7 @@
 /]
 
 
-[#macro azuretest_scenario_lambda parameters]
+[#macro azuretest_scenario_lambda ]
 
     [@loadScenario
         settingSets=[]

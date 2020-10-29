@@ -7,7 +7,7 @@
     properties=[]
 /]
 
-[#macro azuretest_scenario_spa parameters]
+[#macro azuretest_scenario_spa ]
 
     [@loadScenario
         settingSets=[]

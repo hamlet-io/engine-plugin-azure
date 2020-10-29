@@ -8,7 +8,7 @@
 /]
 
 
-[#macro azuretest_scenario_gateway parameters]
+[#macro azuretest_scenario_gateway ]
 
     [@loadScenario
         settingSets=[]
