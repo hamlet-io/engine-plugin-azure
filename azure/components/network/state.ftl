@@ -1,7 +1,7 @@
 [#ftl]
 
 [#macro azure_network_arm_state occurrence parent={}]
-  
+
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
@@ -11,17 +11,17 @@
   [#local nsgName = formatName(vnetName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
 
   [#local nsgFlowLogEnabled = isPresent(segmentObject.Operations)?then(
-      isPresent(environmentObject.Operations.FlowLogs) || 
+      isPresent(environmentObject.Operations.FlowLogs) ||
       isPresent(segmentObject.Operations.FlowLogs) ||
       solution.Logging.EnableFlowLogs,
-      isPresent(environmentObject.Operations.FlowLogs) || 
+      isPresent(environmentObject.Operations.FlowLogs) ||
       solution.Logging.EnableFlowLogs
   )]
 
-  [#local networkCIDR = (network.CIDR)?has_content?then(
+  [#local networkCIDR = isPresent(network.CIDR)?then(
     network.CIDR.Address + "/" + network.CIDR.Mask,
     solution.Address.CIDR )]
-    
+
   [#local networkAddress = networkCIDR?split("/")[0]]
   [#local networkMask = (networkCIDR?split("/")[1])?number]
 
@@ -37,14 +37,14 @@
   [#local subnets = {}]
   [#local routeTableRoutes = {}]
   [#list segmentObject.Network.Tiers.Order as tierId]
-  
+
     [#local networkTier = getTier(tierId) ]
     [#-- Filter out to only valid tiers --]
-    [#if ! (networkTier?has_content && 
+    [#if ! (networkTier?has_content &&
             networkTier.Network.Enabled &&
-            networkTier.Network.Link.Tier == core.Tier.Id && 
+            networkTier.Network.Link.Tier == core.Tier.Id &&
             networkTier.Network.Link.Component == core.Component.Id &&
-            (networkTier.Network.Link.Version!core.Version.Id) == core.Version.Id && 
+            (networkTier.Network.Link.Version!core.Version.Id) == core.Version.Id &&
             (networkTier.Network.Link.Instance!core.Instance.Id) == core.Instance.Id)]
       [#continue]
     [/#if]
@@ -68,7 +68,7 @@
     )]
 
     [#local routeTableRoutes = mergeObjects(
-      routeTableRoutes, 
+      routeTableRoutes,
       {
         networkTier.Id : {
           "routeTableRoute" : {
@@ -100,10 +100,10 @@
         }
       } +
       attributeIfTrue(
-        "flowlogs", 
-        nsgFlowLogEnabled, 
+        "flowlogs",
+        nsgFlowLogEnabled,
         {
-          "networkWatcherFlowlog" : { 
+          "networkWatcherFlowlog" : {
             "Id" : formatDependentNetworkWatcherId(nsgId),
             "Name" : formatName(vnetName, AZURE_NETWORK_WATCHER_RESOURCE_TYPE),
             "Type" : AZURE_NETWORK_WATCHER_RESOURCE_TYPE
