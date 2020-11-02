@@ -1,25 +1,25 @@
 [#ftl]
 
-[@addScenario
-    name="sqs"
-    description="Testing scenario for the azure sqs component"
+[@addModule
+    name="spa"
+    description="Testing module for the azure spa component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_sqs ]
+[#macro azuretest_module_spa ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "sqs" : {
-                            "sqs" : {
+                        "spa" : {
+                            "spa" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-sqs-base" ]
+                                        "DeploymentUnits" : [ "application-az-spa-base" ]
                                     }
                                 },
                                 "Profiles" : {
@@ -31,12 +31,12 @@
                 }
             },
             "TestCases" : {
-                "basesqstemplate" : {
-                    "OutputSuffix" : "prologue.sh",
+                "basespatemplate" : {
+                    "OutputSuffix" : "config.json",
                     "Structural" : {
-                        "Bash" : {
-                            "NotEmpty" :  [
-                                "."
+                        "JSON" : {
+                            "Exists" :  [
+                                "RUN_ID"
                             ]
                         }
                     }
@@ -44,8 +44,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "sqs" : {
-                        "TestCases" : [ "basesqstemplate" ]
+                    "spa" : {
+                        "TestCases" : [ "basespatemplate" ]
                     }
                 }
             }

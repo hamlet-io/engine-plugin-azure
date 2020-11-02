@@ -1,51 +1,49 @@
 [#ftl]
 
-[@addScenario
-    name="cdn"
-    description="Testing scenario for the azure cdn component"
+[@addModule
+    name="lb"
+    description="Testing module for the azure lb component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_cdn ]
+[#macro azuretest_module_lb ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "web" : {
+                "elb" : {
                     "Components" : {
-                        "cdn" : {
-                            "cdn" : {
+                        "lb" : {
+                            "lb" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-cdn-base" ]
+                                        "DeploymentUnits" : [ "solution-az-lb-base" ]
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ],
-                                    "Security" : "high"
+                                    "Testing" : [ "Component" ]
                                 },
-                                "Certificate": {
-                                    "Host" : "mawk"
-                                },
-                                "WAF": {
-                                    "OWASP" : true
-                                },
-                                "Routes" : {}
+                                "Engine" : "application",
+                                "Ports" : {
+                                    "testport" : {
+                                        "Enabled" : true
+                                    }
+                                }
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basecdntemplate" : {
+                "baselbtemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "FrontDoorID" : {
-                                    "Path" : "outputs.frontdoorXwebXcdn.value",
+                                "AppGatewayID" : {
+                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlb.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -55,8 +53,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "cdn" : {
-                        "TestCases" : [ "basecdntemplate" ]
+                    "lb" : {
+                        "TestCases" : [ "baselbtemplate" ]
                     }
                 }
             }

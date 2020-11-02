@@ -1,44 +1,46 @@
 [#ftl]
 
-[@addScenario
-    name="adaptor"
-    description="Testing scenario for the azure adaptor component"
+[@addModule
+    name="bastion"
+    description="Testing module for the azure bastion component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_adaptor ]
 
-    [@loadScenario
+[#macro azuretest_module_bastion ]
+
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "adaptortest" : {
-                            "adaptor" : {
+                        "ssh" : {
+                            "bastion" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "azure-adaptor-base" ]
+                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
                                     }
                                 },
+                                "Enabled" : true,
+                                "MultiAZ": false,
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
-                                },
-                                "Fragment" : "MockFragment"
+                                }
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "baseadaptortemplate" : {
-                    "OutputSuffix" : "prologue.sh",
+                "basebastiontemplate" : {
+                    "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "LinkedId" : {
-                                    "Path" : "",
+                                "ScaleSetID" : {
+                                    "Path" : "outputs.vmssXmanagementXsshXbastion.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -48,8 +50,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "adaptor" : {
-                        "TestCases" : [ "baseadaptortemplate" ]
+                    "bastion" : {
+                        "TestCases" : [ "basebastiontemplate" ]
                     }
                 }
             }

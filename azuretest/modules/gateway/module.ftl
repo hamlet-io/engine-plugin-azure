@@ -1,16 +1,16 @@
 [#ftl]
 
-[@addScenario
+[@addModule
     name="gateway"
-    description="Testing scenario for the azure gateway component"
+    description="Testing module for the azure gateway component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
 
-[#macro azuretest_scenario_gateway ]
+[#macro azuretest_module_gateway ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {

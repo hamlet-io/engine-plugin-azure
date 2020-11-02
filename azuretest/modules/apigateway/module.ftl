@@ -1,15 +1,15 @@
 [#ftl]
 
-[@addScenario
+[@addModule
     name="apigateway"
-    description="Testing scenario for the azure apigateway component"
+    description="Testing module for the azure apigateway component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_apigateway ]
+[#macro azuretest_module_apigateway ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[
             {
                 "Type" : "Builds",
