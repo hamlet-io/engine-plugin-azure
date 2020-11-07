@@ -1,33 +1,25 @@
 [#ftl]
 
-[@addScenario
-    name="s3"
-    description="Testing scenario for the azure s3 component"
+[@addModule
+    name="baseline"
+    description="Testing module for the azure baseline component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_s3 ]
+[#macro azuretest_module_baseline ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "mgmt" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
+                        "baseline" : {
+                            "baseline" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
+                                        "DeploymentUnits" : [ "segment-az-baseline-base" ]
                                     }
                                 },
                                 "Profiles" : {
@@ -39,13 +31,13 @@
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "basebaselinetemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
+                                "BaselineStorageID" : {
+                                    "Path" : "outputs.storageXmgmtXbaseline.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -55,8 +47,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                    "baseline" : {
+                        "TestCases" : [ "basebaselinetemplate" ]
                     }
                 }
             }

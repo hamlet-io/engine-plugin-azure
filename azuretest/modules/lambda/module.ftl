@@ -1,42 +1,38 @@
 [#ftl]
 
-[@addScenario
-    name="db"
-    description="Testing scenario for the azure db component"
+[@addModule
+    name="lambda"
+    description="Testing module for the azure lambda component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_db ]
 
-    [@loadScenario
+[#macro azuretest_module_lambda ]
+
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "db" : {
+                "app" : {
                     "Components" : {
-                        "database" : {
-                            "db" : {
+                        "lambda" : {
+                            "lambda" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-db-base" ]
+                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
-                                "DatabaseName" : "mockdb",
-                                "Engine" : "postgres",
-                                "EngineVersion" : "11",
-                                "Port" : "postgresql",
-                                "GenerateCredentials" : {
-                                    "Enabled" : true,
-                                    "MasterUserName" : "mockuser",
-                                    "CharacterLength" : 20
-                                },
-                                "Size" : 20,
-                                "azure:SecretSettings": {
-                                    "Prefix": "MOCK"
+                                "Functions" : {
+                                    "api" : {
+                                        "Handler" : "src/handler.api",
+                                        "RunTime" : "nodejs",
+                                        "Fragment" : "_mockfrag",
+                                        "Links" : {}
+                                    }
                                 }
                             }
                         }
@@ -44,13 +40,13 @@
                 }
             },
             "TestCases" : {
-                "basedbtemplate" : {
+                "baselambdatemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "DatabaseID" : {
-                                    "Path" : "outputs.postgresdbXdbXdatabase.value",
+                                "AppServicePlanID" : {
+                                    "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -60,8 +56,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "db" : {
-                        "TestCases" : [ "basedbtemplate" ]
+                    "lambda" : {
+                        "TestCases" : [ "baselambdatemplate" ]
                     }
                 }
             }

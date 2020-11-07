@@ -1,35 +1,42 @@
 [#ftl]
 
-[@addScenario
-    name="lb"
-    description="Testing scenario for the azure lb component"
+[@addModule
+    name="db"
+    description="Testing module for the azure db component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_lb ]
+[#macro azuretest_module_db ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "elb" : {
+                "db" : {
                     "Components" : {
-                        "lb" : {
-                            "lb" : {
+                        "database" : {
+                            "db" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "solution-az-lb-base" ]
+                                        "DeploymentUnits" : [ "solution-az-db-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
-                                "Engine" : "application",
-                                "Ports" : {
-                                    "testport" : {
-                                        "Enabled" : true
-                                    }
+                                "DatabaseName" : "mockdb",
+                                "Engine" : "postgres",
+                                "EngineVersion" : "11",
+                                "Port" : "postgresql",
+                                "GenerateCredentials" : {
+                                    "Enabled" : true,
+                                    "MasterUserName" : "mockuser",
+                                    "CharacterLength" : 20
+                                },
+                                "Size" : 20,
+                                "azure:SecretSettings": {
+                                    "Prefix": "MOCK"
                                 }
                             }
                         }
@@ -37,13 +44,13 @@
                 }
             },
             "TestCases" : {
-                "baselbtemplate" : {
+                "basedbtemplate" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "AppGatewayID" : {
-                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlb.value",
+                                "DatabaseID" : {
+                                    "Path" : "outputs.postgresdbXdbXdatabase.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }
@@ -53,8 +60,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "lb" : {
-                        "TestCases" : [ "baselbtemplate" ]
+                    "db" : {
+                        "TestCases" : [ "basedbtemplate" ]
                     }
                 }
             }

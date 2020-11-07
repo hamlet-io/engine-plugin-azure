@@ -1,51 +1,43 @@
 [#ftl]
 
-[@addScenario
-    name="lambda"
-    description="Testing scenario for the azure lambda component"
+[@addModule
+    name="adaptor"
+    description="Testing module for the azure adaptor component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
+[#macro azuretest_module_adaptor ]
 
-[#macro azuretest_scenario_lambda ]
-
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "mgmt" : {
                     "Components" : {
-                        "lambda" : {
-                            "lambda" : {
+                        "adaptortest" : {
+                            "adaptor" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
+                                        "DeploymentUnits" : [ "azure-adaptor-base" ]
                                     }
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
-                                "Functions" : {
-                                    "api" : {
-                                        "Handler" : "src/handler.api",
-                                        "RunTime" : "nodejs",
-                                        "Fragment" : "_mockfrag",
-                                        "Links" : {}
-                                    }
-                                }
+                                "Fragment" : "MockFragment"
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "baselambdatemplate" : {
-                    "OutputSuffix" : "template.json",
+                "baseadaptortemplate" : {
+                    "OutputSuffix" : "prologue.sh",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
-                                "AppServicePlanID" : {
+                                "LinkedId" : {
                                     "Path" : "",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
@@ -56,8 +48,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "lambda" : {
-                        "TestCases" : [ "baselambdatemplate" ]
+                    "adaptor" : {
+                        "TestCases" : [ "baseadaptortemplate" ]
                     }
                 }
             }

@@ -1,15 +1,15 @@
 [#ftl]
 
-[@addScenario
+[@addModule
     name="computecluster"
-    description="Testing scenario for the azure computecluster component"
+    description="Testing module for the azure computecluster component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_computecluster ]
+[#macro azuretest_module_computecluster ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[
             {
                 "Type" : "Builds",

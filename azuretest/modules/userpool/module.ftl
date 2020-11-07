@@ -1,25 +1,25 @@
 [#ftl]
 
-[@addScenario
-    name="spa"
-    description="Testing scenario for the azure spa component"
+[@addModule
+    name="userpool"
+    description="Testing module for the azure userpool component"
     provider=AZURETEST_PROVIDER
     properties=[]
 /]
 
-[#macro azuretest_scenario_spa ]
+[#macro azuretest_module_userpool ]
 
-    [@loadScenario
+    [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
-                "app" : {
+                "dir" : {
                     "Components" : {
-                        "spa" : {
-                            "spa" : {
+                        "userpool" : {
+                            "userpool" : {
                                 "Instances" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "application-az-spa-base" ]
+                                        "DeploymentUnits" : [ "solution-az-userpool-base" ]
                                     }
                                 },
                                 "Profiles" : {
@@ -31,12 +31,12 @@
                 }
             },
             "TestCases" : {
-                "basespatemplate" : {
-                    "OutputSuffix" : "config.json",
+                "baseuserpooltemplate" : {
+                    "OutputSuffix" : "prologue.sh",
                     "Structural" : {
-                        "JSON" : {
-                            "Exists" :  [
-                                "RUN_ID"
+                        "Bash" : {
+                            "NotEmpty" :  [
+                                "."
                             ]
                         }
                     }
@@ -44,8 +44,8 @@
             },
             "TestProfiles" : {
                 "Component" : {
-                    "spa" : {
-                        "TestCases" : [ "basespatemplate" ]
+                    "userpool" : {
+                        "TestCases" : [ "baseuserpooltemplate" ]
                     }
                 }
             }
