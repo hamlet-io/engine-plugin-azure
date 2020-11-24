@@ -7,7 +7,7 @@
         {
             "Account": {
                 "Region": "westus",
-                "AzureId": "0123456789"
+                "ProviderId": "0123456789"
             },
             "Product": {
                 "Region": "westus"
