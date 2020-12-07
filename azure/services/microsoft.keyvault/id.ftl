@@ -13,4 +13,3 @@
 [#-- Attribute Type --]
 [#-- The "secret" attribute type is an identifier for a KeyVault Secret. --]
 [#-- This is necessary to distinguish them from encrypted passwords.     --]
-[#assign SECRET_ATTRIBUTE_TYPE = "secret"]
