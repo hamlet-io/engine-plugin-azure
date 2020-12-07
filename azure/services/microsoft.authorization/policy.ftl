@@ -20,17 +20,9 @@
 [#-- For retrieving BuiltInRole definitions only.             --]
 [#-- CustomRole definition references should be obtained      --]
 [#-- through occurrence.State.Resources[<resource>].Reference --]
-[#function getRoleReference role subscription=""]
+[#function getRoleReference role]
     [#local userRole = userRoles[role]]
-    [#return
-        getReference(
-            AZURE_ROLE_ASSIGNMENT_RESOURCE_TYPE,
-            userRole.Id,
-            "",
-            REFERENCE_ATTRIBUTE_TYPE,
-            subscription
-        )
-    ]
+    [#return getReference(userRole.Id)]
 [/#function]
 
 [#-- App Registration Endpoints --]

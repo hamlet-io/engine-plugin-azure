@@ -13,6 +13,9 @@
         },
         NAME_ATTRIBUTE_TYPE : {
           "Property" : "name"
+        },
+        ALLOCATION_ATTRIBUTE_TYPE : {
+          "Property" : "identity.principalId"
         }
       }
     }

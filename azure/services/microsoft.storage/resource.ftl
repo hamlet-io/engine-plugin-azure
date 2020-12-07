@@ -186,7 +186,6 @@
 [#macro createBlobService
     id
     name
-    accountName
     CORSBehaviours=[]
     deleteRetentionPolicy={}
     automaticSnapshotPolicyEnabled=false
@@ -228,8 +227,6 @@
 [#macro createBlobServiceContainer
     id
     name
-    accountName
-    blobName
     publicAccess=""
     metadata={}
     resources=[]
@@ -319,24 +316,9 @@
         "[concat('''DefaultEndpointsProtocol=https;AccountName=', '" + storageName + "', ';AccountKey=', " + storageKey + ", '''')]"]
 [/#function]
 
-[#function formatAzureStorageListKeys storageId key=0]
-    [#local apiVersion = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE).apiVersion]
-
-    [#if storageId?starts_with("[")]
-        [#-- child function, don't quote + remove boilerplate --]
-        [#local storageId =
-            storageId
-                ?remove_beginning("[")
-                ?remove_ending("]")]
-    [#else]
-        [#-- raw storageId, add quotations --]
-        [#local storageId =
-            storageId
-                ?ensure_starts_with("'")
-                ?ensure_ends_with("'")]
-    [/#if]
-
-    [#return
-        "[listKeys(" + storageId + ", '" + apiVersion + "').keys[" + key + "].value]"
-    ]
+[#function formatAzureStorageListKeys storageId storageName key=0]
+    [#local profile = getAzureResourceProfile(AZURE_STORAGEACCOUNT_RESOURCE_TYPE)]
+    [#local resourceId = formatRawArmFunction("resourceId", [profile.type, storageName])]
+    [#local args = [ r"keys[" + key + r"]", "value"]]
+    [#return formatArmFunction("listKeys", [resourceId, profile.apiVersion], args)]
 [/#function]

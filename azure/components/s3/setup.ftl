@@ -10,14 +10,10 @@
     [#local resources = occurrence.State.Resources ]
     [#local links = getLinkTargets(occurrence )]
 
-    [#local accountId = resources["storageAccount"].Id]
-    [#local blobId = resources["blobService"].Id]
-    [#local containerId = resources["container"].Id]
+    [#local account = resources["storageAccount"]]
+    [#local blob = resources["blobService"]]
+    [#local container = resources["container"]]
     [#local secret = resources["secret"]]
-
-    [#local accountName = resources["storageAccount"].Name]
-    [#local blobName = resources["blobService"].Name]
-    [#local containerName = resources["container"].Name]
 
     [#local storageProfile = getStorage(occurrence, "storageAccount")]
 
@@ -25,7 +21,7 @@
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
     [#local keyVaultId = baselineAttributes["KEYVAULT_ID"]]
-    [#local keyVaultName = getExistingReference(keyVaultId, NAME_ATTRIBUTE_TYPE)]
+    [#local keyVaultName = getReference(formatId(keyVaultId, NAME_ATTRIBUTE_TYPE))]
 
     [#-- Add NetworkACL Configuration --]
     [#local virtualNetworkRulesConfiguration = []]
@@ -57,8 +53,8 @@
     [#if deploymentSubsetRequired("s3", true)]
 
         [@createStorageAccount
-            id=accountId
-            name=accountName
+            id=account.Id
+            name=account.Name
             kind=storageProfile.Type
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
             location=regionId
@@ -76,9 +72,8 @@
         /]
 
         [@createBlobService
-            id=blobId
-            name=blobName
-            accountName=accountName
+            id=blob.Id
+            name=blob.Name
             CORSBehaviours=solution.CORSBehaviours
             deleteRetentionPolicy=
                 (solution.Lifecycle.BlobRetentionDays)?has_content?then(
@@ -89,20 +84,18 @@
             resources=[]
             dependsOn=
                 [
-                    getReference(accountId, accountName)
+                    account.Reference
                 ]
         /]
 
         [@createBlobServiceContainer
-            id=containerId
-            name=containerName
-            accountName=accountName
-            blobName=blobName
+            id=container.Id
+            name=container.Name
             publicAccess=solution.PublicAccess.Enabled
             dependsOn=
                 [
-                    getReference(accountId, accountName),
-                    getReference(blobId, blobName)
+                    account.Reference,
+                    blob.Reference
                 ]
         /]
 
@@ -116,12 +109,10 @@
             parentId=keyVaultId
             properties=
                 getKeyVaultSecretProperties(
-                    formatAzureStorageListKeys(
-                        getReference(accountId, accountName)
-                    )
+                    formatAzureStorageListKeys(account.Id, account.Name)
                 )
             dependsOn=[
-                getReference(accountId, accountName)
+                account.Reference
             ]
         /]
 

@@ -123,12 +123,12 @@
                         productName,
                         occurrence,
                         function.Name + ".zip",
-                        getExistingReference("ResourceGroup")
+                        getReference("ResourceGroup")
                     ) +
                     [
                         "    info \"$\{DEPLOYMENT_OPERATION} Function App ... \"",
                         "    az_functionapp_deploy" +
-                            " \"" + getExistingReference("Subscription") + "\"" +
+                            " \"" + getReference("Subscription") + "\"" +
                             " $\{RESOURCE_GROUP}" +
                             " \"" + function.Name + "\"" +
                             " \"" + "$\{functionFiles[0]}" + "\"" +

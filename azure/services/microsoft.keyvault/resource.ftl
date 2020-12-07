@@ -216,7 +216,7 @@ reference: https://tinyurl.com/y42ot42k --]
     {
       "reference": {
         "keyVault": {
-          "id": getExistingReference(vaultId)
+          "id": getReference(vaultId)
         },
         "secretName": secretName
       }

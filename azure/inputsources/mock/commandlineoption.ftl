@@ -8,6 +8,14 @@
                 "Regions" : {
                     "Segment" : "westus",
                     "Account" : "westus"
+                },
+                "Deployment" : {
+                    "ResourceGroup" : {
+                        "Name" : "mockRG"
+                    },
+                    "Unit" : {
+                        "Name" : getDeploymentUnit()
+                    }
                 }
             }
     /]

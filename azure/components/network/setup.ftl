@@ -43,13 +43,9 @@
     [#-- tag "GatewayManager" https://github.com/MicrosoftDocs/azure-docs/issues/38691--]
     [#if (resources["subnets"]["elb"]!{})?has_content]
 
-      [#local elbNSG =
-        {
-          "Id" : formatDependentNetworkSecurityGroupId(vnetId, "elb"),
-          "Name" : formatName(networkSecurityGroupName, "elb"),
-          "Reference" : getReference(formatDependentNetworkSecurityGroupId(vnetId, "elb"), formatName(networkSecurityGroupName, "elb"))
-        }
-      ]
+      [#if resources["elbNSG"]?has_content]
+        [#local elbNSG = resources["elbNSG"]]
+      [/#if]
 
       [@createNetworkSecurityGroup
         id=elbNSG.Id
@@ -63,7 +59,6 @@
                 formatName("elb", "AllowGatewayManager"),
                 AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
                 elbNSG.Name)
-        nsgName=elbNSG.Name
         description="Grants the GatewayManager access to App Gateway resources"
         destinationPortProfileName="gatewaymanager"
         sourceAddressPrefix="*"
@@ -83,7 +78,6 @@
                 formatName("elb", "AllowAzureLoadBalancer"),
                 AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
                 elbNSG.Name)
-        nsgName=elbNSG.Name
         description="Grants the GatewayManager access to App Gateway resources"
         destinationPortProfileName="any"
         sourceAddressPrefix="AzureLoadBalancer"
@@ -196,7 +190,7 @@
 
         [#-- Add routeTable details if applicable --]
         [#if routeTableResource?has_content]
-          [#local dependencies += [getReference(routeTableResource.Id, routeTableResource.Name)]]
+          [#local dependencies += [getReference(routeTableResource)]]
         [/#if]
 
         [#if networkTier.Name == "elb"]
@@ -211,11 +205,10 @@
         [@createSubnet
           id=subnet.Id
           name=subnetName
-          vnetName=vnetName
           addressPrefix=subnet.Address
           networkSecurityGroup=networkSecurityGroupReference
           routeTable={} + routeTableResource?has_content?then(
-            getSubResourceReference(getReference(routeTableResource.Id, routeTableResource.Name)),
+            getSubResourceReference(getReference(routeTableResource)),
             {}
           )
           serviceEndpoints=serviceEndpoints
@@ -264,7 +257,6 @@
               formatName(tierId,ruleId),
               getResourceType(formatDependentSecurityRuleId(vnetId, formatName(tierId,ruleId))),
               nsgName)
-            nsgName=nsgName
             description=description
             destinationPortProfileName=ruleConfig.Destination.Port
             sourceAddressPrefix=sourceAddressPrefix
@@ -327,7 +319,7 @@
       [@createNetworkWatcherFlowLog
         id=flowLogNSGId
         name=flowLogNSGName
-        targetResourceId=networkSecurityGroupId
+        targetResourceId=getReference(networkSecurityGroupId, networkSecurityGroupName)
         storageId=flowLogStorageId
         enabled=true
         trafficAnalyticsInterval="0"

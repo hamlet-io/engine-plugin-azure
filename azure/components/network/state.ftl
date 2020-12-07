@@ -61,7 +61,7 @@
             "Name": networkTier.Name,
             "Address": subnetCIDRs[tierId?index],
             "Type": AZURE_SUBNET_RESOURCE_TYPE,
-            "Reference" : getReference(subnetId, networkTier.Name, resourceProfile.type)
+            "Reference" : getReference(subnetId, networkTier.Name)
           }
         }
       }
@@ -81,6 +81,19 @@
     )]
   [/#list]
 
+  [#local elbNSG = {}]
+  [#if (subnets["elb"]!{})?has_content]
+    [#local elbNsgId = formatDependentNetworkSecurityGroupId(vnetId, "elb")]
+    [#local elbNsgName = formatName(nsgName, "elb")]
+    [#local elbNSG = 
+      {
+        "Id" : elbNsgId,
+        "Name" : elbNsgName,
+        "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+        "Reference" : getReference(elbNsgId, elbNsgName)
+      }]
+  [/#if]
+
   [#assign componentState =
     {
       "Resources" : {
@@ -99,6 +112,7 @@
           "Reference" : getReference(nsgId, nsgName)
         }
       } +
+      attributeIfContent("elbNSG", elbNSG) +
       attributeIfTrue(
         "flowlogs",
         nsgFlowLogEnabled,

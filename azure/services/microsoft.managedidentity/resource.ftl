@@ -10,6 +10,9 @@
             "outputMappings" : {
                 REFERENCE_ATTRIBUTE_TYPE : {
                     "Property" : "id"
+                },
+                ALLOCATION_ATTRIBUTE_TYPE : {
+                    "Property" : "principalId"
                 }
             }
         }

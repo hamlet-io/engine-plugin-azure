@@ -11,3 +11,8 @@
       "outputMappings" : {}
     }
 /]
+
+[@addPseudoResourceProfile
+  service=AZURE_RESOURCES_SERVICE
+  resource="seed"
+/]

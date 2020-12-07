@@ -88,7 +88,7 @@
                     "Id" : scaleSetId,
                     "Name" : scalesetName,
                     "Type" : AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE,
-                    "PrincipalId" : getReference(scaleSetId, scalesetName, "", "", "", "", true, "identity.principalId"),
+                    "PrincipalId" : getReference(scaleSetId, scaleSetName, ALLOCATION_ATTRIBUTE_TYPE),
                     "Reference" : getReference(scaleSetId, scalesetName)
                 },
                 "networkInterface" : {
