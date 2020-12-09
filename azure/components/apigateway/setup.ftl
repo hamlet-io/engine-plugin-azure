@@ -24,7 +24,6 @@
 
     [#-- Determine the stage variables required --]
     [#local stageVariables = {} ]
-    [#local fragment = getOccurrenceFragmentBase(occurrence) ]
 
     [#-- Baselink Links --]
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey", "OpsData"], false, false)]
@@ -32,12 +31,8 @@
     [#local keyvault = baselineAttributes["KEYVAULT_ID"]]
 
     [#local contextLinks = getLinkTargets(occurrence)]
-    [#assign _context =
+    [#local _context =
         {
-            "Id" : fragment,
-            "Name" : fragment,
-            "Instance" : core.Instance.Id,
-            "Version" : core.Version.Id,
             "DefaultEnvironment" : defaultEnvironment(occurrence, contextLinks, baselineLinks),
             "Environment" : {},
             "Links" : contextLinks,
@@ -50,10 +45,9 @@
         }
     ]
 
-    [#-- Add in fragment specifics including override of defaults --]
-    [#if solution.Fragment?has_content ]
-        [#local fragmentId = formatFragmentId(_context)]
-        [#include fragmentList?ensure_starts_with("/")]
+    [#-- Add in extension specifics including override of defaults --]
+    [#if solution.Extensions?has_content ]
+        [#local _context = invokeExtensions( occurrence, _context )]
     [/#if]
 
     [#local stageVariables += getFinalEnvironment(occurrence, _context).Environment ]
