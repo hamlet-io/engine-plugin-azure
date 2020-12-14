@@ -54,7 +54,7 @@
                     "Id" : ipId,
                     "Name" : ipName,
                     "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                    "Reference" : ipId, ipName)
+                    "Reference" : getReference(ipId, ipName)
                 },
                 "identity" : {
                     "Id" : identityId,
