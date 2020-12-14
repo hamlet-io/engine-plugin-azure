@@ -88,7 +88,7 @@
                         frontDoorFQDN,
                         "Disabled",
                         "0",
-                        wafRequired?then(getReference(wafPolicy.Id, wafPolicy.Name), "")
+                        wafRequired?then(wafPolicy.Reference, "")
                     )
                 ]]
 
@@ -118,19 +118,25 @@
                             )
                         ],
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
-                                frontDoor.Name,
-                                "loadBalancingSettings"
-                                frontDoorLBSettingsName
+                            getChildReference(
+                                frontDoor.Name, 
+                                [
+                                    getResourceObject(
+                                        frontDoorLBSettingsName,
+                                        "loadBalancingSettings"
+                                    )
+                                ]
                             )
                         ),
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
+                            getChildReference(
                                 frontDoor.Name,
-                                "healthProbeSettings"
-                                healthProbeSettingsName
+                                [
+                                    getResourceObject(
+                                        healthProbeSettingsName,
+                                        "healthProbeSettings"
+                                    )
+                                ]
                             )
                         )
                     )
@@ -143,11 +149,14 @@
                         routingRuleResource.Name,
                         [
                             getSubResourceReference(
-                                getSubReference(
-                                    frontDoor.Id,
+                                getChildReference(
                                     frontDoor.Name,
-                                    "frontendEndpoints",
-                                    frontendEndpointName
+                                    [
+                                        getResourceObject(
+                                            frontendEndpointName,
+                                            "frontendEndpoints"
+                                        )
+                                    ]
                                 )
                             )
                         ],
@@ -155,11 +164,14 @@
                         routingRulePathPattern,
                         "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",
                         spaFrontEndPort.Protocol?capitalize,
-                        getSubReference(
-                            frontDoor.Id,
+                        getChildReference(
                             frontDoor.Name,
-                            "backendPools",
-                            backendPoolName
+                            [
+                                getResourceObject(
+                                    backendPoolName,
+                                    "backendPools"
+                                )
+                            ]
                         ),
                         {},
                         forwardingPath
@@ -194,11 +206,14 @@
                     "HttpToHttpsRedirect",
                     [
                         getSubResourceReference(
-                            getSubReference(
-                                frontDoor.Id,
+                            getChildReference(
                                 frontDoor.Name,
-                                "frontendEndpoints",
-                                frontendEndpointName
+                                [
+                                    getResourceObject(
+                                        frontendEndpointName,
+                                        "frontendEndpoints"
+                                    )
+                                ]
                             )
                         )
                     ],
@@ -248,7 +263,7 @@
     [#-- Epilogue --]
     [#if deploymentSubsetRequired("epilogue", false)]
         [#-- If there is something to purge, and its previously been deployed, purge it --]
-        [#if invalidationPaths?has_content && getExistingReference(frontDoor.Id)?has_content]
+        [#if invalidationPaths?has_content && getReference(frontDoor.Id)?has_content]
             [@addToDefaultBashScriptOutput
                 [
                     "case $\{DEPLOYMENT_OPERATION} in",
@@ -256,7 +271,7 @@
                     "    # Purge FrontDoor Endpoint",
                     "    info \"Purging frontDoor content ... \"",
                     "    az_purge_frontdoor_endpoint" +
-                        " \"" + getExistingReference("ResourceGroup") + "\"" +
+                        " \"" + getReference("ResourceGroup") + "\"" +
                         " \"" + frontDoor.Name + "\"" +
                         " \"" + asFlattenedArray(invalidationPaths, true)?join(' ') + "\" || return $?"
                         ";;",

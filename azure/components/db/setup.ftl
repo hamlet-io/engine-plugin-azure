@@ -37,7 +37,7 @@
     [#local baselineLinks      = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
     [#local keyVaultId         = baselineAttributes["KEYVAULT_ID"]]
-    [#local keyVaultName       = getExistingReference(keyVaultId, NAME_ATTRIBUTE_TYPE)]
+    [#local keyVaultName       = getReference(keyVaultId, "", NAME_ATTRIBUTE_TYPE)]
 
     [#-- Network Resources --]
     [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
@@ -137,7 +137,7 @@
                 [@createPostgresServerVNetRule
                     id=vnetRule.Id
                     name=vnetRule.Name
-                    subnetId=subnet.Reference
+                    subnetId=getReference(subnet.Id, subnet.Name)
                     ignoreMissingEndpoint=true
                     dependsOn=[
                         server.Reference

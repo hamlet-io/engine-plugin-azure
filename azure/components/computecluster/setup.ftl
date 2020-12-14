@@ -240,17 +240,16 @@
     [#-- Network Security Group Rules --]
     [#local priority = 200]
     [#list nsgRules?values as rule]
-
-        [#local destination = getReference(
-            publicIp.Id,
-            publicIp.Name,
-            "", "", "", "",
-            true,
-            "properties.ipAddress")]
+        
+        [#local destination = 
+            getReference(
+                publicIp.Id,
+                publicIp.Name,
+                IP_ADDRESS_ATTRIBUTE_TYPE)]
+                
         [@createNetworkSecurityGroupSecurityRule
             id=rule.Id
             name=rule.Name
-            nsgName=nsg.Name
             access="allow"
             direction="Inbound"
             sourceAddressPrefix=rule.CIDR!""
@@ -282,9 +281,9 @@
     [#local nicIpConfig =
         getIPConfiguration(
             nicIpConfigName,
-            getExistingReference(subnet.Id),
-            true,
-            publicIp.Reference,
+            getReference(subnet.Id),
+            true, 
+            publicIp.Reference, 
             "", "", [], "", "", "", "Dynamic", "IPv4", [],
             appGatewayBackendAddressPoolIds,
             lbBackendAddressPoolIds,
@@ -315,11 +314,14 @@
                     true,
                     [
                         getSubResourceReference(
-                            getSubReference(
-                                nic.Id,
+                            getChildReference(
                                 nic.Name,
-                                "ipConfigurations",
-                                nicIpConfigName
+                                [
+                                    getResourceObject(
+                                        nicIpConfigName,
+                                        "ipConfigurations"
+                                    )
+                                ]
                             )
                         ) +
                         getIPConfiguration(nicIpConfigName, subnet.Reference)

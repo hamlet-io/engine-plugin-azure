@@ -18,74 +18,14 @@
             "type" : "Microsoft.ApiManagement/service/apis",
             "outputMappings" : {}
         },
-        AZURE_API_MANAGEMENT_SERVICE_API_DIAGNOSTIC : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/diagnostics",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_DIAGNOSTIC_LOGGER : {
-            "apiVersion" : "2018-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/diagnostics/loggers",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_ISSUE : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/issues",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_ISSUE_ATTACHMENT : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/issues/attachments",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_ISSUE_COMMENT : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/issues/comments",
-            "outputMappings" : {}
-        },
         AZURE_API_MANAGEMENT_SERVICE_API_OPERATION : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service/apis/operations",
             "outputMappings" : {}
         },
-        AZURE_API_MANAGEMENT_SERVICE_API_OPERATION_POLICY : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/operations/policies",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_OPERATION_TAG : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/operations/tags",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_POLICY : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/policies",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_RELEASE : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/releases",
-            "outputMappings" : {}
-        },
         AZURE_API_MANAGEMENT_SERVICE_API_SCHEMA : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service/apis/schemas",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_TAG : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/tags",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_TAG_DESCRIPTION : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apis/tagDescriptions",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_API_VERSION_SET : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/apiVersionSets",
             "outputMappings" : {}
         },
         AZURE_API_MANAGEMENT_SERVICE_AUTHORIZATION_SERVER : {
@@ -98,69 +38,9 @@
             "type" : "Microsoft.ApiManagement/service/backends",
             "outputMappings" : {}
         },
-        AZURE_API_MANAGEMENT_SERVICE_CACHE : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/caches",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_CERTIFICATE : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/certificates",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_DIAGNOSTIC : {
-            "apiVersion" : "2018-01-01",
-            "type" : "Microsoft.ApiManagement/service/diagnostics",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_DIAGNOSTIC_LOGGER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/diagnostics/loggers",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_GROUP : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/groups",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_GROUP_USER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/groups/users",
-            "outputMappings" : {}
-        },
         AZURE_API_MANAGEMENT_SERVICE_IDENTITY_PROVIDER : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service/identityProviders",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_LOGGER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/loggers",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_NOTIFICATION : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/notifications",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_NOTIFICATION_RECIPIENT_EMAIL : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/notifications/recipientEmails",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_NOTIFICATION_RECIPIENT_USER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/notifications/recipientUsers",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_OPENID_CONNECT_PROVIDER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/openidConnectProviders",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_POLICY : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/policies",
             "outputMappings" : {}
         },
         AZURE_API_MANAGEMENT_SERVICE_PRODUCT : {
@@ -176,41 +56,6 @@
         AZURE_API_MANAGEMENT_SERVICE_PRODUCT_GROUP : {
             "apiVersion" : "2019-01-01",
             "type" : "Microsoft.ApiManagement/service/products/groups",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_PRODUCT_POLICY : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/products/policies",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_PRODUCT_TAG : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/products/tags",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_PROPERTY : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/properties",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_SUBSCRIPTION : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/subscriptions",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_TAG : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/tags",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_TEMPLATE : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/templates",
-            "outputMappings" : {}
-        },
-        AZURE_API_MANAGEMENT_SERVICE_USER : {
-            "apiVersion" : "2019-01-01",
-            "type" : "Microsoft.ApiManagement/service/users",
             "outputMappings" : {}
         }
     }
@@ -816,37 +661,3 @@
     /]
 
 [/#macro]
-
-[#-- The following Resources are yet to be implemented
-    [#macro createApiManagementServiceCertificate][/#macro]
-    [#macro createApiManagementServiceApiOperationPolicy][/#macro]
-    [#macro createApiManagementServicePolicy][/#macro]
-    [#macro createApiManagementServiceSubscription][/#macro]
-    [#macro createApiManagementServiceApiPolicy][/#macro]
-    [#macro createApiManagementServiceProductPolicies][/#macro]
-    [#macro createApiManagementServiceApiDiagnostic][/#macro]
-    [#macro createApiManagementServiceApiDiagnosticLogger][/#macro]
-    [#macro createApiManagementServiceApiIssue][/#macro]
-    [#macro createApiManagementServiceApiIssueAttachment][/#macro]
-    [#macro createApiManagementServiceApiIssueComment][/#macro]
-    [#macro createApiManagementServiceApiOperationTag][/#macro]
-    [#macro createApiManagementServiceApiRelease][/#macro]
-    [#macro createApiManagementServiceApiTag][/#macro]
-    [#macro createApiManagementServiceApiTagDescription][/#macro]
-    [#macro createApiManagementServiceApiVersionSet][/#macro]
-    [#macro createApiManagementServiceCache][/#macro]
-    [#macro createApiManagementServiceDiagnostic][/#macro]
-    [#macro createApiManagementServiceDiagnosticLogger][/#macro]
-    [#macro createApiManagementServiceGroup][/#macro]
-    [#macro createApiManagementServiceGroupUser][/#macro]
-    [#macro createApiManagementServiceLogger][/#macro]
-    [#macro createApiManagementServiceNotification][/#macro]
-    [#macro createApiManagementServiceNotifiationRecipientEmail][/#macro]
-    [#macro createApiManagementServiceNotifiationRecipientUser][/#macro]
-    [#macro createApiManagementServiceOpenIDConnectProvider][/#macro]
-    [#macro createApiManagementServiceProductTags][/#macro]
-    [#macro createApiManagementServiceProperty][/#macro]
-    [#macro createApiManagementServiceTag][/#macro]
-    [#macro createApiManagementServiceTemplate][/#macro]
-    [#macro createApiManagementServiceUser][/#macro]
---]

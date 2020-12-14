@@ -23,7 +23,11 @@
   AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE : {
     "apiVersion" : "2019-09-01",
     "type" : "Microsoft.Network/publicIPAddresses",
-    "outputMappings" : {}
+    "outputMappings" : {
+      IP_ADDRESS_ATTRIBUTE_TYPE : {
+        "Property" : "properties.ipAddress"
+      }
+    }
   },
   AZURE_ROUTE_TABLE_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
@@ -116,8 +120,7 @@
 
 [#macro createNetworkSecurityGroupSecurityRule
   id
-  name
-  nsgName
+  name  
   access
   direction
   sourceAddressPrefix=""
@@ -279,7 +282,7 @@
   actions=[]]
 
   [#local properties = {} +
-    attributeIfContent("id", getReference(id)) +
+    attributeIfContent("id", getReference(id, name)) +
     attributeIfContent("serviceName", serviceName) +
     attributeIfContent("actions", actions)
   ]
@@ -293,7 +296,7 @@
 
 [#function getSubnetLink
   id=""
-  resourceName=""
+  name=""
   linkedResourceType=""
   resourceLink=""]
 
@@ -304,7 +307,7 @@
 
   [#return {} +
     attributeIfContent("id", getReference(id)) +
-    attributeIfContent("name", getReference(resourceName)) +
+    attributeIfContent("name", getReference(id, name, NAME_ATTRIBUTE_TYPE)!"") +
     attributeIfContent("properties", properties)
   ]
 [/#function]
@@ -322,7 +325,6 @@
 [#macro createSubnet
   id
   name
-  vnetName
   addressPrefix=""
   addressPrefixes=[]
   networkSecurityGroup={}
@@ -446,7 +448,7 @@
     name=name
     profile=AZURE_NETWORK_WATCHER_RESOURCE_TYPE
     properties={ "enabled" : true } +
-      attributeIfContent("targetResourceId", getReference(targetResourceId)) +
+      attributeIfContent("targetResourceId", targetResourceId) +
       attributeIfContent("targetResourceGuid", targetResourceGuid) +
       attributeIfContent("storageId", storageId) +
       attributeIfContent("flowAnalyticsConfiguration", flowAnalyticsConfiguration) +

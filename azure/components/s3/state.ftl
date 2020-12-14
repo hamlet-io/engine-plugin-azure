@@ -25,7 +25,7 @@
     [#local secretName = formatSecretName(core.ShortName, "ConnectionKey")]
 
     [#local storageEndpoints =
-        getExistingReference(
+        getReference(
             formatId(
                 storageAccountId
                 "properties",
@@ -48,17 +48,20 @@
                 "storageAccount" : {
                     "Id" : storageAccountId,
                     "Name" : accountName,
-                    "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
+                    "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE,
+                    "Reference" : getReference(storageAccountId, accountName)
                 },
                 "blobService" : {
                     "Id" : blobId,
                     "Name" : blobName,
-                    "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
+                    "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE,
+                    "Reference" : getReference(blobId, blobName)
                 },
                 "container" : {
                     "Id" : containerId,
                     "Name" : containerName,
-                    "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
+                    "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE,
+                    "Reference" : getReference(containerId, containerName)
                 },
                 "secret" : {
                     "Id" : secretId,

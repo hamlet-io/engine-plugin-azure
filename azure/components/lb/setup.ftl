@@ -143,7 +143,7 @@
                         [#-- their lookup without storing it manually as a secret.  --]
                         [#local sslCertificate = [getAppGatewaySslCertificate(
                             sslCert.Name,
-                            getExistingReference(sslCert.Id, AZURE_KEYVAULT_SECRET_RESOURCE_TYPE)
+                            getReference(sslCert.Id, sslCert.Name, AZURE_KEYVAULT_SECRET_RESOURCE_TYPE)
                         )]]
                     [/#if]
 

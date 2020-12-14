@@ -52,7 +52,7 @@
     }
 ]
 
-[#macro addResourceProfile service resource profile]
+[#macro addResourceProfile service resource profile={}]
     [@internalMergeResourceProfiles
         service=service
         resource=resource
@@ -88,134 +88,154 @@
     /]
 [/#macro]
 
-[#-- Formats a given resourceId into a Azure ARM lookup function for the current state of
-a resource, be it previously deployed or within current template. This differs from
-the previous function as the ARM function will return a full object, from which attributes
-can be referenced via dot notation. --]
-[#function getReference
-    resourceId
-    resourceName,
-    typeFull=""
-    outputType=REFERENCE_ATTRIBUTE_TYPE
-    subscriptionId=""
-    resourceGroupName=""
-    fullResource=true
-    attributes...]
+[#-- formats an ARM Function --]
+[#-- Usage --]
+[#--    formatRawArmFunction("reference", [<resourceId>], "properties", "primaryEndpoints") --]
+[#--    formatRawArmFunction("concat", ["quick", "brown", "fox"])                           --]
+[#--    formatRawArmFunction("subscription", [], "id")                                      --]
+[#-- Results                                                                                --]
+[#--    "reference(<resourceId>).properties.primaryEndpoints"                               --]
+[#--    "concat('quick', 'brown', 'fox')"                                                   --]
+[#--    "subscription().id"                                                                 --]
+[#function formatRawArmFunction function parts=[] args...]
 
-    [#-- get short type - used for apiVersion + conditions --]
-    [#local resourceType = getResourceType(resourceId)]
-    [#local resourceProfile = getAzureResourceProfile(resourceType)]
-    [#local apiVersion = resourceProfile.apiVersion]
-    [#local conditions = resourceProfile.conditions]
-
-    [#local nameSegments = getAzureResourcePropertySegments(resourceName)]
-
-    [#-- get long type - used for referencing resources in ARM functions --]
-    [#if typeFull == ""]
-        [#local typeFull = resourceProfile.type]
-    [/#if]
-
-    [#-- Provide a full resource object or just the properties object --]
-    [#if fullResource]
-        [#local fullOrPartReference = "', 'Full'"]
-    [#else]
-        [#local fullOrPartReference = "'"]
-    [/#if]
-
-    [#if !(resourceProfile.type == "pseudo")]
-        [#if isPartOfCurrentDeploymentUnit(resourceId)]
-            [#if outputType = REFERENCE_ATTRIBUTE_TYPE]
-
-                [#-- return a reference to the resourceId --]
-                [#local args = []]
-                [#list [subscriptionId, resourceGroupName, typeFull] as arg]
-                    [#if arg?has_content]
-                        [#local args += [arg]]
-                    [/#if]
-                [/#list]
-
-                [#list nameSegments as segment]
-                    [#local args += [segment]]
-                [/#list]
-
-                [#return "[resourceId('" + concatenate(args, "', '") + "')]" ]
-            [#else]
-                [#if attributes?size = 1 && attributes?last = "name" ]
-                    [#-- "name" isn't a referencable attribute - but we already have access to it. --]
-                    [#return resourceName]
-                [#else]
-                    [#-- return a reference to the specific resources attributes. --]
-                    [#-- Example: "[reference(resourceId(resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-                    [#return
-                        "[reference(resourceId('" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
-                    ]
-                [/#if]
-            [/#if]
+    [#local stringifiedParts = []]
+    [#list asFlattenedArray(parts) as part]
+        [#if part?matches(r"(\w*)\(.*\)(\w||\.)*")]
+            [#-- Regex pattern for a raw ARM function                --]
+            [#-- "function(<part>, <part>).<potential-attributes>"   --]
+            [#-- Do not string-ify them or they will not interpolate --]
+            [#local stringifiedParts += [part]]
         [#else]
-            [#if ! (attributes?size = 0) ]
-                [#-- return a reference to the specific resources attributes in another Deployment Unit --]
-                [#-- Example: "[reference(resourceId(subscriptionId, resourceGroupName, resourceType, resourceName), '0000-00-00', 'Full').properties.attribute]" --]
-                [#return
-                    "[reference(resourceId('" + subscriptionId + "', '" + resourceGroupName + "', '" + typeFull + "', '" + concatenate(nameSegments, "', '") + "'), '" + apiVersion + fullOrPartReference + ")." + asFlattenedArray(attributes, true)?join(".") + "]"
-                ]
-            [#else]
-                [#return getExistingReference(
-                    resourceId,
-                    attributeType,
-                    "",
-                    "",
-                    (subscriptionId?has_content)?then(
-                        subscriptionId,
-                        ""
-                    )
-                )]
-            [/#if]
+            [#local stringifiedParts += [r"'" + part + r"'"]]
         [/#if]
-    [#else]
-        [#-- Pseudo-resources simply output their name.           --]
-        [#-- By doing so, a component can be considered deployed. --]
-        [#return resourceName]
-    [/#if]
+    [/#list]
+    [#local parameters = stringifiedParts?has_content?then( concatenate(asFlattenedArray(stringifiedParts), r", "), "")]
+    [#local attributes = args?has_content?then(concatenate(asFlattenedArray(["."] + args), "."), "")]
+    [#return function + "(" + parameters + ")" + attributes]
 [/#function]
 
-[#-- Some Azure resources need to be referened by their resourceId without being
-a resource themselves. This function will create the correct ARM reference to
-such an object Id through parent/grandparent Ids/Names --]
-[#function getSubReference
-    resourceId
-    resourceName
-    childType
-    childName
-    grandChildType=""
-    grandChildName=""
-    subscriptionId=""
-    resourceGroupName=""
-    fullResource=false
-    attributes...]
+[#function formatArmFunction function parts=[] args...]
+    [#return "[" + formatRawArmFunction(function, parts, args) + "]" ]
+[/#function]
 
-    [#local names = [resourceName, childName]]
-    [#if grandChildName?has_content]
-        [#local names += [grandChildName]]
+[#-- ARM Function Dependencies                                      --]
+[#-- ARM allows the referencing of a resource through two functions --]
+[#-- "reference"                                                    --]
+[#--    + returns the resource as an object                         --]
+[#--    + only valid on resource properties or in outputs           --]
+[#--    + can be accessed via name or resource identifier           --]
+[#--    - cannot be used to establish dependencies                  --]
+[#-- "resourceId"                                                   --]
+[#--    + returns the resource identifier as a string               --]
+[#--    + can be used everywhere                                    --]
+[#--    - the required arguments change based on scope              --]
+[#--    - cannot be used to retrieve resource attributes            --]
+[#-- getReference combines both as necessary to construct any       --]
+[#-- particular combination of reference requirements               --]
+[#function getReference id name="" attributeType=""]
+
+    [#if id?is_hash
+        && id?keys?seq_contains("Id")
+        && id?keys?seq_contains("Name")]
+        [#local name = id.Name]
+        [#local id = id.Id]
     [/#if]
 
-    [#local types = [getAzureResourceProfile(getResourceType(resourceId)).type, childType]]
-    [#if grandChildType?has_content]
-        [#local types += [grandChildType]]
+    [#if ! isPartOfCurrentDeploymentUnit(id)]
+        [#return getExistingReference(id, attributeType)]
+    [/#if]
+    
+    [#-- Reference Properties --]
+    [#local resourceType = getResourceType(id)]
+    [#if resourceType?has_content]
+        [#local profile = getAzureResourceProfile(resourceType)]
+    [/#if]
+    [#if ! ((profile!{})?has_content)]
+        [@fatal
+            message="Could not find the resource type."
+            context={"Id" : id, "Profiles" : azureResourceProfiles}
+        /]
+        [#return ""]
     [/#if]
 
-    [#return
-        getReference(
-            resourceId,
-            names?join('/'),
-            types?join('/'),
-            REFERENCE_ATTRIBUTE_TYPE,
-            subscriptionId,
-            resourceGroupName,
-            fullResource,
-            attributes
+    [#-- To access the properties of a resource in the same scope              --]
+    [#-- it is necessary to wrap a "resourceId" function in a                  --]
+    [#-- "reference" function.                                                 --]
+    [#-- Example: "[reference(resourceId(<type>, <name>), 'Full').properties]" --]
+    [#if attributeType?has_content && resourceType?has_content]
+        [#local nameSegments = getAzureResourcePropertySegments(name)]
+        [#local resourceId = formatRawArmFunction("resourceId", [profile.type, nameSegments])]
+        [#local propertyPath = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType).Property!""]
+        [#if propertyPath?has_content]
+            [#local args = propertyPath?split(".")]
+        [/#if]
+        [#local functionType = "reference"]
+        [#local parts = [resourceId, profile.apiVersion, 'Full']]
+
+    [#elseif attributeType?has_content]
+        [#-- "reference" function required --]
+        [#local propertyPath = getOutputMappings(AZURE_PROVIDER, resourceType, attributeType).Property!""]
+        [#if propertyPath?has_content]
+            [#local args = propertyPath?split(".")]
+        [/#if]
+        [#local functionType = "reference"]
+        [#local parts = [id, profile.apiVersion, 'Full']]
+
+    [#else]
+        [#-- "resourceId" function required --]
+        [#local functionType = "resourceId"]
+        [#local nameSegments = getAzureResourcePropertySegments(name)]
+        [#local parts = [profile.type, nameSegments]]
+        [#local args = []]
+
+    [/#if]
+
+    [#return formatArmFunction(functionType, parts, args)]
+[/#function]
+
+[#function getChildReference parentName children]
+    [#return 
+        formatArmFunction(
+            "concat",
+            [
+                formatRawArmFunction("reference", [parentName, 'Full'], "id"),
+                children?map(c -> formatPath(true, c.Type, c.Name))
+            ]
         )
     ]
+[/#function]
 
+[#function constructResourceId subscription resourceGroup provider resource parents=[]]
+    [#if ! resource?is_hash]
+        [@fatal
+            message="Cannot construct resourceId with provided resource. Resource must be a hash, with Name and Type attributes."
+            context={
+                "Subscription" : subscription,
+                "ResourceGroup" : resourceGroup,
+                "Provider" : provider,
+                "Resource" : resource,
+                "Parents" : parents![]
+            }
+        /]
+    [/#if]
+    [#local parts = [
+        "subscriptions",
+        subscription,
+        "resourceGroups",
+        resourceGroup,
+        "providers",
+        provider,
+        resource.Type,
+        resource.Name ]]
+    [#return formatPath(true, parts)]
+[/#function]
+
+[#function getResourceObject name type index=0]
+    [#return {
+        "Index" : index,
+        "Name" : name,
+        "Type" : type }]
 [/#function]
 
 [#function getParameterReference parameterName boilerplate=true]
@@ -267,6 +287,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 --]
 [#function formatAzureResourceName name profile primaryParent=""]
 
+    [#local name = name?split(":")?last]
     [#local resourceProfile = getAzureResourceProfile(profile)]
     [#local conditions = resourceProfile.conditions]
     [#local conditions += ["segment_out_names"]]
@@ -335,34 +356,28 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
     [#if profileObj?has_content]
         [#return profileObj]
     [#else]
-        [#return
-            {
-                "Mapping" : "HamletFatal: ResourceProfile not found.",
+        [@fatal 
+            message="Resource Profile not found"
+            context={
                 "ServiceType" : serviceType,
                 "ResourceType" : resourceType,
                 "apiVersion" : "HamletFatal: ResourceProfile not found.",
                 "conditions" : [],
                 "type" : "Hamlet/UnknownType"
             }
-        ]
+        /]
+        [#return {}]
     [/#if]
 [/#function]
 
 [#-- Get stack output --]
 [#function getExistingReference resourceId attributeType="" inRegion="" inDeploymentUnit="" inAccount=""]
-    [#local attributeType = (attributeType == REFERENCE_ATTRIBUTE_TYPE)?then(
-                                "",
-                                attributeType
-    )]
-
+    [#local attributeType = 
+        (attributeType == REFERENCE_ATTRIBUTE_TYPE)
+            ?then("", attributeType )]
     [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
 [/#function]
 
-[#-- Due to azure resource names having multiple segments, Azure requires
-its own function to return the first split of the last segment --]
-[#function getAzureResourceType resourceId]
-    [#return resourceId?split("/")?last?split("X")[0]]
-[/#function]
 
 [#-- Formats a call to the Azure ARM "concat" function. --]
 [#function formatAzureConcatFunction segments...]

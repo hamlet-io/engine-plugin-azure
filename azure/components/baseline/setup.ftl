@@ -28,7 +28,7 @@
     [#-- Segment Seed --]
     [#local segmentSeedId = resources["segmentSeed"].Id]
     [#local segmentSeedValue = resources["segmentSeed"].Value]
-    [#if !(getExistingReference(segmentSeedId)?has_content)]
+    [#if !(getReference(segmentSeedId)?has_content)]
 
       [#if deploymentSubsetRequired("prologue", false)]
         [@addToDefaultBashScriptOutput
@@ -115,9 +115,7 @@
             keyvaultName)
         properties=
             getKeyVaultSecretProperties(
-                formatAzureStorageListKeys(
-                    getReference(accountId, accountName)
-                )
+                formatAzureStorageListKeys(accountId, accountName)
             )
         dependsOn=[
             getReference(accountId, accountName),
@@ -128,7 +126,6 @@
     [@createBlobService
       id=blobId
       name=blobName
-      accountName=accountName
       CORSBehaviours=solution.CORSBehaviours
       deleteRetentionPolicy=
         (solution.Lifecycle.BlobRetentionDays)?has_content?then(
@@ -148,8 +145,6 @@
       [@createBlobServiceContainer
         id=registry.Id
         name=registry.Name
-        accountName=accountName
-        blobName=blobName
         publicAccess="None"
         dependsOn=
           [
@@ -184,8 +179,6 @@
           [@createBlobServiceContainer
             id=containerId
             name=containerName
-            accountName=accountName
-            blobName=blobName
             publicAccess=publicAccess
             dependsOn=
               [

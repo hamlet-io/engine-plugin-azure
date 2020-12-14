@@ -45,7 +45,6 @@
     services=
         [
             AZURE_STORAGE_SERVICE,
-            AZURE_KEYVAULT_SERVICE,
-            AZURE_RESOURCES_SERVICE
+            AZURE_KEYVAULT_SERVICE
         ]
 /]

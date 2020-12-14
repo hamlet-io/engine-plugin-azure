@@ -373,7 +373,7 @@
       "properties": {} +
         attributeIfTrue("redirectType", permanentRedirect, "Permanent") +
         attributeIfContent("targetListener",
-          getSubResourceReferences(targetListenerId)) +
+          getSubResourceReference(targetListenerId)) +
         attributeIfContent("targetUrl", targetUrl) +
         attributeIfTrue("includePath", includePath, includePath) +
         attributeIfTrue("includeQueryString", includeQueryString, includeQueryString) +

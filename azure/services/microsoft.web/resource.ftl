@@ -668,7 +668,6 @@
             [@fatal
                 message="Unsupported RunTime Language"
                 context=language
-                enabled=true
             /]
             [#break]
     [/#switch]
