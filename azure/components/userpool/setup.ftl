@@ -24,6 +24,7 @@
     [#local replyUrls = []]
     [#local logoutUrls = []]
     [#local creationcliArgs = {}]
+    [#local client = {}]
     [#-- Not all properties can be set on creation --]
     [#local updatesCliArgs = {}]
 
@@ -202,20 +203,23 @@
                 ],
                 []
             ) +
-            pseudoArmStackOutputScript(
-                "Client Registration",
-                {
-                    userpool.Id : userpool.Name,
-                    client.Id : "$\{objectId}",
-                    client.ClientAppId : "$\{clientId}"
-                },
-                "client"
-            ) +
-            [
-                "       ;;",
-                "   esac",
-                "       "
-            ]
+            client?has_content?then(
+                pseudoArmStackOutputScript(
+                    "Client Registration",
+                    {
+                        userpool.Id : userpool.Name,
+                        client.Id : "$\{objectId}",
+                        client.ClientAppId : "$\{clientId}"
+                    },
+                    "client"
+                ) +
+                [
+                    "       ;;",
+                    "   esac",
+                    "       "
+                ],
+                []
+            )
     /]
 
 [/#macro]
