@@ -10,7 +10,17 @@
 [#macro azuretest_module_adaptor ]
 
     [@loadModule
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-azure-adaptor-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#",
+                    "FORMATS" : ["lambda"]
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "mgmt" : {
