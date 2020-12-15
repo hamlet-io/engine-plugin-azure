@@ -11,7 +11,17 @@
 [#macro azuretest_module_lambda ]
 
     [@loadModule
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-lambda-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#",
+                    "FORMATS" : ["lambda"]
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "app" : {
