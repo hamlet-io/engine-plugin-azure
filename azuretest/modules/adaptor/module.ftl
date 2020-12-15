@@ -41,28 +41,8 @@
                     }
                 }
             },
-            "TestCases" : {
-                "baseadaptortemplate" : {
-                    "OutputSuffix" : "prologue.sh",
-                    "Structural" : {
-                        "JSON" : {
-                            "Match" : {
-                                "LinkedId" : {
-                                    "Path" : "",
-                                    "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "TestProfiles" : {
-                "Component" : {
-                    "adaptor" : {
-                        "TestCases" : [ "baseadaptortemplate" ]
-                    }
-                }
-            }
+            "TestCases" : {},
+            "TestProfiles" : {}
         }
         stackOutputs=[]
         commandLineOption={}
