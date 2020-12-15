@@ -5,10 +5,6 @@ echo "###############################################"
 echo "# Running template tests for the AZURE provider #"
 echo "###############################################"
 
-# Source the mock utility.sh file from the testing provider
-# Load any plugin provider utility.sh
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-. "${SCRIPTDIR}/utility.sh"
 DEFAULT_TEST_OUTPUT_DIR="$(pwd)/hamlet_tests"
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-${DEFAULT_TEST_OUTPUT_DIR}}"
 
@@ -19,7 +15,7 @@ else
     mkdir -p "${TEST_OUTPUT_DIR}"
 fi
 
-echo " - Output Dir: ${TEST_OUTPUT_DIR}"
+echo " -Output Dir: ${TEST_OUTPUT_DIR}"
 echo ""
 echo "--- Generating Management Contract ---"
 echo ""
@@ -38,18 +34,15 @@ UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.D
 readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
 for unit in "${UNIT_LIST[@]}";  do
- if [[ ! "${unit}" == "-l segment -u baseline" ]]; then
-    unit_args=("${default_args[@]}" "${unit}")
-
     echo ""
     echo "--- Generating $unit ---"
     echo ""
+
+    unit_args=("${default_args[@]}" "${unit}")
+
     ${GENERATION_DIR}/createTemplate.sh -e deploymenttest ${unit_args[@]}
     ${GENERATION_DIR}/createTemplate.sh -e deployment ${unit_args[@]}
-
- fi
 done
-
 
 echo ""
 echo "--- Running Tests ---"
