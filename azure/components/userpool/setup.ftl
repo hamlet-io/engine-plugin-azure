@@ -12,6 +12,8 @@
 
     [#local userpool =  occurrence.State.Resources["userpool"]]
 
+    [#local generateSecret = false]
+
     [#-- Baseline Links --]
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
@@ -106,7 +108,9 @@
 
                 [#local flows = subSolution.OAuth.Flows![]]
                 [#local otherTenants = subSolution.azure\:AllowOtherTenants!false]
-                [#local generateSecret = subSolution.ClientGenerateSecret!false]
+                [#if subSolution.ClientGenerateSecret!false]
+                    [#local generateSecret = true]
+                [/#if]
 
                 [#-- CLI Args in the format {"arg": "value"} --]
                 [#-- We can then output all args to the CLI  --]
