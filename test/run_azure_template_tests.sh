@@ -5,6 +5,17 @@ echo "###############################################"
 echo "# Running template tests for the AZURE provider #"
 echo "###############################################"
 
+# Source the mock utility.sh file from the testing provider
+# Load any plugin provider utility.sh
+IFS=';' read -ra PLUGINDIRS <<< ${GENERATION_PLUGIN_DIRS}
+for dir in "${PLUGINDIRS[@]}"; do
+  plugin_provider=${dir##*/}
+    if [[ -e "${dir}/${plugin_provider}test/utility.sh" ]]; then
+      echo "Sourcing the mock utility: ${dir}/${plugin_provider}test/utility.sh"
+      . "${dir}/${plugin_provider}test/utility.sh"
+    fi
+done
+
 DEFAULT_TEST_OUTPUT_DIR="$(pwd)/hamlet_tests"
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-${DEFAULT_TEST_OUTPUT_DIR}}"
 
@@ -34,7 +45,7 @@ UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.D
 readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
 for unit in "${UNIT_LIST[@]}";  do
-
+ if [[ ! "${unit}" == "-l segment -u baseline" ]]; then
     unit_args=("${default_args[@]}" "${unit}")
 
     echo ""
@@ -42,6 +53,8 @@ for unit in "${UNIT_LIST[@]}";  do
     echo ""
     ${GENERATION_DIR}/createTemplate.sh -e deploymenttest ${unit_args[@]}
     ${GENERATION_DIR}/createTemplate.sh -e deployment ${unit_args[@]}
+
+ fi
 done
 
 
