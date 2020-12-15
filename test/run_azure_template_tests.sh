@@ -15,7 +15,7 @@ else
     mkdir -p "${TEST_OUTPUT_DIR}"
 fi
 
-echo " - Output Dir: ${TEST_OUTPUT_DIR}"
+echo " -Output Dir: ${TEST_OUTPUT_DIR}"
 echo ""
 echo "--- Generating Management Contract ---"
 echo ""
@@ -34,16 +34,15 @@ UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.D
 readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
 for unit in "${UNIT_LIST[@]}";  do
-
-    unit_args=("${default_args[@]}" "${unit}")
-
     echo ""
     echo "--- Generating $unit ---"
     echo ""
+
+    unit_args=("${default_args[@]}" "${unit}")
+
     ${GENERATION_DIR}/createTemplate.sh -e deploymenttest ${unit_args[@]}
     ${GENERATION_DIR}/createTemplate.sh -e deployment ${unit_args[@]}
 done
-
 
 echo ""
 echo "--- Running Tests ---"

@@ -30,25 +30,8 @@
                     }
                 }
             },
-            "TestCases" : {
-                "baseuserpooltemplate" : {
-                    "OutputSuffix" : "prologue.sh",
-                    "Structural" : {
-                        "Bash" : {
-                            "NotEmpty" :  [
-                                "."
-                            ]
-                        }
-                    }
-                }
-            },
-            "TestProfiles" : {
-                "Component" : {
-                    "userpool" : {
-                        "TestCases" : [ "baseuserpooltemplate" ]
-                    }
-                }
-            }
+            "TestCases" : {},
+            "TestProfiles" : {}
         }
         stackOutputs=[]
         commandLineOption={}

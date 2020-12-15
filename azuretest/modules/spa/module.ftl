@@ -10,7 +10,17 @@
 [#macro azuretest_module_spa ]
 
     [@loadModule
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-spa-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#",
+                    "FORMATS" : ["spa"]
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "app" : {

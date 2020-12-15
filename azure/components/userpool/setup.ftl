@@ -12,6 +12,8 @@
 
     [#local userpool =  occurrence.State.Resources["userpool"]]
 
+    [#local generateSecret = false]
+
     [#-- Baseline Links --]
     [#local baselineLinks = getBaselineLinks(occurrence, ["SSHKey"], false, false)]
     [#local baselineAttributes = baselineLinks["SSHKey"].State.Attributes]
@@ -22,6 +24,7 @@
     [#local replyUrls = []]
     [#local logoutUrls = []]
     [#local creationcliArgs = {}]
+    [#local client = {}]
     [#-- Not all properties can be set on creation --]
     [#local updatesCliArgs = {}]
 
@@ -106,7 +109,9 @@
 
                 [#local flows = subSolution.OAuth.Flows![]]
                 [#local otherTenants = subSolution.azure\:AllowOtherTenants!false]
-                [#local generateSecret = subSolution.ClientGenerateSecret!false]
+                [#if subSolution.ClientGenerateSecret!false]
+                    [#local generateSecret = true]
+                [/#if]
 
                 [#-- CLI Args in the format {"arg": "value"} --]
                 [#-- We can then output all args to the CLI  --]
@@ -198,20 +203,23 @@
                 ],
                 []
             ) +
-            pseudoArmStackOutputScript(
-                "Client Registration",
-                {
-                    userpool.Id : userpool.Name,
-                    client.Id : "$\{objectId}",
-                    client.ClientAppId : "$\{clientId}"
-                },
-                "client"
-            ) +
-            [
-                "       ;;",
-                "   esac",
-                "       "
-            ]
+            client?has_content?then(
+                pseudoArmStackOutputScript(
+                    "Client Registration",
+                    {
+                        userpool.Id : userpool.Name,
+                        client.Id : "$\{objectId}",
+                        client.ClientAppId : "$\{clientId}"
+                    },
+                    "client"
+                ) +
+                [
+                    "       ;;",
+                    "   esac",
+                    "       "
+                ],
+                []
+            )
     /]
 
 [/#macro]

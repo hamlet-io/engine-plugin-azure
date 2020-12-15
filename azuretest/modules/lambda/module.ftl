@@ -11,7 +11,17 @@
 [#macro azuretest_module_lambda ]
 
     [@loadModule
-        settingSets=[]
+        settingSets=[
+            {
+                "Type" : "Builds",
+                "Scope" : "Products",
+                "Namespace" : "mockedup-integration-application-az-lambda-base",
+                "Settings" : {
+                    "COMMIT" : "123456789#MockCommit#",
+                    "FORMATS" : ["lambda"]
+                }
+            }
+        ]
         blueprint={
             "Tiers" : {
                 "app" : {
@@ -46,7 +56,7 @@
                         "JSON" : {
                             "Match" : {
                                 "AppServicePlanID" : {
-                                    "Path" : "",
+                                    "Path" : "outputs.sitesXappXlambdaXapi.value",
                                     "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
                                 }
                             }

@@ -178,7 +178,7 @@
                     )
                 ]]
 
-                [@armPseudoResource
+                [@armResource
                     id=routingRuleResource.Id
                     name=routingRuleResource.Name
                     profile=routingRuleResource.Type

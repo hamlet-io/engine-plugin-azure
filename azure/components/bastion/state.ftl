@@ -25,7 +25,7 @@
           "Id" : scaleSetId,
           "Name": scaleSetName,
           "Type": AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE,
-          "Reference": getReference(scalseSetId, scaleSetName)
+          "Reference": getReference(scaleSetId, scaleSetName)
         },
         "autoScalePolicy" : {
           "Id" : autoScalePolicyId,

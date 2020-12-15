@@ -30,25 +30,8 @@
                     }
                 }
             },
-            "TestCases" : {
-                "basesqstemplate" : {
-                    "OutputSuffix" : "prologue.sh",
-                    "Structural" : {
-                        "Bash" : {
-                            "NotEmpty" :  [
-                                "."
-                            ]
-                        }
-                    }
-                }
-            },
-            "TestProfiles" : {
-                "Component" : {
-                    "sqs" : {
-                        "TestCases" : [ "basesqstemplate" ]
-                    }
-                }
-            }
+            "TestCases" : {},
+            "TestProfiles" : {}
         }
         stackOutputs=[]
         commandLineOption={}

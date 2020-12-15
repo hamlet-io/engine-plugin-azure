@@ -17,7 +17,7 @@
                 "Namespace" : "mockedup-integration-application-az-apigateway-base",
                 "Settings" : {
                     "COMMIT" : "123456789#MockCommit#",
-                    "FORMATS" : ["mockformat"]
+                    "FORMATS" : ["openapi"]
                 }
             },
             {
