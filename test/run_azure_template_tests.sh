@@ -7,15 +7,8 @@ echo "###############################################"
 
 # Source the mock utility.sh file from the testing provider
 # Load any plugin provider utility.sh
-IFS=';' read -ra PLUGINDIRS <<< ${GENERATION_PLUGIN_DIRS}
-for dir in "${PLUGINDIRS[@]}"; do
-  plugin_provider=${dir##*/}
-    if [[ -e "${dir}/${plugin_provider}test/utility.sh" ]]; then
-      echo "Sourcing the mock utility: ${dir}/${plugin_provider}test/utility.sh"
-      . "${dir}/${plugin_provider}test/utility.sh"
-    fi
-done
-
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+. "${SCRIPTDIR}/utility.sh"
 DEFAULT_TEST_OUTPUT_DIR="$(pwd)/hamlet_tests"
 TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR:-${DEFAULT_TEST_OUTPUT_DIR}}"
 
