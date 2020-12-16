@@ -281,7 +281,7 @@
     [#--          The marker indicates the minimum scope to which a resource exists.                --]
     [#local resourceProfileScope = getAzureResourceProfile(getResourceType(id)).scope]
     [#local currentScope = {
-        "Subscription" : accountObject.ProviderId!{},
+        "Subscription" : accountObject.ProviderId!"",
         "Region" : regionId,
         "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name
     }]
