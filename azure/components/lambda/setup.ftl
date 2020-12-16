@@ -44,10 +44,9 @@
                 "DefaultBaselineVariables" : false
             }
         ]
-        [#if subSolution.Extensions?has_content ]
-            [#-- Add in extension specifics including override of defaults --]
-            [#local _context = invokeExtensions( subOccurrence, _context )]
-        [/#if]
+
+        [#-- Add in extension specifics including override of defaults --]
+        [#local _context = invokeExtensions( subOccurrence, _context )]
 
         [#if deploymentSubsetRequired("parameters", true)]
 
