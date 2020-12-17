@@ -16,7 +16,6 @@
 
   [#local forwardingPath = attributes["FORWARDING_PATH"]?remove_beginning("/")]
 
-  [#local fragment = getOccurrenceFragmentBase(occurrence)]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
   [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
   [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
@@ -27,12 +26,8 @@
   [#local distributions = []]
 
   [#-- SPA Context --]
-  [#assign _context =
+  [#local _context =
     {
-      "Id" : fragment,
-      "Name" : fragment,
-      "Instance" : core.Instance.Id,
-      "Version" : core.Version.Id,
       "DefaultEnvironment" : defaultEnvironment(occurrence, contextLinks, baselineLinks),
       "Environment" : {},
       "Links" : contextLinks,
@@ -44,11 +39,10 @@
     }
   ]
 
-  [#-- Add in container specifics including override of defaults --]
-  [#local fragmentId = formatFragmentId(_context)]
-  [#include fragmentList?ensure_starts_with("/")]
+  [#-- Add in extension specifics including override of defaults --]
+  [#local _context = invokeExtensions( subOccurrence, _context )]
 
-  [#assign _context += getFinalEnvironment(occurrence, _context)]
+  [#local _context += getFinalEnvironment(occurrence, _context)]
 
   [#list _context.Links as id,linkTarget]
 

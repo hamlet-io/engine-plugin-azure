@@ -35,7 +35,7 @@
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
-                                "Fragment" : "MockFragment"
+                                "Extensions" : [ "MockFragment" ]
                             }
                         }
                     }

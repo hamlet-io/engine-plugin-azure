@@ -26,7 +26,6 @@
     [#-- Baseline lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
-    [#local fragment = getOccurrenceFragmentBase(occurrence)]
 
     [#local routingRules = []]
     [#local backendPools = []]
@@ -119,7 +118,7 @@
                         ],
                         getSubResourceReference(
                             getChildReference(
-                                frontDoor.Name, 
+                                frontDoor.Name,
                                 [
                                     getResourceObject(
                                         frontDoorLBSettingsName,
