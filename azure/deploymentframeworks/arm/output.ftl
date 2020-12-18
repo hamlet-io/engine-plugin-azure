@@ -98,7 +98,7 @@
 
         [#-- Pseudo resources simply output their name so they can be verified as deployed --]
         [#case "pseudo"]
-            [#return getArmOutput(name, "string", "pseudo")]
+            [#return getArmOutput(name, "string", name)]
             [#break]
 
     [/#switch]
@@ -281,7 +281,7 @@
     [#--          The marker indicates the minimum scope to which a resource exists.                --]
     [#local resourceProfileScope = getAzureResourceProfile(getResourceType(id)).scope]
     [#local currentScope = {
-        "Subscription" : accountObject.AzureId,
+        "Subscription" : accountObject.AzureId!"",
         "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name
     }]
 
