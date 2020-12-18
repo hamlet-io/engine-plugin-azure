@@ -32,6 +32,12 @@
                         "Default" : ""
                     }
                 ]
+            },
+            {
+                "Names" : "AdministratorGroups",
+                "Description" : "The set of administrator groups controlling access to keyvault",
+                "Type" : ARRAY_OF_STRING_TYPE,
+                "Mandatory": true
             }
         ]
     provider=AZURE_PROVIDER
