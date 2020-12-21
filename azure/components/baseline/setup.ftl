@@ -320,6 +320,33 @@
       [/#if]
     [/#list]
 
+    [#if deploymentSubsetRequired("prologue", false)]
+      [#list solution["azure:AdministratorGroups"] as adminGrp ]
+        [#local adminId = formatId(keyvaultId,adminGrp)]
+        [@addToDefaultBashScriptOutput
+          content=
+          [
+            "case $\{DEPLOYMENT_OPERATION} in",
+            "  create|update)",
+            "    ADMINGRP=$(az role definition list --name "+adminGrp+")",
+            "    if [[ $\{#ADMINGRP[@]} -eq 0 ]] ; then",
+            "      fatal \"Azure Administrator role does not exist: "+adminGrp+"\"",
+            "    else"
+          ] +
+          pseudoArmStackOutputScript(
+            "AdministratorGroups",
+            { adminId : adminGrp },
+            "admingrp"
+          ) +
+          [
+            "    fi"
+            "       ;;",
+            "       esac"
+          ]
+        /]
+      [/#list]
+    [/#if]
+
     [#-- Create keyvault after generating rules --]
 
     [#local keyVaultIpRules = []]
