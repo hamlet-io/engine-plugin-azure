@@ -159,6 +159,11 @@
         [#return ""]
     [/#if]
 
+    [#-- Check if its an undeployed pseudo stack --]
+    [#if (profile.type == "pseudo") && !(name?has_content)]
+        [#return getExistingReference(id, attributeType)]
+    [/#if]
+
     [#-- To access the properties of a resource in the same scope              --]
     [#-- it is necessary to wrap a "resourceId" function in a                  --]
     [#-- "reference" function.                                                 --]
