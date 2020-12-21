@@ -11,6 +11,7 @@
     [#local resources = occurrence.State.Resources ]
     [#local links = getLinkTargets(occurrence )]
     [#local keyVaultIPRuleGroups = []]
+    [#local keyVaultAdmins = solution["azure:AdministratorGroups"]![] ]
 
     [#-- make sure we only have one occurence --]
     [#if  ! ( core.Tier.Id == "mgmt" &&
@@ -260,9 +261,15 @@
                       "\"" + accountObject.Id + "\" || return $?",
                   "  #",
                   "  # Upload to keyvault if required.",
-                  "  if [[ ! $(az_check_secret" + " " +
+                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
                       "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "PublicKey" + "\") " +
+                      "\"" + vmKeyPairName + "PublicKey" + "\")",
+                  "  echo $\{AZ_CHK_SECRET}",
+                  "  if [[ $\{AZ_CHK_SECRET} " +
+                      "=~ \"does not have secrets get permission on key vault\" ]]; then",
+                  "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
+                  "  else",
+                  "  if [[ ! $\{AZ_CHK_SECRET} " +
                       "= *SecretNotFound* ]]; then",
                   "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
                   "    az_add_secret" + " " +
@@ -279,6 +286,7 @@
                       "\"" + vmKeyVaultName + "\" " +
                       "\"" + vmKeyPairName + "PrivateKey" + "\" " +
                       "\"$\{pem_file}\" || return $?",
+                  "  fi",
                   "  fi",
                   "  #"
                 ] +
@@ -321,7 +329,7 @@
     [/#list]
 
     [#if deploymentSubsetRequired("prologue", false)]
-      [#list solution["azure:AdministratorGroups"] as adminGrp ]
+      [#list keyVaultAdmins as adminGrp ]
         [#local adminId = formatId(keyvaultId,adminGrp)]
         [@addToDefaultBashScriptOutput
           content=
@@ -339,7 +347,7 @@
             "admingrp"
           ) +
           [
-            "    fi"
+            "    fi",
             "       ;;",
             "       esac"
           ]
@@ -375,8 +383,6 @@
       true
     )]
 
-    [#local keyVaultAdmins = keyvaultAdminsId?split(",") ]
-
     [#local keyVaultAccessRules = []]
     [#list keyVaultAdmins as keyvaultAdmin ]
 
@@ -390,7 +396,7 @@
     [#if ! keyVaultAccessRules?has_content ]
       [@fatal
         message="No KeyVault Admins have been defined"
-        context="To create a keyvault create a new group or user Id and add the setting AZURE_ADMINISTRATORS_GROUP"
+        context="To create a keyvault create a new group or user Id and add it to azure:AdministratorGroups"
       /]
     [/#if]
 
