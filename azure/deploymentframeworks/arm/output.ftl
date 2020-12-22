@@ -98,7 +98,7 @@
 
         [#-- Pseudo resources simply output their name so they can be verified as deployed --]
         [#case "pseudo"]
-            [#return getArmOutput(name, "string", "pseudo")]
+            [#return getArmOutput(name, "string", name)]
             [#break]
 
     [/#switch]
@@ -282,7 +282,6 @@
     [#local resourceProfileScope = getAzureResourceProfile(getResourceType(id)).scope]
     [#local currentScope = {
         "Subscription" : accountObject.ProviderId!"",
-        "Region" : regionId,
         "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name
     }]
 

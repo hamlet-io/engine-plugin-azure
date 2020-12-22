@@ -40,7 +40,7 @@
                                     "api" : {
                                         "Handler" : "src/handler.api",
                                         "RunTime" : "nodejs",
-                                        "Fragment" : "_mockfrag",
+                                        "Extensions" : [ "_mockext" ],
                                         "Links" : {}
                                     }
                                 }

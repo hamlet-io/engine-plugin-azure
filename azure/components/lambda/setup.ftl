@@ -30,14 +30,9 @@
 
         [#local appSettings = []]
 
-        [#local fragment = getOccurrenceFragmentBase(subOccurrence)]
         [#local contextLinks = getLinkTargets(subOccurrence)]
-        [#assign _context =
+        [#local _context =
             {
-                "Id" : fragment,
-                "Name" : fragment,
-                "Instance" : subCore.Instance.Id,
-                "Version" : subCore.Version.Id,
                 "DefaultEnvironment" : defaultEnvironment(subOccurrence, contextLinks, baselineLinks),
                 "Environment" : {},
                 "ContextSettings" : {},
@@ -49,10 +44,9 @@
                 "DefaultBaselineVariables" : false
             }
         ]
-        [#if subSolution.Fragment?has_content ]
-            [#local fragmentId = formatFragmentId(_context)]
-            [#include fragmentList?ensure_starts_with("/")]
-        [/#if]
+
+        [#-- Add in extension specifics including override of defaults --]
+        [#local _context = invokeExtensions( subOccurrence, _context )]
 
         [#if deploymentSubsetRequired("parameters", true)]
 
