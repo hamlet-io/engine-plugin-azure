@@ -853,7 +853,8 @@
                                 "oai": {
                                     "Engine": "oai"
                                 }
-                            }
+                            },
+                            "azure:AdministratorGroups": []
                         }
                     },
                     "ssh": {
