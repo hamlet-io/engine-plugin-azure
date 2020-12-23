@@ -5,10 +5,10 @@
   [#local solution = occurrence.Configuration.Solution]
 
   [#local segmentSeedId = formatSegmentSeedId() ]
-  [#if !(getReference(segmentSeedId)?has_content) ]
+  [#if !(getExistingReference(segmentSeedId)?has_content) ]
     [#local segmentSeedValue = (commandLineOptions.Run.Id + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
   [#else]
-    [#local segmentSeedValue = getReference(segmentSeedId) ]
+    [#local segmentSeedValue = getExistingReference(segmentSeedId) ]
   [/#if]
 
   [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
