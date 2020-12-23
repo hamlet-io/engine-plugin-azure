@@ -16,7 +16,7 @@
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "ssh" : {
+                        "bastion" : {
                             "bastion" : {
                                 "Instances" : {
                                     "default" : {
