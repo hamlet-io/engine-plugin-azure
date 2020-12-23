@@ -2,6 +2,13 @@
 
 [#macro azure_input_mock_stackoutput id="" deploymentUnit="" level="" region="" account=""]
 
+  [#local mockSubscription = accountObject.ProviderId]
+  [#local mockResourceGroup = "mockRG"]
+  [#local mockProvider = "Microsoft.Mock"]
+  [#local mockRegion = "mockedRegion"]
+  [#local mockResourceType = "mockResourceType"]
+  [#local mockResourceName = "mockResourceName"]
+
   [#switch id?split("X")?last ]
     [#case NAME_ATTRIBUTE_TYPE]
       [#local value = "mockResourceName"]
@@ -13,11 +20,24 @@
       [#local value = "123.123.123.123" ]
       [#break]
     [#case REGION_ATTRIBUTE_TYPE ]
-      [#local value = "apmock1" ]
+      [#local value = "westus" ]
       [#break]
     [#default]
       [#--The default value will be an azure resource Id --]
-      [#local value = "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"]
+      [#local value = formatPath(
+                        true, 
+                        [
+                          "subscriptions", 
+                          mockSubscription, 
+                          "resourceGroups", 
+                          mockResourceGroup, 
+                          "providers", 
+                          mockProvider, 
+                          mockResourceType, 
+                          mockResourceName
+                        ] 
+      )]
+      [#break]
     [/#switch]
 
     [@addStackOutputs 
