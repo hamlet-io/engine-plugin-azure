@@ -40,7 +40,7 @@
   ]
 
   [#-- Add in extension specifics including override of defaults --]
-  [#local _context = invokeExtensions( subOccurrence, _context )]
+  [#local _context = invokeExtensions(occurrence, _context )]
 
   [#local _context += getFinalEnvironment(occurrence, _context)]
 
