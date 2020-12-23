@@ -299,8 +299,7 @@
                     {
                             "ResourceId" : id,
                             "CurrentScope" : currentScope,
-                            "TargetScope" : targetScope,
-                            "RelativeScope" : relativeScope
+                            "TargetScope" : targetScope
                         }
                 /]
             [/#if]
