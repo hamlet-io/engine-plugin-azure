@@ -1,9 +1,13 @@
 [#ftl]
 
-[@addReferenceData type=SKU_PROFILE_REFERENCE_TYPE base=blueprintObject /]
-[#assign skuProfiles = getReferenceData(SKU_PROFILE_REFERENCE_TYPE)]
+[@addReferenceData
+    type=SKU_PROFILE_REFERENCE_TYPE
+    base=blueprintObject
+/]
 
-[#function getSkuProfile occurrence type extensions... ]	
+[#function getSkuProfile occurrence type extensions... ]
+    [#local skuProfiles = 
+        getReferenceData(SKU_PROFILE_REFERENCE_TYPE)]
     [#local tc = formatComponentShortName(	
                     occurrence.Core.Tier,	
                     occurrence.Core.Component,	
