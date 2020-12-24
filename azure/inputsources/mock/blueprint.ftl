@@ -6,11 +6,11 @@
         blueprint=
         {
             "Account": {
-                "Region": "westus",
-                "ProviderId": "0123456789"
+                "Region": AZURE_REGION_MOCK_VALUE,
+                "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
             },
             "Product": {
-                "Region": "westus"
+                "Region": AZURE_REGION_MOCK_VALUE
             }
         }
     /]
