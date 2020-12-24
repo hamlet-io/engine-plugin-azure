@@ -40,8 +40,8 @@
                         "JSON" : {
                             "Match" : {
                                 "ScaleSetID" : {
-                                    "Path" : "outputs.vmssXmanagementXsshXbastion.value",
-                                    "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
+                                    "Path" : "outputs.vmssXmanagementXbastionXbastion.value",
+                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
                                 }
                             }
                         }

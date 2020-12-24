@@ -16,7 +16,7 @@
                 "Scope" : "Products",
                 "Namespace" : "mockedup-integration-application-az-spa-base",
                 "Settings" : {
-                    "COMMIT" : "123456789#MockCommit#",
+                    "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["spa"]
                 }
             }

@@ -16,7 +16,7 @@
                 "Scope" : "Products",
                 "Namespace" : "mockedup-integration-application-az-apigateway-base",
                 "Settings" : {
-                    "COMMIT" : "123456789#MockCommit#",
+                    "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["openapi"]
                 }
             },
@@ -74,7 +74,7 @@
                             "Match" : {
                                 "APIMID" : {
                                     "Path" : "outputs.serviceXmockedupXintegrationXapiXapigateway.value",
-                                    "Value" : "/subscriptions/12345678-abcd-efgh-ijkl-123456789012/resourceGroups/mockRG/providers/Microsoft.Mock/mockR/mock-resource-name"
+                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
                                 }
                             }
                         }

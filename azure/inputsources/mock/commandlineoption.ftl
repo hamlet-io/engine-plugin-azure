@@ -6,12 +6,12 @@
         option=
             {
                 "Regions" : {
-                    "Segment" : "westus",
-                    "Account" : "westus"
+                    "Segment" : AZURE_REGION_MOCK_VALUE,
+                    "Account" : AZURE_REGION_MOCK_VALUE
                 },
                 "Deployment" : {
                     "ResourceGroup" : {
-                        "Name" : "mockRG"
+                        "Name" : AZURE_RESOURCEGROUP_MOCK_VALUE
                     },
                     "Unit" : {
                         "Name" : getDeploymentUnit()
