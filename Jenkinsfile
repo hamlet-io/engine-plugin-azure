@@ -14,7 +14,6 @@ pipeline {
 
     stages {
 
-        /*
         stage('Run Azure Template Tests') {
             environment {
                 GENERATION_PLUGIN_DIRS = "${WORKSPACE}"
@@ -25,7 +24,6 @@ pipeline {
                 '''
             }
         }
-        */
 
         stage('Trigger Docker Build') {
             steps {
