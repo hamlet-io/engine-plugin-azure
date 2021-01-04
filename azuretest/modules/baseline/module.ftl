@@ -24,7 +24,8 @@
                                 },
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
-                                }
+                                },
+                                "azure:AdministratorGroups" : [ "1234567890-1234567890-1234567890-1234567890" ]
                             }
                         }
                     }

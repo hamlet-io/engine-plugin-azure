@@ -67,17 +67,6 @@
                         "Name" : "userpool"
                     }
                 }
-            },
-            "Tiers" : {
-                "mgmt" : {
-                    "Components" : {
-                        "baseline" : {
-                            "baseline" : {
-                                "azure:AdministratorGroups" : [ "1234567890-1234567890-1234567890-1234567890" ]
-                            }
-                        }
-                    }
-                }
             }
         }
     /]
