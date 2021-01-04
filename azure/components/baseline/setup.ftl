@@ -383,6 +383,13 @@
       true
     )]
 
+   [#if ! keyVaultAdmins?has_content ]
+      [@fatal
+        message="No KeyVault Admins have been defined"
+        context="To create a keyvault create a new group or user Id and add it to azure:AdministratorGroups"
+      /]
+    [/#if]
+
     [#local keyVaultAccessRules = []]
     [#list keyVaultAdmins as keyvaultAdmin ]
 
@@ -392,13 +399,6 @@
         defaultKeyVaultPermissions
       ) ]]
     [/#list]
-
-    [#if ! keyVaultAccessRules?has_content ]
-      [@fatal
-        message="No KeyVault Admins have been defined"
-        context="To create a keyvault create a new group or user Id and add it to azure:AdministratorGroups"
-      /]
-    [/#if]
 
     [@createKeyVault
       id=keyvaultId
