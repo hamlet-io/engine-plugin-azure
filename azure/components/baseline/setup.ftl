@@ -266,27 +266,27 @@
                       "\"" + vmKeyPairName + "PublicKey" + "\")",
                   "  echo $\{AZ_CHK_SECRET}",
                   "  if [[ $\{AZ_CHK_SECRET} " +
-                      "=~ \"does not have secrets get permission on key vault\" ]]; then",
+                  "           =~ \"does not have secrets get permission on key vault\" ]]; then",
                   "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
                   "  else",
-                  "  if [[ ! $\{AZ_CHK_SECRET} " +
-                      "= *SecretNotFound* ]]; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
-                  "    az_add_secret" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "PublicKey" + "\" " +
-                      "\"$\{pem_file}\" || return $?",
-                  "  fi",
-                  "  if [[ ! $(az_check_secret" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "PrivateKey" + "\") " +
-                      "= *SecretNotFound* ]]; then",
-                  "    pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
-                  "    az_add_secret" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "PrivateKey" + "\" " +
-                      "\"$\{pem_file}\" || return $?",
-                  "  fi",
+                  "    if [[ ! $\{AZ_CHK_SECRET} " +
+                  "           = *SecretNotFound* ]]; then",
+                  "       pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
+                  "       az_add_secret" + " " +
+                              "\"" + vmKeyVaultName + "\" " +
+                              "\"" + vmKeyPairName + "PublicKey" + "\" " +
+                              "\"$\{pem_file}\" || return $?",
+                  "    fi",
+                  "    if [[ ! $(az_check_secret" + " " +
+                              "\"" + vmKeyVaultName + "\" " +
+                              "\"" + vmKeyPairName + "PrivateKey" + "\") " +
+                  "           = *SecretNotFound* ]]; then",
+                  "       pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
+                  "       az_add_secret" + " " +
+                              "\"" + vmKeyVaultName + "\" " +
+                              "\"" + vmKeyPairName + "PrivateKey" + "\" " +
+                              "\"$\{pem_file}\" || return $?",
+                  "    fi",
                   "  fi",
                   "  #"
                 ] +
