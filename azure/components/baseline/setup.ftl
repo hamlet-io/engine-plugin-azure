@@ -340,7 +340,7 @@
             "    if [[ $\{#ADMINGRP[@]} -eq 0 ]] ; then",
             "      fatal \"Azure Administrator role does not exist: "+adminGrp+"\"",
             "      return 1",
-            "    fi",
+            "    fi"
           ] +
           pseudoArmStackOutputScript(
             "AdministratorGroups",
