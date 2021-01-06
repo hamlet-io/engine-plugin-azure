@@ -268,25 +268,25 @@
                   "  if [[ $\{AZ_CHK_SECRET} " +
                   "           =~ \"does not have secrets get permission on key vault\" ]]; then",
                   "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
-                  "  else",
-                  "    if [[ ! $\{AZ_CHK_SECRET} " +
-                  "           = *SecretNotFound* ]]; then",
-                  "       pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
-                  "       az_add_secret" + " " +
-                              "\"" + vmKeyVaultName + "\" " +
-                              "\"" + vmKeyPairName + "PublicKey" + "\" " +
-                              "\"$\{pem_file}\" || return $?",
-                  "    fi",
-                  "    if [[ ! $(az_check_secret" + " " +
-                              "\"" + vmKeyVaultName + "\" " +
-                              "\"" + vmKeyPairName + "PrivateKey" + "\") " +
-                  "           = *SecretNotFound* ]]; then",
-                  "       pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
-                  "       az_add_secret" + " " +
-                              "\"" + vmKeyVaultName + "\" " +
-                              "\"" + vmKeyPairName + "PrivateKey" + "\" " +
-                              "\"$\{pem_file}\" || return $?",
-                  "    fi",
+                  "    return 1",
+                  "  fi",
+                  "  if [[ ! $\{AZ_CHK_SECRET} " +
+                  "         = *SecretNotFound* ]]; then",
+                  "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
+                  "     az_add_secret" + " " +
+                            "\"" + vmKeyVaultName + "\" " +
+                            "\"" + vmKeyPairName + "PublicKey" + "\" " +
+                            "\"$\{pem_file}\" || return $?",
+                  "  fi",
+                  "  if [[ ! $(az_check_secret" + " " +
+                            "\"" + vmKeyVaultName + "\" " +
+                            "\"" + vmKeyPairName + "PrivateKey" + "\") " +
+                  "         = *SecretNotFound* ]]; then",
+                  "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
+                  "     az_add_secret" + " " +
+                            "\"" + vmKeyVaultName + "\" " +
+                            "\"" + vmKeyPairName + "PrivateKey" + "\" " +
+                            "\"$\{pem_file}\" || return $?",
                   "  fi",
                   "  #"
                 ] +
@@ -339,7 +339,8 @@
             "    ADMINGRP=$(az role definition list --name "+adminGrp+")",
             "    if [[ $\{#ADMINGRP[@]} -eq 0 ]] ; then",
             "      fatal \"Azure Administrator role does not exist: "+adminGrp+"\"",
-            "    else"
+            "      return 1",
+            "    fi",
           ] +
           pseudoArmStackOutputScript(
             "AdministratorGroups",
@@ -347,7 +348,6 @@
             "admingrp"
           ) +
           [
-            "    fi",
             "       ;;",
             "       esac"
           ]
