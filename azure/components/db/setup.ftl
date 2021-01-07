@@ -92,9 +92,7 @@
     [#-- Resource Creation --]
     [#if !hibernate]
         [#switch engine]
-
             [#case "postgres"]
-
                 [@createPostgresServer
                     id=server.Id
                     name=server.Name
@@ -143,7 +141,57 @@
                         server.Reference
                     ]
                 /]
+                [#break]
 
+            [#case "mysql"]
+                [@createMySqlServer
+                    id=server.Id
+                    name=server.Name
+                    location=regionId
+                    createMode=createMode
+                    adminName=masterAccount
+                    adminSecret=masterSecret
+                    keyvaultId=keyVaultId
+                    skuName=sku.Processor
+                    version=engineVersion
+                    backupRetentionDays=solution.Backup.RetentionPeriod
+                    storageGB=solution.Size
+                    storageAutogrow=solution.azure\:AutoGrow
+                /]
+
+                [#local configReferences = []]
+                [#list configs as key,value]
+                    [#local conf = solution.DBParameters[key]]
+                    [@createMySqlServerConfiguration
+                        id=value.Id
+                        name=value.Name
+                        source=key
+                        value=conf
+                        dependsOn=[server.Reference]
+                    /]
+                    [#local configReferences += [value.Reference]]
+                [/#list]
+
+                [@createMySqlServerDatabase
+                    id=db.Id
+                    name=db.Name
+                    dependsOn=[
+                        server.Reference
+                    ] + configReferences
+                /]
+
+                [#-- TODO(rossmurr4y):
+                    refactor `ignoreMissingEndpoint` alongside Service Endpoints.
+                --]
+                [@createMySqlServerVNetRule
+                    id=vnetRule.Id
+                    name=vnetRule.Name
+                    subnetId=getReference(subnet.Id, subnet.Name)
+                    ignoreMissingEndpoint=true
+                    dependsOn=[
+                        server.Reference
+                    ]
+                /]
                 [#break]
 
         [/#switch]
