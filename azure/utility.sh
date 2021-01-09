@@ -218,7 +218,7 @@ function az_check_secret() {
 
   local secretId="https://${vaultName}.vault.azure.net/secrets/${secretName}"
 
-  az keyvault secret show --id "${secretId}" > /dev/null
+  az keyvault secret show --id "${secretId}" 2>&1 > /dev/null
 }
 
 function az_delete_secret() {
