@@ -2,7 +2,7 @@
 
 
 
-# [0.0.0](https://github.com/hamlet-io/engine-plugin-aws/compare/v7.0.0...v0.0.0) (2021-01-11)
+# [8.0.0](https://github.com/hamlet-io/engine-plugin-aws/compare/v7.0.0...v8.0.0) (2021-01-11)
 
 
 ### Bug Fixes
@@ -52,10 +52,11 @@
 
 * :sparkles: db secrets assignable in solution ([7de06eb](https://github.com/hamlet-io/engine-plugin-aws/commit/7de06eb7177170ac9c08e88cb699f2bb8600c714))
 * :sparkles: linked db's to inject attributes as env variables ([a0a3c51](https://github.com/hamlet-io/engine-plugin-aws/commit/a0a3c51745ad2a04b07a2ab0ba9b24fd5e6c35db))
-* Component - computecluster ([#132](https://github.com/hamlet-io/engine-plugin-aws/issues/132)) ([2339f17](https://github.com/hamlet-io/engine-plugin-aws/commit/2339f17c7b164c35e3acd18d8424bf4f63c73b9c))
 * refactor armResource to introduce scope + rework outputs ([bfd895e](https://github.com/hamlet-io/engine-plugin-aws/commit/bfd895ed77293b253d349d0f8c75b36ef9dc5282))
 * **baseline:** allow multiple keyVaultAdmins ([#178](https://github.com/hamlet-io/engine-plugin-aws/issues/178)) ([21bb463](https://github.com/hamlet-io/engine-plugin-aws/commit/21bb46310b9444d7a993db618bcd6ac4b8e15974))
 * **resources:** incorporate scope into azureResourceProfiles ([#198](https://github.com/hamlet-io/engine-plugin-aws/issues/198)) ([0553404](https://github.com/hamlet-io/engine-plugin-aws/commit/05534041dde69cf3ddf9953f7e5b0b1bb3acc436))
+* changelog generation ([#219](https://github.com/hamlet-io/engine-plugin-aws/issues/219)) ([4bc8964](https://github.com/hamlet-io/engine-plugin-aws/commit/4bc8964b9fa6394a1031e33cc09388051a489f15))
+* Component - computecluster ([#132](https://github.com/hamlet-io/engine-plugin-aws/issues/132)) ([2339f17](https://github.com/hamlet-io/engine-plugin-aws/commit/2339f17c7b164c35e3acd18d8424bf4f63c73b9c))
 * introduce function to break down id path segments into scope ([702aaa0](https://github.com/hamlet-io/engine-plugin-aws/commit/702aaa00ff7d279f459f9d35807d4953a05f4e1a))
 * microsoft.resources service to be available to all components ([d5a2a33](https://github.com/hamlet-io/engine-plugin-aws/commit/d5a2a332f4949930cdfb54069b5e7dd853a5ef28))
 * migrate from fragments to extensions ([#212](https://github.com/hamlet-io/engine-plugin-aws/issues/212)) ([f6192b2](https://github.com/hamlet-io/engine-plugin-aws/commit/f6192b2ef4fc7b333e5ebef35a180d494ce8c4fc))
@@ -65,6 +66,10 @@
 
 * setup marco names do not suppor the current naming
 format
+
+
+
+# 7.0.0 (2020-04-25)
 
 
 
