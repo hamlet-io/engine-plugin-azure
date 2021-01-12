@@ -58,7 +58,7 @@
                 [@addToDefaultBashScriptOutput
                     content=[
                         "  # Check Keyvault for Master Secret",
-                        "  if [[ ! $(az_check_secret" + " " +
+                        "  if [[ $(az_check_secret" + " " +
                             "\"" + keyVaultName + "\" " +
                             "\"" + masterSecret + "\") " +
                             "= *SecretNotFound* ]]; then",
