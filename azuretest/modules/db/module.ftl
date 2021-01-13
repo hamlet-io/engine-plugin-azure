@@ -39,6 +39,31 @@
                                     "Prefix": "MOCK"
                                 }
                             }
+                        },
+                        "mysqldb" : {
+                            "db" : {
+                                "Instances" : {
+                                    "default" : {
+                                        "DeploymentUnits" : [ "solution-az-mysqldb" ]
+                                    }
+                                },
+                                "Profiles" : {
+                                    "Testing" : [ "Component" ]
+                                },
+                                "DatabaseName" : "mockdb",
+                                "Engine" : "mysql",
+                                "EngineVersion" : "5.7",
+                                "Port" : "mysql",
+                                "GenerateCredentials" : {
+                                    "Enabled" : true,
+                                    "MasterUserName" : "mockuser",
+                                    "CharacterLength" : 20
+                                },
+                                "Size" : 20,
+                                "azure:SecretSettings": {
+                                    "Prefix": "MOCK"
+                                }
+                            }
                         }
                     }
                 }
@@ -56,12 +81,25 @@
                             }
                         }
                     }
+                },
+                "mysqldbtemplate" : {
+                    "OutputSuffix" : "template.json",
+                    "Structural" : {
+                        "JSON" : {
+                            "Match" : {
+                                "DatabaseID" : {
+                                    "Path" : "outputs.mysqlserverXdbXdatabaseXurl.value",
+                                    "Value" : "https://mock.local/mysqlserverXdbXmysqldbXurl"
+                                }
+                            }
+                        }
+                    }
                 }
             },
             "TestProfiles" : {
                 "Component" : {
                     "db" : {
-                        "TestCases" : [ "basedbtemplate" ]
+                        "TestCases" : [ "basedbtemplate", "mysqldbtemplate" ]
                     }
                 }
             }
