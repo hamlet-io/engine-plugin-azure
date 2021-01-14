@@ -88,7 +88,7 @@
                         "JSON" : {
                             "Match" : {
                                 "DatabaseID" : {
-                                    "Path" : "outputs.mysqlserverXdbXdatabaseXurl.value",
+                                    "Path" : "outputs.mysqlserverXdbXmysqldbXurl.value",
                                     "Value" : "https://mock.local/mysqlserverXdbXmysqldbXurl"
                                 }
                             }
@@ -97,9 +97,14 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "postgrestest" : {
                     "db" : {
-                        "TestCases" : [ "basedbtemplate", "mysqldbtemplate" ]
+                        "TestCases" : [ "basedbtemplate" ]
+                    }
+                },
+                "mysqltest" : {
+                    "db" : {
+                        "TestCases" : [ "mysqldbtemplate" ]
                     }
                 }
             }
