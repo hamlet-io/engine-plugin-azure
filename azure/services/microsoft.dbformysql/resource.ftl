@@ -97,7 +97,13 @@
         /]
     [/#if]
 
-    [#local adminName = replaceAlphaNumericOnly(adminName)]
+    [#if replaceAlphaNumericOnly(adminName) != adminName ]
+        [@precondition
+            function="createMySqlServer"
+            context={ "adminName": adminName }
+            detail="admin name can only contain alphanumeric characters"
+        /]
+    [/#if]
 
     [#local sku = {} +
         attributeIfContent("name", skuName) +

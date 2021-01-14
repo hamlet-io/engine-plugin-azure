@@ -105,7 +105,7 @@
                     version=engineVersion
                     backupRetentionDays=solution.Backup.RetentionPeriod
                     storageGB=solution.Size
-                    storageAutogrow=solution.azure\:AutoGrow
+                    storageAutogrow=solution["azure:AutoGrow"]
                 /]
 
                 [#local configReferences = []]
@@ -156,7 +156,7 @@
                     version=engineVersion
                     backupRetentionDays=solution.Backup.RetentionPeriod
                     storageGB=solution.Size
-                    storageAutogrow=solution.azure\:AutoGrow
+                    storageAutogrow=solution["azure:AutoGrow"]
                 /]
 
                 [#local configReferences = []]
