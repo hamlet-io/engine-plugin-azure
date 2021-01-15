@@ -180,9 +180,6 @@
                     ] + configReferences
                 /]
 
-                [#-- TODO(rossmurr4y):
-                    refactor `ignoreMissingEndpoint` alongside Service Endpoints.
-                --]
                 [@createMySqlServerVNetRule
                     id=vnetRule.Id
                     name=vnetRule.Name

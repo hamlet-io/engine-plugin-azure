@@ -8,57 +8,57 @@
 
     [#switch engine]
         [#case "postgres"]
-            [#local server_resource_type = AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE]
-            [#local server_database_resource_type = AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE]
-            [#local server_vnet_rule_resource_type = AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE]
-            [#local server_config_resource_type = AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE]
+            [#local serverResourceType = AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE]
+            [#local serverDatabaseResourceType = AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE]
+            [#local serverVnetRuleResourceType = AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE]
+            [#local serverConfigResourceType = AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE]
             [#break]
 
         [#case "mysql"]
-            [#local server_resource_type = AZURE_DB_MYSQL_SERVER_RESOURCE_TYPE]
-            [#local server_database_resource_type = AZURE_DB_MYSQL_SERVER_DATABASE_RESOURCE_TYPE]
-            [#local server_vnet_rule_resource_type = AZURE_DB_MYSQL_SERVER_VNET_RULE_RESOURCE_TYPE]
-            [#local server_config_resource_type = AZURE_DB_MYSQL_SERVER_CONFIGURATION_RESOURCE_TYPE]
+            [#local serverResourceType = AZURE_DB_MYSQL_SERVER_RESOURCE_TYPE]
+            [#local serverDatabaseResourceType = AZURE_DB_MYSQL_SERVER_DATABASE_RESOURCE_TYPE]
+            [#local serverVnetRuleResourceType = AZURE_DB_MYSQL_SERVER_VNET_RULE_RESOURCE_TYPE]
+            [#local serverConfigResourceType = AZURE_DB_MYSQL_SERVER_CONFIGURATION_RESOURCE_TYPE]
             [#break]
 
     [/#switch]
 
 
-    [#local dbServerId = formatResourceId(server_resource_type, core.ShortName)]
+    [#local dbServerId = formatResourceId(serverResourceType, core.ShortName)]
     [#local dbServerName = formatAzureResourceName(
-        formatName(server_resource_type, core.ShortName)
-        server_resource_type
+        formatName(serverResourceType, core.ShortName)
+        serverResourceType
     )]
-    [#local databaseId = formatResourceId(server_database_resource_type, core.ShortName)]
+    [#local databaseId = formatResourceId(serverDatabaseResourceType, core.ShortName)]
     [#local databaseRawName = solution.DatabaseName!productName]
     [#local databaseName = formatAzureResourceName(
         databaseRawName,
-        server_database_resource_type,
+        serverDatabaseResourceType,
         dbServerName
     )]
 
     [#-- One Resource Per Key:Value pair in the DBParameters attribute. --]
     [#local configs = {}]
     [#list solution.DBParameters?keys as key]
-        [#local configId = formatResourceId(server_config_resource_type, key)]
+        [#local configId = formatResourceId(serverConfigResourceType, key)]
         [#local configName = formatAzureResourceName(
             key,
-            server_config_resource_type,
+            serverConfigResourceType,
             dbServerName
         )]
         [#local configs += { 
             key : {
                 "Id" : configId,
                 "Name" : configName,
-                "Type" : server_config_resource_type,
+                "Type" : serverConfigResourceType,
                 "Reference": getReference(configId, configName)
             }}]
     [/#list]
 
-    [#local vnetRuleId = formatResourceId(server_vnet_rule_resource_type, core.ShortName)]
+    [#local vnetRuleId = formatResourceId(serverVnetRuleResourceType, core.ShortName)]
     [#local vnetRuleName = formatAzureResourceName(
-        formatName(server_vnet_rule_resource_type, core.ShortName),
-        server_vnet_rule_resource_type,
+        formatName(serverVnetRuleResourceType, core.ShortName),
+        serverVnetRuleResourceType,
         dbServerName
     )]
 
@@ -80,20 +80,20 @@
                 "dbserver" : {
                     "Id" : dbServerId,
                     "Name" : dbServerName,
-                    "Type" : server_resource_type,
+                    "Type" : serverResourceType,
                     "Reference": getReference(dbServerId, dbServerName)
                 },
                 "database" : {
                     "Id" : databaseId,
                     "Name" : databaseName,
-                    "Type" : server_database_resource_type,
+                    "Type" : serverDatabaseResourceType,
                     "Reference": getReference(databaseId, databaseName)
                 },
                 "dbconfigs" : configs,
                 "dbvnetrule" : {
                     "Id" : vnetRuleId,
                     "Name" : vnetRuleName,
-                    "Type" : server_vnet_rule_resource_type,
+                    "Type" : serverVnetRuleResourceType,
                     "Reference": getReference(vnetRuleId, vnetRuleName)
                 }
             },

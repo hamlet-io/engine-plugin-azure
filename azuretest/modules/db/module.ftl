@@ -23,7 +23,7 @@
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ]
+                                    "Testing" : [ "postgrestest" ]
                                 },
                                 "DatabaseName" : "mockdb",
                                 "Engine" : "postgres",
@@ -48,7 +48,7 @@
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ]
+                                    "Testing" : [ "mysqltest" ]
                                 },
                                 "DatabaseName" : "mockdb",
                                 "Engine" : "mysql",
