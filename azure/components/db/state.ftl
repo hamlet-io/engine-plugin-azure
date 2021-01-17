@@ -4,42 +4,61 @@
 
     [#local core = occurrence.Core]
     [#local solution = occurrence.Configuration.Solution]
+    [#local engine = solution.Engine]
 
-    [#local dbServerId = formatResourceId(AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE, core.ShortName)]
+    [#switch engine]
+        [#case "postgres"]
+            [#local serverResourceType = AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE]
+            [#local serverDatabaseResourceType = AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE]
+            [#local serverVnetRuleResourceType = AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE]
+            [#local serverConfigResourceType = AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE]
+            [#break]
+
+        [#case "mysql"]
+            [#local serverResourceType = AZURE_DB_MYSQL_SERVER_RESOURCE_TYPE]
+            [#local serverDatabaseResourceType = AZURE_DB_MYSQL_SERVER_DATABASE_RESOURCE_TYPE]
+            [#local serverVnetRuleResourceType = AZURE_DB_MYSQL_SERVER_VNET_RULE_RESOURCE_TYPE]
+            [#local serverConfigResourceType = AZURE_DB_MYSQL_SERVER_CONFIGURATION_RESOURCE_TYPE]
+            [#break]
+
+    [/#switch]
+
+
+    [#local dbServerId = formatResourceId(serverResourceType, core.ShortName)]
     [#local dbServerName = formatAzureResourceName(
-        formatName(AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE, core.ShortName)
-        AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE
+        formatName(serverResourceType, core.ShortName)
+        serverResourceType
     )]
-    [#local databaseId = formatResourceId(AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE, core.ShortName)]
+    [#local databaseId = formatResourceId(serverDatabaseResourceType, core.ShortName)]
     [#local databaseRawName = solution.DatabaseName!productName]
     [#local databaseName = formatAzureResourceName(
         databaseRawName,
-        AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE,
+        serverDatabaseResourceType,
         dbServerName
     )]
 
     [#-- One Resource Per Key:Value pair in the DBParameters attribute. --]
     [#local configs = {}]
     [#list solution.DBParameters?keys as key]
-        [#local configId = formatResourceId(AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE, key)]
+        [#local configId = formatResourceId(serverConfigResourceType, key)]
         [#local configName = formatAzureResourceName(
             key,
-            AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE,
+            serverConfigResourceType,
             dbServerName
         )]
         [#local configs += { 
             key : {
                 "Id" : configId,
                 "Name" : configName,
-                "Type" : AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE,
+                "Type" : serverConfigResourceType,
                 "Reference": getReference(configId, configName)
             }}]
     [/#list]
 
-    [#local vnetRuleId = formatResourceId(AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE, core.ShortName)]
+    [#local vnetRuleId = formatResourceId(serverVnetRuleResourceType, core.ShortName)]
     [#local vnetRuleName = formatAzureResourceName(
-        formatName(AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE, core.ShortName),
-        AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE,
+        formatName(serverVnetRuleResourceType, core.ShortName),
+        serverVnetRuleResourceType,
         dbServerName
     )]
 
@@ -61,20 +80,20 @@
                 "dbserver" : {
                     "Id" : dbServerId,
                     "Name" : dbServerName,
-                    "Type" : AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE,
+                    "Type" : serverResourceType,
                     "Reference": getReference(dbServerId, dbServerName)
                 },
                 "database" : {
                     "Id" : databaseId,
                     "Name" : databaseName,
-                    "Type" : AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE,
+                    "Type" : serverDatabaseResourceType,
                     "Reference": getReference(databaseId, databaseName)
                 },
                 "dbconfigs" : configs,
                 "dbvnetrule" : {
                     "Id" : vnetRuleId,
                     "Name" : vnetRuleName,
-                    "Type" : AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE,
+                    "Type" : serverVnetRuleResourceType,
                     "Reference": getReference(vnetRuleId, vnetRuleName)
                 }
             },

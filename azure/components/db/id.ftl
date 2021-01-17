@@ -26,6 +26,7 @@
     services=
         [
             AZURE_DB_POSTGRES_SERVICE,
+            AZURE_DB_MYSQL_SERVICE,
             AZURE_KEYVAULT_SERVICE
         ]
 /]

@@ -131,9 +131,9 @@
                 [#break]
 
             [#case DB_COMPONENT_TYPE]
-
                 [#switch linkTargetConfiguration.Solution.Engine]
                     [#case "postgres"]
+                    [#case "mysql"]
                         [#local dbDetails = {}]
 
                         [#-- ENV Settings (non-secret) --]

@@ -4,60 +4,60 @@
     NOTE: Resources WILL require a "Parameters" template pass.
 --]
 
-[#assign postgresResourceProfiles = {
-    AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE : {
+[#assign mysqlResourceProfiles = {
+    AZURE_DB_MYSQL_SERVER_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
         "conditions" : [ "max_length", "name_to_lower", "globally_unique" ],
         "max_name_length" : 63,
-        "type" : "Microsoft.DBforPostgreSQL/servers",
+        "type" : "Microsoft.DBforMySQL/servers",
         "outputMappings" : {
             URL_ATTRIBUTE_TYPE : {
                 "Property" : "properties.fullyQualifiedDomainName"
             }
         }
     },
-    AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE : {
+    AZURE_DB_MYSQL_SERVER_CONFIGURATION_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
-        "type" : "Microsoft.DBforPostgreSQL/servers/configurations",
+        "type" : "Microsoft.DBforMySQL/servers/configurations",
         "outputMappings" : {}
     },
-    AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE : {
+    AZURE_DB_MYSQL_SERVER_DATABASE_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
         "conditions" : [ "max_length", "name_to_lower", "globally_unique" ],
         "max_name_length" : 63,
-        "type" : "Microsoft.DBforPostgreSQL/servers/databases",
+        "type" : "Microsoft.DBforMySQL/servers/databases",
         "outputMappings" : {
             REFERENCE_ATTRIBUTE_TYPE : {
                 "Property" : "id"
             }
         }
     },
-    AZURE_DB_POSTGRES_SERVER_FIREWALL_RULE_RESOURCE_TYPE : {
+    AZURE_DB_MYSQL_SERVER_FIREWALL_RULE_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
-        "type" : "Microsoft.DBforPostgreSQL/servers/firewallRules",
+        "type" : "Microsoft.DBforMySQL/servers/firewallRules",
         "outputMappings" : {}
     },
-    AZURE_DB_POSTGRES_SERVER_SECURITY_ALERT_POLICY_RESOURCE_TYPE : {
+    AZURE_DB_MYSQL_SERVER_SECURITY_ALERT_POLICY_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
-        "type" : "Microsoft.DBforPostgreSQL/servers/securityAlertPolicies",
+        "type" : "Microsoft.DBforMySQL/servers/securityAlertPolicies",
         "outputMappings" : {}
     },
-    AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE : {
+    AZURE_DB_MYSQL_SERVER_VNET_RULE_RESOURCE_TYPE : {
         "apiVersion" : "2017-12-01",
-        "type" : "Microsoft.DBforPostgreSQL/servers/virtualNetworkRules",
+        "type" : "Microsoft.DBforMySQL/servers/virtualNetworkRules",
         "outputMappings" : {}
     }
 }]
 
-[#list postgresResourceProfiles as type,profile]
+[#list mysqlResourceProfiles as type,profile]
     [@addResourceProfile
-        service=AZURE_DB_POSTGRES_SERVICE
+        service=AZURE_DB_MYSQL_SERVICE
         resource=type
         profile=profile
     /]
 [/#list]
 
-[#macro createPostgresServer
+[#macro createMySqlServer
     id
     name
     location
@@ -82,7 +82,6 @@
 
     [#local disallowedAdminNames = [
         "azure_superuser",
-        "azure_pg_admin",
         "admin",
         "administrator",
         "root",
@@ -90,10 +89,9 @@
         "public"
     ]]
 
-    [#if disallowedAdminNames?seq_contains(adminName?lower_case) ||
-        adminName?lower_case?starts_with("pg_")]
+    [#if disallowedAdminNames?seq_contains(adminName?lower_case)]
         [@precondition
-            function="createPostgresServer"
+            function="createMySqlServer"
             context={ "adminName": adminName, "max_length": 63, "length" : adminName?length }
             detail="Disallowed database administrator account name, or name too long."
         /]
@@ -101,7 +99,7 @@
 
     [#if replaceAlphaNumericOnly(adminName) != adminName ]
         [@precondition
-            function="createPostgresServer"
+            function="createMySqlServer"
             context={ "adminName": adminName }
             detail="admin name can only contain alphanumeric characters"
         /]
@@ -168,14 +166,13 @@
         name=name
         location=location
         sku=sku
-        profile=AZURE_DB_POSTGRES_SERVER_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_RESOURCE_TYPE
         dependsOn=dependsOn
         properties=properties
     /]
-
 [/#macro]
 
-[#macro createPostgresServerConfiguration
+[#macro createMySqlServerConfiguration
     id
     name
     value=""
@@ -203,7 +200,7 @@
     [@armResource
         id=id
         name=name
-        profile=AZURE_DB_POSTGRES_SERVER_CONFIGURATION_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_CONFIGURATION_RESOURCE_TYPE
         dependsOn=dependsOn
         properties={} +
             attributeIfContent("value", updatedValue) +
@@ -211,7 +208,7 @@
     /]
 [/#macro]
 
-[#macro createPostgresServerDatabase
+[#macro createMySqlServerDatabase
     id
     name
     charset=""
@@ -221,16 +218,15 @@
     [@armResource
         id=id
         name=name
-        profile=AZURE_DB_POSTGRES_SERVER_DATABASE_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_DATABASE_RESOURCE_TYPE
         dependsOn=dependsOn
         properties={} +
             attributeIfContent("charset", charset) +
             attributeIfContent("collation", collation)
     /]
-
 [/#macro]
 
-[#macro createPostgresServerFirewallRule
+[#macro createMySqlServerFirewallRule
     id
     name
     startIpAddress
@@ -240,7 +236,7 @@
     [@armResource
         id=id
         name=name
-        profile=AZURE_DB_POSTGRES_SERVER_FIREWALL_RULE_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_FIREWALL_RULE_RESOURCE_TYPE
         dependsOn=dependsOn
         properties=
             {
@@ -248,10 +244,9 @@
                 "endIpAddress" : endIpAddress
             }
     /]
-
 [/#macro]
 
-[#macro createPostgresServerSecurityAlertPolicy
+[#macro createMySqlServerSecurityAlertPolicy
     id
     name
     state
@@ -266,7 +261,7 @@
     [@armResource
         id=id
         name=name
-        profile=AZURE_DB_POSTGRES_SERVER_SECURITY_ALERT_POLICY_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_SECURITY_ALERT_POLICY_RESOURCE_TYPE
         dependsOn=dependsOn
         properties=
             {
@@ -279,10 +274,9 @@
             attributeIfContent("storageAccountAccessKey", storageAccountAccessKey) +
             numberAttributeIfContent("retentionDays", retentionDays)
     /]
-
 [/#macro]
 
-[#macro createPostgresServerVNetRule
+[#macro createMySqlServerVNetRule
     id
     name
     subnetId
@@ -292,7 +286,7 @@
     [@armResource
         id=id
         name=name
-        profile=AZURE_DB_POSTGRES_SERVER_VNET_RULE_RESOURCE_TYPE
+        profile=AZURE_DB_MYSQL_SERVER_VNET_RULE_RESOURCE_TYPE
         dependsOn=dependsOn
         properties=
             {
@@ -304,7 +298,6 @@
                 ignoreMissingEndpoint
             )
     /]
-
 [/#macro]
 
 [#-- Internal Use Only --]

@@ -39,6 +39,9 @@
 [#-- Microsoft.DBforPostgreSQL --]
 [#assign AZURE_DB_POSTGRES_SERVICE = "microsoft.dbforpostgresql"]
 
+[#-- Microsoft.DBforMySQL --]
+[#assign AZURE_DB_MYSQL_SERVICE = "microsoft.dbformysql"]
+
 [#-- Microsoft.Resources--]
 [#assign AZURE_RESOURCES_SERVICE = "microsoft.resources"]
 
