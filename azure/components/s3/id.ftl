@@ -8,12 +8,12 @@
                 "Children" : [
                     {
                         "Names" : "BlobRetentionDays",
-                        "Type" : NUMBER_TYPE,
+                        "Types" : NUMBER_TYPE,
                         "Default" : ""
                     },
                     {
                         "Names" : "BlobAutoSnapshots",
-                        "Type" : BOOLEAN_TYPE,
+                        "Types" : BOOLEAN_TYPE,
                         "Default" : false
                     }
                 ]
@@ -28,12 +28,12 @@
                     {
                         "Names" : "DirectoryService",
                         "Description" : "The directory service that is used for authentication. 'None' or 'AADDS'.",
-                        "Type" : STRING_TYPE,
+                        "Types" : STRING_TYPE,
                         "Default" : ""
                     },
                     {
                         "Names" : "PublicAccess",
-                        "Type" : STRING_TYPE,
+                        "Types" : STRING_TYPE,
                         "Values" : [ "Container", "Blob", "None" ],
                         "Default" : [ "None" ]
                     }

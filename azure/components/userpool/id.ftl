@@ -24,7 +24,7 @@
         {
             "Names" : "Engine",
             "Description" : "The authentication/identity provider type. Values are specific to API Management Identity Provider resource..",
-            "Type" : STRING_TYPE,
+            "Types" : STRING_TYPE,
             "Values" : [
                 "facebook", 
                 "google", 
@@ -49,13 +49,13 @@
         {
             "Names" : "AllowOtherTenants",
             "Description" : "Application can be used by other Azure AD Tenants.",
-            "Type" : BOOLEAN_TYPE,
+            "Types" : BOOLEAN_TYPE,
             "Default" : false
         },
         {
             "Names" : "ReplyUrls",
             "Description" : "URI's to which Azure AD will redirect in response to an OAuth 2.0 Request",
-            "Type": ARRAY_OF_STRING_TYPE
+            "Types": ARRAY_OF_STRING_TYPE
         }
     ]
     provider=AZURE_PROVIDER

@@ -9,12 +9,12 @@
             "Children" : [
                 {
                     "Names" : "Sku",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Default" : "default"
                 },
                 {
                     "Names" : "VMImage",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Default" : "default"
                 },
                 {

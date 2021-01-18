@@ -6,7 +6,7 @@
         {
             "Names": "AutoGrow",
             "Description" : "Allow Database storage to grow automatically as the capacity limit is reached.",
-            "Type": STRING_TYPE,
+            "Types": STRING_TYPE,
             "Values" : [ "Enabled", "Disabled" ],
             "Default" : "Disabled"
         },

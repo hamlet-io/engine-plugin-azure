@@ -16,22 +16,22 @@
             "Children" : [
                 {
                     "Names" : "Publisher",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Mandatory" : true
                 },
                 {
                     "Names" : "Offering",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Mandatory" : true
                 },
                 {
                     "Names" : "Image",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Mandatory" : true
                 },
                 {
                     "Names" : "LicenseType",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Mandatory" : false
                 }
             ]

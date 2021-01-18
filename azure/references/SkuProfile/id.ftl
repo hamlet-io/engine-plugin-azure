@@ -3,23 +3,23 @@
 [#assign skuChildAttributes = [
     {
         "Names" : "Name",
-        "Type" : STRING_TYPE
+        "Types" : STRING_TYPE
     },
     {
         "Names" : "Tier",
-        "Type" : STRING_TYPE
+        "Types" : STRING_TYPE
     },
     {
         "Names" : "Capacity",
-        "Type" : NUMBER_TYPE
+        "Types" : NUMBER_TYPE
     },
     {
         "Names" : "Size",
-        "Type" : [ NUMBER_TYPE, STRING_TYPE ]
+        "Types" : [ NUMBER_TYPE, STRING_TYPE ]
     },
     {
         "Names" : "Family",
-        "Type" : STRING_TYPE
+        "Types" : STRING_TYPE
     }
 ]]
 
@@ -38,12 +38,12 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Values" : [ "Developer", "Standard", "Premium", "Basic", "Consumption" ]
                 },
                 {
                     "Names" : "Capacity",
-                    "Type" : NUMBER_TYPE
+                    "Types" : NUMBER_TYPE
                 }
             ]
         },
@@ -52,16 +52,16 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Tier",
-                    "Type" : STRING_TYPE,
+                    "Types" : STRING_TYPE,
                     "Values" : [ "Standard", "Basic" ]
                 },
                 {
                     "Names" : "Capacity",
-                    "Type" : NUMBER_TYPE,
+                    "Types" : NUMBER_TYPE,
                     "Default" : 1
                 }
             ]
@@ -75,15 +75,15 @@
             "Children" : [
                 {
                     "Names" : "Kind",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Tier",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Replication",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 }
 
             ]
@@ -97,11 +97,11 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Family",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 }
             ]
         },
@@ -110,7 +110,7 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 }
             ]
         },
@@ -119,15 +119,15 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Tier",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Capacity",
-                    "Type" : NUMBER_TYPE
+                    "Types" : NUMBER_TYPE
                 }
             ]
         },
@@ -136,15 +136,15 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Tier",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 },
                 {
                     "Names" : "Capacity",
-                    "Type" : NUMBER_TYPE
+                    "Types" : NUMBER_TYPE
                 }
             ]
         }

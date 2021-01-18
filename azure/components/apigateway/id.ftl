@@ -10,11 +10,11 @@
             "Children" : [
                 {
                     "Names" : "Name",
-                    "Type": STRING_TYPE
+                    "Types": STRING_TYPE
                 },
                 {
                     "Names" : "Email",
-                    "Type" : STRING_TYPE
+                    "Types" : STRING_TYPE
                 }
             ]
         }
