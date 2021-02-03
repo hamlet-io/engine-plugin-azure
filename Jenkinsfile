@@ -3,9 +3,7 @@ def slackChannel = '#devops-framework'
 
 pipeline {
     options {
-        timestamps()
-        durabilityHint('PERFORMANCE_OPTIMIZED')
-        timeout(time: 1, unit: 'HOURS')
+        timeout(time: 2, unit: 'HOURS')
     }
 
     agent {
@@ -17,16 +15,26 @@ pipeline {
         stage('Run Azure Template Tests') {
             environment {
                 GENERATION_PLUGIN_DIRS = "${WORKSPACE}"
+                TEST_OUTPUT_DIR='./hamlet_tests'
             }
             steps {
                 sh '''#!/usr/bin/env bash
                     ./test/run_azure_template_tests.sh
                 '''
             }
+
+            post {
+                always {
+                    junit 'hamlet_tests/junit.xml'
+                }
+            }
         }
 
         stage('Trigger Docker Build') {
             steps {
+                when {
+                    branch 'master'
+                }
                 build (
                     job: '../docker-hamlet/master',
                     wait: false
