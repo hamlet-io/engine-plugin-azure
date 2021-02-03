@@ -21,15 +21,18 @@ echo "--- Generating Management Contract ---"
 echo ""
 
 default_args=(
-    '-i mock'
-    '-p azure'
-    '-p azuretest'
-    '-f arm'
     "-o ${TEST_OUTPUT_DIR}"
     '-x'
 )
 
-${GENERATION_DIR}/createTemplate.sh -e unitlist ${default_args[@]}
+generation_args=(
+    '-i mock'
+    '-p azure'
+    '-p azuretest'
+    '-f arm'
+)
+
+hamlet entrance ${generation_args[@]} invoke-entrance -e unitlist ${default_args[@]}
 UNIT_LIST=`jq -r '.Stages[].Steps[].Parameters | "-l \(.DeploymentGroup) -u \(.DeploymentUnit)"' < ${TEST_OUTPUT_DIR}/unitlist-managementcontract.json`
 readarray -t UNIT_LIST <<< "${UNIT_LIST}"
 
@@ -40,8 +43,8 @@ for unit in "${UNIT_LIST[@]}";  do
 
     unit_args=("${default_args[@]}" "${unit}")
 
-    ${GENERATION_DIR}/createTemplate.sh -e deploymenttest ${unit_args[@]}
-    ${GENERATION_DIR}/createTemplate.sh -e deployment ${unit_args[@]}
+    hamlet entrance ${generation_args[@]} invoke-entrance -e deploymenttest ${unit_args[@]}
+    hamlet entrance ${generation_args[@]} invoke-entrance -e deployment ${unit_args[@]}
 done
 
 echo ""
@@ -52,5 +55,5 @@ hamlet test generate --directory "${TEST_OUTPUT_DIR}" -o "${TEST_OUTPUT_DIR}/tes
 
 pushd $(pwd)
 cd "${TEST_OUTPUT_DIR}"
-hamlet test run -t "./test_templates.py"
+hamlet test run --pytest-args "--junitxml=junit.xml" -t "./test_templates.py"
 popd
