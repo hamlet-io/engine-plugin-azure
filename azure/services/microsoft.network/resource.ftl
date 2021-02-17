@@ -96,6 +96,11 @@
     "apiVersion" : "2018-09-01",
     "type" : "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
     "outputMappings" : {}
+  },
+  AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE : {
+    "apiVersion" : "2019-11-01",
+    "type" : "Microsoft.Network/networkWatchers/flowLogs",
+    "outputMappings" : {}
   }
 }]
 
@@ -408,18 +413,11 @@
   /]
 [/#macro]
 
-[#-- 
-  TODO(rossmurr4y): Flow Logs object is not currently supported, though exists when created
-  via PowerShell. This is being developed by Microsoft and expected Jan 2020 - will need to revisit
-  this implimentation at that time to ensure this object remains correct.
-  https://feedback.azure.com/forums/217313-networking/suggestions/37713784-arm-template-support-for-nsg-flow-logs
---]
 [#macro createNetworkWatcherFlowLog
   id
   name
   targetResourceId
   storageId
-  targetResourceGuid=""
   workspaceId=""
   trafficAnalyticsInterval=""
   retentionPolicyEnabled=false
@@ -431,25 +429,24 @@
 
   [#local networkWatcherFlowAnalyticsConfiguration = { "enabled" : true } +
     attributeIfContent("workspaceId", workspaceId) +
-    attributeIfContent("trafficAnalyticsInterval", trafficAnalyticsInterval)]
+    numberAttributeIfContent("trafficAnalyticsInterval", trafficAnalyticsInterval)]
 
   [#local flowAnalyticsConfiguration = { "networkWatcherFlowAnalyticsConfiguration" : networkWatcherFlowAnalyticsConfiguration }]
 
   [#local retentionPolicy = {} +
-    attributeIfContent("days", retentionDays) +
+    numberAttributeIfContent("days", retentionDays) +
     attributeIfTrue("enabled", retentionPolicyEnabled, retentionPolicyEnabled)]
 
   [#local format = {} +
     attributeIfContent("type", formatType) +
-    attributeIfContent("version", formatVersion)]
+    numberAttributeIfContent("version", formatVersion)]
 
   [@armResource
     id=id
     name=name
-    profile=AZURE_NETWORK_WATCHER_RESOURCE_TYPE
+    profile=AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE
     properties={ "enabled" : true } +
       attributeIfContent("targetResourceId", targetResourceId) +
-      attributeIfContent("targetResourceGuid", targetResourceGuid) +
       attributeIfContent("storageId", storageId) +
       attributeIfContent("flowAnalyticsConfiguration", flowAnalyticsConfiguration) +
       attributeIfContent("retentionPolicy", retentionPolicy) +
