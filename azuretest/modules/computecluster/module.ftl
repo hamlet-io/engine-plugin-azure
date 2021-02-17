@@ -49,7 +49,6 @@
                                         "IPAddressGroups" : ["_global"]
                                     },
                                     "https" : {
-                                        "Port" : "https",
                                         "IPAddressGroups" : ["_global"]
                                     }
                                 },

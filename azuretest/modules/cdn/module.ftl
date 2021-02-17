@@ -23,8 +23,7 @@
                                     }
                                 },
                                 "Profiles" : {
-                                    "Testing" : [ "Component" ],
-                                    "Security" : "high"
+                                    "Testing" : [ "Component" ]
                                 },
                                 "Certificate": {
                                     "Host" : "mawk"
