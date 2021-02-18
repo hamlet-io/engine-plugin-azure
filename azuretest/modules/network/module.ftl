@@ -31,6 +31,14 @@
                                         "Public": true
                                     }
                                 },
+                                "Logging" : {
+                                    "FlowLogs" : {
+                                        "default" : {
+                                            "Action" : "accept",
+                                            "Enabled" : true
+                                        }
+                                    }
+                                },
                                 "NetworkACLs": {
                                     "open": {
                                         "Rules": {

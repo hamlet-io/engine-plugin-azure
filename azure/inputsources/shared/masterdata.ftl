@@ -12,7 +12,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "southcentralus",
+                        "AWSZone": "southcentralus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -30,7 +30,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "brazilsouth",
+                        "AWSZone": "brazilsouth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -48,7 +48,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "eastus",
+                        "AWSZone": "eastus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -66,7 +66,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "eastus2",
+                        "AWSZone": "eastus2",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -84,7 +84,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "northcentralus",
+                        "AWSZone": "northcentralus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -102,7 +102,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "northeurope",
+                        "AWSZone": "northeurope",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -120,7 +120,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "westeurope",
+                        "AWSZone": "westeurope",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -138,7 +138,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "westus",
+                        "AWSZone": "westus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -156,7 +156,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "eastasia",
+                        "AWSZone": "eastasia",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -174,7 +174,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "southeastasia",
+                        "AWSZone": "southeastasia",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -192,7 +192,7 @@
                     "a": {
                         "Title": "Global",
                         "Description": "A Global Zone",
-                        "AzureId": "global",
+                        "AWSZone": "global",
                         "NetworkEndpoints": []
                     }
                 },
@@ -205,7 +205,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "centralus",
+                        "AWSZone": "centralus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -223,7 +223,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "japanwest",
+                        "AWSZone": "japanwest",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -241,7 +241,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "japaneast",
+                        "AWSZone": "japaneast",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -259,7 +259,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "australiaeast",
+                        "AWSZone": "australiaeast",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -277,7 +277,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "australiasoutheast",
+                        "AWSZone": "australiasoutheast",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -295,7 +295,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "southindia",
+                        "AWSZone": "southindia",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -313,7 +313,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "centralindia",
+                        "AWSZone": "centralindia",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -331,7 +331,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "westindia",
+                        "AWSZone": "westindia",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -349,7 +349,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "canadaeast",
+                        "AWSZone": "canadaeast",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -367,7 +367,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "canadacentral",
+                        "AWSZone": "canadacentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -385,7 +385,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "uksouth",
+                        "AWSZone": "uksouth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -403,7 +403,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "ukwest",
+                        "AWSZone": "ukwest",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -421,7 +421,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "westcentralus",
+                        "AWSZone": "westcentralus",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -439,7 +439,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "westus2",
+                        "AWSZone": "westus2",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -457,7 +457,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "koreacentral",
+                        "AWSZone": "koreacentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -475,7 +475,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "koreasouth",
+                        "AWSZone": "koreasouth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -493,7 +493,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "francecentral",
+                        "AWSZone": "francecentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -511,7 +511,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "francesouth",
+                        "AWSZone": "francesouth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -529,7 +529,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "australiacentral",
+                        "AWSZone": "australiacentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -547,7 +547,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "australiacentral2",
+                        "AWSZone": "australiacentral2",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -565,7 +565,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "uaecentral",
+                        "AWSZone": "uaecentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -583,7 +583,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "uaenorth",
+                        "AWSZone": "uaenorth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -601,7 +601,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "southafricanorth",
+                        "AWSZone": "southafricanorth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -619,7 +619,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "southafricawest",
+                        "AWSZone": "southafricawest",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -637,7 +637,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "switzerlandnorth",
+                        "AWSZone": "switzerlandnorth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -655,7 +655,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "switzerlandwest",
+                        "AWSZone": "switzerlandwest",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -673,7 +673,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "germanynorth",
+                        "AWSZone": "germanynorth",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -691,7 +691,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "germanywestcentral",
+                        "AWSZone": "germanywestcentral",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -709,7 +709,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "norwaywest",
+                        "AWSZone": "norwaywest",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -727,7 +727,7 @@
                     "a": {
                         "Title": "Zone A",
                         "Description": "Zone A",
-                        "AzureId": "norwayeast",
+                        "AWSZone": "norwayeast",
                         "NetworkEndpoints": [
                             {
                                 "Type": "Interface",
@@ -940,8 +940,7 @@
                                     "Tier": "mgmt",
                                     "Component": "vpcendpoint",
                                     "Version": "",
-                                    "Instance": "",
-                                    "Destination": "default"
+                                    "Instance": ""
                                 }
                             }
                         }
@@ -1072,7 +1071,6 @@
                     "Processor": "B_Gen5_1"
                 },
                 "containerhost": {
-                    "Processor": "",
                     "MaxCount": 2,
                     "MinCount": 0,
                     "DesiredCount": 1

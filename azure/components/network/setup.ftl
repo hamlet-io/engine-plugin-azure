@@ -13,6 +13,7 @@
   [#local vnetId = resources["vnet"].Id]
   [#local vnetName = resources["vnet"].Name]
   [#local vnetCIDR = resources["vnet"].Address]
+  [#local flowlogs = resources["flowlogs"]!{}]
 
   [#if deploymentSubsetRequired(NETWORK_COMPONENT_TYPE, true)]
 
@@ -298,40 +299,25 @@
       [/#if]
     [/#list]
 
-    [#-- TODO(rossmurr4y): Flow Logs object is not currently supported, though exists when created
-    via PowerShell. This is being developed by Microsoft and expected Jan 2020 - will need to revisit
-    this implimentation at that time to ensure this object remains correct.
-    https://feedback.azure.com/forums/217313-networking/suggestions/37713784-arm-template-support-for-nsg-flow-logs
-    --]
     [#-- 6. NetworkWatcher : Flow Logs --]
-    [#if (resources["flowlogs"]!{})?has_content]
-      [#local flowLogResources = resources["flowlogs"]]
-      [#local flowLogNSGId = flowLogResources["networkWatcherFlowlog"].Id]
-      [#local flowLogNSGName = flowLogResources["networkWatcherFlowlog"].Name]
-
-      [#local flowLogStorageId = getReference(
-        formatResourceId(
-          AZURE_STORAGEACCOUNT_RESOURCE_TYPE,
-          core.Id
-        )
-      )]
-
-      [@createNetworkWatcherFlowLog
-        id=flowLogNSGId
-        name=flowLogNSGName
-        targetResourceId=getReference(networkSecurityGroupId, networkSecurityGroupName)
-        storageId=flowLogStorageId
-        enabled=true
-        trafficAnalyticsInterval="0"
-        retentionPolicyEnabled=true
-        retentionDays="7"
-        formatType="JSON"
-        formatVersion="0"
-        dependsOn=
-          [
-            getReference(flowLogStorageId)
-          ]
-      /]
+    [#if flowlogs?has_content]
+      [#list flowlogs?values as flowlog]
+        [@createNetworkWatcherFlowLog
+          id=flowlog.Id
+          name=flowlog.Name
+          targetResourceId=getReference(networkSecurityGroupId)
+          storageId=flowlog.StorageId
+          trafficAnalyticsInterval="0"
+          retentionPolicyEnabled=true
+          retentionDays="7"
+          formatType="JSON"
+          formatVersion="0"
+          dependsOn=
+            [
+              getReference(flowlog.StorageId)
+            ]
+        /]
+      [/#list]
     [/#if]
   [/#if]
 [/#macro]

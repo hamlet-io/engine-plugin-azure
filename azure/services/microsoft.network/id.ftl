@@ -16,6 +16,7 @@
 [#assign AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE = "nsg"]
 [#assign AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE = "rule"]
 [#assign AZURE_NETWORK_WATCHER_RESOURCE_TYPE = "watcher"]
+[#assign AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE = "flowlog"]
 
 [#function formatDependentNetworkWatcherId resourceId extensions...]
   [#return formatDependentResourceId(
