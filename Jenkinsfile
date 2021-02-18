@@ -31,10 +31,11 @@ pipeline {
         }
 
         stage('Trigger Docker Build') {
+            when {
+                branch 'master'
+            }
+
             steps {
-                when {
-                    branch 'master'
-                }
                 build (
                     job: '../docker-hamlet/master',
                     wait: false
