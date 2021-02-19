@@ -19,7 +19,7 @@
                 },
                 {
                     "Names" : "Scaling",
-                    "Subobjects" : true,
+                    "SubObjects" : true,
                     "Children" : azureScalingProfilesChildren
                 }
             ] 
