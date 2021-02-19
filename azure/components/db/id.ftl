@@ -12,7 +12,7 @@
         },
         {
             "Names" : "Secrets",
-            "Subobjects" : true,
+            "SubObjects" : true,
             "Children" : secretChildrenConfiguration
         },
         {
