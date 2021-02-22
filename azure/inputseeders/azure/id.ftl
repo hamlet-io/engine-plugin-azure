@@ -22,7 +22,7 @@
 
 /]
 
-[#macro azure_input_loader path]
+[#macro azure_inputloader path]
     [#assign azure_cmdb_regions =
         (
             getPluginTree(
@@ -53,7 +53,7 @@
     ]
 [/#macro]
 
-[#function azure_input_masterdata_seeder filter state]
+[#function azure_inputseeder_masterdata filter state]
 
     [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
         [#local requiredRegions =
@@ -85,7 +85,7 @@
 
 [/#function]
 
-[#function azure_input_mock_seeder filter state]
+[#function azure_inputseeder_mock filter state]
 
     [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
         [#return
@@ -111,7 +111,7 @@
 
 [/#function]
 
-[#function azure_input_commandlineoption_mock_seeder filter state]
+[#function azure_inputseeder_commandlineoption_mock filter state]
 
     [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
         [#return
