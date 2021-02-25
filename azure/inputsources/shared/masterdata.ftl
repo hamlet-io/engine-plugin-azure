@@ -6,7 +6,7 @@
     {
         "Regions": {
             "southcentralus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -24,7 +24,7 @@
                 "Accounts": {}
             },
             "brazilsouth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -42,7 +42,7 @@
                 "Accounts": {}
             },
             "eastus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -60,7 +60,7 @@
                 "Accounts": {}
             },
             "eastus2": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -78,7 +78,7 @@
                 "Accounts": {}
             },
             "northcentralus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -96,7 +96,7 @@
                 "Accounts": {}
             },
             "northeurope": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -114,7 +114,7 @@
                 "Accounts": {}
             },
             "westeurope": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -132,7 +132,7 @@
                 "Accounts": {}
             },
             "westus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -150,7 +150,7 @@
                 "Accounts": {}
             },
             "eastasia": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -168,7 +168,7 @@
                 "Accounts": {}
             },
             "southeastasia": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -186,7 +186,7 @@
                 "Accounts": {}
             },
             "global": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "none",
                 "Zones": {
                     "a": {
@@ -199,7 +199,7 @@
                 "Accounts": {}
             },
             "centralus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -217,7 +217,7 @@
                 "Accounts": {}
             },
             "japanwest": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -235,7 +235,7 @@
                 "Accounts": {}
             },
             "japaneast": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -253,7 +253,7 @@
                 "Accounts": {}
             },
             "australiaeast": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -271,7 +271,7 @@
                 "Accounts": {}
             },
             "australiasoutheast": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -289,7 +289,7 @@
                 "Accounts": {}
             },
             "southindia": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -307,7 +307,7 @@
                 "Accounts": {}
             },
             "centralindia": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -325,7 +325,7 @@
                 "Accounts": {}
             },
             "westindia": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -343,7 +343,7 @@
                 "Accounts": {}
             },
             "canadaeast": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -361,7 +361,7 @@
                 "Accounts": {}
             },
             "canadacentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -379,7 +379,7 @@
                 "Accounts": {}
             },
             "uksouth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -397,7 +397,7 @@
                 "Accounts": {}
             },
             "ukwest": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -415,7 +415,7 @@
                 "Accounts": {}
             },
             "westcentralus": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -433,7 +433,7 @@
                 "Accounts": {}
             },
             "westus2": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Americas",
                 "Zones": {
                     "a": {
@@ -451,7 +451,7 @@
                 "Accounts": {}
             },
             "koreacentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -469,7 +469,7 @@
                 "Accounts": {}
             },
             "koreasouth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -487,7 +487,7 @@
                 "Accounts": {}
             },
             "francecentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -505,7 +505,7 @@
                 "Accounts": {}
             },
             "francesouth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -523,7 +523,7 @@
                 "Accounts": {}
             },
             "australiacentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -541,7 +541,7 @@
                 "Accounts": {}
             },
             "australiacentral2": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Asia Pacific",
                 "Zones": {
                     "a": {
@@ -559,7 +559,7 @@
                 "Accounts": {}
             },
             "uaecentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Middle East and Africa",
                 "Zones": {
                     "a": {
@@ -577,7 +577,7 @@
                 "Accounts": {}
             },
             "uaenorth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Middle East and Africa",
                 "Zones": {
                     "a": {
@@ -595,7 +595,7 @@
                 "Accounts": {}
             },
             "southafricanorth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Middle East and Africa",
                 "Zones": {
                     "a": {
@@ -613,7 +613,7 @@
                 "Accounts": {}
             },
             "southafricawest": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Middle East and Africa",
                 "Zones": {
                     "a": {
@@ -631,7 +631,7 @@
                 "Accounts": {}
             },
             "switzerlandnorth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -649,7 +649,7 @@
                 "Accounts": {}
             },
             "switzerlandwest": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -667,7 +667,7 @@
                 "Accounts": {}
             },
             "germanynorth": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -685,7 +685,7 @@
                 "Accounts": {}
             },
             "germanywestcentral": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -703,7 +703,7 @@
                 "Accounts": {}
             },
             "norwaywest": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -721,7 +721,7 @@
                 "Accounts": {}
             },
             "norwayeast": {
-                "Partitian": "azure",
+                "Partition": "azure",
                 "Locality": "Europe",
                 "Zones": {
                     "a": {
@@ -860,7 +860,7 @@
                         "DeploymentUnits": [
                             "ssh"
                         ],
-                        "MultiAZ": true,
+                        "multiAZ": true,
                         "bastion": {
                             "AutoScaling": {
                                 "DetailedMetrics": false,
@@ -874,7 +874,7 @@
                         "DeploymentUnits": [
                             "vpc"
                         ],
-                        "MultiAZ": true,
+                        "multiAZ": true,
                         "network": {
                             "RouteTables": {
                                 "default": {}
@@ -1019,10 +1019,7 @@
                 "computecluster": {
                     "Tier": "Standard",
                     "Replication": "LRS"
-                },
-                "containerhost": {},
-                "containerservice": {},
-                "containertask": {}
+                }
             },
             "Blob": {
                 "storageAccount": {
@@ -1062,9 +1059,7 @@
                     "MaxCount": 2,
                     "MinCount": 1,
                     "DesiredCount": 1
-                },
-                "containerservice": {},
-                "containertask": {}
+                }
             },
             "basic": {
                 "db": {
@@ -1074,9 +1069,7 @@
                     "MaxCount": 2,
                     "MinCount": 0,
                     "DesiredCount": 1
-                },
-                "containerservice": {},
-                "containertask": {}
+                }
             }
         },
         "CertificateBehaviours": {
@@ -1252,9 +1245,7 @@
                 },
                 "containerhost": {
                   "Offering" : "linux"
-                },
-                "containerservice": {},
-                "containertask": {}
+                }
             }
         },
         "NetworkEndpointGroups": {
@@ -1319,9 +1310,7 @@
                     "Capacity": 1,
                     "Size": "P1v2",
                     "Family": "Pv2"
-                },
-                "containerservice": {},
-                "containertask": {}
+                }
             }
         },
         "Segment": {
@@ -1369,7 +1358,7 @@
             "S3": {
                 "IncludeTenant": false
             },
-            "RotateKey": true,
+            "RotateKeys": true,
             "Tiers": {
                 "Order": [
                     "elb",
