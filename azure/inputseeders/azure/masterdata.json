@@ -200,8 +200,7 @@
                                 "Tier": "mgmt",
                                 "Component": "vpcendpoint",
                                 "Version": "",
-                                "Instance": "",
-                                "Destination": "default"
+                                "Instance": ""
                             }
                         }
                     }
@@ -280,10 +279,7 @@
             "computecluster": {
                 "Tier": "Standard",
                 "Replication": "LRS"
-            },
-            "containerhost": {},
-            "containerservice": {},
-            "containertask": {}
+            }
         },
         "Blob": {
             "storageAccount": {
@@ -323,22 +319,17 @@
                 "MaxCount": 2,
                 "MinCount": 1,
                 "DesiredCount": 1
-            },
-            "containerservice": {},
-            "containertask": {}
+            }
         },
         "basic": {
             "db": {
                 "Processor": "B_Gen5_1"
             },
             "containerhost": {
-                "Processor": "",
                 "MaxCount": 2,
                 "MinCount": 0,
                 "DesiredCount": 1
-            },
-            "containerservice": {},
-            "containertask": {}
+            }
         }
     },
     "CertificateBehaviours": {
@@ -514,9 +505,7 @@
             },
             "containerhost": {
                 "Offering": "linux"
-            },
-            "containerservice": {},
-            "containertask": {}
+            }
         }
     },
     "NetworkEndpointGroups": {
@@ -581,9 +570,7 @@
                 "Capacity": 1,
                 "Size": "P1v2",
                 "Family": "Pv2"
-            },
-            "containerservice": {},
-            "containertask": {}
+            }
         }
     },
     "Segment": {
@@ -631,7 +618,7 @@
         "S3": {
             "IncludeTenant": false
         },
-        "RotateKey": true,
+        "RotateKeys": true,
         "Tiers": {
             "Order": [
                 "elb",
