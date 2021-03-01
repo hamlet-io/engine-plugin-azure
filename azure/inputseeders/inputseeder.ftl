@@ -1,0 +1,3 @@
+[#ftl]
+
+[#assign AZURE_INPUT_SEEDER = AZURE_PROVIDER ]
