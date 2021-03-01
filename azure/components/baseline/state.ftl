@@ -170,10 +170,10 @@
 
       [#local resources +=
         {
-          AZURE_CMK_RESOURCE_TYPE : {
-            "Id" : formatResourceId(AZURE_CMK_RESOURCE_TYPE, core.SubComponent.Id),
-            "Name" : formatName(AZURE_CMK_RESOURCE_TYPE, core.ShortName, "cmk"),
-            "Type" : AZURE_CMK_RESOURCE_TYPE
+          "cmk" : {
+            "Id" : formatResourceId(AZURE_KEYVAULT_KEY_RESOURCE_TYPE, core.SubComponent.Id),
+            "Name" : formatName(AZURE_KEYVAULT_KEY_RESOURCE_TYPE, core.ShortName, "cmk"),
+            "Type" : AZURE_KEYVAULT_KEY_RESOURCE_TYPE
           }
         }
       ]
