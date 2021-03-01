@@ -40,6 +40,22 @@
 /]
 
 [@addResourceProfile
+  service=AZURE_KEYVAULT_SERVICE
+  resource=AZURE_KEYVAULT_KEY_RESOURCE_TYPE
+  profile=
+    {
+      "apiVersion" : "2019-09-01",
+      "type" : "Microsoft.KeyVault/vaults/keys",
+      "conditions" : [],
+      "outputMappings" : {
+        REFERENCE_ATTRIBUTE_TYPE : {
+          "Property" : "id"
+        }
+      }
+    }
+/]
+
+[@addResourceProfile
     service=AZURE_KEYVAULT_SERVICE
     resource=AZURE_KEYVAULT_ACCESS_POLICY_RESOURCE_TYPE
     profile=
@@ -242,6 +258,41 @@ reference: https://tinyurl.com/y42ot42k --]
   [/#list]
   [#return secrets]
 [/#function]
+
+[#-- KeyVault Keys --]
+[#macro createKeyVaultKey
+  id
+  name
+  parentId
+  notBeforeDate=""
+  expiryDate=""
+  keyType=""
+  keySize=""
+  validOperations=[]
+  curveName=""
+  dependsOn=[] ]
+
+  [#local keyAttributes = {} + 
+    numberAttributeIfContent("nbf", notBeforeDate) +
+    numberAttributeIfContent("exp", expiryDate)]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_KEYVAULT_KEY_RESOURCE_TYPE
+    properties=
+      {} + 
+      attributeIfContent("kty", keyType) +
+      attributeIfContent("keyOps", asArray(validOperations)) +
+      numberAttributeIfContent("keySize", keySize) +
+      attributeIfContent("curveName", curveName) + 
+      attributeIfContent("attributes", keyAttributes)
+    parentId=parentId
+    dependsOn=dependsOn
+  /]
+
+[/#macro]
+
 
 [#-- Creates a Parameter file (parameter generation contract pass req.)        --]
 [#-- with a parameter formatted in such a way that it retrieves a keyvault     --]
