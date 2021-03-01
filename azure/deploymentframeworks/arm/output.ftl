@@ -13,13 +13,42 @@
 [#function getArmTemplateCoreOutputs
     region=formatAzureResourceGroupReference("location")
     account=formatAzureSubscriptionReference("id")
-    resourceGroup=formatAzureResourceGroupReference("name")
     deploymentUnit=getDeploymentUnit()
     deploymentMode=commandLineOptions.Deployment.Mode]
 
+    [#-- resource group --]
+    [#assign deploymentGroupDetails = getDeploymentGroupDetails(getDeploymentGroup())]
+
+    [#-- support for shorthand DeploymentGroups --]
+    [#switch getDeploymentLevel()]
+        [#case "segment"]
+            [#local shortLevel = "seg"]
+            [#break]
+        [#case "solution"]
+            [#local shortLevel = "soln"]
+            [#break]
+        [#case "application"]
+            [#local shortLevel = "app"]
+            [#break]
+        [#default]
+            [#local shortLevel = getDeploymentLevel()]
+            [#break]
+    [/#switch]
+
+    [#local deploymentResourceGroup = 
+        resourceGroup!
+        formatName(
+            productName,
+            environmentName,
+            segmentName,
+            shortLevel,
+            getDeploymentUnit()
+        )
+    ]
+
     [#return {
         "Subscription": { "type": "string", "value": account },
-        "ResourceGroup": { "type": "string", "value": resourceGroup },
+        "ResourceGroup": { "type": "string", "value": deploymentResourceGroup },
         "Region": { "type": "string", "value": region },
         "DeploymentUnit": {
             "type": "string",
@@ -137,7 +166,7 @@
 [#function pseudoArmStackOutputScript description outputs filesuffix=""]
     [#local outputString = ""]
 
-    [#list getArmTemplateCoreOutputs(region, accountObject.ProviderId!"", commandLineOptions.Deployment.ResourceGroup.Name) as key,value]
+    [#list getArmTemplateCoreOutputs(region, accountObject.ProviderId!"") as key,value]
         [#if value?is_hash]
             [#local outputs += { key, value.value }]
         [#else]
