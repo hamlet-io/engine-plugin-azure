@@ -66,8 +66,7 @@
     [#local accountName = resources["storageAccount"].Name]
     [#local blobId = resources["blobService"].Id]
     [#local blobName = resources["blobService"].Name]
-    [#local keyvaultId = resources["keyVault"].Id]
-    [#local keyvaultName = resources["keyVault"].Name]
+    [#local keyvault = resources["keyVault"]]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
     [#local registries = resources["registries"]]
 
@@ -113,14 +112,14 @@
         name=formatAzureResourceName(
             secret.Name,
             secret.Type,
-            keyvaultName)
+            keyvault.Name)
         properties=
             getKeyVaultSecretProperties(
                 formatAzureStorageListKeys(accountId, accountName)
             )
         dependsOn=[
             getReference(accountId, accountName),
-            getReference(keyvaultId, keyvaultName)
+            getReference(keyvault.Id, keyvault.Name)
         ]
     /]
 
@@ -196,44 +195,23 @@
         [#switch subSolution.Engine]
           [#case "cmk"]
 
-            [#local keyPairId = subResources[AZURE_CMK_RESOURCE_TYPE].Id]
-            [#local keyPairName = subResources[AZURE_CMK_RESOURCE_TYPE].Name]
-            [#local keyVaultName = keyvaultName]
-
-            [#if deploymentSubsetRequired("epilogue")]
+            [#local keyPair = subResources["cmk"]]
 
               [#-- Generate & Import CMK into keyvault --]
 
-              [@addToDefaultBashScriptOutput
-                content=[
-                  "function az_generate_cmk() {"
-                    "az keyvault key create --kty RSA --size 2048 --vault-name \"" + keyVaultName + "\" --name \"" + keyPairName + "\"",
-                    "#"
-                ] +
-                pseudoArmStackOutputScript(
-                  "CMK Key Pair",
-                  {
-                    keyPairId : keyPairName,
-                    formatId(keyVaultName, "Name") : keyVaultName
-                  },
-                  "cmk"
-                ) +
-                [
-                  " return 0"
-                  "}",
-                  "#",
-                  "case $\{DEPLOYMENT_OPERATION} in",
-                  "  delete)",
-                  "    az_delete_key_credentials \"" + keyVaultName + "\" \"" + keyPairName + "\"",
-                  "    ;;",
-                  "  create|update)",
-                  "    az_generate_cmk || return $?",
-                  "    ;;",
-                  "esac"
-                ]
+              [@createKeyVaultKey
+                id=keyPair.Id
+                name=formatAzureResourceName(
+                      keyPair.Name,
+                      AZURE_KEYVAULT_KEY_RESOURCE_TYPE, 
+                      keyvault.Name
+                    )
+                parentId=keyvault.Id
+                keyType="RSA"
+                keySize="2048"
+                dependsOn=[getReference(keyvault.Id, keyvault.Name)]
               /]
 
-            [/#if]
           [#break]
           [#case "ssh"]
 
@@ -241,9 +219,7 @@
             [#local localKeyPairPublicKey = subResources["localKeyPair"].PublicKey]
             [#local localKeyPairPrivateKey = subResources["localKeyPair"].PrivateKey]
 
-            [#local vmKeyPairId = subResources["vmKeyPair"].Id]
-            [#local vmKeyPairName = subResources["vmKeyPair"].Name]
-            [#local vmKeyVaultName = keyvaultName]
+            [#local vmKeyPair = subResources["vmKeyPair"]]
 
             [#if deploymentSubsetRequired("epilogue")]
 
@@ -262,30 +238,30 @@
                   "  #",
                   "  # Upload to keyvault if required.",
                   "  AZ_CHK_SECRET=$(az_check_secret" + " " +
-                      "\"" + vmKeyVaultName + "\" " +
-                      "\"" + vmKeyPairName + "PublicKey" + "\")",
-                  "  echo $\{AZ_CHK_SECRET}",
+                      "\"" + keyvault.Name + "\" " +
+                      "\"" + vmKeyPair.Name + "PublicKey" + "\")",
                   "  if [[ $\{AZ_CHK_SECRET} " +
                   "           =~ \"does not have secrets get permission on key vault\" ]]; then",
                   "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
                   "    return 1",
                   "  fi",
                   "  if [[ ! $\{AZ_CHK_SECRET} " +
-                  "         = *SecretNotFound* ]]; then",
+                  "         =~ *SecretNotFound* ]]; then",
                   "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
                   "     az_add_secret" + " " +
-                            "\"" + vmKeyVaultName + "\" " +
-                            "\"" + vmKeyPairName + "PublicKey" + "\" " +
+                            "\"" + keyvault.Name + "\" " +
+                            "\"" + vmKeyPair.Name + "PublicKey" + "\" " +
                             "\"$\{pem_file}\" || return $?",
                   "  fi",
-                  "  if [[ ! $(az_check_secret" + " " +
-                            "\"" + vmKeyVaultName + "\" " +
-                            "\"" + vmKeyPairName + "PrivateKey" + "\") " +
-                  "         = *SecretNotFound* ]]; then",
+                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
+                  "\"" + keyvault.Name + "\" " +
+                  "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
+                  "  if [[ $\{AZ_CHK_SECRET} " +
+                  "         =~ *SecretNotFound* ]]; then",
                   "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
                   "     az_add_secret" + " " +
-                            "\"" + vmKeyVaultName + "\" " +
-                            "\"" + vmKeyPairName + "PrivateKey" + "\" " +
+                            "\"" + keyvault.Name + "\" " +
+                            "\"" + vmKeyPair.Name + "PrivateKey" + "\" " +
                             "\"$\{pem_file}\" || return $?",
                   "  fi",
                   "  #"
@@ -293,9 +269,8 @@
                 pseudoArmStackOutputScript(
                   "SSH Key Pair",
                   {
-                    vmKeyPairId : vmKeyPairName,
-                    formatId(vmKeyVaultName, "Name") : vmKeyVaultName,
-                    formatId(vmKeyVaultName, "PrivateKey") : "TODO"
+                    vmKeyPair.Id : vmKeyPair.Name,
+                    formatId(keyvault.Name, "Name") : keyvault.Name
                   },
                   "keypair"
                 ) +
@@ -305,8 +280,18 @@
                   "#",
                   "case $\{DEPLOYMENT_OPERATION} in",
                   "  delete)",
-                  "    az_delete_secret \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "PublicKey" + "\"",
-                  "    az_delete_secret \"" + vmKeyVaultName + "\" \"" + vmKeyPairName + "PrivateKey" + "\"",
+                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
+                  "\"" + keyvault.Name + "\" " +
+                  "\"" + vmKeyPair.Name + "PublicKey" + "\")",
+                  "  if [[ $\{AZ_CHK_SECRET} =~ *SecretNotFound* ]]; then",
+                  "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PublicKey" + "\"",
+                  "  fi",
+                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
+                  "\"" + keyvault.Name + "\" " +
+                  "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
+                  "  if [[ $\{AZ_CHK_SECRET} =~ *SecretNotFound* ]]; then",
+                  "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PrivateKey" + "\"",
+                  "  fi",
                   "    ;;",
                   "  create|update)",
                   "    az_manage_ssh_credentials || return $?",
@@ -330,7 +315,7 @@
 
     [#if deploymentSubsetRequired("prologue", false)]
       [#list keyVaultAdmins as adminGrp ]
-        [#local adminId = formatId(keyvaultId,adminGrp)]
+        [#local adminId = formatId(keyvault.Id,adminGrp)]
         [@addToDefaultBashScriptOutput
           content=
           [
@@ -401,8 +386,8 @@
     [/#list]
 
     [@createKeyVault
-      id=keyvaultId
-      name=keyvaultName
+      id=keyvault.Id
+      name=keyvault.Name
       location=regionId
       properties=
         getKeyVaultProperties(

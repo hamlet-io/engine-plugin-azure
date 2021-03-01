@@ -46,7 +46,6 @@
     {
       "apiVersion" : "2019-09-01",
       "type" : "Microsoft.KeyVault/vaults/keys",
-      "conditions" : [],
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
