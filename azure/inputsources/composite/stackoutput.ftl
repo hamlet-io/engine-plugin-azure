@@ -30,6 +30,9 @@
             [#list propertyValue as outputId, outputValue]
 
               [#switch outputId]
+                [#case "resourceGroup"]
+                  [#local stackOutput += { "ResourceGroup" : outputValue["value"] }]
+                  [#break]
                 [#case "deploymentUnit"]
                   [#local stackOutput += { "DeploymentUnit" : outputValue["value"] }]
                   [#break]
