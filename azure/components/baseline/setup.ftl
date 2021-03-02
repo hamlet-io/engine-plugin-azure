@@ -241,28 +241,28 @@
                       "\"" + keyvault.Name + "\" " +
                       "\"" + vmKeyPair.Name + "PublicKey" + "\")",
                   "  if [[ $\{AZ_CHK_SECRET} " +
-                  "           =~ \"does not have secrets get permission on key vault\" ]]; then",
+                  "           = \"does not have secrets get permission on key vault\" ]]; then",
                   "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
                   "    return 1",
                   "  fi",
-                  "  if [[ ! $\{AZ_CHK_SECRET} " +
-                  "         =~ *SecretNotFound* ]]; then",
+                  "  if [[ $\{AZ_CHK_SECRET} " +
+                  "         = *NotFound* ]]; then",
                   "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
                   "     az_add_secret" + " " +
                             "\"" + keyvault.Name + "\" " +
                             "\"" + vmKeyPair.Name + "PublicKey" + "\" " +
-                            "\"$\{pem_file}\" || return $?",
+                            "\"$\{pem_file}\"",
                   "  fi",
                   "  AZ_CHK_SECRET=$(az_check_secret" + " " +
                   "\"" + keyvault.Name + "\" " +
                   "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
                   "  if [[ $\{AZ_CHK_SECRET} " +
-                  "         =~ *SecretNotFound* ]]; then",
+                  "         = *NotFound* ]]; then",
                   "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
                   "     az_add_secret" + " " +
                             "\"" + keyvault.Name + "\" " +
                             "\"" + vmKeyPair.Name + "PrivateKey" + "\" " +
-                            "\"$\{pem_file}\" || return $?",
+                            "\"$\{pem_file}\"",
                   "  fi",
                   "  #"
                 ] +
@@ -283,13 +283,13 @@
                   "  AZ_CHK_SECRET=$(az_check_secret" + " " +
                   "\"" + keyvault.Name + "\" " +
                   "\"" + vmKeyPair.Name + "PublicKey" + "\")",
-                  "  if [[ $\{AZ_CHK_SECRET} =~ *SecretNotFound* ]]; then",
+                  "  if [[ ! $($\{AZ_CHK_SECRET} = *NotFound* ) ]]; then",
                   "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PublicKey" + "\"",
                   "  fi",
                   "  AZ_CHK_SECRET=$(az_check_secret" + " " +
                   "\"" + keyvault.Name + "\" " +
                   "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
-                  "  if [[ $\{AZ_CHK_SECRET} =~ *SecretNotFound* ]]; then",
+                  "  if [[ ! $($\{AZ_CHK_SECRET} = *NotFound* ) ]]; then",
                   "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PrivateKey" + "\"",
                   "  fi",
                   "    ;;",
@@ -400,7 +400,7 @@
           true,
           true,
           "default",
-          true,
+          false,
           getNetworkAcls("Deny", keyVaultIpRules, [], "AzureServices")
         )
     /]
