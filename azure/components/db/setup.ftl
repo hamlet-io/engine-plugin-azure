@@ -61,7 +61,7 @@
                         "  if [[ $(az_check_secret" + " " +
                             "\"" + keyVaultName + "\" " +
                             "\"" + masterSecret + "\") " +
-                            "=~ *SecretNotFound* ]]; then",
+                            "= *SecretNotFound* ]]; then",
                         "   info \"Generating Master Password... \"",
                         "   master_password=\"\"",
                         "   while ! [[ \"$\{master_password}\" =~ [[:alpha:]] && \"$\{master_password}\" =~ [[:digit:]] ]]; do",
