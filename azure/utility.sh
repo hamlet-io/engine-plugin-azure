@@ -111,7 +111,7 @@ function az_sync_with_blob(){
   )
 
   # -- Only show errors unless debugging --
-  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+  if [[ ! willLog "${LOG_LEVEL_DEBUG}" ]]; then
     args=("${args[@]}" "only-show-errors" )
   fi
 
@@ -134,7 +134,7 @@ function az_delete_blob_dir(){
   )
 
   # -- Only show errors unless debugging --
-  if [[ -z "${GENERATION_LOG_LEVEL}" ]]; then
+  if [[ ! willLog "${LOG_LEVEL_DEBUG}"  ]]; then
     args=("${args[@]}" "only-show-errors" )
   fi
 
