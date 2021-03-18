@@ -6,7 +6,7 @@
 
   [#local segmentSeedId = formatSegmentSeedId() ]
   [#if !(getExistingReference(segmentSeedId)?has_content) ]
-    [#local segmentSeedValue = (commandLineOptions.Run.Id + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
+    [#local segmentSeedValue = (getRunId() + accountObject.Seed)[0..(solution.Seed.Length - 1)]]
   [#else]
     [#local segmentSeedValue = getExistingReference(segmentSeedId) ]
   [/#if]

@@ -7,6 +7,7 @@
         {
             "Account": {
                 "Region": AZURE_REGION_MOCK_VALUE,
+                "Provider" : AZURE_PROVIDER,
                 "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
             },
             "Product": {

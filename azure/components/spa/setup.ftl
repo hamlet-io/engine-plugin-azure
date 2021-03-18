@@ -117,7 +117,7 @@
 
   [#if deploymentSubsetRequired("config", false)]
     [@addToDefaultJsonOutput
-      content={ "RUN_ID" : commandLineOptions.Run.Id } + _context.Environment
+      content={ "RUN_ID" : getRunId() } + _context.Environment
     /]
   [/#if]
 

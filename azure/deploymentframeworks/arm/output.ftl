@@ -14,7 +14,7 @@
     region=formatAzureResourceGroupReference("location")
     account=formatAzureSubscriptionReference("id")
     deploymentUnit=getDeploymentUnit()
-    deploymentMode=commandLineOptions.Deployment.Mode]
+    deploymentMode=getCLODeploymentMode() ]
 
     [#-- resource group --]
     [#assign deploymentGroupDetails = getDeploymentGroupDetails(getDeploymentGroup())]
@@ -35,7 +35,7 @@
             [#break]
     [/#switch]
 
-    [#local deploymentResourceGroup = 
+    [#local deploymentResourceGroup =
         resourceGroup!
         formatName(
             productName,
@@ -312,13 +312,13 @@
     [#local resourceProfileScope = getAzureResourceProfile(resourceProfile).scope]
     [#local currentScope = {
         "Subscription" : accountObject.ProviderId!"",
-        "ResourceGroup" : commandLineOptions.Deployment.ResourceGroup.Name
+        "ResourceGroup" : getDeploymentResourceGroup()
     }]
 
     [#if isPartOfCurrentDeploymentUnit(id)]
         [#local relativeScope = {}]
     [#else]
-        [#local resourceId = getExistingReference(id)]    
+        [#local resourceId = getExistingReference(id)]
         [#if resourceId?has_content]
             [#local targetScope = getResourceScopeFromResourcePath(resourceId)]
 
@@ -461,7 +461,7 @@
         [#case "template"]
             [#local resourceContent += {} +
                 attributeIfContent("resourceGroup", resourceGroupId) +
-                attributeIfContent("subscriptionId", subscriptionId) + 
+                attributeIfContent("subscriptionId", subscriptionId) +
                 attributeIfContent("dependsOn", dependsOn)]
             [@addToJsonOutput
                 name="resources"
@@ -502,7 +502,7 @@
         [@processFlows
             level=level
             framework=AZURE_RESOURCE_MANAGER_DEPLOYMENT_FRAMEWORK
-            flows=commandLineOptions.Flow.Names
+            flows=getFlows()
         /]
     [/#if]
 
