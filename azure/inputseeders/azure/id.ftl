@@ -1,21 +1,21 @@
 [#ftl]
 
-[@addInputSeeder
+[@registerInputSeeder
     id=AZURE_INPUT_SEEDER
     description="Azure provider inputs"
 /]
 
-[@addSeederToInputStage
+[@addSeederToInputPipeline
     inputStage=MASTERDATA_SHARED_INPUT_STAGE
     inputSeeder=AZURE_INPUT_SEEDER
 /]
 
-[@addSeederToInputStage
-    inputStage=MOCK_SHARED_INPUT_STAGE
+[@addSeederToInputPipeline
+    inputStage=FIXTURE_SHARED_INPUT_STAGE
     inputSeeder=AZURE_INPUT_SEEDER
 /]
 
-[@addSeederToInputStage
+[@addSeederToInputPipeline
     inputSources=[MOCK_SHARED_INPUT_SOURCE]
     inputStage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
     inputSeeder=AZURE_INPUT_SEEDER
@@ -55,7 +55,7 @@
 
 [#function azure_inputseeder_masterdata filter state]
 
-    [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#local requiredRegions =
             getArrayIntersection(
                 getFilterAttribute(filter, "Region")
@@ -79,15 +79,39 @@
                 }
             )
         ]
-    [#else]
-        [#return state]
     [/#if]
+    [#return state]
 
 [/#function]
 
-[#function azure_inputseeder_mock filter state]
+[#-- Globals to ensure consistency across input type --]
+[#assign AZURE_REGION_MOCK_VALUE = "westus" ]
+[#assign AZURE_SUBSCRIPTION_MOCK_VALUE = "0123456789" ]
+[#assign AZURE_RESOURCEGROUP_MOCK_VALUE = "mockRG" ]
+[#assign AZURE_SERVICE_NAME_MOCK_VALUE = "Microsoft.Mock" ]
+[#assign AZURE_RESOURCE_TYPE_MOCK_VALUE = "mockResourceType" ]
+[#assign AZURE_RESOURCE_NAME_MOCK_VALUE = "mockName" ]
+[#assign AZURE_RESOURCE_ID_MOCK_VALUE =
+    formatPath(
+        true,
+        [
+            "subscriptions",
+            AZURE_SUBSCRIPTION_MOCK_VALUE,
+            "resourceGroups",
+            AZURE_RESOURCEGROUP_MOCK_VALUE,
+            "providers",
+            AZURE_SERVICE_NAME_MOCK_VALUE,
+            AZURE_RESOURCE_TYPE_MOCK_VALUE,
+            AZURE_RESOURCE_NAME_MOCK_VALUE
+        ]
+    )]
+[#assign AZURE_RESOURCE_URL_MOCK_VALUE = "https://mock.local/" ]
+[#assign AZURE_RESOURCE_IP_ADDRESS_MOCK_VALUE = "123.123.123.123" ]
+[#assign AZURE_BUILD_COMMIT_MOCK_VALUE = "123456789#MockCommit#" ]
 
-    [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
+[#function azure_inputseeder_fixture filter state]
+
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return
             mergeObjects(
                 state,
@@ -105,15 +129,14 @@
                 }
             )
         ]
-    [#else]
-        [#return state]
     [/#if]
+    [#return state]
 
 [/#function]
 
-[#function azure_inputseeder_commandlineoption_mock filter state]
+[#function azure_inputseeder_commandlineoptions_mock filter state]
 
-    [#if getFilterAttribute(filter, "Provider")?seq_contains(AZURE_PROVIDER)]
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return
             mergeObjects(
                 state,
@@ -136,4 +159,5 @@
             )
         ]
     [/#if]
+    [#return state]
 [/#function]

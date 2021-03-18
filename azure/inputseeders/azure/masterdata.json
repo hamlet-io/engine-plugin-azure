@@ -120,7 +120,7 @@
                     "DeploymentUnits": [
                         "ssh"
                     ],
-                    "MultiAZ": true,
+                    "multiAZ": true,
                     "bastion": {
                         "AutoScaling": {
                             "DetailedMetrics": false,
@@ -134,7 +134,7 @@
                     "DeploymentUnits": [
                         "vpc"
                     ],
-                    "MultiAZ": true,
+                    "multiAZ": true,
                     "network": {
                         "RouteTables": {
                             "default": {}
@@ -504,7 +504,7 @@
                 "Image": "18.04-LTS"
             },
             "containerhost": {
-                "Offering": "linux"
+              "Offering" : "linux"
             }
         }
     },
