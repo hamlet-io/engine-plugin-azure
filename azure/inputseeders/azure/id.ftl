@@ -6,19 +6,19 @@
 /]
 
 [@addSeederToInputPipeline
-    inputStage=MASTERDATA_SHARED_INPUT_STAGE
-    inputSeeder=AZURE_INPUT_SEEDER
+    stage=MASTERDATA_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
 /]
 
 [@addSeederToInputPipeline
-    inputStage=FIXTURE_SHARED_INPUT_STAGE
-    inputSeeder=AZURE_INPUT_SEEDER
+    stage=FIXTURE_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
 /]
 
 [@addSeederToInputPipeline
-    inputSources=[MOCK_SHARED_INPUT_SOURCE]
-    inputStage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
-    inputSeeder=AZURE_INPUT_SEEDER
+    sources=[MOCK_SHARED_INPUT_SOURCE]
+    stage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
 
 /]
 
