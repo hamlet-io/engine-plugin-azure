@@ -149,9 +149,6 @@
                         "Deployment" : {
                             "ResourceGroup" : {
                                 "Name" : AZURE_RESOURCEGROUP_MOCK_VALUE
-                            },
-                            "Unit" : {
-                                "Name" : getDeploymentUnit()
                             }
                         }
                     }
