@@ -5,17 +5,17 @@
     description="Azure provider inputs"
 /]
 
-[@addSeederToInputPipeline
+[@addSeederToConfigPipeline
     stage=MASTERDATA_SHARED_INPUT_STAGE
     seeder=AZURE_INPUT_SEEDER
 /]
 
-[@addSeederToInputPipeline
+[@addSeederToConfigPipeline
     stage=FIXTURE_SHARED_INPUT_STAGE
     seeder=AZURE_INPUT_SEEDER
 /]
 
-[@addSeederToInputPipeline
+[@addSeederToConfigPipeline
     sources=[MOCK_SHARED_INPUT_SOURCE]
     stage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
     seeder=AZURE_INPUT_SEEDER
@@ -53,7 +53,7 @@
     ]
 [/#macro]
 
-[#function azure_inputseeder_masterdata filter state]
+[#function azure_configseeder_masterdata filter state]
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#local requiredRegions =
@@ -109,7 +109,7 @@
 [#assign AZURE_RESOURCE_IP_ADDRESS_MOCK_VALUE = "123.123.123.123" ]
 [#assign AZURE_BUILD_COMMIT_MOCK_VALUE = "123456789#MockCommit#" ]
 
-[#function azure_inputseeder_fixture filter state]
+[#function azure_configseeder_fixture filter state]
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return
@@ -134,7 +134,7 @@
 
 [/#function]
 
-[#function azure_inputseeder_commandlineoptions_mock filter state]
+[#function azure_configseeder_commandlineoptions_mock filter state]
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return

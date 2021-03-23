@@ -117,7 +117,7 @@
 
   [#if deploymentSubsetRequired("config", false)]
     [@addToDefaultJsonOutput
-      content={ "RUN_ID" : getRunId() } + _context.Environment
+      content={ "RUN_ID" : getCLORunId() } + _context.Environment
     /]
   [/#if]
 

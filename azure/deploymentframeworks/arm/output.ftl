@@ -13,7 +13,7 @@
 [#function getArmTemplateCoreOutputs
     region=formatAzureResourceGroupReference("location")
     account=formatAzureSubscriptionReference("id")
-    deploymentUnit=getDeploymentUnit()
+    deploymentUnit=getCLODeploymentUnit()
     deploymentMode=getCLODeploymentMode() ]
 
     [#-- resource group --]
@@ -42,7 +42,7 @@
             environmentName,
             segmentName,
             shortLevel,
-            getDeploymentUnit()
+            getCLODeploymentUnit()
         )
     ]
 
@@ -312,7 +312,7 @@
     [#local resourceProfileScope = getAzureResourceProfile(resourceProfile).scope]
     [#local currentScope = {
         "Subscription" : accountObject.ProviderId!"",
-        "ResourceGroup" : getDeploymentResourceGroup()
+        "ResourceGroup" : getCLODeploymentResourceGroup()
     }]
 
     [#if isPartOfCurrentDeploymentUnit(id)]
@@ -502,7 +502,7 @@
         [@processFlows
             level=level
             framework=AZURE_RESOURCE_MANAGER_DEPLOYMENT_FRAMEWORK
-            flows=getFlows()
+            flows=getCLOFlows()
         /]
     [/#if]
 

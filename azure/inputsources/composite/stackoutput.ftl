@@ -16,7 +16,7 @@
   [#local stackOutputs = []]
 
   [#-- ARM Stack Output Processing --]
-  [#list getCompositeStackOutputs() as stackOutputFile]
+  [#list getCLOCompositeStackOutputs() as stackOutputFile]
 
     [#local level = ((stackOutputFile["FileName"])?split('-'))[0]]
 
