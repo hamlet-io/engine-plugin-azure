@@ -493,7 +493,9 @@
     [/#switch]
 [/#macro]
 
-[#macro arm_output_resource level="" include=""]
+[#function arm_output_resource level="" include=""]
+
+    [@setOutputFileProperties format="json" /]
 
     [#-- Resources --]
     [#if include?has_content]
@@ -506,8 +508,8 @@
         /]
     [/#if]
 
-    [#if getOutputContent("resources")?has_content || logMessages?has_content]
-        [@toJSON
+    [#if getOutputContent("resources")?has_content]
+        [#return
             {
                 '$schema': ARMSchemas.Template,
                 "contentVersion": "1.0.0.0",
@@ -517,11 +519,11 @@
                 "outputs":
                     getOutputContent("outputs") +
                     getArmTemplateCoreOutputs()
-            } +
-            attributeIfContent("HamletMessages", logMessages)
-        /]
+            }
+        ]
     [/#if]
-[/#macro]
+    [#return {}]
+[/#function]
 
 
 [#-- Initialise the possible outputs to make sure they are available to all steps --]
