@@ -145,7 +145,7 @@
     [#if ! isPartOfCurrentDeploymentUnit(id)]
         [#return getExistingReference(id, attributeType)]
     [/#if]
-    
+
     [#-- Reference Properties --]
     [#local resourceType = getResourceType(id)]
     [#if resourceType?has_content]
@@ -200,7 +200,7 @@
 [/#function]
 
 [#function getChildReference parentName children]
-    [#return 
+    [#return
         formatArmFunction(
             "concat",
             [
@@ -305,7 +305,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
                 [#local name = name?replace("[^a-zA-Z\\d-]", "", "r" ) ]
                 [#break]
             [#case "globally_unique"]
-                [#local segmentSeed = getStackOutput(AZURE_PROVIDER, formatSegmentResourceId("seed"))]
+                [#local segmentSeed = getStatePointValue(formatSegmentResourceId("seed"))]
                 [#local name = formatName(name, segmentSeed)]
                 [#break]
             [#case "max_length"]
@@ -361,7 +361,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
     [#if profileObj?has_content]
         [#return profileObj]
     [#else]
-        [@fatal 
+        [@fatal
             message="Resource Profile not found"
             context={
                 "ServiceType" : serviceType,
@@ -377,10 +377,10 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 
 [#-- Get stack output --]
 [#function getExistingReference resourceId attributeType="" inRegion="" inDeploymentUnit="" inAccount=""]
-    [#local attributeType = 
+    [#local attributeType =
         (attributeType == REFERENCE_ATTRIBUTE_TYPE)
             ?then("", attributeType )]
-    [#return getStackOutput(AZURE_PROVIDER, formatAttributeId(resourceId, attributeType), inDeploymentUnit, inRegion, inAccount) ]
+    [#return getStatePointValue( formatAttributeId(resourceId, attributeType), inDeploymentUnit, inAccount, inRegion) ]
 [/#function]
 
 
