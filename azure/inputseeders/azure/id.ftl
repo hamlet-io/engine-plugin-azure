@@ -5,6 +5,17 @@
     description="Azure provider inputs"
 /]
 
+[@registerInputTransformer
+    id=AZURE_INPUT_SEEDER
+    description="Azure provider inputs"
+/]
+
+[@addSeederToConfigPipeline
+    sources=[MOCK_SHARED_INPUT_SOURCE]
+    stage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
+/]
+
 [@addSeederToConfigPipeline
     stage=MASTERDATA_SHARED_INPUT_STAGE
     seeder=AZURE_INPUT_SEEDER
@@ -15,11 +26,14 @@
     seeder=AZURE_INPUT_SEEDER
 /]
 
-[@addSeederToConfigPipeline
-    sources=[MOCK_SHARED_INPUT_SOURCE]
-    stage=COMMANDLINEOPTIONS_SHARED_INPUT_STAGE
-    seeder=AZURE_INPUT_SEEDER
+[@addTransformerToConfigPipeline
+    stage=NORMALISE_SHARED_INPUT_STAGE
+    transformer=AZURE_INPUT_SEEDER
+/]
 
+[@addSeederToStatePipeline
+    stage=FIXTURE_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
 /]
 
 [#macro azure_inputloader path]
@@ -57,9 +71,10 @@
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#local requiredRegions =
-            getArrayIntersection(
-                getFilterAttribute(filter, "Region")
-                azure_cmdb_regions?keys
+            getMatchingFilterAttributeValues(
+                filter,
+                "Region",
+                aws_cmdb_regions?keys
             )
         ]
         [#if requiredRegions?has_content]
@@ -67,16 +82,16 @@
         [#else]
             [#local regions = azure_cmdb_regions]
         [/#if]
+        [#local masterdata =
         [#return
-            mergeObjects(
+            addToConfigPipelineClass(
                 state,
+                BLUEPRINT_CONFIG_INPUT_CLASS,
+                azure_cmdb_masterdata +
                 {
-                    "Masterdata" :
-                        azure_cmdb_masterdata +
-                        {
-                            "Regions" : regions
-                        }
-                }
+                    "Regions" : regions
+                },
+                MASTERDATA_SHARED_INPUT_STAGE
             )
         ]
     [/#if]
@@ -113,20 +128,19 @@
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return
-            mergeObjects(
+            addToConfigPipelineClass(
                 state,
+                BLUEPRINT_CONFIG_INPUT_CLASS,
                 {
-                    "Blueprint" :
-                    {
-                        "Account": {
-                            "Region": AZURE_REGION_MOCK_VALUE,
-                            "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
-                        },
-                        "Product": {
-                            "Region": AZURE_REGION_MOCK_VALUE
-                        }
+                    "Account": {
+                        "Region": AZURE_REGION_MOCK_VALUE,
+                        "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
+                    },
+                    "Product": {
+                        "Region": AZURE_REGION_MOCK_VALUE
                     }
-                }
+                },
+                FIXTURE_SHARED_INPUT_STAGE
             )
         ]
     [/#if]
@@ -138,18 +152,17 @@
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
         [#return
-            mergeObjects(
+            addToConfigPipelineClass(
                 state,
+                COMMAND_LINE_OPTIONS_CONFIG_INPUT_CLASS,
                 {
-                    "CommandLineOptions" : {
-                        "Regions" : {
-                            "Segment" : AZURE_REGION_MOCK_VALUE,
-                            "Account" : AZURE_REGION_MOCK_VALUE
-                        },
-                        "Deployment" : {
-                            "ResourceGroup" : {
-                                "Name" : AZURE_RESOURCEGROUP_MOCK_VALUE
-                            }
+                    "Regions" : {
+                        "Segment" : AZURE_REGION_MOCK_VALUE,
+                        "Account" : AZURE_REGION_MOCK_VALUE
+                    },
+                    "Deployment" : {
+                        "ResourceGroup" : {
+                            "Name" : AZURE_RESOURCEGROUP_MOCK_VALUE
                         }
                     }
                 }
@@ -157,4 +170,119 @@
         ]
     [/#if]
     [#return state]
+[/#function]
+
+[#-- Normalise arm stack files to state point sets --]
+[#function azure_configtransformer_normalise filter state]
+
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
+
+        [#-- Anything to process? --]
+        [#local stackFiles =
+            getConfigPipelineClassCacheForStage(
+                state,
+                STATE_CONFIG_INPUT_CLASS,
+                CMDB_SHARED_INPUT_STAGE
+            )![]
+        ]
+
+        [#-- Normalise each stack to a point set --]
+        [#local pointSets = [] ]
+
+        [#-- Looks like arm format? --]
+        [#-- TODO(mfl) Remove check for .Content[0] once dynamic CMDB loading operational --]
+        [#list stackFiles?filter(s -> ((s.ContentsAsJSON!s.Content[0]).properties)?has_content) as stackFile]
+            [#local pointSet = {} ]
+            [#local outputs = ((stackFile.ContentsAsJSON!stackFile.Content[0]).properties.outputs)!{} ]
+
+            [#list outputs as key, value]
+              [#switch key]
+                [#case "resourceGroup"]
+                  [#local pointSet += { "ResourceGroup" : value["value"] } ]
+                  [#break]
+                [#case "deploymentUnit"]
+                  [#local pointSet += { "DeploymentUnit" : value["value"] } ]
+                  [#break]
+                [#case "region"]
+                  [#local pointSet += { "Region" : value["value"] } ]
+                  [#break]
+                [#case "subscription"]
+                  [#-- convert Azure languague "subscription to Hamlet language "Account" --]
+                  [#local pointSet += { "Account" : value["value"] } ]
+                  [#break]
+                [#default]
+                  [#local pointSet += { key : value["value"] } ]
+                  [#break]
+              [/#switch]
+            [/#list]
+
+            [#if pointSet?has_content ]
+                [@debug
+                    message="Normalise stack file " + stackFile.FileName!""
+                    enabled=false
+                /]
+                [#local pointSets +=
+                    [
+                        validatePointSet(
+                            mergeObjects(
+                                { "Level" : (stackFile.FileName!"")?split('-')[0]},
+                                pointSet
+                            )
+                            )
+                    ]
+                ]
+            [/#if]
+        [/#list]
+
+        [#if stackFiles?has_content]
+            [#return
+                removeConfigPipelineClassCacheForStage(
+                    combineEntities(
+                        state,
+                        {
+                            STATE_CONFIG_INPUT_CLASS : pointSets
+                        },
+                        APPEND_COMBINE_BEHAVIOUR
+                    ),
+                    STATE_CONFIG_INPUT_CLASS,
+                    CMDB_SHARED_INPUT_STAGE
+                )
+            ]
+        [/#if]
+    [/#if]
+    [#return state]
+[/#function]
+
+[#function azure_stateseeder_fixture filter state]
+
+    [#local id = state.Id]
+
+    [#switch id?split("X")?last ]
+        [#case NAME_ATTRIBUTE_TYPE]
+            [#local value = AZURE_RESOURCE_NAME_MOCK_VALUE]
+            [#break]
+        [#case URL_ATTRIBUTE_TYPE ]
+            [#local value = AZURE_RESOURCE_URL_MOCK_VALUE + id ]
+            [#break]
+        [#case IP_ADDRESS_ATTRIBUTE_TYPE ]
+            [#local value = AZURE_RESOURCE_IP_ADDRESS_MOCK_VALUE ]
+            [#break]
+        [#case REGION_ATTRIBUTE_TYPE ]
+            [#local value = AZURE_REGION_MOCK_VALUE ]
+            [#break]
+        [#default]
+            [#--The default value will be an azure resource Id --]
+            [#local value = AZURE_RESOURCE_ID_MOCK_VALUE]
+            [#break]
+    [/#switch]
+
+    [#return
+        mergeObjects(
+            state,
+            {
+                "Value" : value
+            }
+        )
+    ]
+
 [/#function]
