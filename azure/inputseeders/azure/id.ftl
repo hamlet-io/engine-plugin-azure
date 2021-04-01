@@ -36,6 +36,11 @@
     seeder=AZURE_INPUT_SEEDER
 /]
 
+[@addSeederToStatePipeline
+    stage=SIMULATE_SHARED_INPUT_STAGE
+    seeder=AZURE_INPUT_SEEDER
+/]
+
 [#macro azure_inputloader path]
     [#assign azure_cmdb_regions =
         (
@@ -67,38 +72,6 @@
     ]
 [/#macro]
 
-[#function azure_configseeder_masterdata filter state]
-
-    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
-        [#local requiredRegions =
-            getMatchingFilterAttributeValues(
-                filter,
-                "Region",
-                aws_cmdb_regions?keys
-            )
-        ]
-        [#if requiredRegions?has_content]
-            [#local regions = getObjectAttributes(azure_cmdb_regions, requiredRegions) ]
-        [#else]
-            [#local regions = azure_cmdb_regions]
-        [/#if]
-        [#local masterdata =
-        [#return
-            addToConfigPipelineClass(
-                state,
-                BLUEPRINT_CONFIG_INPUT_CLASS,
-                azure_cmdb_masterdata +
-                {
-                    "Regions" : regions
-                },
-                MASTERDATA_SHARED_INPUT_STAGE
-            )
-        ]
-    [/#if]
-    [#return state]
-
-[/#function]
-
 [#-- Globals to ensure consistency across input type --]
 [#assign AZURE_REGION_MOCK_VALUE = "westus" ]
 [#assign AZURE_SUBSCRIPTION_MOCK_VALUE = "0123456789" ]
@@ -124,30 +97,6 @@
 [#assign AZURE_RESOURCE_IP_ADDRESS_MOCK_VALUE = "123.123.123.123" ]
 [#assign AZURE_BUILD_COMMIT_MOCK_VALUE = "123456789#MockCommit#" ]
 
-[#function azure_configseeder_fixture filter state]
-
-    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
-        [#return
-            addToConfigPipelineClass(
-                state,
-                BLUEPRINT_CONFIG_INPUT_CLASS,
-                {
-                    "Account": {
-                        "Region": AZURE_REGION_MOCK_VALUE,
-                        "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
-                    },
-                    "Product": {
-                        "Region": AZURE_REGION_MOCK_VALUE
-                    }
-                },
-                FIXTURE_SHARED_INPUT_STAGE
-            )
-        ]
-    [/#if]
-    [#return state]
-
-[/#function]
-
 [#function azure_configseeder_commandlineoptions_mock filter state]
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
@@ -172,6 +121,216 @@
     [#return state]
 [/#function]
 
+[#function azure_configseeder_masterdata filter state]
+
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
+        [#local requiredRegions =
+            getMatchingFilterAttributeValues(
+                filter,
+                "Region",
+                azure_cmdb_regions?keys
+            )
+        ]
+        [#if requiredRegions?has_content]
+            [#local regions = getObjectAttributes(azure_cmdb_regions, requiredRegions) ]
+        [#else]
+            [#local regions = azure_cmdb_regions]
+        [/#if]
+        [#return
+            addToConfigPipelineClass(
+                state,
+                BLUEPRINT_CONFIG_INPUT_CLASS,
+                azure_cmdb_masterdata +
+                {
+                    "Regions" : regions
+                },
+                MASTERDATA_SHARED_INPUT_STAGE
+            )
+        ]
+    [/#if]
+    [#return state]
+
+[/#function]
+
+[#function azure_configseeder_fixture filter state]
+
+    [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
+        [#local result =
+            addToConfigPipelineClass(
+                state,
+                BLUEPRINT_CONFIG_INPUT_CLASS,
+                {
+                    "Account": {
+                        "Region": AZURE_REGION_MOCK_VALUE,
+                        "Provider" : AZURE_PROVIDER,
+                        "ProviderId": AZURE_SUBSCRIPTION_MOCK_VALUE
+                    },
+                    "Product": {
+                        "Region": AZURE_REGION_MOCK_VALUE
+                    }
+                },
+                FIXTURE_SHARED_INPUT_STAGE
+            )
+        ]
+        [#local result =
+            addToConfigPipelineClass(
+                result,
+                DEFINITIONS_CONFIG_INPUT_CLASS,
+                {
+                    "apiXapigateway" : {
+                        "openapi" : "3.0.1",
+                        "info" : {
+                            "title" : "Hamlet Mock API",
+                            "description" : "API for testing hamlet",
+                            "version" : "1.0"
+                        },
+                        "servers" : [ {
+                            "url" : "https://mock.com"
+                        } ],
+                        "security" : [ {
+                            "apiKeyHeader" : [ ]
+                        }, {
+                            "apiKeyQuery" : [ ]
+                        } ],
+                        "paths" : {
+                            "/mockpath" : {
+                            "post" : {
+                                "summary" : "Mock POST method",
+                                "description" : "mock description",
+                                "operationId" : "mock-example",
+                                "requestBody" : {
+                                    "content" : {
+                                        "application/json" : {
+                                            "schema" : {
+                                                "$ref" : "#/mock/example/ref"
+                                            }
+                                        }
+                                    }
+                                },
+                                "responses" : {
+                                    "200" : {
+                                        "description" : "OK",
+                                        "content" : {
+                                            "application/json" : {
+                                                "schema" : {
+                                                    "$ref" : "#/mock/example/ref"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "401" : {
+                                        "description" : "Auth Failed",
+                                        "content" : {
+                                            "application/json" : {
+                                                "schema" : {
+                                                    "$ref" : "#/mock/example/ref"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "500" : {
+                                        "description" : "Submission failed",
+                                        "content" : {
+                                            "application/json" : {
+                                                "schema" : {
+                                                    "$ref" : "#/mock/example/ref"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "options" : {
+                                "tags" : [ "CORS" ],
+                                "summary" : "CORS support",
+                                "description" : "Enable CORS by returning correct headers\n",
+                                "responses" : {
+                                "200" : {
+                                    "description" : "Default response for CORS method",
+                                    "headers" : {
+                                        "Access-Control-Allow-Origin" : {
+                                            "style" : "simple",
+                                            "explode" : false,
+                                            "schema" : {
+                                                "type" : "string"
+                                            }
+                                        },
+                                        "Access-Control-Allow-Methods" : {
+                                            "style" : "simple",
+                                            "explode" : false,
+                                            "schema" : {
+                                                "type" : "string"
+                                            }
+                                        },
+                                        "Access-Control-Allow-Headers" : {
+                                            "style" : "simple",
+                                            "explode" : false,
+                                            "schema" : {
+                                                "type" : "string"
+                                            }
+                                        }
+                                    },
+                                    "content" : { }
+                                }
+                                }
+                            }
+                            }
+                        },
+                        "components" : {
+                            "schemas" : {
+                                "PostRequest" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                        "id" : {
+                                            "type" : "string",
+                                            "description" : "mock desc"
+                                        }
+                                    }
+                                },
+                                "Post200ApplicationJsonResponse" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                        "message" : {
+                                            "type" : "string",
+                                            "description" : "Success message",
+                                            "example" : "Unauthorized Error"
+                                        }
+                                    }
+                                },
+                                "Post401ApplicationJsonResponse" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                        "message" : {
+                                            "type" : "string",
+                                            "description" : "Auth Failed",
+                                            "example" : "OK"
+                                        }
+                                    }
+                                },
+                                "Post500ApplicationJsonResponse" : {
+                                    "type" : "object",
+                                    "properties" : {
+                                        "message" : {
+                                            "type" : "string",
+                                            "description" : "Submission Failed",
+                                            "example" : "Error"
+                                        }
+                                    }
+                                }
+                            },
+                            "securitySchemes" : {}
+                        }
+                    }
+                },
+                FIXTURE_SHARED_INPUT_STAGE
+            )
+        ]
+        [#return result ]
+    [/#if]
+    [#return state]
+
+[/#function]
+
 [#-- Normalise arm stack files to state point sets --]
 [#function azure_configtransformer_normalise filter state]
 
@@ -179,11 +338,15 @@
 
         [#-- Anything to process? --]
         [#local stackFiles =
-            getConfigPipelineClassCacheForStage(
+            (getConfigPipelineClassCacheForStages(
                 state,
                 STATE_CONFIG_INPUT_CLASS,
-                CMDB_SHARED_INPUT_STAGE
-            )![]
+                [
+                    FIXTURE_SHARED_INPUT_STAGE,
+                    MODULE_SHARED_INPUT_STAGE,
+                    CMDB_SHARED_INPUT_STAGE
+                ]
+            )[STATE_CONFIG_INPUT_CLASS])![]
         ]
 
         [#-- Normalise each stack to a point set --]
@@ -285,4 +448,11 @@
         )
     ]
 
+[/#function]
+
+[#function azure_stateseeder_simulate filter state]
+    [#if ! state.Value?has_content]
+        [#return azure_stateseeder_fixture(filter, state) ]
+    [/#if]
+    [#return state]
 [/#function]
