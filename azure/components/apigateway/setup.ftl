@@ -14,6 +14,8 @@
     [#local buildSettings = occurrence.Configuration.Settings.Build]
     [#local buildRegistry = buildSettings["BUILD_FORMATS"].Value[0]]
 
+    [#local definitionsObject = getDefinitions() ]
+
     [#-- resources --]
     [#local service           = resources["service"]]
     [#local identityproviders = resources["identityproviders"]]
