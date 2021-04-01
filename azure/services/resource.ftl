@@ -59,6 +59,12 @@
         profile=profile
     /]
 
+    [@addServiceResource
+        provider=AZURE_PROVIDER
+        service=service
+        resource=resource
+    /]
+
     [#-- Update outputMappings from profile
         Though outputMappings are now accessible from the profile, its important to use
         "outputMapping" variable to support cross-provider implementation.          --]
