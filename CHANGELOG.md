@@ -1,4 +1,35 @@
-# [0.0.0](https://github.com/hamlet-io/engine-plugin-aws/compare/v8.0.0...v0.0.0) (2021-01-11)
+# [0.0.0](https://github.com/hamlet-io/engine-plugin-aws/compare/v8.0.1...v0.0.0) (2021-03-30)
+
+
+### Bug Fixes
+
+* remove redundant clo seeding ([ee51874](https://github.com/hamlet-io/engine-plugin-aws/commit/ee518748ebc80696012656c08c518fd1048460ed))
+* simplified parameters ([9cdb6e3](https://github.com/hamlet-io/engine-plugin-aws/commit/9cdb6e3a39fba8a0da2d216d3d7b1f1484f7084e))
+
+
+
+## [8.0.1](https://github.com/hamlet-io/engine-plugin-aws/compare/v8.0.0...v8.0.1) (2021-03-14)
+
+
+### Bug Fixes
+
+* **cicd:** jenkins pipeline structure ([#225](https://github.com/hamlet-io/engine-plugin-aws/issues/225)) ([34f512c](https://github.com/hamlet-io/engine-plugin-aws/commit/34f512c864507d4d7076073688becee33e35ebb0))
+* Azure ResourceGroup Outputs ([#229](https://github.com/hamlet-io/engine-plugin-aws/issues/229)) ([7205ac3](https://github.com/hamlet-io/engine-plugin-aws/commit/7205ac34597ba3909bb46825774161b7c076b642))
+* changelog generation ([8589f7d](https://github.com/hamlet-io/engine-plugin-aws/commit/8589f7d195ee3cc445fd7fe4310af32e4e7e948d))
+* debug log output on util commands ([#234](https://github.com/hamlet-io/engine-plugin-aws/issues/234)) ([ed05ef0](https://github.com/hamlet-io/engine-plugin-aws/commit/ed05ef053c0dabc3104308452d07939921c2b576))
+* invalid masterdata data ([#228](https://github.com/hamlet-io/engine-plugin-aws/issues/228)) ([6c48f80](https://github.com/hamlet-io/engine-plugin-aws/commit/6c48f80e5dc62d7a41db7c9f5a449b314caaa155))
+* Invalid Module and Masterdata structures ([#223](https://github.com/hamlet-io/engine-plugin-aws/issues/223)) ([cc1eba1](https://github.com/hamlet-io/engine-plugin-aws/commit/cc1eba1a24e507dc7e875bf6a5c7137c97887096))
+* move mock input types into azure provider ([2078622](https://github.com/hamlet-io/engine-plugin-aws/commit/20786228652125f7191ed292401300173f092f2a))
+* test args for hamlet cmd ([#235](https://github.com/hamlet-io/engine-plugin-aws/issues/235)) ([5a00129](https://github.com/hamlet-io/engine-plugin-aws/commit/5a001297fe6a30906cb10601edbc9bdf1f2ceea6))
+
+
+### Features
+
+* **ci:** Align azure testing with plugins and include junit ([#221](https://github.com/hamlet-io/engine-plugin-aws/issues/221)) ([272709a](https://github.com/hamlet-io/engine-plugin-aws/commit/272709a30391d2727168415c22cdba0f15e3ba1a))
+* **db:** mysql as a engine type  ([5b90ac9](https://github.com/hamlet-io/engine-plugin-aws/commit/5b90ac92336cf733c82f22b89da249c9bb6174cb))
+* add readme to repository ([11ab8e1](https://github.com/hamlet-io/engine-plugin-aws/commit/11ab8e1a1bb24465646833a97a7068a040d1fd8a))
+* input seeders ([#224](https://github.com/hamlet-io/engine-plugin-aws/issues/224)) ([52b54d1](https://github.com/hamlet-io/engine-plugin-aws/commit/52b54d1290d36b1aeb7330d017c325e7b6f3c1cd))
+* new ARM resource - KeyVault Keys ([e954e24](https://github.com/hamlet-io/engine-plugin-aws/commit/e954e24fd638e0c1fc45e5c575ebfefb9a9939ed))
 
 
 
