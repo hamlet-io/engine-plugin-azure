@@ -1,7 +1,7 @@
 [#ftl]
 
 [#macro azure_spa_arm_deployment_generationcontract occurrence]
-  [@addDefaultGenerationContract subsets=["prologue", "config", "epilogue"] /]
+  [@addDefaultGenerationContract subsets=["prologue", "config"] /]
 [/#macro]
 
 [#macro azure_spa_arm_deployment occurrence]
