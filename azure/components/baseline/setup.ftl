@@ -300,6 +300,30 @@
                 ]
               /]
 
+              [#-- Set static website hosting if an SPA is configured --]
+              [#local enableSiteHosting = false]
+              [#list blueprintObject.Tiers?values as tier ]
+                [#if (tier.Components!{})?has_content]
+                  [#list tier.Components as id,component]
+                    [#if component?keys?seq_contains(SPA_COMPONENT_TYPE)]
+                      [#-- found configured SPA, enable website hosting --]
+                      [#local enableSiteHosting = true]
+                    [/#if]
+                  [/#list]
+                [/#if]
+              [/#list]
+              
+              [#if enableSiteHosting ]
+                [@addToDefaultBashScriptOutput
+                  content=[
+                    r"if [[ ! ${DEPLOYMENT_OPERATION} == delete ]]; then",
+                    "    CONNECTION_STRING=$(az_get_storage_connection_string \"${accountName}\")",
+                    "   az storage blob service-properties update --connection-string \"" + r"${CONNECTION_STRING}" + "\" --static-website true"
+                    "fi"
+                  ]
+                /]
+              [/#if]
+
             [/#if]
           [#break]
         [/#switch]
