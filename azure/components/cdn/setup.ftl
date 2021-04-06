@@ -183,6 +183,43 @@
                     profile=routingRuleResource.Type
                 /]
 
+                [#if deploymentSubsetRequired("epilogue", false)]
+                    [#-- Pages --]
+                    [#if solution.Pages?has_content]
+
+                        [#local setPages = []]
+
+                        [#list solution.Pages as page,path]
+                            [#switch page]
+                                [#case "Root" ]
+                                    [#local setPages += [ "--index-document ${path}" ] ]
+                                [#case "NotFound" ]
+                                    [#local setPages += [ "--404-document ${path}" ] ]
+                                    [#break]
+                                [#default]
+                                    [#break]
+                            [/#switch]
+                        [/#list]
+
+                        [#if setPages?has_content]
+                            [#local strSetPages = 
+                                [
+                                    "az storage blob service-properties update --connection-string",
+                                    r"${CONNECTION_STRING}"
+                                ] + setPages
+                            ]
+
+                            [@addToDefaultBashScriptOutput
+                                content=[
+                                    r"if [[ ! ${DEPLOYMENT_OPERATION} == delete ]]; then",
+                                    "    CONNECTION_STRING=$(az_get_storage_connection_string \"${storageAccount}\")",
+                                    strSetPages?join(' '),
+                                    "fi"
+                                ]
+                            /]
+                        [/#if]
+                    [/#if]
+                [/#if]
                 [#break]
         [/#switch]
 
