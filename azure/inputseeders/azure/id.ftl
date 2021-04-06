@@ -399,7 +399,7 @@
 
         [#if stackFiles?has_content]
             [#return
-                removeConfigPipelineClassCacheForStage(
+                getConfigPipelineClassCacheForStages(
                     combineEntities(
                         state,
                         {
