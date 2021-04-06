@@ -121,30 +121,4 @@
     /]
   [/#if]
 
-  [#-- invalidate the old cached content on the CDN with an epilogue script --]
-  [#--
-  [#if solution.InvalidateOnUpdate && distributions?has_content]
-    [#local invalidationScript = []]
-    [#list distributions as distribution]
-
-      TODO(rossmurr4y):
-      once the CDN component exists, revisit this and ensure the cached data is invalidated.
-
-    [/#list]
-
-    [#if deploymentSubsetRequired("epilogue", false)]
-      [@addToDefaultBashScriptOutput
-        [
-          "case $\{DEPLOYMENT_OPERATION} in",
-          "  create|update)"
-        ] +
-        invalidationScript +
-        [
-          " ;;",
-          " esac"
-        ]
-      /]
-    [/#if]
-  [/#if]
-  --]
 [/#macro]
