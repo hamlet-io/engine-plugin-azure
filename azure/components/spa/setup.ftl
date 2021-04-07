@@ -1,7 +1,7 @@
 [#ftl]
 
 [#macro azure_spa_arm_deployment_generationcontract occurrence]
-  [@addDefaultGenerationContract subsets=["prologue", "config", "epilogue"] /]
+  [@addDefaultGenerationContract subsets=["prologue", "config", "template", "epilogue"] /]
 [/#macro]
 
 [#macro azure_spa_arm_deployment occurrence]
@@ -13,14 +13,20 @@
   [#local settings = occurrence.Configuration.Settings ]
   [#local attributes = occurrence.State.Attributes]
   [#local resources = occurrence.State.Resources]
+  [#local profiles = solution.Profiles!{} ]
 
+  [#-- resources --]
+  [#local storageAccount = resources["storageAccount"] ]
+  [#local blob           = resources["blobService"] ]
+  [#local container      = resources["container"] ]
+
+  [#local storageProfile = getStorage(occurrence, "storageAccount")]
   [#local forwardingPath = attributes["FORWARDING_PATH"]?remove_beginning("/")]
+  [#local corsBehaviours = solution["azure:CORSBehaviours"]![] ]
+  [#local policyProfile = getPolicyProfile(profiles.Policy, getCLODeploymentMode()) ]
 
+  [#-- links --]
   [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
-  [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
-  [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
-  [#local operationsBlobContainer = baselineLinks["OpsData"].State.Resources["container"].Name]
-  [#--[#local operationsBlobContainer = getReference(baselineComponentIds["OpsData"])] --]
   [#local contextLinks = getLinkTargets(occurrence)]
 
   [#local distributions = []]
@@ -65,16 +71,6 @@
 
   [/#list]
 
-  [#if ! distributions?has_content]
-
-    [#-- TODO(rossmurr4y): add after CDN component is done.
-    [@fatal
-      message="An SPA must have at least 1 CDN Route component link - Add an inbound CDN Route link to the SPA"
-      context=solution
-      enabled=true
-    /]--]
-  [/#if]
-
   [#if deploymentSubsetRequired("prologue", false)]
     [#--
       Prologue Script Order of Operations:
@@ -92,28 +88,42 @@
           occurrence,
           "spa.zip"
         ) +
-        syncFilesToBlobContainerScript(
-          "spaFiles",
-          storageAccount,
-          r'\$web',
-          forwardingPath
-        ) +
         getLocalFileScript(
           "configFiles",
           "$\{CONFIG}",
           "config.json"
-        ) +
-        syncFilesToBlobContainerScript(
-          "configFiles",
-          storageAccount,
-          r'\$web',
-          formatRelativePath(
-            getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
-            solution.ConfigPath
-          )
         )
     /]
   [/#if]
+
+  [#-- template resources --]
+  [@createStorageAccount
+    id=storageAccount.Id
+    name=storageAccount.Name
+    kind=storageProfile.Type
+    sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
+    location=regionId
+    networkAcls=getNetworkAcls("Allow", [], [], "AzureServices")
+    accessTier=(storageProfile.AccessTier)!{}
+    isHnsEnabled=(storageProfile.HnsEnabled)!false
+  /]
+
+  [@createBlobService
+    id=blob.Id
+    name=blob.Name
+    CORSBehaviours=corsBehaviours
+    dependsOn=[storageAccount.Reference]
+  /]
+
+  [@createBlobServiceContainer
+    id=container.Id
+    name=container.Name
+    publicAccess="Container"
+    dependsOn=[
+      storageAccount.Reference,
+      blob.Reference
+    ]
+  /]
 
   [#if deploymentSubsetRequired("config", false)]
     [@addToDefaultJsonOutput
@@ -121,4 +131,31 @@
     /]
   [/#if]
 
+  [#-- Static Website Hosting can only be enabled in the CLI --]
+  [#-- It is applied to an entire Blob Service.              --]
+  [#if deploymentSubsetRequired("epilogue", false)]
+    [@addToDefaultBashScriptOutput
+      content=[
+        r"if [[ ! ${DEPLOYMENT_OPERATION} == delete ]]; then",
+        "    CONNECTION_STRING=$(az_get_storage_connection_string \"${storageAccount.Name}\")",
+        "   az storage blob service-properties update --connection-string \"" + r"${CONNECTION_STRING}" + "\" --static-website true"
+        "fi"
+      ] + 
+      syncFilesToBlobContainerScript(
+        "spaFiles",
+        storageAccount.Name,
+        r'\$web',
+        forwardingPath
+      ) +
+      syncFilesToBlobContainerScript(
+        "configFiles",
+        storageAccount.Name,
+        r'\$web',
+        formatRelativePath(
+          getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
+          solution.ConfigPath
+        )
+      )
+    /]
+  [/#if]
 [/#macro]
