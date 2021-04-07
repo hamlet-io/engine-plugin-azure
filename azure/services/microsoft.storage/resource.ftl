@@ -193,22 +193,24 @@
     dependsOn=[]]
 
     [#assign CORSRules = []]
-    [#list CORSBehaviours as behaviour]
-        [#assign CORSBehaviour = CORSProfiles[behaviour]]
-        [#if CORSBehaviour?has_content]
-            [#assign CORSRules += [
-                {
-                    "allowedHeaders": CORSBehaviour.AllowedHeaders,
-                    "allowedMethods": CORSBehaviour.AllowedMethods,
-                    "allowedOrigins": CORSBehaviour.AllowedOrigins,
-                    "exposedHeaders": CORSBehaviour.ExposedHeaders,
-                    "maxAgeInSeconds": (CORSBehaviour.MaxAge)?c
-                }
-            ]
+    [#if CORSBehaviours?has_content]
+        [#list asArray(CORSBehaviours) as behaviour]
+            [#assign CORSBehaviour = CORSProfiles[behaviour]]
+            [#if CORSBehaviour?has_content]
+                [#assign CORSRules += [
+                    {
+                        "allowedHeaders": CORSBehaviour.AllowedHeaders,
+                        "allowedMethods": CORSBehaviour.AllowedMethods,
+                        "allowedOrigins": CORSBehaviour.AllowedOrigins,
+                        "exposedHeaders": CORSBehaviour.ExposedHeaders,
+                        "maxAgeInSeconds": (CORSBehaviour.MaxAge)?c
+                    }
+                ]
 
-            ]
-        [/#if]
-    [/#list]
+                ]
+            [/#if]
+        [/#list]
+    [/#if]
 
     [@armResource
         id=id

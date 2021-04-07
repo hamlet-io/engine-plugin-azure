@@ -5,11 +5,6 @@
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
-  [#-- Baseline component lookup --]
-  [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false )]
-  [#local baselineResources = baselineLinks["OpsData"].State.Resources]
-  [#local operationsBlobContainer = baselineResources["container"]]
-
   [#local configFilePath =
     formatRelativePath(
       getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"),
@@ -20,16 +15,24 @@
   [#local storageAccountId = formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id)]
   [#local storageAccountName =
     formatAzureResourceName(
-      formatName(core.ShortName, segmentSeedValue),
+      formatName(core.ShortName, getExistingReference(formatSegmentSeedId())),
       AZURE_STORAGEACCOUNT_RESOURCE_TYPE
     )
   ]
+  [#local blobId = formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id)]
   [#local blobName = formatAzureResourceName(
-      r"$web",
+      "default",
       AZURE_BLOBSERVICE_RESOURCE_TYPE,
       storageAccountName
     )
   ]
+
+  [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
+  [#local containerName = formatAzureResourceName(
+    r"$web",
+    AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE,
+    blobName
+  )]
 
   [#assign componentState =
     {
@@ -42,12 +45,20 @@
         "storageAccount" : {
             "Id" : storageAccountId,
             "Name" : storageAccountName,
-            "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE
+            "Type" : AZURE_STORAGEACCOUNT_RESOURCE_TYPE,
+            "Reference" : getReference(storageAccountId, storageAccountName)
         },
         "blobService" : {
-            "Id" : formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id),
+            "Id" : blobId,
             "Name" : blobName,
-            "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
+            "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE,
+            "Reference" : getReference(blobId, blobName)
+        },
+        "container" : {
+          "Id" : containerId,
+          "Name" : containerName,
+          "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE,
+          "Reference" : getReference(containerId, containerName)
         }
       },
       "Attributes": {
@@ -55,7 +66,6 @@
             getOccurrenceSettingValue(occurrence, "SETTINGS_PREFIX"), 
             "spa")?ensure_starts_with('/'),
         "CONFIG_PATH_PATTERN": solution.ConfigPathPattern,
-        "CONFIG_STORAGE_CONTAINER": operationsBlobContainer,
         "CONFIG_FILE": formatRelativePath(configFilePath, configFileName),
         "BACKEND_PORT" : solution.Port.HTTPS
       },
