@@ -399,16 +399,10 @@
 
         [#if stackFiles?has_content]
             [#return
-                getConfigPipelineClassCacheForStages(
-                    combineEntities(
-                        state,
-                        {
-                            STATE_CONFIG_INPUT_CLASS : pointSets
-                        },
-                        APPEND_COMBINE_BEHAVIOUR
-                    ),
+                addToConfigPipelineClass(
+                    state,
                     STATE_CONFIG_INPUT_CLASS,
-                    CMDB_SHARED_INPUT_STAGE
+                    pointSets
                 )
             ]
         [/#if]
