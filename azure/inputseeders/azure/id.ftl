@@ -405,8 +405,8 @@
                     state,
                     STATE_CONFIG_INPUT_CLASS,
                     pointSets,
-                    ""
-                    APPEND_COMBINE_BEHAVIOuR
+                    "",
+                    APPEND_COMBINE_BEHAVIOUR
                 )
             ]
         [/#if]
