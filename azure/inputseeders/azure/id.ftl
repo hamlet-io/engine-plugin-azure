@@ -332,6 +332,7 @@
 [/#function]
 
 [#-- Normalise arm stack files to state point sets --]
+[#-- Note that pseudo stacks use the aws format and are handled via the shared provider --]
 [#function azure_configtransformer_normalise filter state]
 
     [#if filterAttributeContainsValue(filter, "Provider", AZURE_PROVIDER) ]
@@ -397,12 +398,15 @@
             [/#if]
         [/#list]
 
+        [#-- Append so as not to loose previously normalised stack info --]
         [#if stackFiles?has_content]
             [#return
                 addToConfigPipelineClass(
                     state,
                     STATE_CONFIG_INPUT_CLASS,
-                    pointSets
+                    pointSets,
+                    ""
+                    APPEND_COMBINE_BEHAVIOuR
                 )
             ]
         [/#if]
