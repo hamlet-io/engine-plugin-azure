@@ -124,7 +124,8 @@
   path=""
   protocol=""
   intervalInSeconds=""
-  healthProbeMethod=""]
+  healthProbeMethod=""
+  disabled=false]
 
   [#return {} +
     attributeIfContent("name", name) +
@@ -132,7 +133,8 @@
       attributeIfContent("path", path) +
       attributeIfContent("protocol", protocol) +
       numberAttributeIfContent("intervalInSeconds", intervalInSeconds) +
-      attributeIfContent("healthProbeMethod", healthProbeMethod)
+      attributeIfContent("healthProbeMethod", healthProbeMethod) +
+      attributeIfTrue("enabledState", disabled, "Disabled")
     )
   ]
 [/#function]
