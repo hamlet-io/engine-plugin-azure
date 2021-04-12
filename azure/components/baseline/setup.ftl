@@ -66,6 +66,7 @@
     [#local accountName = resources["storageAccount"].Name]
     [#local blobId = resources["blobService"].Id]
     [#local blobName = resources["blobService"].Name]
+    [#local webContainerDefault = resources["webContainerDefault"] ]
     [#local keyvault = resources["keyVault"]]
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
     [#local registries = resources["registries"]]
@@ -137,6 +138,16 @@
         [
           getReference(accountId, accountName)
         ]
+    /]
+
+    [@createBlobServiceContainer
+      id=webContainerDefault.Id
+      name=webContainerDefault.Name
+      publicAccess="None"
+      dependsOn=[
+        getReference(accountId, accountName),
+        getReference(blobId, blobName)
+      ]
     /]
 
     [#-- Create All Registry Containers --]
