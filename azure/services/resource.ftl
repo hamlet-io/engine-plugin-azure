@@ -433,31 +433,32 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 
     [#local endpoints = {}]
     [#switch serviceName]
-        [#case "Microsoft.ContainerRegistry"]
+        [#case "microsoft.containerregistry"]
             [#local endpoints =
                 {
                     "containerRegistry" : "azurecr.io"
                 }
             ]
             [#break]
-        [#case "Microsoft.KeyVault"]
+        [#case "microsoft.keyvault"]
             [#local endpoints =
                 {
-                    "vault" : "vault.azure.net/"
+                    "vault" : "vault.azure.net"
                 }
             ]
             [#break]
-        [#case "Microsoft.Storage"]
+        [#case "microsoft.storage"]
             [#local endpoints =
                 {
-                    "blob"  : "blob.core.windows.net/",
-                    "dfs"   : "dfs.core.windows.net/",
-                    "file"  : "file.core.windows.net/",
-                    "queue" : "queue.core.windows.net/",
-                    "table" : "table.core.windows.net/",
-                    "web"   : "web.core.windows.net/"
+                    "blob"  : "blob.core.windows.net",
+                    "dfs"   : "dfs.core.windows.net",
+                    "file"  : "file.core.windows.net",
+                    "queue" : "queue.core.windows.net",
+                    "table" : "table.core.windows.net",
+                    "web"   : "web.core.windows.net"
                 }
             ]
+            [#break]
         [#default]
             [@fatal
                 message="Unsupported Azure Endpoint Service specified."
@@ -471,13 +472,8 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
             /]
     [/#switch]
 
-    [#local endpoint =
-        "https://" +
-        resourceName +
-        extensions?join(".")?ensure_starts_with(".")?ensure_ends_with(".") +
-        endpoints[serviceType]
-    ]
-
+    [#local prefix = resourceName + extensions?join(".") ]
+    [#local endpoint = [ prefix, endpoints[serviceType] ]?join(".") ]
     [#return endpoint]
 
 [/#function]
