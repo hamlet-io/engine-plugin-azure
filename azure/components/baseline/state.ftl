@@ -26,6 +26,13 @@
     )
   ]
 
+  [#local webContainerDefaultName = 
+    formatAzureResourceName(
+      r"$web",
+      AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE,
+      blobName
+    )]
+
   [#local secretId = formatResourceId(AZURE_KEYVAULT_SECRET_RESOURCE_TYPE, core.Id )]
   [#local secretName = formatSecretName(core.ShortName, "ConnectionKey")]
 
@@ -68,6 +75,11 @@
             "Id" : formatResourceId(AZURE_BLOBSERVICE_RESOURCE_TYPE, core.Id),
             "Name" : blobName,
             "Type" : AZURE_BLOBSERVICE_RESOURCE_TYPE
+        },
+        "webContainerDefault" : {
+            "Id" : formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id),
+            "Name" : webContainerDefaultName,
+            "Type" : AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE
         },
         "keyVault" : {
             "Id" : formatResourceId(AZURE_KEYVAULT_RESOURCE_TYPE, core.Id),
