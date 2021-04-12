@@ -16,8 +16,8 @@
 
     [#local wafPolicyId = formatDependentResourceId(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Id)]
     [#local wafPolicyName = formatAzureResourceName(
-        formatName(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.Tier, core.Component)
-        getResourceType(frontDoorId)
+        formatName(AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE, core.ShortName),
+        AZURE_FRONTDOOR_WAF_POLICY_RESOURCE_TYPE
     )]
 
     [#local frontDoorFqdn = formatDomainName(frontDoorName, 'azurefd.net')]

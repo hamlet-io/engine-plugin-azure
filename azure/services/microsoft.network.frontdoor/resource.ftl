@@ -25,6 +25,7 @@
     {
       "apiVersion" : "2019-03-01",
       "type" : "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies",
+      "conditions" : [ "alphanumeric_only" ],
       "outputMappings" : {
         REFERENCE_ATTRIBUTE_TYPE : {
           "Property" : "id"
