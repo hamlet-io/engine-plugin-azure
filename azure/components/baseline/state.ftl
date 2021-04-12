@@ -116,23 +116,6 @@
   [#local containerName = formatAzureResourceName(container, AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, blobName)]
   [#local containerId = formatResourceId(AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE, core.Id)]
 
-  [#local storageEndpoints =
-    getReference(
-      formatId(
-        storageAccountId,
-        DICTIONARY_ATTRIBUTE_TYPE
-      )
-    )
-  ]
-
-  [#if storageEndpoints?is_string]
-    [#local storageEndpoints = {
-      "blob" : "",
-      "queue" : "",
-      "web" : ""
-    }]
-  [/#if]
-
   [#assign componentState =
     {
       "Resources": {
@@ -147,9 +130,9 @@
         "ACCOUNT_ID" : storageAccountId,
         "ACCOUNT_NAME" : storageAccountName,
         "CONTAINER_NAME" : container,
-        "PRIMARY_ENDPOINT" : contentIfContent(storageEndpoints.blob, ""),
-        "QUEUE_ENDPOINT": contentIfContent(storageEndpoints.queue, ""),
-        "WEB_ENDPOINT": contentIfContent(storageEndpoints.web, "")
+        "PRIMARY_ENDPOINT" : getAzServiceEndpoint(AZURE_STORAGE_SERVICE, "blob", storageAccountName),
+        "QUEUE_ENDPOINT": getAzServiceEndpoint(AZURE_STORAGE_SERVICE, "queue", storageAccountName),
+        "WEB_ENDPOINT": getAzServiceEndpoint(AZURE_STORAGE_SERVICE, "web", storageAccountName)
       },
       "Roles": {
         "Inbound": {},
