@@ -13,7 +13,6 @@
     [#local attributes = occurrence.State.Attributes]
     [#local solution = occurrence.Configuration.Solution]
 
-    [#local wafPresent = isPresent(solution.WAF)]
     [#local frontDoor = resources["frontDoor"]]
     [#local wafPolicy = resources["wafPolicy"]]
     [#local frontendEndpointName = formatName(frontDoor.Name, "frontend")]
@@ -26,6 +25,7 @@
     [#-- Baseline lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData" ], false, false)]
     [#local baselineComponentIds = getBaselineComponentIds(baselineLinks, "", "", "", "container")]
+    [#local operationsBucket = getExistingReference(baselineComponentIds["OpsData"]) ]
 
     [#local routingRules = []]
     [#local backendPools = []]
@@ -50,22 +50,21 @@
             [#continue]
         [/#if]
         [#local originLinkTargetCore = originLink.Core]
-        [#local originLinkTargetAttributes = originLink.State.Attributes]
         [#local originLinkTargetConfiguration = originLink.Configuration]
+        [#local originLinkTargetResources = originLink.State.Resources ]
+        [#local originLinkTargetAttributes = originLink.State.Attributes]
 
         [#switch originLinkTargetCore.Type]
             [#-- TODO(rossmurr4y):
                 expand this to allow for S3, LB_PORT & APIGATEWAY component types. --]
             [#case SPA_COMPONENT_TYPE]
 
-                [#local spaBaslineProfile = originLinkTargetConfiguration.Solution.Profiles.Baseline ]
-                [#local spaBaselineLinks = getBaselineLinks(originLink, ["OpsData"], false, false)]
-                [#local spaBaselineComponentIds = getBaselineComponentIds(spaBaselineLinks, "", "", "", "container")]
-                [#local spaBaselineAttributes = spaBaselineLinks["OpsData"].State.Attributes]
-                [#local storageAccount = spaBaselineAttributes["ACCOUNT_NAME"]]
-                [#local spaBaselineResources = spaBaselineLinks["OpsData"].State.Resources]
-                [#local operationsBlobContainer = spaBaselineResources["container"]]
-                [#local webEndpoint = spaBaselineAttributes["WEB_ENDPOINT"]]
+                [#local spaStorageAccount = originLinkTargetResources["storageAccount"] ]
+                [#local webEndpoint = getAzServiceEndpoint(
+                    AZURE_STORAGE_SERVICE,
+                    "blob",
+                    spaStorageAccount.Name) ]
+
                 [#local backendPoolName = formatName(core.Id, SPA_COMPONENT_TYPE)]
 
                 [#-- Ports & Protocols --]
@@ -76,7 +75,6 @@
                 [/#if]
 
                 [#-- SPA Config File Settings --]
-                [#local configBlobContainer = originLinkTargetAttributes["CONFIG_STORAGE_CONTAINER"]]
                 [#local forwardingPath = originLinkTargetAttributes["FORWARDING_PATH"]]
                 [#local configFile = originLinkTargetAttributes["CONFIG_FILE"]]
 
@@ -101,17 +99,14 @@
                     )
                 ]]
 
-                [#-- Create backend pools--]
-                [#local spaBackendPoolAddress =
-                    webEndpoint?remove_beginning("https://")?remove_ending("/")]
-
+                [#-- Create backend pools --]
                 [#local spaBackendPool = [
                     getFrontDoorBackendPool(
                         backendPoolName,
                         [
                             getFrontDoorBackend(
-                                spaBackendPoolAddress,
-                                spaBackendPoolAddress,
+                                webEndpoint,
+                                webEndpoint,
                                 "80",
                                 "443"
                             )
@@ -234,6 +229,40 @@
                 )
             ]
         ]
+
+        [#-- Defines mandatory default Health Probe Settings but disables it.--]
+        [#if !(healthProbeSettings?has_content)]
+            [#local healthProbeSettings = [
+                getFrontDoorHealthProbeSettings(
+                    "default",
+                    "/",
+                    "Https",
+                    "30",
+                    "",
+                    true
+                )
+            ] ]
+        [/#if]
+
+        [#if !(backendPools?has_content)]
+            [#local defaultAddress = 
+                getAzServiceEndpoint(AZURE_STORAGE_SERVICE, "blob", operationsBucket) ]
+
+            [#local loadBalancingSettings = []]
+            [#local backendPools = [
+                getFrontDoorBackendPool(
+                    "default",
+                    [
+                        getFrontDoorBackend(
+                            defaultAddress,
+                            defaultAddress,
+                            "80",
+                            "443"
+                        )
+                    ]
+                )
+            ]]
+        [/#if]
 
         [@createFrontDoor
             id=frontDoor.Id
