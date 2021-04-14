@@ -495,7 +495,9 @@
 
 [#function arm_output_resource level="" include=""]
 
-    [@setOutputFileProperties format="json" /]
+    [@setOutputProperties
+        properties={ "type:file" : { "format" : "json" }}
+    /]
 
     [#-- Resources --]
     [#if include?has_content]
