@@ -10,6 +10,31 @@
 [#macro azuretest_module_apigateway ]
 
     [@loadModule
+        definitions={
+            "appXapigateway" : {
+                "openapi": "3.0.0",
+                "info": {
+                    "version": "1.0.0",
+                    "title": "Sample API",
+                    "description": "A sample API to illustrate OpenAPI concepts"
+                },
+                "paths": {
+                    "/list": {
+                        "get": {
+                            "description": "Returns a list of stuff",
+                            "responses": {
+                                "200": {
+                                    "description": "Successful response"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    /]
+
+    [@loadModule
         settingSets=[
             {
                 "Type" : "Builds",
@@ -52,6 +77,9 @@
                                 "Profiles" : {
                                     "Testing" : [ "Component" ]
                                 },
+                                "Image" : {
+                                    "Source" : "none"
+                                },
                                 "Certificate": {
                                     "Enabled" : false
                                 },
@@ -89,8 +117,6 @@
                 }
             }
         }
-        stackOutputs=[]
-        commandLineOption={}
     /]
 
 [/#macro]
