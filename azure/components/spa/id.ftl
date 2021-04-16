@@ -17,3 +17,20 @@
         AZURE_STORAGE_SERVICE
       ]
 /]
+
+[@addResourceGroupAttributeValues
+    type=SPA_COMPONENT_TYPE
+    provider=AZURE_PROVIDER
+    extensions=[
+      {
+          "Names" : "Profiles",
+          "Children" : [
+              {
+                  "Names" : "Storage",
+                  "Types" : STRING_TYPE,
+                  "Default" : "default"
+              }
+          ]
+      }
+    ]
+/]
