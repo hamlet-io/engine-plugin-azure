@@ -117,28 +117,54 @@
 
     [#-- Retrieve the OpenApi Spec from the registry --]
     [#-- and write it out to definition.json         --]
+    [#local imageSource = solution.Image.Source]
+    [#if imageSource == "url" ]
+        [#local buildUnit = occurrence.Core.Name ]
+    [/#if]
+
     [#if deploymentSubsetRequired("pregeneration", false)]
-        [@addToDefaultBashScriptOutput
-            content=
-                getBuildScript(
-                    "openapiFiles",
-                    buildRegistry,
-                    productName,
-                    occurrence,
-                    buildRegistry + ".zip"
-                ) +
-                [
-                    "get_openapi_definition_file" + " " +
-                            "\"" + buildRegistry + "\"" + " " +
-                            "\"$\{openapiFiles[0]}\"" + " " +
-                            "\"" + core.Id + "\"" + " " +
-                            "\"" + core.Name + "\"" + " " +
-                            "\"" + accountId + "\"" + " " +
-                            "\"" + accountObject.ProviderId + "\"" + " " +
-                            "\"" + regionId + "\"" + " || return $?",
-                    "#"
-                ]
-        /]
+        [#if imageSource = "url" ]
+            [@addToDefaultBashScriptOutput
+                content=
+                    getImageFromUrlScript(
+                        regionId,
+                        productName,
+                        environmentName,
+                        segmentName,
+                        occurrence,
+                        solution.Image.UrlSource.Url,
+                        "openapi",
+                        "openapi.zip",
+                        solution.Image.UrlSource.ImageHash,
+                        true
+                    )
+            /]
+        [/#if]
+
+        [#if imageSource == "url" || imageSource == "registry" ]
+            [@addToDefaultBashScriptOutput
+                content=
+                    getBuildScript(
+                        "openapiFiles",
+                        regionId,
+                        buildRegistry,
+                        productName,
+                        occurrence,
+                        buildRegistry + ".zip"
+                    ) +
+                    [
+                        "get_openapi_definition_file" + " " +
+                                "\"" + buildRegistry + "\"" + " " +
+                                "\"$\{openapiFiles[0]}\"" + " " +
+                                "\"" + core.Id + "\"" + " " +
+                                "\"" + core.Name + "\"" + " " +
+                                "\"" + accountId + "\"" + " " +
+                                "\"" + accountObject.ProviderId + "\"" + " " +
+                                "\"" + region + "\"" + " || return $?",
+                        "#"
+                    ]
+            /]
+        [/#if]
     [/#if]
 
     [#-- Get the definition that was        --]
@@ -172,7 +198,7 @@
                 "FQDN" : attributes["FQDN"],
                 "Scheme": attributes["SCHEME"],
                 "BasePath": attributes["BASE_PATH"],
-                "BuildReference" : (buildSettings["APP_REFERENCE"].Value)!buildSettings["BUILD_REFERENCE"].Value,
+                "BuildReference" : ((buildSettings["APP_REFERENCE"].Value)!buildSettings["BUILD_REFERENCE"].Value)!"",
                 "Name" : api.Name
             }
         ]
