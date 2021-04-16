@@ -20,7 +20,7 @@
             },
             {
                 "Names" : "Certificate",
-                "Children" : certificateChildConfiguration                
+                "Children" : certificateChildConfiguration
             },
             {
                 "Names" : "Access",
