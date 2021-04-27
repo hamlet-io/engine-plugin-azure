@@ -131,18 +131,17 @@
                 azure_cmdb_regions?keys
             )
         ]
-        [#if requiredRegions?has_content]
-            [#local regions = getObjectAttributes(azure_cmdb_regions, requiredRegions) ]
-        [#else]
-            [#local regions = azure_cmdb_regions]
-        [/#if]
         [#return
-            addToConfigPipelineClass(
+            addToConfigPipelineStageCacheForClass(
                 state,
                 BLUEPRINT_CONFIG_INPUT_CLASS,
                 azure_cmdb_masterdata +
                 {
-                    "Regions" : regions
+                    "Regions" :
+                        requiredRegions?has_content?then(
+                            getObjectAttributes(azure_cmdb_regions, requiredRegions),
+                            azure_cmdb_regions
+                        )
                 },
                 MASTERDATA_SHARED_INPUT_STAGE
             )
