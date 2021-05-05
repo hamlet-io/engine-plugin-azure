@@ -43,7 +43,8 @@
             "DefaultBaselineVariables" : false,
             "DefaultEnvironmentVariables" : false,
             "DefaultLinkVariables" : false,
-            "Policy" : []
+            "Policy" : [],
+            "OpenAPIDefinition" : (definitionsObject[core.Id])!{}
         }
     ]
 
@@ -170,14 +171,14 @@
     [#-- Get the definition that was        --]
     [#-- created/updated in "pregeneration" --]
     [#if deploymentSubsetRequired("parameters", true) ]
-        [#if ! definitionsObject[core.Id]??]
+        [#if ! _context.OpenAPIDefinition?has_content]
             [@fatal
                 message="No API definition exists."
                 context=definitionsObject
             /]
         [/#if]
 
-        [#local openapiDefinition = (definitionsObject[core.Id])!{}]
+        [#local openapiDefinition = _context.OpenAPIDefinition ]
 
         [#-- Open API Integrations --]
         [#local openapiIntegrations = getOccurrenceSettingValue(occurrence, [["apigw"], ["Integrations"]], true) ]
