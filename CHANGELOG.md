@@ -1,16 +1,52 @@
-# [0.0.0](https://github.com/hamlet-io/engine-plugin-azure/compare/v8.0.1...v0.0.0) (2021-04-02)
+# [0.0.0](https://github.com/hamlet-io/engine-plugin-azure/compare/8.1.2...0.0.0) (2021-05-13)
+
+
+
+## [8.1.2](https://github.com/hamlet-io/engine-plugin-azure/compare/v8.0.1...8.1.2) (2021-05-12)
 
 
 ### Bug Fixes
 
+* dynamic cmdb loading ([87f88b7](https://github.com/hamlet-io/engine-plugin-azure/commit/87f88b700ee90a70f9930ce5845000428903e103))
+* frontdoor WAF policies must be named alphanumerically ([81ca445](https://github.com/hamlet-io/engine-plugin-azure/commit/81ca445c922ddb15006a0e822f85d91da0851155))
+* invoke correct name for config pipeline function ([751a62f](https://github.com/hamlet-io/engine-plugin-azure/commit/751a62f5b09855e9426c920639e5f38a50d6df11))
+* pseudo stacks ([#247](https://github.com/hamlet-io/engine-plugin-azure/issues/247)) ([7575b82](https://github.com/hamlet-io/engine-plugin-azure/commit/7575b82991948f2dbd0dd1d77e88170698d2f249))
 * remove redundant clo seeding ([ee51874](https://github.com/hamlet-io/engine-plugin-azure/commit/ee518748ebc80696012656c08c518fd1048460ed))
 * simplified parameters ([9cdb6e3](https://github.com/hamlet-io/engine-plugin-azure/commit/9cdb6e3a39fba8a0da2d216d3d7b1f1484f7084e))
+* url details in changelog ([9bbc435](https://github.com/hamlet-io/engine-plugin-azure/commit/9bbc435753c3f0372811b86cd2adc348e176d86b))
 
 
 ### Features
 
+* **apigateway:** openapi specification extension ([35ad83b](https://github.com/hamlet-io/engine-plugin-azure/commit/35ad83b09e0e2ded0a75700fd2c85139c836e810))
+* add storage profile configuration for spa ([a032a35](https://github.com/hamlet-io/engine-plugin-azure/commit/a032a35054773b921c0c7f258abbe1cbf5fb174c))
+* **apigateway:** adds image source support ([#251](https://github.com/hamlet-io/engine-plugin-azure/issues/251)) ([5e2a413](https://github.com/hamlet-io/engine-plugin-azure/commit/5e2a413bb5dc848f51032dfa3f36af64f2073c3c))
+* add corsbehaviours on SPA component for Az ([eb05c7f](https://github.com/hamlet-io/engine-plugin-azure/commit/eb05c7f809b12ec9c7c166fad12253b0bc319339))
 * **cd:** setup latest hamlet on each run ([2fd6ec7](https://github.com/hamlet-io/engine-plugin-azure/commit/2fd6ec7d50e3ec37fe0fd1b14cfa1da36a698879))
 * add azure diagrams ([75fa143](https://github.com/hamlet-io/engine-plugin-azure/commit/75fa1438424f94656fa9b8000ef713bfdaca63d5))
+
+
+* refactor!: SPA to have independant storage account ([b65daa3](https://github.com/hamlet-io/engine-plugin-azure/commit/b65daa34f1940526b8abec3b5bb647abd8ebfd29))
+
+
+### BREAKING CHANGES
+
+* As per #246, only 1 SPA per Solution is currently possible in the
+Azure provider. This is due to the SPA initially deploying content
+into the OpsData databucket. However Azure has some unique req. for
+hosting static website content, such as a specific container name of
+$web being necessary. As there can only be one container with such a
+name per Storage Account, this is a problem.
+
+This refactor implements a unique storage account per SPA deployment-
+unit.
+
+Additionally, this removes a previous limitation of SPA's that there
+must be at least one existing CDN Route in order to deploy. Such a
+requirement posed a chicken-and-egg problem where the CDN Route couldn't
+exist without the SPA, and vise versa. Now, the SPA can be deployed
+standalone - made public via the Storage Account URL - and after that
+the CDN + Route can be deployed.
 
 
 
