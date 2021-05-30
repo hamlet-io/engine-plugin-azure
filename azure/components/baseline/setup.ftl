@@ -75,7 +75,7 @@
 
     [#-- storageAccount : Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
-      [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
+      [#local certificateObject = getCertificateObject(solution.Certificate) ]
       [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
       [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
     [#else]
@@ -214,7 +214,7 @@
                 id=keyPair.Id
                 name=formatAzureResourceName(
                       keyPair.Name,
-                      AZURE_KEYVAULT_KEY_RESOURCE_TYPE, 
+                      AZURE_KEYVAULT_KEY_RESOURCE_TYPE,
                       keyvault.Name
                     )
                 parentId=keyvault.Id

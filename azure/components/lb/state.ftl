@@ -130,7 +130,7 @@
 
     [#local domainRedirectRules = {} ]
     [#if (sourcePort.Certificate)!false ]
-        [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName)]
+        [#local certificateObject = getCertificateObject(solution.Certificate)]
 
         [#local hostName = getHostName(certificateObject, occurrence)]
         [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject)]
