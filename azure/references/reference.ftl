@@ -49,7 +49,7 @@
   fixedDate={}
   recurrence={}]
 
-  [#return 
+  [#return
     {
       "name" : name,
       "capacity" : {
@@ -90,7 +90,7 @@
                 ]]
             [/#list]
 
-            [#local result += [ 
+            [#local result += [
                 getAutoScaleProfile(
                     profileId,
                     profiles.Processor.MinCount,
@@ -116,7 +116,7 @@
     [#list providerProfiles as name,value]
       [#switch name]
         [#case "Security"]
-          [#local result += attributeIfContent(name, getSecurityProfile(value, type, engine)!{})]
+          [#local result += attributeIfContent(name, getSecurityProfile(occurrence, type, engine)!{})]
           [#break]
 
         [#case "Storage"]
@@ -127,7 +127,7 @@
           [#break]
 
         [#case "Logging"]
-          [#local result += attributeIfContent(name, getLoggingProfile(value)!{})]
+          [#local result += attributeIfContent(name, getLoggingProfile(occurrence)!{})]
           [#break]
 
         [#case "Processor"]
@@ -135,7 +135,7 @@
           [#break]
 
         [#case "Network"]
-          [#local result += attributeIfContent(name, getNetworkProfile(value)!{})]
+          [#local result += attributeIfContent(name, getNetworkProfile(occurrence)!{})]
           [#break]
 
         [#case "Bootstrap"]
@@ -147,7 +147,7 @@
           [#break]
 
         [#case "LogFile"]
-          [#local result += attributeIfContent(name, getLogFileProfile(occurrence, value)!{})]
+          [#local result += attributeIfContent(name, getLogFileProfile(occurrence, type)!{})]
           [#break]
 
         [#case "Testing"]

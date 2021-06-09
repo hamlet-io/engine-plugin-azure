@@ -19,7 +19,7 @@
     [#local frontDoorLBSettingsName = formatName(frontDoor.Name, "lb", "settings")]
     [#local frontDoorFQDN = frontDoor.FrontDoorFQDN ]
 
-    [#local securityProfile = getSecurityProfile(solution.Profiles.Security, CDN_COMPONENT_TYPE)]
+    [#local securityProfile = getSecurityProfile(occurrence, core.Type)]
     [#local wafRequired = (securityProfile.Enabled)!false ]
 
     [#-- Baseline lookup --]
@@ -245,7 +245,7 @@
         [/#if]
 
         [#if !(backendPools?has_content)]
-            [#local defaultAddress = 
+            [#local defaultAddress =
                 getAzServiceEndpoint(AZURE_STORAGE_SERVICE, "blob", operationsBucket) ]
 
             [#local loadBalancingSettings = []]
