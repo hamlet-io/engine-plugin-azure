@@ -86,12 +86,7 @@
         [#local portProtocols += [ destinationPort.Protocol]]
 
         [#-- Certificate --]
-        [#local certificateObject = getCertificateObject(
-            subSolution.Certificate,
-            segmentQualifiers,
-            sourcePort.Id!source,
-            sourcePort.Name!source
-        )]
+        [#local certificateObject = getCertificateObject(subSolution.Certificate)]
         [#local hostName = getHostName(certificateObject, subOccurrence)]
         [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject)]
         [#local fqdn = formatDomainName(hostName, primaryDomainObject)]

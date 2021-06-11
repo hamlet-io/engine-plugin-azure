@@ -43,7 +43,7 @@
 
     [#-- Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
-        [#local certificateObject = getCertificateObject(solution.Certificate, segmentQualifiers, sourcePortId, sourcePortName) ]
+        [#local certificateObject = getCertificateObject(solution.Certificate) ]
         [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject) ]
         [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
     [#else]
