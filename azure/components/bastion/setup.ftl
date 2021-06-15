@@ -87,9 +87,8 @@
   /]
 
   [#-- VM Scale Set --]
-  [#local vmssProcessorProfile = processors[solution.Profiles.Processor]]
-  [#local vmssProcessorType = vmssProcessorProfile[core.Type]]
-  [#local vmssProcessor = vmssProcessorType.Processor]
+  [#local vmssProcessorProfile = getProcessor(occurrence, BASTION_COMPONENT_TYPE)]]
+  [#local vmssProcessor = vmssProcessorProfile.Processor]
   [#local vmssProcessorTier = vmssProcessor?split("_")[0]]
   [#local vmssVMImageProfile = getVMImageProfile(occurrence, core.Type)]
   [#local vmssVMAdminName = BASTION_COMPONENT_TYPE]
