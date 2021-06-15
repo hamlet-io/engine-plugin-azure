@@ -49,3 +49,22 @@
             AZURE_STORAGE_SERVICE
         ]
 /]
+
+
+[@addResourceGroupAttributeValues
+    type=BASELINE_COMPONENT_TYPE
+    provider=AZURE_PROVIDER
+    extensions=[
+      {
+        "Names" : "Profiles",
+        "Children" : [
+          {
+            "Names" : "Storage",
+            "Description" : "Controls the storage configuration for the baseline storage account",
+            "Types" : STRING_TYPE,
+            "Default" : "default"
+          }
+        ]
+      }
+    ]
+/]

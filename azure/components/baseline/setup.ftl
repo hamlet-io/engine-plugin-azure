@@ -71,7 +71,7 @@
     [#local keyVaultAccessPolicy = resources["keyVaultAccessPolicy"].Id]
     [#local registries = resources["registries"]]
 
-    [#local storageProfile = getStorage(occurrence, "storageAccount")]
+    [#local storageProfile = getStorage(occurrence, "storageAccount", solution.Profiles["azure:Storage"])]
 
     [#-- storageAccount : Retrieve Certificate Information --]
     [#if solution.Certificate?has_content]
