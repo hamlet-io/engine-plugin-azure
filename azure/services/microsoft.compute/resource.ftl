@@ -66,7 +66,7 @@
   winRM={}]
 
   [#return
-    {} + 
+    {} +
     attributeIfTrue("enableAutomaticUpdates", autoUpdatesEnabled, autoUpdatesEnabled) +
     attributeIfContent("timeZone", timeZone) +
     attributeIfContent("additionalUnattendContent", unattendContent) +
@@ -81,7 +81,7 @@
   primary=false
   ipConfigurations=[]]
 
-  [#return 
+  [#return
     {
       "id": id,
       "name": name,
@@ -94,7 +94,7 @@
 
 [/#function]
 
-[#function getVirtualMachineNetworkProfile 
+[#function getVirtualMachineNetworkProfile
   networkInterfaceConfigurations=[]
   healthProbe={}]
   [#return
@@ -117,7 +117,7 @@
   imageVersion="latest"
   licenseType=""]
 
-  [#return 
+  [#return
     {
       "osProfile" : {} +
         attributeIfContent("computerNamePrefix", vmNamePrefix) +
@@ -127,7 +127,7 @@
       "storageProfile" : {
         "osDisk" : {
           "createOption" : "FromImage",
-          "managedDisk" : {  
+          "managedDisk" : {
           } +
           attributeIfContent("storageAccountType", storageAccountType)
         },
@@ -174,11 +174,11 @@
     dependsOn=dependsOn
     zones=zones
     properties=
-      { 
+      {
         "upgradePolicy" : {
           "mode" : vmUpgradeMode
         },
-        "virtualMachineProfile" : vmProfile 
+        "virtualMachineProfile" : vmProfile
       }
   /]
 
@@ -207,10 +207,10 @@
       "settings" : settings +
         attributeIfTrue("timestamp", addTimestamp, timestamp?number)
     } +
-      attributeIfContent("publisher", scriptConfig.Publisher) +
-      attributeIfContent("type", scriptConfig.Type.Name) +
-      attributeIfContent("typeHandlerVersion", scriptConfig.Type.HandlerVersion) +
-      attributeIfTrue("autoUpgradeMinorVersion", (scriptConfig.AutoUpgradeOnMinorVersion)!false, scriptConfig.AutoUpgradeOnMinorVersion) +
+      attributeIfContent("publisher", (scriptConfig.Publisher)!"") +
+      attributeIfContent("type", (scriptConfig.Type.Name)!"") +
+      attributeIfContent("typeHandlerVersion", (scriptConfig.Type.HandlerVersion)!"") +
+      attributeIfTrue("autoUpgradeMinorVersion", scriptConfig.AutoUpgradeOnMinorVersion, scriptConfig.AutoUpgradeOnMinorVersion ) +
       attributeIfContent("protectedSettings", protectedSettings) +
       attributeIfContent("provisionAfterExtensions", provisionAfterExtensions)
   /]
