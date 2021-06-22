@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (2021-06-21)
+## Unreleased (2021-06-22)
 
 #### New Features
 
@@ -8,13 +8,19 @@
 * support for docker based packaging
 #### Fixes
 
+* changelog generation
+* (ci): add pr trigger to testing
+* handle missing values for bootstraps
 * profile lookup updates and extensions
 #### Refactorings
 
 * align profile usage with shared provider
 * remove use of segmentQualifier ([#260](https://github.com/hamlet-io/engine-plugin-azure/issues/260))
+#### Docs
 
-Full set of changes: [`8.1.2...998952b`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.1.2...998952b)
+* replace changelog and update README
+
+Full set of changes: [`8.1.2...da4b707`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.1.2...da4b707)
 
 ## 8.1.2 (2021-05-17)
 
@@ -30,7 +36,7 @@ Full set of changes: [`8.1.2...998952b`](https://github.com/hamlet-io/engine-plu
 * new ARM resource - KeyVault Keys
 * input seeders ([#224](https://github.com/hamlet-io/engine-plugin-azure/issues/224))
 * (ci): Align azure testing with plugins and include junit ([#221](https://github.com/hamlet-io/engine-plugin-azure/issues/221))
-* (db): mysql as a engine type
+* (db): mysql as a engine type 
 * changelog generation ([#219](https://github.com/hamlet-io/engine-plugin-azure/issues/219))
 * migrate from fragments to extensions ([#212](https://github.com/hamlet-io/engine-plugin-azure/issues/212))
 * introduce function to break down id path segments into scope
@@ -90,7 +96,7 @@ Full set of changes: [`8.1.2...998952b`](https://github.com/hamlet-io/engine-plu
 * :fire: removed erroneous bracket
 * computecluster stage storage lookup values
 * connectionString ARM function
-* CDN Endpoint(s)
+* CDN Endpoint(s) 
 #### Refactorings
 
 * update output properties with new config
