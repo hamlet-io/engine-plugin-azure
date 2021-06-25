@@ -161,7 +161,7 @@
                                 "\"" + core.Name + "\"" + " " +
                                 "\"" + accountId + "\"" + " " +
                                 "\"" + accountObject.ProviderId + "\"" + " " +
-                                "\"" + region + "\"" + " || return $?",
+                                "\"" + regionId + "\"" + " || return $?",
                         "#"
                     ]
             /]
