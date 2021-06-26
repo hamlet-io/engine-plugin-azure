@@ -1,5 +1,4 @@
 .vscode
 *testparameters.json
-/hamlet_tests/*
-
-node_modules
+**/hamlet_tests/*
+**/.hamlet

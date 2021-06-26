@@ -1,4 +1,4 @@
-name: test
+name: testing
 
 on:
   push:
@@ -32,6 +32,5 @@ jobs:
           GENERATION_PLUGIN_DIRS: ${{ github.workspace }}
           TEST_OUTPUT_DIR: ${{ github.workspace }}/hamlet_tests
         run: |
-          mkdir -p ~/.hamlet
           hamlet engine set-engine unicycle
           hamlet -i mock -p azure -p azuretest -f arm deploy test-deployments -p '--junitxml=junit.xml' -o "${TEST_OUTPUT_DIR}"
