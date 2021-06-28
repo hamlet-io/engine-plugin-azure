@@ -20,7 +20,7 @@
   [#local blob           = resources["blobService"] ]
   [#local container      = resources["container"] ]
 
-  [#local storageProfile = getStorage(occurrence, "storageAccount")]
+  [#local storageProfile = getStorage(occurrence, "storageAccount", solution.Profiles["azure:Storage"])]
   [#local forwardingPath = attributes["FORWARDING_PATH"]?remove_beginning("/")]
   [#local corsBehaviours = solution["azure:CORSBehaviours"]![] ]
   [#local policyProfile = getPolicyProfile(profiles.Policy, getCLODeploymentMode()) ]
@@ -140,7 +140,7 @@
         "    CONNECTION_STRING=$(az_get_storage_connection_string \"${storageAccount.Name}\")",
         "   az storage blob service-properties update --connection-string \"" + r"${CONNECTION_STRING}" + "\" --static-website true"
         "fi"
-      ] + 
+      ] +
       syncFilesToBlobContainerScript(
         "spaFiles",
         storageAccount.Name,

@@ -34,14 +34,13 @@
     [/#if]
 
     [#-- Profiles --]
-    [#local processorProfile = 
-        getProcessor(occurrence, "ECS", solution.Profiles.Processor)]
+    [#local processorProfile = getProcessor(occurrence, ECS_COMPONENT_TYPE)]
 
     [#local storageProfile = getStorage(occurrence, "ecs")]
     [#local imageProfile = getVMImageProfile(occurrence, "ecs")]
     [#local autoScaleProfile = {}]
     [#if scaleRules?has_content]
-        [#local autoScaleProfile = 
+        [#local autoScaleProfile =
             getAutoScaleProfile(
                 name,
                 processorProfile.MinCount,
@@ -52,7 +51,7 @@
 
     [#local orchestratorVersion = solution["azure:OrchestratorVersion"]!""]
 
-    [#return { 
+    [#return {
         "name" : name,
         "type" : "VirtualMachineScaleSets"
     } +
@@ -90,7 +89,7 @@
                     }
                 }]
         [#else]
-            [#return 
+            [#return
                 {
                     "linuxProfile" : {
                         "adminUsername" : adminName,
@@ -115,7 +114,7 @@
     osProfile={}
     networkProfile={}
     dependsOn=[]]
-    
+
     [#local properties = {} +
         osProfile +
         attributeIfContent("agentPoolProfiles", poolProfiles) +

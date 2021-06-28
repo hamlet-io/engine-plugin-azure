@@ -240,13 +240,13 @@
     [#-- Network Security Group Rules --]
     [#local priority = 200]
     [#list nsgRules?values as rule]
-        
-        [#local destination = 
+
+        [#local destination =
             getReference(
                 publicIp.Id,
                 publicIp.Name,
                 IP_ADDRESS_ATTRIBUTE_TYPE)]
-                
+
         [@createNetworkSecurityGroupSecurityRule
             id=rule.Id
             name=rule.Name
@@ -282,8 +282,8 @@
         getIPConfiguration(
             nicIpConfigName,
             getReference(subnet.Id),
-            true, 
-            publicIp.Reference, 
+            true,
+            publicIp.Reference,
             "", "", [], "", "", "", "Dynamic", "IPv4", [],
             appGatewayBackendAddressPoolIds,
             lbBackendAddressPoolIds,

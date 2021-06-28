@@ -87,7 +87,7 @@
     [/#if]
 
     [#-- Server Settings --]
-    [#local sku = getProcessor(occurrence, "db", solution.Profiles.Processor)]
+    [#local sku = getProcessor(occurrence, core.Type)]
 
     [#-- Resource Creation --]
     [#if !hibernate]
