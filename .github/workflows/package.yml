@@ -16,6 +16,8 @@ on:
     types:
       - completed
 
+  pull-request:
+
 jobs:
   build:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
