@@ -49,6 +49,7 @@ jobs:
             latest=${{ github.ref == 'refs/heads/master' }}
           tags: |
             type=semver,pattern={{version}}
+            type=sha
 
       - name: build and push container
         uses: docker/build-push-action@v2
