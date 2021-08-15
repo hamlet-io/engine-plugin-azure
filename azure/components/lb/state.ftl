@@ -177,6 +177,7 @@
                     "listener" : {
                         "Id" : listenerId,
                         "Name" : listenerName,
+                        "FQDN" : fqdn,
                         "SubReference" : getChildReference(lb.Name, [getResourceObject(listenerName, "httpListeners")])
                     },
                     "frontendPort" : {
