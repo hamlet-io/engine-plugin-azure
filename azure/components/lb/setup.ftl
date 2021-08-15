@@ -68,6 +68,9 @@
         [#local redirectConfig = subResources["redirectConfiguration"]]
         [#local sslCert = subResources["sslCertificate"]]
 
+        [#-- FQDN --]
+        [#local fqdn = listener.FQDN]
+
         [#-- source and destination ports --]
         [#local mapping = solution.Mapping!subCore.SubComponent.Name]
         [#local source = (portMappings[mapping].Source)!""]
@@ -84,12 +87,6 @@
         [/#if]
         [#local portProtocols += [ sourcePort.Protocol ]]
         [#local portProtocols += [ destinationPort.Protocol]]
-
-        [#-- Certificate --]
-        [#local certificateObject = getCertificateObject(subSolution.Certificate)]
-        [#local hostName = getHostName(certificateObject, subOccurrence)]
-        [#local primaryDomainObject = getCertificatePrimaryDomain(certificateObject)]
-        [#local fqdn = formatDomainName(hostName, primaryDomainObject)]
 
         [#-- Determine if this is the first mapping for the source port --]
         [#-- The assumption is that all mappings for a given port share --]
