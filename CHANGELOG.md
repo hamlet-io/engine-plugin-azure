@@ -1,6 +1,25 @@
 # Changelog
 
-## Unreleased (2021-07-01)
+## Unreleased (2021-08-16)
+
+#### Refactorings
+
+* lb fqdn handling
+
+Full set of changes: [`8.2.1...d84c4c1`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.2.1...d84c4c1)
+
+## 8.2.1 (2021-07-09)
+
+#### Fixes
+
+* (ci): tag build handling ([#274](https://github.com/hamlet-io/engine-plugin-azure/issues/274))
+#### Others
+
+* changelog bump ([#269](https://github.com/hamlet-io/engine-plugin-azure/issues/269))
+
+Full set of changes: [`8.2.0...8.2.1`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.2.0...8.2.1)
+
+## 8.2.0 (2021-07-01)
 
 #### New Features
 
@@ -29,7 +48,7 @@
 
 * replace changelog and update README
 
-Full set of changes: [`8.1.2...fe5ffd6`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.1.2...fe5ffd6)
+Full set of changes: [`8.1.2...8.2.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.1.2...8.2.0)
 
 ## 8.1.2 (2021-05-17)
 
