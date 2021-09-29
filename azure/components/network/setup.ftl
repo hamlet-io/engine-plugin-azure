@@ -21,7 +21,7 @@
     [@createVNet
       id=vnetId
       name=vnetName
-      location=regionId
+      location=getRegion()
       addressSpacePrefixes=[vnetCIDR]
     /]
 
@@ -32,7 +32,7 @@
     [@createNetworkSecurityGroup
       id=networkSecurityGroupId
       name=networkSecurityGroupName
-      location=regionId
+      location=getRegion()
     /]
 
     [#-- Seperate NSG for the ELB Subnet                                              --]
@@ -51,7 +51,7 @@
       [@createNetworkSecurityGroup
         id=elbNSG.Id
         name=elbNSG.Name
-        location=regionId
+        location=getRegion()
       /]
 
       [@createNetworkSecurityGroupSecurityRule
@@ -179,13 +179,13 @@
           [/#if]
         [/#list]
 
-        [#local networkEndpoints = getNetworkEndpoints(networkEndpointGroups, "a", regionId)]
+        [#local networkEndpoints = getNetworkEndpoints(networkEndpointGroups, "a", getRegion())]
 
         [#local serviceEndpoints = []]
         [#local serviceEndpointPolicies = []]
         [#if tierId == "mgmt"]
           [#list networkEndpoints?keys as endpointId]
-            [#local serviceEndpoints += [getSubnetServiceEndpoint(endpointId, [regionId])]]
+            [#local serviceEndpoints += [getSubnetServiceEndpoint(endpointId, [getRegion()])]]
           [/#list]
         [/#if]
 
@@ -293,7 +293,7 @@
         [@createRouteTable
           id=routeTable.Id
           name=routeTable.Name
-          location=regionId
+          location=getRegion()
         /]
 
       [/#if]

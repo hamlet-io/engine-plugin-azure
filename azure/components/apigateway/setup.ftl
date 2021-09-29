@@ -128,7 +128,7 @@
             [@addToDefaultBashScriptOutput
                 content=
                     getImageFromUrlScript(
-                        regionId,
+                        getRegion(),
                         productName,
                         environmentName,
                         segmentName,
@@ -147,7 +147,7 @@
                 content=
                     getBuildScript(
                         "openapiFiles",
-                        regionId,
+                        getRegion(),
                         buildRegistry,
                         productName,
                         occurrence,
@@ -161,7 +161,7 @@
                                 "\"" + core.Name + "\"" + " " +
                                 "\"" + accountId + "\"" + " " +
                                 "\"" + accountObject.ProviderId + "\"" + " " +
-                                "\"" + regionId + "\"" + " || return $?",
+                                "\"" + getRegion() + "\"" + " || return $?",
                         "#"
                     ]
             /]
@@ -193,7 +193,7 @@
         [#local openapiContext =
             {
                 "Account" : accountObject.ProviderId,
-                "Region" : regionId,
+                "Region" : getRegion(),
                 "AADAppRegistrations" : aadAppRegistrations,
                 "LambdaAuthorizers" : lambdaAuthorizers,
                 "FQDN" : attributes["FQDN"],
@@ -278,7 +278,7 @@
         [@createApiManagementService
             id=service.Id
             name=service.Name
-            location=regionId
+            location=getRegion()
             skuName="Developer"
             publisherEmail=service.ContactEmail
             publisherName=service.ContactName

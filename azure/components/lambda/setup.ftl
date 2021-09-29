@@ -98,7 +98,7 @@
             [@createWebApp
                 id=function.Id
                 name=function.Name
-                location=regionId
+                location=getRegion()
                 kind=functionKind
                 reserved=true
                 appSettings=appSettings

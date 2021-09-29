@@ -267,7 +267,7 @@
         [@createFrontDoor
             id=frontDoor.Id
             name=frontDoor.Name
-            location=regionId
+            location=getRegion()
             routingRules=routingRules
             loadBalancingSettings=loadBalancingSettings
             backendPools=backendPools
@@ -280,7 +280,7 @@
             [@createFrontDoorWAFPolicy
                 id=wafPolicy.Id
                 name=wafPolicy.Name
-                location=regionId
+                location=getRegion()
                 securityProfile=securityProfile
 
             /]

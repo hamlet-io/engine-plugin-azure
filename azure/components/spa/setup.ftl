@@ -102,7 +102,7 @@
     name=storageAccount.Name
     kind=storageProfile.Type
     sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
-    location=regionId
+    location=getRegion()
     networkAcls=getNetworkAcls("Allow", [], [], "AzureServices")
     accessTier=(storageProfile.AccessTier)!{}
     isHnsEnabled=(storageProfile.HnsEnabled)!false

@@ -26,7 +26,7 @@
     )
   ]
 
-  [#local webContainerDefaultName = 
+  [#local webContainerDefaultName =
     formatAzureResourceName(
       r"$web",
       AZURE_BLOBSERVICE_CONTAINER_RESOURCE_TYPE,
@@ -183,8 +183,8 @@
           },
           "localKeyPair": {
             "Id" : formatResourceId(LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE, core.Id),
-            "PublicKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name),
-            "PrivateKey" : formatName(".azure", accountObject.Id, regionId, core.SubComponent.Name),
+            "PublicKey" : formatName(".azure", accountObject.Id, getRegion(), core.SubComponent.Name),
+            "PrivateKey" : formatName(".azure", accountObject.Id, getRegion(), core.SubComponent.Name),
             "Type" : LOCAL_SSH_PRIVATE_KEY_RESOURCE_TYPE
           }
         }

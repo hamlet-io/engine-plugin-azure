@@ -95,7 +95,7 @@
       name=accountName
       kind=storageProfile.Type
       sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
-      location=regionId
+      location=getRegion()
       customDomain=getStorageCustomDomain(fqdn)
       networkAcls=storageNetworkAclsConfiguration
       accessTier=(storageProfile.AccessTier)!{}
@@ -244,7 +244,7 @@
                   "  # Create SSH credential for the segment",
                   "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
                   "  az_create_ssh_keypair \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                      "\"" + regionId + "\" " +
+                      "\"" + getRegion() + "\" " +
                       "\"" + accountObject.Id + "\" || return $?",
                   "  #",
                   "  # Upload to keyvault if required.",
@@ -399,7 +399,7 @@
     [@createKeyVault
       id=keyvault.Id
       name=keyvault.Name
-      location=regionId
+      location=getRegion()
       properties=
         getKeyVaultProperties(
           tenantId,

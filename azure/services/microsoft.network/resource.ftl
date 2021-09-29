@@ -125,7 +125,7 @@
 
 [#macro createNetworkSecurityGroupSecurityRule
   id
-  name  
+  name
   access
   direction
   sourceAddressPrefix=""
@@ -158,7 +158,7 @@
     name=name
     profile=AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE
     dependsOn=dependsOn
-    properties=  
+    properties=
       {
         "access" : access,
         "direction" : direction,
@@ -176,14 +176,14 @@
       attributeIfContent("priority", priority)
     tags=tags
   /]
-  
+
 [/#macro]
 
 [#macro createRouteTableRoute
   id
   name
-  nextHopType 
-  addressPrefix="" 
+  nextHopType
+  addressPrefix=""
   nextHopIpAddress=""
   dependsOn=[]
   tags={}]
@@ -192,7 +192,7 @@
     id=id
     name=name
     profile=AZURE_ROUTE_TABLE_ROUTE_RESOURCE_TYPE
-    properties={ "nextHopType" : nextHopType } + 
+    properties={ "nextHopType" : nextHopType } +
       attributeIfContent("addressPrefix", addressPrefix) +
       attributeIfContent("nextHopIpAddress", nextHopIpAddress)
     dependsOn=dependsOn
@@ -270,7 +270,7 @@
   dependsOn=[]
   tags={}]
 
-  [@armResource 
+  [@armResource
     id=id
     name=name
     profile=AZURE_SERVICE_ENDPOINT_POLICY_RESOURCE_TYPE
@@ -293,7 +293,7 @@
   ]
 
   [#return {} +
-    attributeIfContent("id", id) + 
+    attributeIfContent("id", id) +
     attributeIfContent("name", name) +
     attributeIfContent("properties", properties)
   ]
@@ -321,7 +321,7 @@
   serviceType=""
   locations=[]]
 
-  [#return {} + 
+  [#return {} +
     attributeIfContent("service", serviceType) +
     attributeIfContent("locations", locations)
   ]
@@ -394,7 +394,7 @@
   name
   dnsServers=[]
   addressSpacePrefixes=[]
-  location=regionId
+  location=getRegion()
   dependsOn=[]]
 
   [@armResource
@@ -404,7 +404,7 @@
     location=location
     dependsOn=dependsOn
     properties={} +
-      attributeIfContent("addressSpace", {} + 
+      attributeIfContent("addressSpace", {} +
         attributeIfContent("addressPrefixes", addressSpacePrefixes)
       ) +
       attributeIfContent("dhcpOptions", {} +
@@ -521,8 +521,8 @@
         "publicIPAddressVersion" : publicIpAddressVersion
       } +
       attributeIfContent(
-        "dnsSettings", 
-        {} + 
+        "dnsSettings",
+        {} +
         attributeIfContent("domainNameLabel", dnsNameLabel) +
         attributeIfContent("fqdn", dnsFQDN) +
         attributeIfContent("reverseFqdn", dnsReverseFQDN)
@@ -540,7 +540,7 @@
       attributeIfContent("ipTags", ipTags) +
       attributeIfContent("ipAddress", ipAddress) +
       attributeIfContent(
-        "publicIPPrefix", 
+        "publicIPPrefix",
         {} +
         attributeIfContent("id", ipPrefixId)
       ) +
@@ -592,7 +592,7 @@
   [#list applicationSecurityGroupIds as id]
     [#local applicationSecurityGroupReferences += [{ "id" : id }]]
   [/#list]
-  
+
   [#return
     {
       "name" : name,
@@ -603,7 +603,7 @@
         attributeIfContent("privateIPAllocationMethod", privateIpAllocationMethod) +
         attributeIfContent("privateIPAddressVersion", privateIpAddressVersion)
       } +
-      attributeIfContent("virtualNetworkTaps", vnetTapReferences) + 
+      attributeIfContent("virtualNetworkTaps", vnetTapReferences) +
       attributeIfContent("applicationGatewayBackendAddressPools", appGWBackendAddressPoolReferences) +
       attributeIfContent("loadBalancerBackendAddressPools", loadBalancerBackendAddressPoolReferences) +
       attributeIfContent("loadBalancerInboundNatRules", loadBalancerInboundNatRulesReferences) +
@@ -620,7 +620,7 @@
             attributeIfContent("idleTimeoutInMinutes", publicIPAddressConfigurationIdleTimeout) +
             attributeIfContent("ipTags", publicIPAddressConfigurationIPTags) +
             attributeIfContent("publicIPAddressVersion", publicIPAddressConfigurationIPVersion) +
-            attributeIfContent("publicIPPrefix", {} + 
+            attributeIfContent("publicIPPrefix", {} +
               attributeIfContent("id", publicIPAddressConfigurationIPPrefixId)
             )
           )

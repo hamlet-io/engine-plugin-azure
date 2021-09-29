@@ -189,7 +189,7 @@
         [@createPublicIPAddress
             id=publicIp.Id
             name=publicIp.Name
-            location=regionId
+            location=getRegion()
             allocationMethod="Static"
             dependsOn=[]
         /]
@@ -231,7 +231,7 @@
     [@createAutoscaleSettings
         id=autoscale.Id
         name=autoscale.Name
-        location=regionId
+        location=getRegion()
         targetId=scaleSet.Reference
         profiles=profiles
         dependsOn=[scaleSet.Reference]
@@ -293,7 +293,7 @@
     [@createNetworkInterface
         id=nic.Id
         name=nic.Name
-        location=regionId
+        location=getRegion()
         nsgId=nsg.Reference
         ipConfigurations=[nicIpConfig]
         dependsOn=(publicIp?has_content)?then([publicIp.Reference], [])
@@ -339,7 +339,7 @@
         id=scaleSet.Id
         name=scaleSet.Name
         identity={"type": "SystemAssigned"}
-        location=regionId
+        location=getRegion()
         skuName=sku.Name
         skuTier=sku.Tier
         skuCapacity=sku.Capacity
