@@ -96,7 +96,7 @@
                 [@createPostgresServer
                     id=server.Id
                     name=server.Name
-                    location=regionId
+                    location=getRegion()
                     createMode=createMode
                     adminName=masterAccount
                     adminSecret=masterSecret
@@ -147,7 +147,7 @@
                 [@createMySqlServer
                     id=server.Id
                     name=server.Name
-                    location=regionId
+                    location=getRegion()
                     createMode=createMode
                     adminName=masterAccount
                     adminSecret=masterSecret

@@ -166,7 +166,7 @@
 [#function pseudoArmStackOutputScript description outputs filesuffix=""]
     [#local outputString = ""]
 
-    [#list getArmTemplateCoreOutputs(regionId, accountObject.ProviderId!"") as key,value]
+    [#list getArmTemplateCoreOutputs(getRegion(), accountObject.ProviderId!"") as key,value]
         [#if value?is_hash]
             [#local outputs += { key, value.value }]
         [#else]

@@ -20,7 +20,7 @@
             [@createAppServicePlan
                 id=host.Id
                 name=host.Name
-                location=regionId
+                location=getRegion()
                 sku=getAppServicePlanSku(profiles)
                 properties=getAppServicePlanProperties(profiles)
                 kind=getAppServicePlanKind(profiles)
@@ -31,7 +31,7 @@
                 [@createAutoscaleSettings
                     id=autoscaleSettings.Id
                     name=autoscaleSettings.Name
-                    location=regionId
+                    location=getRegion()
                     profiles=getAutoScaleProfiles(occurrence, profiles host.Reference)
                     targetId=host.Reference
                     dependsOn=[host.Reference]

@@ -127,7 +127,7 @@
                         [@createUserAssignedIdentity
                             id=identity.Id
                             name=identity.Name
-                            location=regionId
+                            location=getRegion()
                         /]
                         [#local appGatewayDependencies += [identity.Reference]]
 
@@ -341,7 +341,7 @@
             [@createPublicIPAddress
                 id=publicIP.Id
                 name=publicIP.Name
-                location=regionId
+                location=getRegion()
                 allocationMethod="Static"
             /]
 
@@ -359,7 +359,7 @@
             [@createApplicationGateway
                 id=lb.Id
                 name=lb.Name
-                location=regionId
+                location=getRegion()
                 skuName=lb.Sku
                 skuTier=lb.Sku
                 skuCapacity=1

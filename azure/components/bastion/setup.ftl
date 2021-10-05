@@ -52,13 +52,13 @@
   [@createPublicIPAddressPrefix
     id=prefix.Id
     name=prefix.Name
-    location=regionId
+    location=getRegion()
     prefixLength=28
   /]
   [@createPublicIPAddress
     id=publicIP.Id
     name=publicIP.Name
-    location=regionId
+    location=getRegion()
     ipPrefixId=prefix.Reference
     dependsOn=
       [
@@ -77,7 +77,7 @@
   [@createNetworkInterface
     id=nic.Id
     name=nic.Name
-    location=regionId
+    location=getRegion()
     nsgId=nsg.Reference
     ipConfigurations=[nicIpConfiguration]
     dependsOn=
@@ -150,7 +150,7 @@
     id=scaleSet.Id
     identity={"type": "SystemAssigned"}
     name=scaleSet.Name
-    location=regionId
+    location=getRegion()
     skuName=vmssVMSkuProfile.Name
     skuTier=vmssVMSkuProfile.Tier
     skuCapacity=vmssVMSkuProfile.Capacity
@@ -182,7 +182,7 @@
     [@createAutoscaleSettings
       id=autoScalePolicy.Id
       name=autoScalePolicy.Name
-      location=regionId
+      location=getRegion()
       targetId=autoScaleTargetId
       profiles=[autoScaleProfile]
       enabled=autoScaleConfig.Enabled

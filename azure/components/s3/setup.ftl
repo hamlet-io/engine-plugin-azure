@@ -57,7 +57,7 @@
             name=account.Name
             kind=storageProfile.Type
             sku=getStorageSku(storageProfile.Tier, storageProfile.Replication)
-            location=regionId
+            location=getRegion()
             customDomain=fqdn?has_content?then(
                 getStorageCustomDomain(fqdn),
                 {})
