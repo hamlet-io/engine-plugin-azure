@@ -7,8 +7,6 @@
 
   [#local vnetId = formatVirtualNetworkId(core.Id)]
   [#local vnetName = core.ShortTypedFullName]
-  [#local nsgId = formatDependentNetworkSecurityGroupId(vnetId)]
-  [#local nsgName = formatName(vnetName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
 
   [#-- flow log config --]
   [#local flowLogs = {}]
@@ -17,7 +15,7 @@
 
     [#-- default storage --]
     [#local storageId = getExistingReference(formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id))]
-    
+
     [#if flowlog.Prefix??]
       [@fatal
         message="Network Watcher FlowLogs do not support a Prefix in Azure at this time."
@@ -38,7 +36,7 @@
       [#if isPresent(flowlog.s3.Link)]
         [#local flowLogTarget = getLinkTarget(occurrence, flowlog.s3.Link)]
         [#if flowLogTarget?has_content]
-          [#local storageId = flowLogTarget] 
+          [#local storageId = flowLogTarget]
         [/#if]
       [/#if]
 
@@ -122,19 +120,6 @@
     )]
   [/#list]
 
-  [#local elbNSG = {}]
-  [#if (subnets["elb"]!{})?has_content]
-    [#local elbNsgId = formatDependentNetworkSecurityGroupId(vnetId, "elb")]
-    [#local elbNsgName = formatName(nsgName, "elb")]
-    [#local elbNSG = 
-      {
-        "Id" : elbNsgId,
-        "Name" : elbNsgName,
-        "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
-        "Reference" : getReference(elbNsgId, elbNsgName)
-      }]
-  [/#if]
-
   [#assign componentState =
     {
       "Resources" : {
@@ -145,15 +130,8 @@
           "Type" : AZURE_VIRTUAL_NETWORK_RESOURCE_TYPE
         },
         "subnets" : subnets,
-        "routeTableRoutes" : routeTableRoutes,
-        "networkSecurityGroup" : {
-          "Id" : nsgId,
-          "Name" : nsgName,
-          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
-          "Reference" : getReference(nsgId, nsgName)
-        }
+        "routeTableRoutes" : routeTableRoutes
       } +
-      attributeIfContent("elbNSG", elbNSG) +
       attributeIfContent("flowlogs", flowLogs),
       "Attributes" : {},
       "Roles" : {
@@ -202,19 +180,32 @@
   [/#if]
 [/#macro]
 
-[#-- As a subcomponent, this NetworkACL is using a NetworkSecurityGroup
-resource. It remains "networkacl" in name to ensure there is no clash
-with any future networkSecurityGroup components. When referring to
-the Resource alone, it will remain NetworkSecurityGroup for clarity
-as Azure does not have NetworkACLs.--]
 [#macro azure_networkacl_arm_state occurrence parent={}]
 
   [#local core = occurrence.Core]
   [#local solution = occurrence.Configuration.Solution]
 
+  [#local vnet = parent.State.Resources["vnet"]]
+
+  [#local nsgId = formatDependentNetworkSecurityGroupId(vnet.Id, core.Id)]
+  [#local nsgName = formatName(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE, core.ShortFullName)]
+
+
+  [#local resources = {}]
+  [#if ! (core.SubComponent.Name == "_none") ]
+    [#local resources += {
+        "networkSecurityGroup" : {
+          "Id" : nsgId,
+          "Name" : nsgName,
+          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+          "Reference" : getReference(nsgId, nsgName)
+        }
+    }]
+  [/#if]
+
   [#assign componentState =
     {
-      "Resources" : {},
+      "Resources" : resources,
       "Attributes" : {},
       "Roles" : {
         "Inbound" : {},
