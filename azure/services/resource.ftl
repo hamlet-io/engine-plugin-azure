@@ -421,7 +421,7 @@ id, name, type, location, managedBy, tags, properties.provisioningState --]
 
 [#function formatAzureIPAddresses ipAddresses...]
     [#local result = []]
-    [#list ipAddresses as ip]
+    [#list asFlattenedArray(ipAddresses) as ip]
         [#if ip?has_content]
             [#local result += [formatAzureIPAddress(ip)]]
         [/#if]

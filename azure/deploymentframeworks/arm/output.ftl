@@ -368,6 +368,28 @@
     [#return relativeScope]
 [/#function]
 
+[#macro armSubResourceOutput
+    id
+    name
+    profile
+    parentId="" ]
+
+    [#if parentId?has_content]
+        [#local resourceScope = getResourceRelativeScope(parentId)]
+        [#local resourceGroupId = resourceScope.ResourceGroup!""]
+        [#local subscriptionId = resourceScope.Subscription!""]
+    [#else]
+        [#local resourceScope = getResourceRelativeScope(id)]
+    [/#if]
+
+    [#local resourceProfile = getAzureResourceProfile(profile)]
+
+    [@mergeWithJsonOutput
+        name="outputs"
+        content=constructArmOutputsFromMappings(id, name, resourceScope.Level, resourceProfile.outputMappings)
+    /]
+[/#macro]
+
 [#macro armResource
     id
     name

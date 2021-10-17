@@ -374,7 +374,10 @@
                   [#local pointSet += { "Account" : value["value"] } ]
                   [#break]
                 [#default]
-                  [#local pointSet += { key : value["value"] } ]
+                    [#local pointSet += { key : value["value"]?is_hash?then(
+                                                        getJSON(value["value"]),
+                                                        value["value"]
+                    )} ]
                   [#break]
               [/#switch]
             [/#list]
