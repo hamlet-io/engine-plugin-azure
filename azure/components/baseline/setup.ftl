@@ -140,16 +140,6 @@
         ]
     /]
 
-    [@createBlobServiceContainer
-      id=webContainerDefault.Id
-      name=webContainerDefault.Name
-      publicAccess="None"
-      dependsOn=[
-        getReference(accountId, accountName),
-        getReference(blobId, blobName)
-      ]
-    /]
-
     [#-- Create All Registry Containers --]
     [#list registries?values as registry]
 
@@ -179,13 +169,18 @@
 
         [#if (deploymentSubsetRequired(BASELINE_COMPONENT_TYPE, true))]
 
-          [#if subSolution.Role == "appdata"]
-            [#local publicAccess = "Container"]
-          [#elseif subSolution.Role == "operations"]
-            [#local publicAccess = "Blob"]
-          [#else]
-            [#local publicAccess = "None"]
-          [/#if]
+          [#switch subSolution.Role ]
+            [#case "appdata"]
+              [#local publicAccess = "Container"]
+              [#break]
+
+            [#case "operations"]
+              [#local publicAccess = "Blob"]
+              [#break]
+
+            [#default]
+              [#local publicAccess = "None"]
+          [/#switch]
 
           [@createBlobServiceContainer
             id=containerId
