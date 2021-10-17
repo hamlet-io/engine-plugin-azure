@@ -42,48 +42,18 @@
   [#-- Resources                                        --]
   [#-- Add Reference Attribute to all for simple lookup --]
   [#local prefix = resources["publicIPPrefix"]]
-  [#local publicIP = resources["publicIP"]]
   [#local nic = resources["networkInterface"]]
-  [#local nsg = networkResources["networkSecurityGroup"]]
   [#local scaleSet = resources["scaleSet"]]
   [#local autoScalePolicy = resources["autoScalePolicy"]]
+  [#local nsg = resources["networkSecurityGroup"]]
+  [#local nsgRules = resources["nsgRules"]]
 
   [#-- Public IP --]
   [@createPublicIPAddressPrefix
     id=prefix.Id
     name=prefix.Name
     location=getRegion()
-    prefixLength=28
-  /]
-  [@createPublicIPAddress
-    id=publicIP.Id
-    name=publicIP.Name
-    location=getRegion()
-    ipPrefixId=prefix.Reference
-    dependsOn=
-      [
-        prefix.Reference
-      ]
-  /]
-
-  [#-- NIC --]
-  [#local nicIpConfiguration = getIPConfiguration(
-    "default",
-    subnetReference,
-    true,
-    publicIP.Reference
-  )]
-
-  [@createNetworkInterface
-    id=nic.Id
-    name=nic.Name
-    location=getRegion()
-    nsgId=nsg.Reference
-    ipConfigurations=[nicIpConfiguration]
-    dependsOn=
-      [
-        publicIP.Reference
-      ]
+    prefixLength=31
   /]
 
   [#-- VM Scale Set --]
@@ -113,23 +83,24 @@
 
   [#-- IP Config that references the existing NIC and IP Prefix --]
   [#local nicIPReference = getIPConfiguration(
-    "default",
-    subnetReference,
-    true,
-    "",
-    "default",
-    15,
-    [],
-    "IPv4",
-    prefix.Reference
-     "", "", ""
+      "default",
+      subnetReference,
+      true,
+      "",
+      "default",
+      15,
+      [],
+      "IPv4",
+      prefix.Reference
+      "", "", ""
   )]
 
   [#local vmssVMNICConfig = getVirtualMachineNetworkProfileNICConfig(
     nic.Reference,
     nic.Name,
     nicIPReference.properties.primary,
-    [nicIPReference]
+    [nicIPReference],
+    nsg.Reference
   )]
 
   [#local vmssVMNetworkProfile = getVirtualMachineNetworkProfile([vmssVMNICConfig])]
@@ -153,47 +124,38 @@
     location=getRegion()
     skuName=vmssVMSkuProfile.Name
     skuTier=vmssVMSkuProfile.Tier
-    skuCapacity=vmssVMSkuProfile.Capacity
+    skuCapacity=solution.Active?then(1,0)
     vmProfile=vmssVMProfile
     dependsOn=
       [
-        nic.Reference
+        nsg.Reference
       ]
   /]
 
+  [@createNetworkSecurityGroup
+    id=nsg.Id
+    name=nsg.Name
+    location=getRegion()
+  /]
 
-  [#-- AutoScale Policy --]
-  [#if autoScaleConfig.Enabled]
+  [#if (solution.IPAddressGroups)?has_content ]
+    [#list nsgRules as id, rule]
 
-    [#-- TODO: rossmurr4y
-    Add autoscaling configuration for the VMSS.
+      [@createNetworkSecurityGroupSecurityRule
+          id=rule.Id
+          name=rule.Name
+          access="allow"
+          direction="Inbound"
+          sourceAddressPrefixes=getGroupCIDRs(solution.IPAddressGroups, true, occurrence)
+          destinationAddressPrefix="*"
+          destinationPortProfileName=rule.Port
+          priority=200 + rule?index
+          dependsOn=[
+            nsg.Reference
+          ]
+      /]
 
-    [#local autoScaleTargetId = autoScalePolicy.Reference]
-
-    [#local autoScaleRule = getAutoScaleRule()]
-
-    [#local autoScaleProfile = getAutoScaleProfile(
-      "scale-to-zero-when-unused",
-      autoScaleConfig.MinUpdateInstances,
-      "1",
-      autoScaleConfig.MinUpdateInstances,
-      [autoScaleRule])]
-
-    [@createAutoscaleSettings
-      id=autoScalePolicy.Id
-      name=autoScalePolicy.Name
-      location=getRegion()
-      targetId=autoScaleTargetId
-      profiles=[autoScaleProfile]
-      enabled=autoScaleConfig.Enabled
-      dependsOn=
-        [
-          autoScaleTargetId
-        ]
-    /]
-    --]
+    [/#list]
   [/#if]
-
-  [#-- NSG Rule - Allow SSH Inbound --]
 
 [/#macro]
