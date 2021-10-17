@@ -142,57 +142,204 @@
                         "NetworkACLs": {
                             "Public": {
                                 "Rules": {
-                                    "internetAccess": {
+                                    "InternetAccess": {
                                         "Priority": 200,
                                         "Action": "allow",
                                         "Source": {
                                             "IPAddressGroups": [
-                                                "_localnet"
+                                                "_named:VirtualNetwork"
                                             ]
                                         },
                                         "Destination": {
                                             "IPAddressGroups": [
-                                                "_global"
+                                                "_named:Internet"
                                             ],
                                             "Port": "any"
+                                        }
+                                    },
+                                    "AllowInbound" : {
+                                        "Priority" : 300,
+                                        "Action" : "allow",
+                                        "Source" : {
+                                            "IPAddressGroups" : [
+                                                "_named:Internet"
+                                            ]
                                         },
-                                        "ReturnTraffic": false
+                                        "Destination" : {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port" : "any"
+                                        }
                                     }
                                 }
                             },
                             "Private": {
                                 "Rules": {
-                                    "internetAccess": {
+                                    "InternetAccess": {
                                         "Priority": 200,
                                         "Action": "allow",
                                         "Source": {
                                             "IPAddressGroups": [
-                                                "_localnet"
+                                                "_named:VirtualNetwork"
                                             ]
                                         },
                                         "Destination": {
                                             "IPAddressGroups": [
-                                                "_global"
+                                                "_named:Internet"
                                             ],
                                             "Port": "any"
                                         }
                                     },
-                                    "blockInbound": {
-                                        "Priority": 100,
+                                    "BlockInbound": {
+                                        "Priority": 500,
                                         "Action": "deny",
                                         "Source": {
                                             "IPAddressGroups": [
-                                                "_global"
+                                                "_named:Internet"
                                             ]
                                         },
                                         "Destination": {
                                             "IPAddressGroups": [
-                                                "_localnet"
+                                                "_named:VirtualNetwork"
                                             ],
                                             "Port": "any"
                                         }
                                     }
                                 }
+                            },
+                            "LBPublic" : {
+                                "Rules": {
+                                    "InternetAccess": {
+                                        "Priority": 100,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "AzureLoadBalancerInbound": {
+                                        "Priority": 200,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:AzureLoadBalancer"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "GatewayManagerInbound": {
+                                        "Priority": 201,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:GatewayManager"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "AllowInbound": {
+                                        "Priority": 300,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    }
+                                }
+                            },
+                            "LBPrivate" : {
+                                "Rules": {
+                                    "internetAccess": {
+                                        "Priority": 100,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "AzureLoadBalancerAccess": {
+                                        "Priority": 200,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:AzureLoadBalancer"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "GatewayManagerAccess": {
+                                        "Priority": 201,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:GatewayManager"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "blockInbound": {
+                                        "Priority": 500,
+                                        "Action": "deny",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    }
+                                }
+                            },
+                            "_none" : {
+                                "Description" : "Don't apply an NSG to the subnet"
                             }
                         },
                         "Links": {

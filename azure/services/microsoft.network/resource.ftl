@@ -109,7 +109,11 @@
   AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE : {
     "apiVersion" : "2019-02-01",
     "type" : "Microsoft.Network/networkSecurityGroups",
-    "outputMappings" : {}
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
   },
   AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
@@ -157,11 +161,66 @@
   /]
 [/#macro]
 
+[#macro createNetworkSecurityGroupSecurityRuleWithIPAddressGroup
+  id
+  name
+  access
+  direction
+  occurrence
+  sourceIPAddressGroups
+  destinationPortProfileName
+  destinationIPAdressGroups
+  sourcePortProfileName="any"
+  description=""
+  priority=4096
+  tags={}
+  dependsOn=[] ]
+
+  [#local sourceNamedPrefix = sourceIPAddressGroups?map(x -> x?starts_with("_named") || x?starts_with("__named"))?seq_contains(true) ]
+  [#if sourceNamedPrefix && (sourceIPAddressGroups)?size > 1 ]
+    [@fatal
+      message="Named prefixes can only be used as a single source"
+      detail=sourceIPAddressGroups
+    /]
+  [/#if]
+
+  [#local destinationNamedPrefix = destinationIPAdressGroups?map(x -> x?starts_with("_named") || x?starts_with("__named"))?seq_contains(true) ]
+  [#if destinationNamedPrefix && (destinationIPAdressGroups)?size > 1 ]
+    [@fatal
+      message="Named prefixes can only be used as a single source"
+      detail=ruleConfig.Destination.IPAddressGroups
+    /]
+  [/#if]
+
+  [@createNetworkSecurityGroupSecurityRule
+    id=id
+    name=name
+    access=access
+    direction=direction
+
+    sourcePortProfileName=sourcePortProfileName
+    destinationPortProfileName=destinationPortProfileName
+
+    sourceAddressPrefix=sourceNamedPrefix?then(getGroupCIDRs(sourceIPAddressGroups, true, occurrence)[0], "")
+    sourceAddressPrefixes=sourceNamedPrefix?then([], getGroupCIDRs(sourceIPAddressGroups, true, occurrence))
+    destinationAddressPrefix=destinationNamedPrefix?then(getGroupCIDRs(destinationIPAdressGroups, true, occurrence)[0], "")
+    destinationAddressPrefixes=destinationNamedPrefix?then([], getGroupCIDRs(destinationIPAdressGroups, true, occurrence))
+
+    description=description
+    priority=priority
+    tags=tags
+    dependsOn=dependsOn
+  /]
+
+[/#macro]
+
+
 [#macro createNetworkSecurityGroupSecurityRule
   id
   name
   access
   direction
+  sourcePortProfileName="any"
   sourceAddressPrefix=""
   sourceAddressPrefixes=[]
   sourceApplicationSecurityGroups=[]
@@ -183,6 +242,15 @@
       destinationPortProfile.Port?c?string)]
   [/#if]
 
+  [#local sourcePortProfile = ports[sourcePortProfileName]]
+  [#if sourcePortProfileName == "any"]
+    [#local sourcePort = "*"]
+  [#else]
+    [#local sourcePort = isPresent(sourcePortProfile.PortRange)?then(
+      sourcePortProfile.PortRange.From?c + "-" + sourcePortProfile.PortRange.To?c,
+      sourcePortProfile.Port?c?string)]
+  [/#if]
+
   [#--
     Azure will generate alerts if you provide source-port range/s as port filtering is
     primarily on the destination. Their recommendation is to specify "any" ("*") port.
@@ -194,17 +262,17 @@
     dependsOn=dependsOn
     properties=
       {
-        "access" : access,
+        "access" : access?capitalize,
         "direction" : direction,
         "protocol" : destinationPortProfile.IPProtocol?replace("all", "*"),
-        "sourcePortRange": "*"
+        "sourcePortRange": sourcePort
       } +
-      attributeIfContent("sourceAddressPrefix", formatAzureIPAddress(sourceAddressPrefix)) +
-      attributeIfContent("sourceAddressPrefixes", formatAzureIPAddresses(sourceAddressPrefixes)) +
+      attributeIfContent("sourceAddressPrefix", sourceAddressPrefix, formatAzureIPAddress(sourceAddressPrefix)) +
+      attributeIfContent("sourceAddressPrefixes", sourceAddressPrefixes, formatAzureIPAddresses(sourceAddressPrefixes)) +
       attributeIfContent("sourceApplicationSecurityGroups", sourceApplicationSecurityGroups) +
       attributeIfContent("destinationPortRange", destinationPort) +
-      attributeIfContent("destinationAddressPrefix", formatAzureIPAddress(destinationAddressPrefix)) +
-      attributeIfContent("destinationAddressPrefixes", formatAzureIPAddresses(destinationAddressPrefixes)) +
+      attributeIfContent("destinationAddressPrefix", destinationAddressPrefix, formatAzureIPAddress(destinationAddressPrefix)) +
+      attributeIfContent("destinationAddressPrefixes", destinationAddressPrefixes, formatAzureIPAddresses(destinationAddressPrefixes)) +
       attributeIfContent("destinationApplicationSecurityGroups", destinationApplicationSecurityGroups) +
       attributeIfContent("description", description) +
       attributeIfContent("priority", priority)
@@ -361,6 +429,40 @@
   ]
 [/#function]
 
+[#function getVnetSubnet
+  id
+  name
+  addressPrefix=""
+  addressPrefixes=[]
+  networkSecurityGroup={}
+  routeTable={}
+  natGatewayId=""
+  serviceEndpoints=[]
+  serviceEndpointPolicies=[]
+  resourceNavigationLinks=[]
+  serviceAssociationLinks=[]
+  delegations=[]]
+
+  [#return
+    {
+      "id" : id,
+      "name" : name,
+      "properties" : {} +
+        attributeIfContent("addressPrefix", addressPrefix) +
+        attributeIfContent("addressPrefixes", addressPrefixes) +
+        attributeIfContent("networkSecurityGroup", networkSecurityGroup) +
+        attributeIfContent("routeTable", routeTable) +
+        attributeIfContent("natGateway", attributeIfContent("id", natGatewayId)) +
+        attributeIfContent("serviceEndpoints", serviceEndpoints) +
+        attributeIfContent("serviceEndpointPolicies", serviceEndpointPolicies) +
+        attributeIfContent("resourceNavigationLinks", resourceNavigationLinks) +
+        attributeIfContent("serviceAssociationLinks", serviceAssociationLinks) +
+        attributeIfContent("delegations", delegations)
+    }
+  ]
+
+[/#function]
+
 [#macro createSubnet
   id
   name
@@ -426,6 +528,7 @@
 [#macro createVNet
   id
   name
+  subnets=[]
   dnsServers=[]
   addressSpacePrefixes=[]
   location=getRegion()
@@ -443,8 +546,21 @@
       ) +
       attributeIfContent("dhcpOptions", {} +
         attributeIfContent("dnsServers", dnsServers)
+      ) +
+      attributeIfContent(
+        "subnets",
+        subnets
       )
   /]
+
+  [#list subnets as subnet ]
+
+    [@armSubResourceOutput
+      id=subnet.id
+      name=formatAzureResourceName(subnet.name, AZURE_SUBNET_RESOURCE_TYPE, name)
+      profile=AZURE_SUBNET_RESOURCE_TYPE
+    /]
+  [/#list]
 [/#macro]
 
 [#macro createNetworkWatcherFlowLog

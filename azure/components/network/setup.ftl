@@ -15,84 +15,11 @@
   [#local vnetCIDR = resources["vnet"].Address]
   [#local flowlogs = resources["flowlogs"]!{}]
 
+  [#local vnetDependencies = []]
+
   [#if deploymentSubsetRequired(NETWORK_COMPONENT_TYPE, true)]
 
-    [#-- 1. Vnet --]
-    [@createVNet
-      id=vnetId
-      name=vnetName
-      location=getRegion()
-      addressSpacePrefixes=[vnetCIDR]
-    /]
-
-    [#-- 2. NetworkSecurityGroup --]
-    [#local networkSecurityGroupId = resources["networkSecurityGroup"].Id]
-    [#local networkSecurityGroupName = resources["networkSecurityGroup"].Name]
-
-    [@createNetworkSecurityGroup
-      id=networkSecurityGroupId
-      name=networkSecurityGroupName
-      location=getRegion()
-    /]
-
-    [#-- Seperate NSG for the ELB Subnet                                              --]
-    [#-- Application Gateways have some very specific requirements around NSG         --]
-    [#-- rules that must be in place. At present time they are overly-open in         --]
-    [#-- the access that they grant. To reduce this, the ELB subnet which will        --]
-    [#-- be used by the App Gateways will get their own NSG. This can be              --]
-    [#-- removed once the NSG Rules can be associated with the Azure Service          --]
-    [#-- tag "GatewayManager" https://github.com/MicrosoftDocs/azure-docs/issues/38691--]
-    [#if (resources["subnets"]["elb"]!{})?has_content]
-
-      [#if resources["elbNSG"]?has_content]
-        [#local elbNSG = resources["elbNSG"]]
-      [/#if]
-
-      [@createNetworkSecurityGroup
-        id=elbNSG.Id
-        name=elbNSG.Name
-        location=getRegion()
-      /]
-
-      [@createNetworkSecurityGroupSecurityRule
-        id=formatDependentSecurityRuleId("elb", "AllowGatewayManager")
-        name=formatAzureResourceName(
-                formatName("elb", "AllowGatewayManager"),
-                AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-                elbNSG.Name)
-        description="Grants the GatewayManager access to App Gateway resources"
-        destinationPortProfileName="gatewaymanager"
-        sourceAddressPrefix="*"
-        destinationAddressPrefix="*"
-        access="allow"
-        priority=100
-        direction="Inbound"
-        dependsOn=
-          [
-            elbNSG.Reference
-          ]
-      /]
-
-      [@createNetworkSecurityGroupSecurityRule
-        id=formatDependentSecurityRuleId("elb", "AllowAzureLoadBalancer")
-        name=formatAzureResourceName(
-                formatName("elb", "AllowAzureLoadBalancer"),
-                AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-                elbNSG.Name)
-        description="Grants the GatewayManager access to App Gateway resources"
-        destinationPortProfileName="any"
-        sourceAddressPrefix="AzureLoadBalancer"
-        destinationAddressPrefix="*"
-        access="allow"
-        priority=110
-        direction="Inbound"
-        dependsOn=
-          [
-            elbNSG.Reference
-          ]
-      /]
-
-    [/#if]
+    [#local vnetSubnets = []]
 
     [#-- 3. Subnets for every tier --]
     [#if (resources["subnets"]!{})?has_content]
@@ -121,34 +48,12 @@
         [/#if]
 
         [#local routeTableLink = getLinkTarget(occurrence, networkLink + { "RouteTable" : routeTableId }, false)]
+        [#local routeTableResource = (routeTableLink.State.Resources["routeTable"])!{}]
+
         [#local networkACLLink = getLinkTarget(occurrence, networkLink + { "NetworkACL" : networkACLId }, false)]
-        [#local routeTableResource = routeTableLink.State.Resources["routeTable"]!{}]
+        [#local networkACLResource = (networkACLLink.State.Resources["networkSecurityGroup"])!{}]
 
         [#local subnet = subnets.subnet]
-        [#local subnetIndex = subnets?index]
-        [#local subnetName = formatAzureResourceName(
-          subnet.Name,
-          getResourceType(subnet.Id),
-          vnetName)]
-
-        [#-- Determine dependencies --]
-        [#local dependencies = [
-            getReference(vnetId, vnetName)
-        ]]
-
-        [#if subnetIndex > 0]
-          [#local previousSubnet = resources["subnets"]?values[subnetIndex - 1].subnet]
-          [#local dependencies += [
-            getReference(
-              previousSubnet.Id,
-              formatAzureResourceName(
-                previousSubnet.Name,
-                AZURE_SUBNET_RESOURCE_TYPE,
-                vnetName
-              )
-            )
-          ]]
-        [/#if]
 
         [#-- Retrieve the NetworkEndpoint's from the Gateway component and prepare the Management Tier subnet for them --]
         [#local networkEndpointGroups = []]
@@ -191,89 +96,43 @@
 
         [#-- Add routeTable details if applicable --]
         [#if routeTableResource?has_content]
-          [#local dependencies += [getReference(routeTableResource)]]
+          [#local vnetDependencies += [getReference(routeTableResource)]]
         [/#if]
 
-        [#if networkTier.Name == "elb"]
-          [#local networkSecurityGroupReference = getSubResourceReference(elbNSG.Reference)]
-          [#local dependencies += [elbNSG.Reference]]
-        [#else]
-          [#local networkSecurityGroupReference = getSubResourceReference(
-            getReference(networkSecurityGroupId, networkSecurityGroupName)
-          )]
+        [#if networkACLResource?has_content ]
+          [#local vnetDependencies += [ getReference(networkACLResource)]]
         [/#if]
 
-        [@createSubnet
-          id=subnet.Id
-          name=subnetName
-          addressPrefix=subnet.Address
-          networkSecurityGroup=networkSecurityGroupReference
-          routeTable={} + routeTableResource?has_content?then(
-            getSubResourceReference(getReference(routeTableResource)),
-            {}
+        [#local vnetSubnets += [
+          getVnetSubnet(
+            subnet.Id,
+            subnet.Name,
+            subnet.Address,
+            [],
+            {} + networkACLResource?has_content?then(
+                  getSubResourceReference(getReference(networkACLResource)),
+                  {}
+            ),
+            {} + routeTableResource?has_content?then(
+                  getSubResourceReference(getReference(routeTableResource)),
+                  {}
+            ),
+            ""
+            serviceEndpoints
           )
-          serviceEndpoints=serviceEndpoints
-          dependsOn=dependencies
-        /]
-
-        [#local networkACLConfiguration = networkACLLink.Configuration.Solution]
-
-        [#list networkACLConfiguration.Rules as ruleId, ruleConfig]
-
-          [#--
-            Rules are Subnet-specific.
-            Where an IPAddressGroup is found to be _localnet, use the subnet CIDR instead.
-          --]
-          [#if ruleConfig.Source.IPAddressGroups?seq_contains("_localnet")]
-            [#local direction = "Outbound"]
-            [#local sourceAddressPrefix = subnet.Address]
-          [#else]
-            [#local direction = "Inbound"]
-            [#local sourceAddressPrefix = getGroupCIDRs(
-              ruleConfig.Source.IPAddressGroups,
-              true,
-              occurrence)[0]]
-          [/#if]
-
-          [#if ruleConfig.Destination.IPAddressGroups?seq_contains("_localnet")]
-            [#local destinationAddressPrefix = subnet.Address]
-          [#else]
-            [#local destinationAddressPrefix = getGroupCIDRs(
-              ruleConfig.Destination.IPAddressGroups,
-              true,
-              occurrence)[0]]
-          [/#if]
-
-          [#if subnet.Name == "elb"]
-            [#local nsgName = elbNSG.Name]
-            [#local nsgId = elbNSG.Id]
-          [#else]
-            [#local nsgName = networkSecurityGroupName]
-            [#local nsgId = networkSecurityGroupId]
-          [/#if]
-
-          [@createNetworkSecurityGroupSecurityRule
-            id=formatDependentSecurityRuleId(subnet.Id, ruleId)
-            name=formatAzureResourceName(
-              formatName(tierId,ruleId),
-              getResourceType(formatDependentSecurityRuleId(vnetId, formatName(tierId,ruleId))),
-              nsgName)
-            description=description
-            destinationPortProfileName=ruleConfig.Destination.Port
-            sourceAddressPrefix=sourceAddressPrefix
-            destinationAddressPrefix=destinationAddressPrefix
-            access=ruleConfig.Action
-            priority=(ruleConfig.Priority + tierId?index + ruleId?index)
-            direction=direction
-            dependsOn=
-              [
-                getReference(nsgId, nsgName)
-              ]
-          /]
-
-        [/#list]
+        ]]
       [/#list]
     [/#if]
+
+    [#-- 1. Vnet --]
+    [@createVNet
+      id=vnetId
+      name=vnetName
+      location=getRegion()
+      addressSpacePrefixes=[vnetCIDR]
+      subnets=vnetSubnets
+      dependsOn=vnetDependencies
+    /]
 
     [#-- Sub Components --]
     [#list occurrence.Occurrences![] as subOccurrence]
@@ -284,19 +143,76 @@
 
       [@debug message="Suboccurrence" context=subOccurrence enabled=false /]
 
-      [#-- 4. RouteTables --]
-      [#if core.Type == NETWORK_ROUTE_TABLE_COMPONENT_TYPE &&
-        core.SubComponent.Name != "default"]
+      [#switch core.Type]
+        [#case NETWORK_ROUTE_TABLE_COMPONENT_TYPE]
+          [#if ! resources["routeTable"]?? ]
+            [#continue]
+          [/#if]
 
-        [#local routeTable = resources["routeTable"]]
+          [#local routeTable = resources["routeTable"]]
 
-        [@createRouteTable
-          id=routeTable.Id
-          name=routeTable.Name
-          location=getRegion()
-        /]
+          [@createRouteTable
+            id=routeTable.Id
+            name=routeTable.Name
+            location=getRegion()
+          /]
+          [#break]
 
-      [/#if]
+        [#case NETWORK_ACL_COMPONENT_TYPE ]
+          [#if ! resources["networkSecurityGroup"]?? ]
+            [#continue]
+          [/#if]
+
+          [#local nsg = resources["networkSecurityGroup"]]
+
+          [@createNetworkSecurityGroup
+            id=nsg.Id
+            name=nsg.Name
+            location=getRegion()
+          /]
+
+          [#list solution.Rules as ruleId, ruleConfig]
+
+            [#if ruleConfig.Source.IPAddressGroups?seq_contains("_localnet")
+                  || ruleConfig.Source.IPAddressGroups?seq_contains("__localnet")
+                  || ruleConfig.Source.IPAddressGroups?seq_contains("_named:VirtualNetwork")
+                  || ruleConfig.Source.IPAddressGroups?seq_contains("__named:VirtualNetwork")]
+              [#local direction = "Outbound"]
+            [/#if]
+
+            [#if ruleConfig.Destination.IPAddressGroups?seq_contains("_localnet")
+                  || ruleConfig.Destination.IPAddressGroups?seq_contains("__localnet")
+                  || ruleConfig.Destination.IPAddressGroups?seq_contains("_named:VirtualNetwork")
+                  || ruleConfig.Destination.IPAddressGroups?seq_contains("__named:VirtualNetwork")]
+              [#local direction = "Inbound"]
+            [/#if]
+
+            [@createNetworkSecurityGroupSecurityRuleWithIPAddressGroup
+              id=formatDependentSecurityRuleId(nsg.Id, ruleId)
+              name=formatAzureResourceName(
+                      formatName(ruleId),
+                      getResourceType(
+                        formatDependentSecurityRuleId(vnetId, formatName(nsg.Name,ruleId))
+                      ),
+                      nsg.Name
+              )
+              occurrence=subOccurrence
+              description=description
+              destinationPortProfileName=ruleConfig.Destination.Port
+              sourceIPAddressGroups=ruleConfig.Source.IPAddressGroups
+              destinationIPAdressGroups=ruleConfig.Destination.IPAddressGroups
+              access=ruleConfig.Action
+              priority=ruleConfig.Priority
+              direction=direction
+              dependsOn=
+                [
+                  getReference(nsg.Id, nsg.Name)
+                ]
+            /]
+
+          [/#list]
+          [#break]
+      [/#switch]
     [/#list]
 
     [#-- 6. NetworkWatcher : Flow Logs --]
