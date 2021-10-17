@@ -15,8 +15,29 @@
   [#local publicIPPrefixId = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_PREFIX_RESOURCE_TYPE, core.TypedName)]
   [#local publicIPName = formatName(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName)]
   [#local publicIPId = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName)]
-  [#local nsgRuleName = formatName(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, core.TypedName)]
-  [#local nsgRuleId = formatResourceId(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, core.TypedName)]
+
+  [#local nsgId = formatDependentNetworkSecurityGroupId(networkInterfaceId)]
+  [#local nsgName = formatName(networkInterfaceName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
+
+  [#local nsgRules = {}]
+  [#list solution.ComputeInstance.ManagementPorts as mgmtPort ]
+
+    [#local nsgRuleId = formatDependentSecurityRuleId(core.TypedName, mgmtPort)]
+    [#local nsgRuleName = formatAzureResourceName(
+                              formatName(core.TypedName, mgmtPort),
+                              AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
+                              nsgName)]
+
+    [#local nsgRules += {
+        mgmtPort : {
+          "Id" : nsgRuleId,
+          "Name" : nsgRuleName,
+          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
+          "Reference" : getReference(nsgRuleId, nsgRuleName),
+          "Port" : mgmtPort
+        }
+    }]
+  [/#list]
 
   [#assign componentState =
     {
@@ -45,18 +66,13 @@
           "Type" : AZURE_PUBLIC_IP_ADDRESS_PREFIX_RESOURCE_TYPE,
           "Reference" : getReference(publicIPPrefixId, publicIPPrefixName)
         },
-        "publicIP": {
-          "Id" : publicIPId,
-          "Name" : publicIPName,
-          "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-          "Reference" : getReference(publicIPId, publicIPName)
+        "networkSecurityGroup" : {
+          "Id" : nsgId,
+          "Name" : nsgName,
+          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+          "Reference" : getReference(nsgId, nsgName)
         },
-        "networkSecurityGroupRule": {
-          "Id" : nsgRuleId,
-          "Name" : nsgRuleName,
-          "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-          "Reference" : getReference(nsgRuleId, nsgRuleName)
-        }
+        "nsgRules" : nsgRules
       },
       "Attributes" : {},
       "Roles" : {
