@@ -79,7 +79,8 @@
   id
   name
   primary=false
-  ipConfigurations=[]]
+  ipConfigurations=[]
+  nsgRef=""]
 
   [#return
     {
@@ -88,7 +89,8 @@
       "properties" : {
         "primary" : primary,
         "ipConfigurations" : ipConfigurations
-      }
+      } +
+      attributeIfContent("networkSecurityGroup", nsg, { "id" : nsgRef })
     }
   ]
 
