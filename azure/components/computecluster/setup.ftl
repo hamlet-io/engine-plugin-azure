@@ -17,6 +17,7 @@
     [#local role       = resources["role"]]
     [#local scaleSet   = resources["scaleSet"]]
     [#local nic        = resources["networkInterface"]]
+    [#local nsg        = resources["networkSecurityGroup"]]
     [#local nsgRules   = resources["nsgRules"]]
     [#local autoscale  = resources["autoscale"]]
     [#local extension  = resources["bootstrap"]]
@@ -67,7 +68,6 @@
 
     [#local networkResources = networkLinkTarget.State.Resources]
     [#local subnet           = networkResources["subnets"][core.Tier.Id]["subnet"]]
-    [#local nsg              = networkResources["networkSecurityGroup"]]
 
     [#-- Ports --]
     [#local appGatewayBackendAddressPoolIds = []]
@@ -198,7 +198,7 @@
     [#-- Scaling Policies --]
     [#local profiles = []]
 
-    [#list solution.azure\:ScalingProfiles as profileName, profile]
+    [#list solution["azure:ScalingProfiles"] as profileName, profile]
         [#local rules = []]
         [#list profile.ScalingRules as name, rule]
             [#local rules += [getAutoScaleRule(
@@ -238,27 +238,31 @@
     /]
 
     [#-- Network Security Group Rules --]
+    [@createNetworkSecurityGroup
+        id=nsg.Id
+        name=nsg.Name
+        location=getRegion()
+    /]
+
     [#local priority = 200]
     [#list nsgRules?values as rule]
 
-        [#local destination =
-            getReference(
-                publicIp.Id,
-                publicIp.Name,
-                IP_ADDRESS_ATTRIBUTE_TYPE)]
-
-        [@createNetworkSecurityGroupSecurityRule
+        [@createNetworkSecurityGroupSecurityRuleWithIPAddressGroup
             id=rule.Id
             name=rule.Name
-            access="allow"
-            direction="Inbound"
-            sourceAddressPrefix=rule.CIDR!""
-            sourceAddressPrefixes=rule.CIDRs![]
-            destinationAddressPrefix=destination
+            occurrence=occurrence
             destinationPortProfileName=rule.Port
-            priority=priority
+            destinationIPAdressGroups=["_global"]
+            sourceIPAddressGroups=rule.IPAddressGroups
+            access="Allow"
+            priority=priority + rule?index
+            direction="Inbound"
+            dependsOn=
+            [
+                getReference(nsg.Id, nsg.Name)
+            ]
         /]
-        [#local priority++]
+
     [/#list]
 
     [#-- Scale Set Config --]
@@ -296,7 +300,10 @@
         location=getRegion()
         nsgId=nsg.Reference
         ipConfigurations=[nicIpConfig]
-        dependsOn=(publicIp?has_content)?then([publicIp.Reference], [])
+        dependsOn=[
+            nsg.Reference
+        ] +
+        (publicIp?has_content)?then([publicIp.Reference], [])
     /]
 
     [#local storageAccountType = [vmStorage.Tier, vmStorage.Replication]?join('_')]
