@@ -8,55 +8,6 @@
   [#local vnetId = formatVirtualNetworkId(core.Id)]
   [#local vnetName = core.ShortTypedFullName]
 
-  [#-- flow log config --]
-  [#local flowLogs = {}]
-  [#list solution.Logging.FlowLogs as id,flowlog]
-    [#local flowLogId = formatDependentNetworkWatcherId(nsgId)]
-
-    [#-- default storage --]
-    [#local storageId = getExistingReference(formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id))]
-
-    [#if flowlog.Prefix??]
-      [@fatal
-        message="Network Watcher FlowLogs do not support a Prefix in Azure at this time."
-        context=flowlog
-      /]
-    [/#if]
-
-    [#if (flowlog.DestinationType!{})?has_content && (flowlog.DestinationType != "s3")]
-      [@fatal
-        message="Invalid flow log destination type. Only s3 is supported."
-        context=flowlog
-      /]
-    [/#if]
-
-    [#-- destination assignment --]
-    [#if flowlog.s3??]
-      [#-- link --]
-      [#if isPresent(flowlog.s3.Link)]
-        [#local flowLogTarget = getLinkTarget(occurrence, flowlog.s3.Link)]
-        [#if flowLogTarget?has_content]
-          [#local storageId = flowLogTarget]
-        [/#if]
-      [/#if]
-
-      [#-- prefix --]
-      [#if flowlog.s3.Prefix??]
-        [#local prefix = flowlog.s3.Prefix ]
-      [/#if]
-    [/#if]
-
-    [#local flowLogs += {
-        id : {
-          "Id" : formatId(AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE, nsgId, id),
-          "Name" : formatName(vnetName, AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE),
-          "Type" : AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE,
-          "StorageId" : storageId,
-          "Prefix" : prefix
-        }
-    }]
-  [/#list]
-
   [#local networkCIDR = isPresent(network.CIDR)?then(
     network.CIDR.Address + "/" + network.CIDR.Mask,
     solution.Address.CIDR )]
@@ -131,8 +82,7 @@
         },
         "subnets" : subnets,
         "routeTableRoutes" : routeTableRoutes
-      } +
-      attributeIfContent("flowlogs", flowLogs),
+      },
       "Attributes" : {},
       "Roles" : {
         "Inbound" : {},
@@ -190,17 +140,73 @@
   [#local nsgId = formatDependentNetworkSecurityGroupId(vnet.Id, core.Id)]
   [#local nsgName = formatName(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE, core.ShortFullName)]
 
-
   [#local resources = {}]
+
   [#if ! (core.SubComponent.Name == "_none") ]
-    [#local resources += {
+
+    [#local resources = mergeObjects(
+      resources,
+      {
         "networkSecurityGroup" : {
           "Id" : nsgId,
           "Name" : nsgName,
           "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
           "Reference" : getReference(nsgId, nsgName)
         }
-    }]
+    })]
+
+    [#-- flow log config --]
+    [#list parent.Configuration.Solution.Logging.FlowLogs as id,flowlog]
+        [#local flowLogId = formatDependentNetworkWatcherId(nsgId)]
+
+        [#-- default storage --]
+        [#local storageId = getExistingReference(formatResourceId(AZURE_STORAGEACCOUNT_RESOURCE_TYPE, core.Id))]
+
+        [#if flowlog.Prefix??]
+          [@fatal
+            message="Network Watcher FlowLogs do not support a Prefix in Azure at this time."
+            context=flowlog
+          /]
+        [/#if]
+
+        [#if (flowlog.DestinationType!{})?has_content && (flowlog.DestinationType != "s3")]
+          [@fatal
+            message="Invalid flow log destination type. Only s3 is supported."
+            context=flowlog
+          /]
+        [/#if]
+
+        [#-- destination assignment --]
+        [#if flowlog.s3??]
+          [#-- link --]
+          [#if isPresent(flowlog.s3.Link)]
+            [#local flowLogTarget = getLinkTarget(parent, flowlog.s3.Link)]
+            [#if flowLogTarget?has_content]
+              [#local storageId = flowLogTarget]
+            [/#if]
+          [/#if]
+
+          [#-- prefix --]
+          [#if flowlog.s3.Prefix??]
+            [#local prefix = flowlog.s3.Prefix ]
+          [/#if]
+        [/#if]
+
+        [#local resources = mergeObjects(
+            resources,
+            {
+              "flowLogs" : {
+                id : {
+                  "Id" : formatId(AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE, vnet.Id, nsgId, id),
+                  "Name" : formatName(core.Name, id, AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE),
+                  "Type" : AZURE_NETWORK_WATCHER_FLOWLOG_RESOURCE_TYPE,
+                  "StorageId" : storageId,
+                  "Prefix" : prefix
+                }
+              }
+            }
+          )]
+      [/#list]
   [/#if]
 
   [#assign componentState =
