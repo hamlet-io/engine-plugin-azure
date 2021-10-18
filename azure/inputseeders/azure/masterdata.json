@@ -256,6 +256,23 @@
                 "RouteTable": "default",
                 "NetworkACL": "Private"
             }
+        },
+        "GatewaySubnet" : {
+            "Id" : "GatewaySubnet",
+            "Name": "GatewaySubnet",
+            "Title": "Gateway Tier",
+            "Description": "Virtual Network Gateway Subnet",
+            "Network": {
+              "Enabled": true,
+              "Link": {
+                "Tier": "mgmt",
+                "Component": "vpc",
+                "Instance": "",
+                "Version": ""
+              },
+              "RouteTable": "default",
+              "NetworkACL": "_none"
+            }
         }
     },
     "Ports": {
@@ -570,9 +587,84 @@
                 "Capacity": 1,
                 "Size": "P1v2",
                 "Family": "Pv2"
+            },
+            "gateway" : {
+                "Name" : "VpnGw2AZ",
+                "Tier" : "VpnGw2AZ",
+                "Generation" : "Generation2"
             }
         }
     },
+    "SecurityProfiles": {
+        "default": {
+          "lb": {
+            "network": {
+              "HTTPSProfile": "ELBSecurityPolicy-TLS-1-2-2017-01"
+            },
+            "application": {
+              "HTTPSProfile": "ELBSecurityPolicy-TLS-1-2-2017-01",
+              "WAFProfile": "OWASP2017",
+              "WAFValueSet": "default"
+            },
+            "classic": {
+              "HTTPSProfile": "ELBSecurityPolicy-2016-08"
+            }
+          },
+          "apigateway": {
+            "CDNHTTPSProfile": "TLSv1",
+            "GatewayHTTPSProfile": "TLS_1_0",
+            "ProtocolPolicy": "redirect-to-https",
+            "WAFProfile": "OWASP2017",
+            "WAFValueSet": "default"
+          },
+          "spa": {
+            "HTTPSProfile": "TLSv1",
+            "WAFProfile": "OWASP2017",
+            "WAFValueSet": "default"
+          },
+          "cdn": {
+            "HTTPSProfile": "TLSv1",
+            "WAFProfile": "OWASP2017",
+            "WAFValueSet": "default"
+          },
+          "IPSecVPN": {
+            "IKEVersions": [
+              "ikev2"
+            ],
+            "Rekey": {
+              "MarginTime": 540,
+              "FuzzPercentage": 100
+            },
+            "ReplayWindowSize": 1024,
+            "DeadPeerDetectionTimeout": 30,
+            "DeadPeerDetectionAction": "clear",
+            "Phase1": {
+              "EncryptionAlgorithms": [
+                "AES256"
+              ],
+              "IntegrityAlgorithms": [
+                "SHA256"
+              ],
+              "DiffeHellmanGroups": [
+                24
+              ],
+              "Lifetime": 3600
+            },
+            "Phase2": {
+              "EncryptionAlgorithms": [
+                "AES256"
+              ],
+              "IntegrityAlgorithms": [
+                "SHA256"
+              ],
+              "DiffeHellmanGroups": [
+                24
+              ],
+              "Lifetime": 3600
+            }
+          }
+        }
+      },
     "Segment": {
         "Network": {
             "InternetAccess": true,
@@ -588,7 +680,7 @@
                     "spare",
                     "elb",
                     "ilb",
-                    "spare",
+                    "GatewaySubnet",
                     "spare",
                     "spare",
                     "spare",
@@ -633,7 +725,8 @@
                 "mgmt",
                 "docs",
                 "gbl",
-                "external"
+                "external",
+                "GatewaySubnet"
             ]
         }
     }

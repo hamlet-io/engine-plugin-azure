@@ -147,6 +147,24 @@
                     "Types" : NUMBER_TYPE
                 }
             ]
+        },
+        {
+            "Names" : "gateway",
+            "Children" : [
+                {
+                    "Names" : "Name",
+                    "Types" : STRING_TYPE
+                },
+                {
+                    "Names" : "Tier",
+                    "Types" : STRING_TYPE
+                },
+                {
+                    "Names" : "Generation",
+                    "Description" : "The Virtual Network Gateway Generation",
+                    "Types" : STRING_TYPE
+                }
+            ]
         }
     ]
 /]

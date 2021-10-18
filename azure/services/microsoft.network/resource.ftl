@@ -1,10 +1,29 @@
 [#ftl]
 
+[#assign AZURE_CONNECTION_RESOURCE_TYPE = "connection"]
+[#assign AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE = "localNetworkGW"]
+[#assign AZURE_VIRTUAL_NETWORK_GATEWAY_RESOURCE_TYPE = "virtualNetworkGW"]
+
+
 [#assign networkResourceProfiles = {
   AZURE_APPLICATION_SECURITY_GROUP_RESOURCE_TYPE : {
     "apiVersion" : "2019-04-01",
     "type" : "Microsoft.Network/applicationSecurityGroups",
     "outputMappings" : {}
+  },
+  AZURE_CONNECTION_RESOURCE_TYPE : {
+    "apiVersion" : "2021-02-01",
+    "type" : "Microsoft.Network/connections",
+    "outputMappings" : {}
+  },
+  AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE : {
+    "apiVersion" : "2021-02-01",
+    "type" : "Microsoft.Network/localNetworkGateways",
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      }
+    }
   },
   AZURE_NETWORK_INTERFACE_RESOURCE_TYPE : {
     "apiVersion" : "2019-09-01",
@@ -17,6 +36,9 @@
     "outputMappings" : {
       REFERENCE_ATTRIBUTE_TYPE : {
         "Property" : "id"
+      },
+      IP_ADDRESS_ATTRIBUTE_TYPE : {
+        "Property" : "properties.ipPrefix"
       }
     }
   },
@@ -64,6 +86,18 @@
     "outputMappings" : {
       REFERENCE_ATTRIBUTE_TYPE : {
         "Property" : "id"
+      }
+    }
+  },
+  AZURE_VIRTUAL_NETWORK_GATEWAY_RESOURCE_TYPE : {
+    "apiVersion" : "2021-02-01",
+    "type" : "Microsoft.Network/virtualNetworkGateways",
+    "outputMappings" : {
+      REFERENCE_ATTRIBUTE_TYPE : {
+        "Property" : "id"
+      },
+      IP_ADDRESS_ATTRIBUTE_TYPE : {
+        "Property" : "properties.bgpSettings.bgpPeeringAddress"
       }
     }
   },
@@ -661,6 +695,199 @@
       attributeIfTrue("enableIPForwarding", enableIPForwarding, enableIPForwarding)
   /]
 
+[/#macro]
+
+[#function getAzNetworkConnectionIPSecPolicy
+  dhGroup
+  ikeEncryption
+  ikeIntegrity
+  ipsecEncryption
+  ipsecIntegrity
+  saLifeTimeSeconds
+  pfsGroup=""
+  saDataSizeKilobytes=""]
+
+  [#if dhGroup?is_number ]
+    [#local dhGroup = "DHGroup${dhGroup}" ]
+  [/#if]
+
+  [#return
+      {
+        "dhGroup" : dhGroup,
+        "ikeEncryption" : ikeEncryption,
+        "ikeIntegrity" : ikeIntegrity,
+        "ipsecEncryption" : ipsecEncryption,
+        "ipsecIntegrity" : ipsecIntegrity,
+        "saLifeTimeSeconds" : saLifeTimeSeconds
+      } +
+      attributeIfContent(
+        "pfsGroup",
+        pfsGroup
+      ) +
+      attributeIfContent(
+        "saDataSizeKilobytes",
+        saDataSizeKilobytes
+      )
+  ]
+[/#function]
+
+[#macro createAzNetworkConnection
+  id
+  name
+  location
+  connectionType
+  enableBGP
+  routingWeight
+  virtualGatewayReference
+  localNetworkReference
+  sharedKey
+  connectionProtocol=""
+  ipsecPolicies=[]
+  dependsOn=[]]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_CONNECTION_RESOURCE_TYPE
+    location=location
+    dependsOn=dependsOn
+    properties=
+      {
+        "connectionType" : connectionType,
+        "enableBGP" : enableBGP,
+        "sharedKey" : sharedKey,
+        "routingWeight" : routingWeight,
+        "virtualNetworkGateway1" : {
+          "id" : virtualGatewayReference
+        },
+        "localNetworkGateway2" : {
+          "id" : localNetworkReference
+        }
+      } +
+      attributeIfContent(
+        "ipsecPolicies",
+        ipsecPolicies
+      ) +
+      attributeIfContent(
+        "connectionProtocol",
+        connectionProtocol
+      )
+  /]
+[/#macro]
+
+[#function getAzLocalNetworkGatewayBGP
+    asn
+    bgpPeeringAddress=""
+    peerWeight=""
+  ]
+
+  [#return
+    {
+      "asn" : asn
+    } +
+    attributeIfContent(
+      "bgpPeeringAddress",
+      bgpPeeringAddress
+    ) +
+    attributeIfContent(
+      "peerWeight",
+      peerWeight
+    )
+  ]
+[/#function]
+
+[#macro createAzLocalNetworkGateway
+    id
+    name
+    gatewayIpAddress
+    location
+    bgpSettings={}
+    localNetworkAddresses=[]
+    dependsOn=[]
+]
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE
+    location=location
+    dependsOn=dependsOn
+    properties=
+      {
+        "gatewayIpAddress" : gatewayIpAddress
+      } +
+      attributeIfContent(
+        "localNetworkAddressSpace",
+        localNetworkAddresses,
+        {
+          "addressPrefixes" : localNetworkAddresses
+        }
+      ) +
+      attributeIfContent(
+        "bgpSettings",
+        bgpSettings
+      )
+  /]
+[/#macro]
+
+
+[#macro createAzVirtualNetworkGateway
+  id
+  name
+  location
+  sku
+  gatewayType
+  enableBGP
+  asn
+  activeActive
+  publicIPReferences
+  subnetReference
+  vpnType="RouteBased"
+  vpnGatewayGeneration="Generation2"
+  privateIPAllocationMethod="Dynamic"
+  dependsOn=[]
+]
+  [#local ipConfigurations = []]
+  [#list publicIPReferences as publicIPReference]
+    [#local ipConfigurations += [
+      {
+        "id" : formatId(id, publicIPReference?index),
+        "name" : formatName(name, publicIPReference?index),
+        "properties" : {
+          "privateIPAllocationMethod" : privateIPAllocationMethod,
+          "publicIPAddress" : {
+            "id" : publicIPReference
+          },
+          "subnet" : {
+            "id" : subnetReference
+          }
+        }
+      }
+    ]]
+  [/#list]
+
+  [@armResource
+    id=id
+    name=name
+    profile=AZURE_VIRTUAL_NETWORK_GATEWAY_RESOURCE_TYPE
+    location=location
+    dependsOn=dependsOn
+    properties=
+      {
+        "gatewayType" : gatewayType,
+        "vpnType" : vpnType,
+        "vpnGatewayGeneration" : vpnGatewayGeneration,
+        "enableBgp" : enableBGP,
+        "bgpSettings" : {
+          "asn" : asn
+        },
+        "activeActive" : activeActive,
+        "ipConfigurations" : ipConfigurations,
+        "sku" : {
+          "name" : sku.Name,
+          "tier" : sku.Tier
+        }
+      }
+  /]
 [/#macro]
 
 [#-- Utility Network functions --]

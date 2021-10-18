@@ -16,28 +16,25 @@
   [#local gwSolution = occurrence.Configuration.Solution]
   [#local gwResources = occurrence.State.Resources]
 
-  [#local occurrenceNetwork = getOccurrenceNetwork(occurrence) ]
+  [#-- Network Lookups & Links --]
+  [#-- As full subnet name is vnet/subnet, retrieve both & format --]
+  [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
   [#local networkLink = occurrenceNetwork.Link!{} ]
-
-  [#if !networkLink?has_content]
-    [@fatal
-      message="Tier Network configuration incomplete"
-      context=
-        {
-          "networkTier" : occurrenceNetwork,
-          "Link" : networkLink
-        }
-    /]
-  [/#if]
-
   [#local networkLinkTarget = getLinkTarget(occurrence, networkLink, false) ]
+
   [#if ! networkLinkTarget?has_content ]
-    [@fatal message="Network could not be found" context=networkLink /]
+      [@fatal message="Network could not be found" context=networkLink /]
+      [#return]
   [/#if]
-  [#local networkResources = networkLinkTarget.State.Resources]
+
+  [#local networkResources = networkLinkTarget.State.Resources ]
+  [#local networkVnetResource = networkResources["vnet"]]
+  [#local subnetResource = getSubnet(gwCore.Tier, networkResources)]
 
   [#local sourceIPAddressGroups = gwSolution.SourceIPAddressGroups]
   [#local sourceCidrs = getGroupCIDRs(sourceIPAddressGroups, true, occurrence)]
+
+  [#local sku = getSkuProfile(occurrence, gwCore.Type)]
 
   [#-- Private DNS Zone Creation --]
   [#--
@@ -70,6 +67,39 @@
     The below structure is left available to ensure simple implimentation of Private
     Links at a later time.
   --]
+
+  [#switch gwSolution.Engine]
+    [#case "private"]
+      [#local virtualNetworkGateway = gwResources["virtualNetworkGateway"] ]
+      [#local gatewayPublicIPs = gwResources["publicIPs"]]
+
+      [#list gatewayPublicIPs?values as gatewayIP ]
+        [@createPublicIPAddress
+            id=gatewayIP.Id
+            name=gatewayIP.Name
+            location=getRegion()
+            allocationMethod="Static"
+        /]
+      [/#list]
+
+      [@createAzVirtualNetworkGateway
+          id=virtualNetworkGateway.Id
+          name=virtualNetworkGateway.Name
+          location=getRegion()
+          sku=sku
+          vpnGatewayGeneration=sku.Generation
+          gatewayType="Vpn"
+          enableBGP=gwSolution.BGP.Enabled
+          asn=gwSolution.BGP.ASN
+          activeActive=true
+          publicIPReferences=gatewayPublicIPs?values?map( x -> x.Reference )
+          subnetReference=subnetResource.Reference
+          vpnType=gwSolution["azure:engine:Private"].RoutingPolicy
+          dependsOn=gatewayPublicIPs?values?map( x -> x.Reference )
+      /]
+      [#break]
+  [/#switch]
+
   [#list occurrence.Occurrences![] as subOccurrence]
 
     [@debug message="Suboccurrence" context=subOccurrence enabled=false /]
@@ -88,6 +118,9 @@
           [/#if]
         [/#list]
         [#break]
+      [#case "private"]
+        [#break]
+
       [#default]
         [@fatal
           message="Unsupported Gateway Engine."
