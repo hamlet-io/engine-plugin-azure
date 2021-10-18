@@ -164,6 +164,7 @@
           [/#if]
 
           [#local nsg = resources["networkSecurityGroup"]]
+          [#local flowlogs = (resources["flowLogs"])!{}]
 
           [@createNetworkSecurityGroup
             id=nsg.Id
@@ -209,31 +210,29 @@
                   getReference(nsg.Id, nsg.Name)
                 ]
             /]
-
           [/#list]
-          [#break]
+
+          [#-- NetworkWatcher : Flow Logs --]
+          [#list flowlogs?values as flowlog]
+            [@createNetworkWatcherFlowLog
+              id=flowlog.Id
+              name=flowlog.Name
+              targetResourceId=nsg.Reference
+              storageId=flowlog.StorageId
+              trafficAnalyticsInterval="0"
+              retentionPolicyEnabled=true
+              retentionDays="7"
+              formatType="JSON"
+              formatVersion="0"
+              dependsOn=
+                [
+                  getReference(flowlog.StorageId)
+                ]
+            /]
+          [/#list]
+
+        [#break]
       [/#switch]
     [/#list]
-
-    [#-- 6. NetworkWatcher : Flow Logs --]
-    [#if flowlogs?has_content]
-      [#list flowlogs?values as flowlog]
-        [@createNetworkWatcherFlowLog
-          id=flowlog.Id
-          name=flowlog.Name
-          targetResourceId=getReference(networkSecurityGroupId)
-          storageId=flowlog.StorageId
-          trafficAnalyticsInterval="0"
-          retentionPolicyEnabled=true
-          retentionDays="7"
-          formatType="JSON"
-          formatVersion="0"
-          dependsOn=
-            [
-              getReference(flowlog.StorageId)
-            ]
-        /]
-      [/#list]
-    [/#if]
   [/#if]
 [/#macro]
