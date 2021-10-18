@@ -19,60 +19,33 @@
     [#local autoscaleName = formatAzureResourceName(core.ShortName, AZURE_AUTOSCALE_SETTINGS_RESOURCE_TYPE)]
     [#local extensionName = formatAzureResourceName(core.ShortName, AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE, scalesetName)]
 
+    [#local publicIPId       = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.ShortName)]
+    [#local publicIPName     = formatAzureResourceName(core.ShortName, AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE)]
+
     [#-- NSG Rules --]
-    [#local occurrenceNetwork = getOccurrenceNetwork(occurrence)]
-    [#local networkLink = occurrenceNetwork.Link!{} ]
-    [#local networkLinkTarget = getLinkTarget(occurrence, networkLink, false) ]
-
-    [#if ! networkLinkTarget?has_content ]
-        [@fatal message="Network could not be found" context=networkLink /]
-        [#return]
-    [/#if]
-
-    [#local networkResources = networkLinkTarget.State.Resources ]
-    [#local nsg = networkResources["networkSecurityGroup"]]
+    [#local nsgId = formatDependentNetworkSecurityGroupId(nicId)]
+    [#local nsgName = formatName(networkInterfaceName, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE)]
 
     [#local nsgRules = {}]
     [#list solution.Ports?values as port ]
-        [#if !(port.LB.Configured)]
-            [#local portCIDRs = getGroupCIDRs(port.IPAddressGroups, true, occurrence)]
-            [#if portCIDRs?has_content]
-                
-                [#local cidrCount = portCIDRs?size]
-                [#local nsgRuleId   = formatResourceId(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, port.Name)]
-                [#local nsgRuleName   = formatAzureResourceName(port.Name, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, nsg.Name)]
+        [#if port.IPAddressGroups?has_content ]
 
-                [#local nsgRules +=
-                    {   
-                        port.Name : {
-                            "Id" : nsgRuleId,
-                            "Name" : nsgRuleName,
-                            "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
-                            "Reference" : getReference(nsgRuleId, nsgRuleName),
-                            "Port" : port.Name
-                        } +
-                        attributeIfTrue("CIDR", (cidrCount == 1), portCIDRs[0]) +
-                        attributeIfTrue("CIDRs", (cidrCount > 1), portCIDRs)
-                    }]
-            [/#if]
+            [#local nsgRuleId     = formatResourceId(AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, nsgId, port.Name)]
+            [#local nsgRuleName   = formatAzureResourceName(port.Name, AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE, nsgName)]
+
+            [#local nsgRules +=
+                {
+                    port.Name : {
+                        "Id" : nsgRuleId,
+                        "Name" : nsgRuleName,
+                        "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_SECURITY_RULE_RESOURCE_TYPE,
+                        "Reference" : getReference(nsgRuleId, nsgRuleName),
+                        "Port" : port.Name,
+                        "IPAddressGroups" : port.IPAddressGroups
+                    }
+                }]
         [/#if]
     [/#list]
-
-    [#-- If there are any NSG Rules defined, then we need a Public IP --]
-    [#local publicIp = {}]
-    [#if nsgRules??]
-
-        [#local ipId       = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.ShortName)]
-        [#local ipName     = formatAzureResourceName(core.ShortName, AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE)]
-
-        [#local publicIp +=
-            {
-                "Id" : ipId,
-                "Name" : ipName,
-                "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                "Reference" : getReference(ipId, ipName)
-            }]
-    [/#if]
 
     [#assign componentState =
         {
@@ -90,6 +63,18 @@
                     "Type" : AZURE_VIRTUALMACHINE_SCALESET_RESOURCE_TYPE,
                     "PrincipalId" : getReference(scaleSetId, scaleSetName, ALLOCATION_ATTRIBUTE_TYPE),
                     "Reference" : getReference(scaleSetId, scalesetName)
+                },
+                "networkSecurityGroup" : {
+                    "Id" : nsgId,
+                    "Name" : nsgName,
+                    "Type" : AZURE_VIRTUAL_NETWORK_SECURITY_GROUP_RESOURCE_TYPE,
+                    "Reference" : getReference(nsgId, nsgName)
+                },
+                "publicIp" : {
+                    "Id" : publicIPId,
+                    "Name" : publicIPName,
+                    "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
+                    "Reference" : getReference(publicIPId, publicIPName)
                 },
                 "networkInterface" : {
                     "Id" : nicId,
@@ -109,8 +94,7 @@
                     "Type" : AZURE_VIRTUALMACHINE_SCALESET_EXTENSION_RESOURCE_TYPE,
                     "Reference" : getReference(extensionId, extensionName)
                 },
-                "nsgRules": nsgRules,
-                "publicIp" : publicIp
+                "nsgRules": nsgRules
             },
             "Attributes" : {},
             "Roles" : {
