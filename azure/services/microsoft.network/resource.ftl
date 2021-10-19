@@ -263,8 +263,8 @@
     properties=
       {
         "access" : access?capitalize,
-        "direction" : direction,
-        "protocol" : destinationPortProfile.IPProtocol?replace("all", "*"),
+        "direction" : direction?capitalize,
+        "protocol" : destinationPortProfile.IPProtocol?replace("all", "*")?capitalize,
         "sourcePortRange": sourcePort
       } +
       attributeIfContent("sourceAddressPrefix", sourceAddressPrefix, formatAzureIPAddress(sourceAddressPrefix)) +
