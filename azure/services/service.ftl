@@ -1,6 +1,6 @@
 [#ftl]
 
-[#-- 
+[#--
     Services are structured within the plugin by their top-level Azure Service Type.
     Where a large resource definition within a given Service warrants being split into
     several files for maintainability, dot-notation will be used.
@@ -9,6 +9,10 @@
 
     ie. "microsoft.network.applicationgateways"
 --]
+
+[#-- Microsoft.AAD --]
+[#assign AZURE_AAD_SERVICE = "microsoft.aad"]
+[@addService provider=AZURE_PROVIDER service=AZURE_AAD_SERVICE /]
 
 [#-- Microsoft.ApiManagement --]
 [#assign AZURE_API_MANAGEMENT_SERVICE = "microsoft.apimanagement"]

@@ -174,7 +174,83 @@
                                             "IPAddressGroups": [
                                                 "_global"
                                             ],
+                                            "Port": "gatewaymanager"
+                                        }
+                                    },
+                                    "blockInbound": {
+                                        "Priority": 500,
+                                        "Action": "deny",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
                                             "Port": "any"
+                                        }
+                                    }
+                                }
+                            },
+                            "DirectoryPrivate" : {
+                                "Rules": {
+                                    "internetAccess": {
+                                        "Priority": 100,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:Internet"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "AzureLoadBalancerAccess": {
+                                        "Priority": 200,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:AzureLoadBalancer"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups": [
+                                                "_named:VirtualNetwork"
+                                            ],
+                                            "Port": "any"
+                                        }
+                                    },
+                                    "AzureActiveDirectoryDomainServicesAccess": {
+                                        "Priority": 201,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:AzureActiveDirectoryDomainServices"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups" : [],
+                                            "Port": "psremoting_tls"
+                                        }
+                                    },
+                                    "CorpNetSawAccess": {
+                                        "Description" : "Azure AD Support Access",
+                                        "Priority": 202,
+                                        "Action": "allow",
+                                        "Source": {
+                                            "IPAddressGroups": [
+                                                "_named:CorpNetSaw"
+                                            ]
+                                        },
+                                        "Destination": {
+                                            "IPAddressGroups" : [],
+                                            "Port": "rdp_tcp"
                                         }
                                     },
                                     "blockInbound": {
@@ -282,6 +358,24 @@
                 "To": 65535
             },
             "IPProtocol": "all"
+        },
+        "psremoting_tls" : {
+            "Description" : "PowerShell Remoting TLS",
+            "IPProtocol" : "tcp",
+            "Port" : 5986,
+            "Protocol" : "TCP"
+        },
+        "rdp_tcp" : {
+            "Description" : "Remote Desktop Protocol",
+            "IPProtocol" : "tcp",
+            "Port" : 3389,
+            "Protocol" : "TCP"
+        },
+        "rdp_udp" : {
+            "Description" : "Remote Desktop Protocol",
+            "IPProtocol" : "udp",
+            "Port" : 3389,
+            "Protocol" : "UDP"
         }
     },
     "Storage": {
@@ -592,6 +686,9 @@
                 "Name" : "VpnGw2AZ",
                 "Tier" : "VpnGw2AZ",
                 "Generation" : "Generation2"
+            },
+            "directory" : {
+                "Name" : "Standard"
             }
         }
     },

@@ -165,6 +165,15 @@
                     "Types" : STRING_TYPE
                 }
             ]
+        },
+        {
+            "Names" : "directory",
+            "Children" : [
+                {
+                    "Names" : "Name",
+                    "Types" : STRING_TYPE
+                }
+            ]
         }
     ]
 /]
