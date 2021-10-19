@@ -36,6 +36,12 @@
 
   [#local sku = getSkuProfile(occurrence, gwCore.Type)]
 
+  [#switch gwSolution.Engine]
+    [#case "private"]
+      [#local virtualNetworkGateway = gwResources["virtualNetworkGateway"] ]
+      [#break]
+  [/#switch]
+
   [#-- Private DNS Zone Creation --]
   [#--
 
@@ -61,44 +67,8 @@
   [/#if]
   --]
 
-  [#--
-    Currently there are no "destination" requirements for an Azure Gateway component
-    (they are created as a part of the Subnet resource in the Network component).
-    The below structure is left available to ensure simple implimentation of Private
-    Links at a later time.
-  --]
-
-  [#switch gwSolution.Engine]
-    [#case "private"]
-      [#local virtualNetworkGateway = gwResources["virtualNetworkGateway"] ]
-      [#local gatewayPublicIPs = gwResources["publicIPs"]]
-
-      [#list gatewayPublicIPs?values as gatewayIP ]
-        [@createPublicIPAddress
-            id=gatewayIP.Id
-            name=gatewayIP.Name
-            location=getRegion()
-            allocationMethod="Static"
-        /]
-      [/#list]
-
-      [@createAzVirtualNetworkGateway
-          id=virtualNetworkGateway.Id
-          name=virtualNetworkGateway.Name
-          location=getRegion()
-          sku=sku
-          vpnGatewayGeneration=sku.Generation
-          gatewayType="Vpn"
-          enableBGP=gwSolution.BGP.Enabled
-          asn=gwSolution.BGP.ASN
-          activeActive=true
-          publicIPReferences=gatewayPublicIPs?values?map( x -> x.Reference )
-          subnetReference=subnetResource.Reference
-          vpnType=gwSolution["azure:engine:Private"].RoutingPolicy
-          dependsOn=gatewayPublicIPs?values?map( x -> x.Reference )
-      /]
-      [#break]
-  [/#switch]
+  [#local virtualNetworkGWIPConfigurations = []]
+  [#local virtualNetworkGWBGPAddresses = []]
 
   [#list occurrence.Occurrences![] as subOccurrence]
 
@@ -119,6 +89,50 @@
         [/#list]
         [#break]
       [#case "private"]
+
+        [#local gatewayIP = resources["publicIP"]]
+        [#local ipConfigurationId = formatId("ipConfiguration", core.TypedName)]
+        [#local ipConfigurationName = formatName("ipConfiguration", core.TypedName)]
+
+        [#if core.Type == NETWORK_GATEWAY_DESTINATION_COMPONENT_TYPE ]
+          [#if (solution.SiteToSite.InsideTunnelCIDRs)?? ]
+              [#if ! (((solution.SiteToSite.InsideTunnelCIDRs)![])[0])?ends_with("/32")]
+                [@fatal
+                  message="Invalid InsideTunnelCIDRs for Azure Virtual Network Gateway"
+                  detail="Provide a /32 CIDR for the BBP address that will be used inside the tunnel"
+                  context={
+                    "Id" : core.RawId,
+                    "Address" : solution.SiteToSite.InsideTunnelCIDRs
+                  }
+                /]
+              [/#if]
+
+              [#local virtualNetworkGWBGPAddresses += [
+                      getAzVirtualNetworkGatewayBgpAddress(
+                        (solution.SiteToSite.InsideTunnelCIDRs[0])?split("/")[0],
+                        ipConfigurationName,
+                        virtualNetworkGateway.Reference
+                      )]]
+          [/#if]
+
+          [#local virtualNetworkGWIPConfigurations += [
+                      getAzVirtualNetworkGatewayIPConfiguration(
+                        ipConfigurationId,
+                        ipConfigurationName,
+                        gatewayIP.Reference
+                        subnetResource.Reference
+                      )
+          ]]
+
+          [@createPublicIPAddress
+              id=gatewayIP.Id
+              name=gatewayIP.Name
+              location=getRegion()
+              allocationMethod="Static"
+          /]
+
+        [/#if]
+
         [#break]
 
       [#default]
@@ -129,4 +143,37 @@
     [/#switch]
 
   [/#list]
+
+  [#switch gwSolution.Engine]
+    [#case "private"]
+      [#if virtualNetworkGWIPConfigurations?size > 2 || virtualNetworkGWIPConfigurations?size < 1 ]
+        [@fatal
+          message="Invalid destination count for private gateway"
+          detail="Must have 1 or 2 destinations configured for private gateway"
+          context={
+            "Component" : core.Component.RawId,
+            "Destinations" : (occurrence.Occurrences![])?map(
+              x -> (core.Type == NETWORK_GATEWAY_DESTINATION_COMPONENT_TYPE?then(core.RawId, "" ))
+            )
+          }
+        /]
+      [/#if]
+
+      [@createAzVirtualNetworkGateway
+          id=virtualNetworkGateway.Id
+          name=virtualNetworkGateway.Name
+          location=getRegion()
+          sku=sku
+          vpnGatewayGeneration=sku.Generation
+          gatewayType="Vpn"
+          enableBGP=gwSolution.BGP.Enabled
+          bgpPeeringAddresses=virtualNetworkGWBGPAddresses
+          asn=gwSolution.BGP.ASN
+          ipConfigurations=virtualNetworkGWIPConfigurations
+          activeActive=(virtualNetworkGWIPConfigurations?size == 2)
+          vpnType=gwSolution["azure:engine:Private"].RoutingPolicy
+          dependsOn=virtualNetworkGWIPConfigurations?map( x -> x.properties.publicIPAddress.id )
+      /]
+      [#break]
+  [/#switch]
 [/#macro]

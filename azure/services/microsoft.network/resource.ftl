@@ -829,6 +829,49 @@
   /]
 [/#macro]
 
+[#function getAzVirtualNetworkGatewayBgpAddress
+  InsideTunnelLocalIP
+  ipConfigurationName
+  virtualNetworkGatewayRef ]
+
+  [#if ! virtualNetworkGatewayRef?starts_with("[resourceId")]
+    [#local virtualNetworkGatewayRef = "'" + virtualNetworkGatewayRef + "'" ]
+  [#else]
+    [#local virtualNetworkGatewayRef = (virtualNetworkGatewayRef?remove_beginning('['))?remove_ending(']') ]
+  [/#if]
+
+  [#return {
+    "customBgpIpAddresses" : [ InsideTunnelLocalIP],
+    "ipconfigurationId" : "[concat(" + virtualNetworkGatewayRef + ",'" +  formatAbsolutePath("ipConfigurations", ipConfigurationName) + "')]"
+  }]
+[/#function]
+
+
+[#function getAzVirtualNetworkGatewayIPConfiguration
+    id
+    name
+    publicIPReference
+    subnetReference
+    privateIPAllocationMethod="Dynamic"
+  ]
+
+  [#return
+    {
+      "id" : id,
+      "name" : name,
+      "properties" : {
+        "privateIPAllocationMethod" : privateIPAllocationMethod,
+        "publicIPAddress" : {
+          "id" : publicIPReference
+        },
+        "subnet" : {
+          "id" : subnetReference
+        }
+      }
+    }
+  ]
+[/#function]
+
 
 [#macro createAzVirtualNetworkGateway
   id
@@ -839,31 +882,13 @@
   enableBGP
   asn
   activeActive
-  publicIPReferences
-  subnetReference
+  ipConfigurations
+  bgpPeeringAddresses=[]
   vpnType="RouteBased"
   vpnGatewayGeneration="Generation2"
-  privateIPAllocationMethod="Dynamic"
+
   dependsOn=[]
 ]
-  [#local ipConfigurations = []]
-  [#list publicIPReferences as publicIPReference]
-    [#local ipConfigurations += [
-      {
-        "id" : formatId(id, publicIPReference?index),
-        "name" : formatName(name, publicIPReference?index),
-        "properties" : {
-          "privateIPAllocationMethod" : privateIPAllocationMethod,
-          "publicIPAddress" : {
-            "id" : publicIPReference
-          },
-          "subnet" : {
-            "id" : subnetReference
-          }
-        }
-      }
-    ]]
-  [/#list]
 
   [@armResource
     id=id
@@ -879,7 +904,11 @@
         "enableBgp" : enableBGP,
         "bgpSettings" : {
           "asn" : asn
-        },
+        } +
+        attributeIfContent(
+          "bgpPeeringAddresses",
+          bgpPeeringAddresses
+        ),
         "activeActive" : activeActive,
         "ipConfigurations" : ipConfigurations,
         "sku" : {

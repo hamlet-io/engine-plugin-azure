@@ -54,7 +54,7 @@
             [#list solution.Links as id,link]
                 [#if link?is_hash]
 
-                    [#local linkTarget = getLinkTarget(occurrence, link) ]
+                    [#local linkTarget = getLinkTarget(occurrence, link, false) ]
 
                     [@debug message="Link Target" context=linkTarget enabled=false /]
 
@@ -73,8 +73,8 @@
                             [#switch solution.Engine ]
                                 [#case "SiteToSite" ]
 
-                                    [#local localNetworkGatewayId = formatResourceId(AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.Name, id )]
-                                    [#local localNetworkGatewayName = formatName(AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.Name, id )]
+                                    [#local localNetworkGatewayId = formatResourceId(AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.Name, id  )]
+                                    [#local localNetworkGatewayName = formatName(AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.Name, id  )]
 
                                     [#local networkConnectionId = formatResourceId(AZURE_CONNECTION_RESOURCE_TYPE, core.Name, id )]
                                     [#local networkConnectionName = formatName(AZURE_CONNECTION_RESOURCE_TYPE, core.Name, id )]
@@ -82,18 +82,22 @@
                                     [#local resources = mergeObjects(
                                         resources,
                                         {
-                                            "localNetworkGateway" : {
-                                                "Id" : localNetworkGatewayId,
-                                                "Name" : localNetworkGatewayName,
-                                                "Type" : AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE,
-                                                "Reference" : getReference(localNetworkGatewayId, localNetworkGatewayName)
-                                            },
-                                            "networkConnection" :{
-                                                "Id" : networkConnectionId,
-                                                "Name" : networkConnectionName,
-                                                "Type" : AZURE_CONNECTION_RESOURCE_TYPE,
-                                                "Reference" : getReference(networkConnectionId, networkConnectionName),
-                                                "VirtualNetworkId" : getExistingReference(linkTargetResources["virtualNetworkGateway"].Id)
+                                            "localConnections" : {
+                                                id : {
+                                                    "localNetworkGateway" : {
+                                                        "Id" : localNetworkGatewayId,
+                                                        "Name" : localNetworkGatewayName,
+                                                        "Type" : AZURE_LOCAL_NETWORK_GATEWAY_RESOURCE_TYPE,
+                                                        "Reference" : getReference(localNetworkGatewayId, localNetworkGatewayName)
+                                                    },
+                                                    "networkConnection" :{
+                                                        "Id" : networkConnectionId,
+                                                        "Name" : networkConnectionName,
+                                                        "Type" : AZURE_CONNECTION_RESOURCE_TYPE,
+                                                        "Reference" : getReference(networkConnectionId, networkConnectionName),
+                                                        "VirtualNetworkId" : getExistingReference(linkTargetResources["virtualNetworkGateway"].Id)
+                                                    }
+                                                }
                                             }
                                         }
                                     )]

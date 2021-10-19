@@ -75,25 +75,6 @@
       [#local virtualNetworkGatewayId = formatResourceId(AZURE_VIRTUAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.TypedName)]
       [#local virtualNetworkGatewayName = formatName(AZURE_VIRTUAL_NETWORK_GATEWAY_RESOURCE_TYPE, core.TypedName)]
 
-      [#list [ "A", "B" ] as ip ]
-        [#local publicGatewayIPId = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName, ip)]
-        [#local publicGatewayIPName = formatName(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName, ip)]
-
-        [#local resources = mergeObjects(
-          resources,
-          {
-            "publicIPs" : {
-              ip : {
-                "Id" : publicGatewayIPId,
-                "Name" : publicGatewayIPName,
-                "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
-                "Reference" : getReference(publicGatewayIPId, publicGatewayIPName)
-              }
-            }
-          }
-        )]
-      [/#list]
-
       [#local resources +=
         {
           "virtualNetworkGateway" : {
@@ -155,6 +136,24 @@
       [#break]
 
     [#case "private"]
+
+      [#local virtualNetworkGateway = parent.State.Resources["virtualNetworkGateway"]]
+
+      [#local publicGatewayIPId = formatResourceId(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName)]
+      [#local publicGatewayIPName = formatName(AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE, core.TypedName)]
+
+      [#local resources = mergeObjects(
+        resources,
+        {
+          "publicIP" : {
+            "Id" : publicGatewayIPId,
+            "Name" : publicGatewayIPName,
+            "Type" : AZURE_PUBLIC_IP_ADDRESS_RESOURCE_TYPE,
+            "Reference" : getReference(publicGatewayIPId, publicGatewayIPName)
+          }
+        }
+      )]
+
       [#break]
 
     [#default]
