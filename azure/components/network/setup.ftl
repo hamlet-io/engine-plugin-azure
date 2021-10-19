@@ -174,18 +174,26 @@
 
           [#list solution.Rules as ruleId, ruleConfig]
 
-            [#if ruleConfig.Source.IPAddressGroups?seq_contains("_localnet")
-                  || ruleConfig.Source.IPAddressGroups?seq_contains("__localnet")
-                  || ruleConfig.Source.IPAddressGroups?seq_contains("_named:VirtualNetwork")
-                  || ruleConfig.Source.IPAddressGroups?seq_contains("__named:VirtualNetwork")]
+            [#local sourceIPAddressGroups = ruleConfig.Source.IPAddressGroups]
+            [#local destinationIPAdressGroups = ruleConfig.Destination.IPAddressGroups ]
+
+            [#if sourceIPAddressGroups?seq_contains("_localnet")
+                  || sourceIPAddressGroups?seq_contains("__localnet")
+                  || sourceIPAddressGroups?seq_contains("_named:VirtualNetwork")
+                  || sourceIPAddressGroups?seq_contains("__named:VirtualNetwork")]
               [#local direction = "Outbound"]
             [/#if]
 
-            [#if ruleConfig.Destination.IPAddressGroups?seq_contains("_localnet")
-                  || ruleConfig.Destination.IPAddressGroups?seq_contains("__localnet")
-                  || ruleConfig.Destination.IPAddressGroups?seq_contains("_named:VirtualNetwork")
-                  || ruleConfig.Destination.IPAddressGroups?seq_contains("__named:VirtualNetwork")]
+            [#if destinationIPAdressGroups?seq_contains("_localnet")
+                  || destinationIPAdressGroups?seq_contains("__localnet")
+                  || destinationIPAdressGroups?seq_contains("_named:VirtualNetwork")
+                  || destinationIPAdressGroups?seq_contains("__named:VirtualNetwork")]
               [#local direction = "Inbound"]
+            [/#if]
+
+            [#if ! ruleConfig.Destination.IPAddressGroups?has_content ]
+              [#local direction = "Inbound" ]
+              [#local destinationIPAdressGroups = [ "_named:*" ]]
             [/#if]
 
             [@createNetworkSecurityGroupSecurityRuleWithIPAddressGroup
@@ -200,8 +208,8 @@
               occurrence=subOccurrence
               description=description
               destinationPortProfileName=ruleConfig.Destination.Port
-              sourceIPAddressGroups=ruleConfig.Source.IPAddressGroups
-              destinationIPAdressGroups=ruleConfig.Destination.IPAddressGroups
+              sourceIPAddressGroups=sourceIPAddressGroups
+              destinationIPAdressGroups=destinationIPAdressGroups
               access=ruleConfig.Action
               priority=ruleConfig.Priority
               direction=direction
