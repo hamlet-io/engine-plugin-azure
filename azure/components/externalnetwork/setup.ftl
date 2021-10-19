@@ -26,7 +26,7 @@
 
         [#switch solution.Engine ]
             [#case "SiteToSite" ]
-                [#local localNetworkGateways = (resources["localNetworkGateways"])!{} ]
+                [#local localConnections = (resources["localConnections"])!{} ]
 
                 [#local vpnPublicIP = (solution.SiteToSite.PublicIP)!"" ]
 
@@ -74,47 +74,50 @@
 
                 [#if deploymentSubsetRequired(EXTERNALNETWORK_COMPONENT_TYPE, true)]
 
-                    [#local localNetworkGateway = resources["localNetworkGateway"]]
-                    [#local networkConnection = resources["networkConnection"] ]
+                    [#list localConnections?values as localConnection]
 
-                    [#if parentSolution.BGP.Enabled ]
-                        [#local bgpSettings = getAzLocalNetworkGatewayBGP(
-                            parentSolution.BGP.ASN,
-                            solution.SiteToSite.BGP.PeerIPAddress
-                        )]
-                    [/#if]
+                        [#local localNetworkGateway = localConnection["localNetworkGateway"]]
+                        [#local networkConnection = localConnection["networkConnection"] ]
 
-                    [@createAzLocalNetworkGateway
-                        id=localNetworkGateway.Id
-                        name=localNetworkGateway.Name
-                        gatewayIpAddress=vpnPublicIP
-                        bgpSettings=bgpSettings
-                        localNetworkAddresses=( ! parentSolution.BGP.Enabled)?then(
-                            getGroupCIDRs(parentSolution.IPAddressGroups, true, subOccurrence),
-                            [
-                                "${solution.SiteToSite.BGP.PeerIPAddress}/32"
+                        [#if parentSolution.BGP.Enabled ]
+                            [#local bgpSettings = getAzLocalNetworkGatewayBGP(
+                                parentSolution.BGP.ASN,
+                                solution.SiteToSite.BGP.PeerIPAddress
+                            )]
+                        [/#if]
+
+                        [@createAzLocalNetworkGateway
+                            id=localNetworkGateway.Id
+                            name=localNetworkGateway.Name
+                            gatewayIpAddress=vpnPublicIP
+                            bgpSettings=bgpSettings
+                            localNetworkAddresses=( ! parentSolution.BGP.Enabled)?then(
+                                getGroupCIDRs(parentSolution.IPAddressGroups, true, subOccurrence),
+                                [
+                                    "${solution.SiteToSite.BGP.PeerIPAddress}/32"
+                                ]
+                            )
+                            location=getRegion()
+                            dependsOn=[]
+                        /]
+
+                        [@createAzNetworkConnection
+                            id=networkConnection.Id
+                            name=networkConnection.Name
+                            location=getRegion()
+                            connectionType="IPsec"
+                            enableBGP=parentSolution.BGP.Enabled
+                            routingWeight=subOccurrence?index
+                            virtualGatewayReference=networkConnection.VirtualNetworkId
+                            localNetworkReference=localNetworkGateway.Reference
+                            sharedKey=solution.SiteToSite.SharedKey
+                            connectionProtocol=vpnSecurityProfile["IKEVersions"][0]
+                            ipsecPolicies=[ipsecPolicies?values[0]]
+                            dependsOn=[
+                                localNetworkGateway.Reference
                             ]
-                        )
-                        location=getRegion()
-                        dependsOn=[]
-                    /]
-
-                    [@createAzNetworkConnection
-                        id=networkConnection.Id
-                        name=networkConnection.Name
-                        location=getRegion()
-                        connectionType="IPsec"
-                        enableBGP=parentSolution.BGP.Enabled
-                        routingWeight=subOccurrence?index
-                        virtualGatewayReference=networkConnection.VirtualNetworkId
-                        localNetworkReference=localNetworkGateway.Reference
-                        sharedKey=solution.SiteToSite.SharedKey
-                        connectionProtocol=vpnSecurityProfile["IKEVersions"][0]
-                        ipsecPolicies=[ipsecPolicies?values[0]]
-                        dependsOn=[
-                            localNetworkGateway.Reference
-                        ]
-                    /]
+                        /]
+                    [/#list]
                 [/#if]
                 [#break]
         [/#switch]
