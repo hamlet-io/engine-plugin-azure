@@ -233,44 +233,37 @@
 
               [@addToDefaultBashScriptOutput
                 content=[
-                  "function az_manage_ssh_credentials() {"
-                  "  info \"Checking SSH credentials ...\"",
-                  "  #",
-                  "  # Create SSH credential for the segment",
-                  "  mkdir -p \"$\{SEGMENT_OPERATIONS_DIR}\"",
-                  "  az_create_ssh_keypair \"$\{SEGMENT_OPERATIONS_DIR}\" " +
-                      "\"" + getRegion() + "\" " +
-                      "\"" + accountObject.Id + "\" || return $?",
-                  "  #",
-                  "  # Upload to keyvault if required.",
-                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
-                      "\"" + keyvault.Name + "\" " +
-                      "\"" + vmKeyPair.Name + "PublicKey" + "\")",
-                  "  if [[ $\{AZ_CHK_SECRET} " +
-                  "           = \"does not have secrets get permission on key vault\" ]]; then",
-                  "    fatal \"The deployment user is not a member of the specified keyVault admin group\"",
-                  "    return 1",
-                  "  fi",
-                  "  if [[ $\{AZ_CHK_SECRET} " +
-                  "         = *NotFound* ]]; then",
-                  "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPublicKey + ".plaintext.pub" + "\"",
-                  "     az_add_secret" + " " +
-                            "\"" + keyvault.Name + "\" " +
-                            "\"" + vmKeyPair.Name + "PublicKey" + "\" " +
-                            "\"$\{pem_file}\"",
-                  "  fi",
-                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
-                  "\"" + keyvault.Name + "\" " +
-                  "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
-                  "  if [[ $\{AZ_CHK_SECRET} " +
-                  "         = *NotFound* ]]; then",
-                  "     pem_file=\"$\{SEGMENT_OPERATIONS_DIR}/" + localKeyPairPrivateKey + ".plaintext" + "\"",
-                  "     az_add_secret" + " " +
-                            "\"" + keyvault.Name + "\" " +
-                            "\"" + vmKeyPair.Name + "PrivateKey" + "\" " +
-                            "\"$\{pem_file}\"",
-                  "  fi",
-                  "  #"
+                  r'function az_manage_ssh_credentials() {',
+                  r'  info "Checking SSH credentials ..."',
+                  r'  #',
+                  r'  # Create SSH credential for the segment',
+                  r'  mkdir -p "${SEGMENT_OPERATIONS_DIR}"',
+                  r'  az_create_ssh_keypair "${SEGMENT_OPERATIONS_DIR}" ' +
+                      r'"' + getRegion() + r'" ' +
+                      r'"' + accountObject.Id + r'" || return $?',
+                  r'  #',
+                  r'  # Upload to keyvault if required.',
+                  r'  AZ_CHK_SECRET="$(az_check_secret ' +
+                      r'"' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PublicKey")"',
+                  r'  if [[ "${AZ_CHK_SECRET}" == "does not have secrets get permission on key vault" ]]; then',
+                  r'    fatal "The deployment user is not a member of the specified keyVault admin group"',
+                  r'    return 1',
+                  r'  fi',
+                  r'  if [[ "${AZ_CHK_SECRET}" == *"NotFound"* ]]; then',
+                  r'     pem_file="${SEGMENT_OPERATIONS_DIR}/' + localKeyPairPublicKey + r'.plaintext.pub"',
+                  r'     az_add_secret ' +
+                            r'"' + keyvault.Name + r'" ' +
+                            r'"' + vmKeyPair.Name + r'PublicKey" ' +
+                            r'"${pem_file}"',
+                  r'  fi',
+                  r'  AZ_CHK_SECRET="$(az_check_secret ' +
+                  r'"' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PrivateKey")"',
+                  r'  if [[ "${AZ_CHK_SECRET}" == *"NotFound"* ]]; then',
+                  r'     pem_file="${SEGMENT_OPERATIONS_DIR}/' + localKeyPairPrivateKey + r'.plaintext"',
+                  r'     az_add_secret ' +
+                            r'"' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PrivateKey" "${pem_file}"',
+                  r'  fi',
+                  r' #'
                 ] +
                 pseudoArmStackOutputScript(
                   "SSH Key Pair",
@@ -281,28 +274,26 @@
                   "keypair"
                 ) +
                 [
-                  " return 0"
-                  "}",
-                  "#",
-                  "case $\{DEPLOYMENT_OPERATION} in",
-                  "  delete)",
-                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
-                  "\"" + keyvault.Name + "\" " +
-                  "\"" + vmKeyPair.Name + "PublicKey" + "\")",
-                  "  if [[ ! $($\{AZ_CHK_SECRET} = *NotFound* ) ]]; then",
-                  "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PublicKey" + "\"",
-                  "  fi",
-                  "  AZ_CHK_SECRET=$(az_check_secret" + " " +
-                  "\"" + keyvault.Name + "\" " +
-                  "\"" + vmKeyPair.Name + "PrivateKey" + "\")",
-                  "  if [[ ! $($\{AZ_CHK_SECRET} = *NotFound* ) ]]; then",
-                  "    az_delete_secret \"" + keyvault.Name + "\" \"" + vmKeyPair.Name + "PrivateKey" + "\"",
-                  "  fi",
-                  "    ;;",
-                  "  create|update)",
-                  "    az_manage_ssh_credentials || return $?",
-                  "    ;;",
-                  "esac"
+                  r' return 0',
+                  r'}',
+                  r'#',
+                  r'case ${DEPLOYMENT_OPERATION} in',
+                  r'  delete)',
+                  r'    AZ_CHK_SECRET="$(az_check_secret ' +
+                  r'"' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PublicKey" )"',
+                  r'    if [[ ! ( "${AZ_CHK_SECRET}" == *"NotFound"* ) ]]; then',
+                  r'      az_delete_secret "' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PublicKey"',
+                  r'    fi',
+                  r'    AZ_CHK_SECRET="$(az_check_secret ' +
+                  r'"' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PrivateKey")"',
+                  r'    if [[ ! ( "${AZ_CHK_SECRET}" == *"NotFound"* ) ]]; then',
+                  r'      az_delete_secret "' + keyvault.Name + r'" "' + vmKeyPair.Name + r'PrivateKey"',
+                  r'    fi',
+                  r'    ;;',
+                  r'  create|update)',
+                  r'    az_manage_ssh_credentials || return $?',
+                  r'   ;;',
+                  r'esac'
                 ]
               /]
 
@@ -325,13 +316,13 @@
         [@addToDefaultBashScriptOutput
           content=
           [
-            "case $\{DEPLOYMENT_OPERATION} in",
-            "  create|update)",
-            "    ADMINGRP=$(az role definition list --name "+adminGrp+")",
-            "    if [[ $\{#ADMINGRP[@]} -eq 0 ]] ; then",
-            "      fatal \"Azure Administrator role does not exist: "+adminGrp+"\"",
-            "      return 1",
-            "    fi"
+            r'case ${DEPLOYMENT_OPERATION} in',
+            r'  create|update)',
+            r'    ADMINGRP="$(az role definition list --name ' + adminGrp + r')"',
+            r'    if [[ ${#ADMINGRP[@]} -eq 0 ]] ; then',
+            r'      fatal "Azure Administrator role does not exist: ' + adminGrp + '"',
+            r'      return 1',
+            r'    fi'
           ] +
           pseudoArmStackOutputScript(
             "AdministratorGroups",
@@ -339,8 +330,8 @@
             "admingrp"
           ) +
           [
-            "       ;;",
-            "       esac"
+            r'       ;;',
+            r'      esac'
           ]
         /]
       [/#list]
