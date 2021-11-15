@@ -115,7 +115,7 @@
                         "functionFiles",
                         "lambda",
                         productName,
-                        occurrence,
+                        subOccurrence,
                         function.Name + ".zip",
                         getReference(function.Id, function.Name, "ResourceGroup")
                     ) +

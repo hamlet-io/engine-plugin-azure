@@ -15,7 +15,7 @@
             {
                 "Type" : "Builds",
                 "Scope" : "Products",
-                "Namespace" : "mockedup-integration-application-az-lambda-base",
+                "Namespace" : "mockedup-integration-app-lambda-api",
                 "Settings" : {
                     "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["lambda"]
@@ -27,22 +27,17 @@
                 "app" : {
                     "Components" : {
                         "lambda" : {
-                            "lambda" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "application-az-lambda-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "Functions" : {
-                                    "api" : {
-                                        "Handler" : "src/handler.api",
-                                        "RunTime" : "nodejs",
-                                        "Extensions" : [ "_mockext" ],
-                                        "Links" : {}
-                                    }
+                            "Type" : "lambda",
+                            "deployment:Unit" : "application-az-lambda-base",
+                            "Profiles" : {
+                                "Testing" : [ "baselambdatemplate" ]
+                            },
+                            "Functions" : {
+                                "api" : {
+                                    "Handler" : "src/handler.api",
+                                    "RunTime" : "nodejs",
+                                    "Extensions" : [ "_mockext" ],
+                                    "Links" : {}
                                 }
                             }
                         }
@@ -65,7 +60,7 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "baselambdatemplate" : {
                     "lambda" : {
                         "TestCases" : [ "baselambdatemplate" ]
                     }
