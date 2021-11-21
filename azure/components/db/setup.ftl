@@ -27,7 +27,7 @@
     [#local masterAccount      = attributes["USERNAME"]?keep_before("@")]
     [#local masterSecret       = attributes["SECRET"]]
     [#local masterSecretId     = formatId(db.Id, SECRET_ATTRIBUTE_TYPE)]
-    [#local masterSecretLength = solution.GenerateCredentials.CharacterLength]
+    [#local masterSecretLength = solution["rootCredential:Generated"].CharacterLength]
 
     [#-- Hibernation --]
     [#local hibernate  = solution.Hibernate.Enabled && isOccurrenceDeployed(occurrence)]

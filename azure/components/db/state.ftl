@@ -46,7 +46,7 @@
             serverConfigResourceType,
             dbServerName
         )]
-        [#local configs += { 
+        [#local configs += {
             key : {
                 "Id" : configId,
                 "Name" : configName,
@@ -62,15 +62,26 @@
         dbServerName
     )]
 
-    [#-- Credential Management --]
-    [#if solution.GenerateCredentials.Enabled]
-        [#local masterUsername = solution.GenerateCredentials.MasterUserName]
-        [#local masterSecret = formatSecretName(core.ShortFullName)]
-    [#else]
-        [#-- don't flag an error if credentials missing but component is not enabled --]
-        [#local masterUsername = getOccurrenceSettingValue(occurrence, "MASTER_USERNAME", !solution.Enabled) ]
-        [#local masterSecret = getOccurrenceSettingValue(occurrence, "MASTER_SECRET", !solution.Enabled) ]
+    [#local credentialSource = solution["rootCredential:Source"]]
+    [#if isPresent(solution["rootCredential:Generated"]) && credentialSource != "Generated"]
+        [#local credentialSource = "Generated"]
     [/#if]
+
+    [#-- Credential Management --]
+    [#switch credentialSource]
+        [#case "Generated"]
+            [#local masterUsername = solution["rootCredential:Generated"].Username]
+            [#local masterSecret = formatSecretName(core.ShortFullName)]
+
+            [#break]
+
+        [#case "Settings"]
+            [#-- don't flag an error if credentials missing but component is not enabled --]
+            [#local masterUsername = getOccurrenceSettingValue(occurrence, solution["rootCredential:Settings"].UsernameAttribute, !solution.Enabled) ]
+            [#local masterSecret = getOccurrenceSettingValue(occurrence, solution["rootCredential:Settings"].PasswordAttribute, !solution.Enabled) ]
+            [#break]
+
+    [/#switch]
 
     [#local fqdn = getReference(dbServerId, dbServerName, URL_ATTRIBUTE_TYPE)]
 
