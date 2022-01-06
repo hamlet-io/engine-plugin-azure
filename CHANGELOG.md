@@ -1,12 +1,43 @@
 # Changelog
 
-## Unreleased (2021-08-16)
+## Unreleased (2022-01-02)
+
+#### New Features
+
+* (directory): Azure AD Directory Services
+* (gateway): support for inside tunnel config
+* support emtpy destination for any
+* site to site VPN support
+* core azure provider updates
+#### Fixes
+
+* update database credentials setup
+* (lambda): build settings lookup
+* (baseline): keystore cleanup
+* flow log setup
+* remove extra container creation
+* remove jq
+#### Refactorings
+
+* bastion network access
+* (computecluster): nsg updates
+* (network): refactor network setup process
+* remove azure utilities
+* setContext wrapper functions (1) ([#278](https://github.com/hamlet-io/engine-plugin-azure/issues/278))
+* remove dos2unix usage
+#### Others
+
+* changelog bump ([#273](https://github.com/hamlet-io/engine-plugin-azure/issues/273))
+
+Full set of changes: [`8.3.0...414ba32`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.3.0...414ba32)
+
+## 8.3.0 (2021-08-15)
 
 #### Refactorings
 
 * lb fqdn handling
 
-Full set of changes: [`8.2.1...d84c4c1`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.2.1...d84c4c1)
+Full set of changes: [`8.2.1...8.3.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.2.1...8.3.0)
 
 ## 8.2.1 (2021-07-09)
 
