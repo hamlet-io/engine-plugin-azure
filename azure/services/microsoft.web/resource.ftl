@@ -38,7 +38,7 @@
 /]
 
 [#function getAppServicePlanSkuCapability name value="" reason=""]
-    [#return 
+    [#return
         {
             "name" : name
         } +
@@ -51,11 +51,11 @@
 
     [#local image = profiles.VMImage?has_content
         ?then(profiles.VMImage.Offering!"", "")]
-    
+
     [#return {} +
         attributeIfContent(
             "reserved",
-            image, 
+            image,
             image?contains("Windows")?then(false, true)
     )]
 [/#function]
@@ -159,7 +159,7 @@
     ]
 [/#function]
 
-[#function getWebAppVirtualApplication 
+[#function getWebAppVirtualApplication
     virtualPath=""
     physicalPath=""
     preloadEnabled=false
@@ -259,7 +259,7 @@
         )
     ]
 
-    [#return {} + 
+    [#return {} +
         attributeIfContent("triggers", triggers) +
         attributeIfContent("actions", actions)
     ]
@@ -433,7 +433,7 @@
         ) +
         attributeIfContent("push",
             attributeIfContent("kind", pushKind) +
-            attributeIfContent("properties", {} + 
+            attributeIfContent("properties", {} +
                 attributeIfTrue("isPushEnabled", pushEnabled, pushEnabled) +
                 attributeIfContent("tagWhitelistJson", pushTagWhitelistJson) +
                 attributeIfContent("tagsRequiringAuth", pushTagsRequiringAuth) +
@@ -514,131 +514,70 @@
 [#-- values from here:                                                                   --]
 [#-- https://docs.microsoft.com/en-us/azure/azure-functions/functions-versions#languages --]
 
-    [#local runTime = {}]
-    
+    [#local runTime = {
+        "ExtensionVersion" : "",
+        "WorkerRunTime" : "",
+        "LinuxFXVersion" : ""
+    }]
+
     [#switch language]
 
         [#case "dotnetcore1.0"]
             [#local runTime +=
-                { 
+                {
                     "ExtensionVersion": "~1",
                     "WorkerRunTime": "dotnet",
                     "LinuxFXVersion" : "DOTNET|1.0"
-                } 
+                }
             ]
             [#break]
 
         [#case "dotnetcore2.1"]
             [#local runTime +=
-                { 
+                {
                     "ExtensionVersion": "~1",
                     "WorkerRunTime": "dotnet",
                     "LinuxFXVersion" : "DOTNET|2"
-                } 
-            ]
-            [#break]
-
-        [#case "dotnetcore"]
-            [#local runTime +=
-                { 
-                    "ExtensionVersion": "~2",
-                    "WorkerRunTime": "dotnet",
-                    "LinuxFXVersion" : "DOTNET|2"
-                } 
+                }
             ]
             [#break]
 
         [#case "java8"]
-            [#local runTime += 
+            [#local runTime +=
                 {
                     "ExtensionVersion" : "~3",
                     "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "NODE"
+                    "LinuxFXVersion" : "JAVA|8-jre8"
                 }
             ]
             [#break]
-            
+
         [#case "java11"]
-            [#local runTime += 
+            [#local runTime +=
                 {
                     "ExtensionVersion" : "~3",
                     "WorkerRunTime" : "java",
-                    "LinuxFXVersion" : "node|10"
+                    "LinuxFXVersion" : "JAVA|11-java11"
                 }
             ]
             [#break]
 
-        [#case "nodejs"]
-            [#local runTime += 
-                {
-                    "ExtensionVersion" : "~2",
-                    "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "node|10",
-                    "DefaultVersion" : "10.15.2"
-                }
-            ]
-            [#break]
-            
-        [#case "nodejs4.3"]
-            [#local runTime +=
-                {
-                    "ExtensionVersion" : "~1",
-                    "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "node|10",
-                    "DefaultVersion" : language?split("nodejs")[1]
-                }
-            ]
-            [#break]
-
-        [#case "nodejs4.3-edge"]
-            [#local runTime +=
-                {
-                    "ExtensionVersion" : "~1",
-                    "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "node|10",
-                    "DefaultVersion" : language?split("nodejs")[1]
-                }
-            ]
-            [#break]
-
-        [#case "nodejs6.10"]
-            [#local runTime +=
-                {
-                    "ExtensionVersion" : "~1",
-                    "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "node|10",
-                    "DefaultVersion" : language?split("nodejs")[1]
-                }
-            ]
-            [#break]
-
-        [#case "nodejs8.10"]
-            [#local runTime += 
-                {
-                    "ExtensionVersion" : "~2",
-                    "WorkerRunTime" : "node",
-                    "LinuxFXVersion" : "NODE|8",
-                    "DefaultVersion" : language?split("nodejs")[1]
-                }
-            ]
-            [#break]
-
-        [#case "python2.7"]
+        [#case "nodejs12.x"]
             [#local runTime +=
                 {
                     "ExtensionVersion" : "~2",
-                    "WorkerRunTime" : "python",
-                    "LinuxFXVersion" : "PYTHON|2.7"
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE|12-lts"
                 }
             ]
             [#break]
 
-        [#case "python3.6"]
+        [#case "nodejs14.x"]
             [#local runTime +=
                 {
-                    "ExtensionVersion" : "~3",
-                    "WorkerRunTime" : "python",
-                    "LinuxFXVersion" : "PYTHON|3.6"
+                    "ExtensionVersion" : "~2",
+                    "WorkerRunTime" : "node",
+                    "LinuxFXVersion" : "NODE|14-lts"
                 }
             ]
             [#break]
@@ -654,12 +593,21 @@
             [#break]
 
         [#case "python3.8"]
-            [#-- 3.8 not available at time of writing https://github.com/Azure-App-Service/python --]
             [#local runTime +=
                 {
                     "ExtensionVersion" : "~3",
                     "WorkerRunTime" : "python",
-                    "LinuxFXVersion" : "PYTHON|3.7"
+                    "LinuxFXVersion" : "PYTHON|3.8"
+                }
+            ]
+            [#break]
+
+        [#case "python3.9"]
+            [#local runTime +=
+                {
+                    "ExtensionVersion" : "~3",
+                    "WorkerRunTime" : "python",
+                    "LinuxFXVersion" : "PYTHON|3.9"
                 }
             ]
             [#break]
