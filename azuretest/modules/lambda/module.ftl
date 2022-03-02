@@ -35,7 +35,7 @@
                             "Functions" : {
                                 "api" : {
                                     "Handler" : "src/handler.api",
-                                    "RunTime" : "nodejs",
+                                    "RunTime" : "nodejs14.x",
                                     "Extensions" : [ "_mockext" ],
                                     "Links" : {}
                                 }
