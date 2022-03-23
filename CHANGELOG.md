@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased (2022-01-02)
+## Unreleased (2022-03-23)
+
+#### Fixes
+
+* (lambda): align runtimes with latest updates
+#### Refactorings
+
+* use local engine for testing ([#294](https://github.com/hamlet-io/engine-plugin-azure/issues/294))
+
+Full set of changes: [`8.4.0...2652654`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.4.0...2652654)
+
+## 8.4.0 (2022-01-06)
 
 #### New Features
 
@@ -27,9 +38,10 @@
 * remove dos2unix usage
 #### Others
 
+* changelog bump ([#277](https://github.com/hamlet-io/engine-plugin-azure/issues/277))
 * changelog bump ([#273](https://github.com/hamlet-io/engine-plugin-azure/issues/273))
 
-Full set of changes: [`8.3.0...414ba32`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.3.0...414ba32)
+Full set of changes: [`8.3.0...8.4.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.3.0...8.4.0)
 
 ## 8.3.0 (2021-08-15)
 
