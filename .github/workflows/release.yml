@@ -12,28 +12,20 @@ jobs:
   deploy_tests:
     runs-on: ubuntu-latest
     env:
-      HAMLET_ENGINE: unicycle
+      HAMLET_ENGINE: azure_testing
+      HAMLET_ENGINE_CONFIG: ./
 
     steps:
 
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Java Setup
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'adopt'
-          java-version: '8'
-
       - name: Install
         run: |
           pip install hamlet
 
       - name: Run Tests
-        env:
-          GENERATION_PLUGIN_DIRS: ${{ github.workspace }}
         run: |
-          hamlet engine get-engine
           hamlet -i mock -p azure -p azuretest -f arm deploy test-deployments -p '--junitxml=junit.xml' -o 'hamlet_tests/'
 
   package:
