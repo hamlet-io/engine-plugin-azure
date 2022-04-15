@@ -4,7 +4,7 @@
 [#macro azuretest_input_shared_blueprint_seed ]
     [@addBlueprint
         blueprint={
-            "Solution" : {
+            "Product" : {
                 "Modules" : {
                     "adaptor" : {
                         "Provider" : "azuretest",
