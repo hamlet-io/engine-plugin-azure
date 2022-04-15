@@ -21,7 +21,7 @@
                 "Account": {
                     "Provider" : AZURE_PROVIDER
                 },
-                "Solution" : {
+                "Product" : {
                     "Modules" : {
                         "adaptor" : {
                             "Provider" : "azuretest",
