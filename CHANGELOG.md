@@ -1,6 +1,14 @@
 # Changelog
 
-## Unreleased (2022-03-23)
+## Unreleased (2022-04-28)
+
+#### Refactorings
+
+* move test module loading to product layer
+
+Full set of changes: [`8.5.0...c11d76d`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.5.0...c11d76d)
+
+## 8.5.0 (2022-03-25)
 
 #### Fixes
 
@@ -8,8 +16,11 @@
 #### Refactorings
 
 * use local engine for testing ([#294](https://github.com/hamlet-io/engine-plugin-azure/issues/294))
+#### Others
 
-Full set of changes: [`8.4.0...2652654`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.4.0...2652654)
+* changelog bump ([#292](https://github.com/hamlet-io/engine-plugin-azure/issues/292))
+
+Full set of changes: [`8.4.0...8.5.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.4.0...8.5.0)
 
 ## 8.4.0 (2022-01-06)
 
