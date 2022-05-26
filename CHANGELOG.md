@@ -1,12 +1,20 @@
 # Changelog
 
-## Unreleased (2022-04-28)
+## Unreleased (2022-05-26)
+
+#### Others
+
+* changelog bump
+
+Full set of changes: [`8.6.0...dd29206`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.0...dd29206)
+
+## 8.6.0 (2022-04-15)
 
 #### Refactorings
 
 * move test module loading to product layer
 
-Full set of changes: [`8.5.0...c11d76d`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.5.0...c11d76d)
+Full set of changes: [`8.5.0...8.6.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.5.0...8.6.0)
 
 ## 8.5.0 (2022-03-25)
 
