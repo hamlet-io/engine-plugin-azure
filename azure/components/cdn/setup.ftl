@@ -34,7 +34,7 @@
     [#local httpReRouteRequired = false]
     [#local invalidationPaths = []]
 
-    [#list occurrence.Occurrences![] as subOccurrence]
+    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
         [#local subCore = subOccurrence.Core]
         [#local subSolution = subOccurrence.Configuration.Solution]

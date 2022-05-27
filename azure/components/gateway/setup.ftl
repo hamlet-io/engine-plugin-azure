@@ -70,7 +70,7 @@
   [#local virtualNetworkGWIPConfigurations = []]
   [#local virtualNetworkGWBGPAddresses = []]
 
-  [#list occurrence.Occurrences![] as subOccurrence]
+  [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
     [@debug message="Suboccurrence" context=subOccurrence enabled=false /]
 
@@ -151,7 +151,7 @@
           message="Invalid destination count for private gateway"
           detail="Must have 1 or 2 destinations configured for private gateway"
           context={
-            "Component" : core.Component.RawId,
+            "Component" : gwCore.Component.RawId,
             "Destinations" : (occurrence.Occurrences![])?map(
               x -> (core.Type == NETWORK_GATEWAY_DESTINATION_COMPONENT_TYPE?then(core.RawId, "" ))
             )

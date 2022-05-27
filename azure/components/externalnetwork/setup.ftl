@@ -12,7 +12,7 @@
 
     [#local bgpSettings = {}]
 
-    [#list occurrence.Occurrences![] as subOccurrence]
+    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
         [@debug message="Suboccurrence" context=subOccurrence enabled=false /]
 

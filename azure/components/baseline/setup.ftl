@@ -13,7 +13,7 @@
     [#local keyVaultIPRuleGroups = []]
     [#local keyVaultAdmins = solution["azure:AdministratorGroups"]![] ]
 
-    [#-- make sure we only have one occurence --]
+    [#-- make sure we only have one occurrence --]
     [#if  ! ( core.Tier.Id == "mgmt" &&
       core.Component.Id == "baseline" &&
       core.Version.Id == "" &&
@@ -156,7 +156,7 @@
     [/#list]
 
     [#-- Subcomponents --]
-    [#list occurrence.Occurrences![] as subOccurrence]
+    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
       [#local subCore = subOccurrence.Core]
       [#local subSolution = subOccurrence.Configuration.Solution]
