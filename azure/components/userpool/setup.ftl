@@ -28,7 +28,7 @@
     [#-- Not all properties can be set on creation --]
     [#local updatesCliArgs = {}]
 
-    [#list occurrence.Occurrences![] as subOccurrence]
+    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
         [#local subCore = subOccurrence.Core]
         [#local subSolution = subOccurrence.Configuration.Solution]

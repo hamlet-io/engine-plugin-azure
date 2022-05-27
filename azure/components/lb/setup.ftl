@@ -49,7 +49,7 @@
             [#break]
     [/#switch]
 
-    [#list occurrence.Occurrences![] as subOccurrence]
+    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
 
         [#local subCore = subOccurrence.Core]
         [#local subSolution = subOccurrence.Configuration.Solution]
@@ -269,8 +269,8 @@
                     [#-- Find the Target Listener to redirect to --]
                     [#local redirectPortNumber = subSolution.Redirect.Port?number]
                     [#local foundListenerPorts = []]
-                    [#list occurrence.Occurrences as sub]
-                        [#local listener = sub.State.Resources["listener"]]
+                    [#list (occurrence.Occurrences![])?filter(x -> x.Configuration.Solution.Enabled ) as subOccurrence]
+                        [#local listener = subOccurrence.State.Resources["listener"]]
                         [#local listenerPortNumber = ports[listener.Name].Port]
                         [#local foundListenerPorts += [listenerPortNumber]]
                         [#if listenerPortNumber == redirectPortNumber]
