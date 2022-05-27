@@ -3,7 +3,7 @@
 [#function azGetGlobalConfiguration definition integrations context]
 
     [#-- Get OpenAPI Specification Version --]
-    [#local definitionVersion = definition.openapi!definition.swagger ]
+    [#local definitionVersion = (definition.openapi!definition.swagger)!"" ]
     [#local majorVersion = (definitionVersion?split(".")[0])?number ]
 
     [#-- Determine security schemes explicitly in the definition --]
@@ -84,6 +84,17 @@
 [/#function]
 
 [#function azExtendOpenapiDefinition definition integrations context={} merge=false]
+
+    [#if ! ((definition.openapi!definition.swagger)!"")?has_content ]
+        [@fatal
+            message="No Swagger/OpenAPI version found"
+            detail="A version must be specified at the root using the openapi or swagger key"
+            context={
+                "APIDefinition": definition
+            }
+        /]
+        [#return definition ]
+    [/#if]
 
     [#-- Determine the global configuration --]
     [#local globalConfiguration =
