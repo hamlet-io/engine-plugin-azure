@@ -12,7 +12,6 @@
     [#local resources     = occurrence.State.Resources]
     [#local attributes    = occurrence.State.Attributes]
     [#local buildSettings = occurrence.Configuration.Settings.Build]
-    [#local buildRegistry = buildSettings["BUILD_FORMATS"].Value[0]]
 
     [#local definitionsObject = getDefinitions() ]
 
@@ -143,6 +142,8 @@
         [/#if]
 
         [#if imageSource == "url" || imageSource == "registry" ]
+            [#local buildRegistry = buildSettings["BUILD_FORMATS"].Value[0]]
+
             [@addToDefaultBashScriptOutput
                 content=
                     getBuildScript(
