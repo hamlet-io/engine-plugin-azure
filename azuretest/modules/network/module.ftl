@@ -31,7 +31,15 @@
                                 "FlowLogs" : {
                                     "default" : {
                                         "Action" : "accept",
-                                        "Enabled" : true
+                                        "Enabled" : true,
+                                        "s3" : {
+                                            "Link" : {
+                                                "Tier": "mgmt",
+                                                "Component": "baseline",
+                                                "SubComponent": "opsdata",
+                                                "Type": "baselinedata"
+                                            }
+                                        }
                                     }
                                 }
                             },

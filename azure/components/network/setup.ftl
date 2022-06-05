@@ -222,20 +222,50 @@
 
           [#-- NetworkWatcher : Flow Logs --]
           [#list flowlogs?values as flowlog]
+
+            [#if flowlog.Prefix??]
+              [@fatal
+                message="Network Watcher FlowLogs do not support a Prefix in Azure at this time."
+                context=flowlog
+              /]
+            [/#if]
+
+            [#if (flowlog.DestinationType!{})?has_content && (flowlog.DestinationType != "s3")]
+              [@fatal
+                message="Invalid flow log destination type. Only s3 is supported."
+                context=flowlog
+              /]
+            [/#if]
+
+            [#local storageLink = getLinkTarget(subOccurrence, (flowlog.StorageLink)!{})]
+
+            [#switch (storageLink.Core.Type)!"" ]
+              [#case S3_COMPONENT_TYPE]
+              [#case BASELINE_DATA_COMPONENT_TYPE]
+                [#break]
+
+              [#default]
+                [@fatal
+                    message="Invalid S3 Destination for log flow storage"
+                    context={
+                      "NetworkId" : occurrence.Core.RawId,
+                      "ACLId" : subOccurrence.Core.RawId,
+                      "StorageLink" : (flowlog.s3.Link)!{}
+                    }
+                /]
+            [/#switch]
+
             [@createNetworkWatcherFlowLog
               id=flowlog.Id
               name=flowlog.Name
               targetResourceId=nsg.Reference
-              storageId=flowlog.StorageId
+              storageId=getReference((storageLink.State.Resources.container)!{})
               trafficAnalyticsInterval="0"
               retentionPolicyEnabled=true
               retentionDays="7"
               formatType="JSON"
               formatVersion="0"
-              dependsOn=
-                [
-                  getReference(flowlog.StorageId)
-                ]
+              location=getRegion()
             /]
           [/#list]
 
