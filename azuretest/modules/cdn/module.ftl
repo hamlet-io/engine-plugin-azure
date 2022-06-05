@@ -15,37 +15,32 @@
             "Tiers" : {
                 "web" : {
                     "Components" : {
-                        "cdn" : {
-                            "cdn" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-cdn-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "Certificate": {
-                                    "Host" : "mawk"
-                                },
-                                "WAF": {
-                                    "OWASP" : true
-                                },
-                                "Routes" : {}
-                            }
+                        "cdnbase" : {
+                            "Type": "cdn",
+                            "deployment:Unit": "azure-cdn",
+                            "Profiles" : {
+                                "Testing" : [ "cdnbase" ]
+                            },
+                            "Certificate": {
+                                "Host" : "mawk"
+                            },
+                            "WAF": {
+                                "OWASP" : true
+                            },
+                            "Routes" : {}
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basecdntemplate" : {
+                "cdnbase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "FrontDoorID" : {
-                                    "Path" : "outputs.frontdoorXwebXcdn.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.frontdoorXwebXcdnbase.value",
+                                    "Value" : "[resourceId('Microsoft.Network/frontDoors', 'mockedup-integration-web-cdnbase-568132487')]"
                                 }
                             }
                         }
@@ -53,9 +48,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "cdnbase" : {
                     "cdn" : {
-                        "TestCases" : [ "basecdntemplate" ]
+                        "TestCases" : [ "cdnbase" ]
                     }
                 }
             }

@@ -15,17 +15,9 @@
             "Tiers" : {
                 "dir" : {
                     "Components" : {
-                        "userpool" : {
-                            "userpool" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-userpool-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                }
-                            }
+                        "userpoolbase" : {
+                            "Type": "userpool",
+                            "deployment:Unit": "azure-userpool"
                         }
                     }
                 }

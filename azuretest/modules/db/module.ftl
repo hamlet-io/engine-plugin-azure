@@ -15,81 +15,71 @@
             "Tiers" : {
                 "db" : {
                     "Components" : {
-                        "database" : {
-                            "db" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-db-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "postgrestest" ]
-                                },
-                                "DatabaseName" : "mockdb",
-                                "Engine" : "postgres",
-                                "EngineVersion" : "11",
-                                "Port" : "postgresql",
-                                "GenerateCredentials" : {
-                                    "Enabled" : true,
-                                    "MasterUserName" : "mockuser",
-                                    "CharacterLength" : 20
-                                },
-                                "Size" : 20,
-                                "azure:SecretSettings": {
-                                    "Prefix": "MOCK"
-                                }
+                        "dbbase_postgres" : {
+                            "Type": "db",
+                            "deployment:Unit": "azure-db",
+                            "Profiles" : {
+                                "Testing" : [ "dbbase_postgres" ]
+                            },
+                            "DatabaseName" : "mockdb",
+                            "Engine" : "postgres",
+                            "EngineVersion" : "11",
+                            "Port" : "postgresql",
+                            "GenerateCredentials" : {
+                                "Enabled" : true,
+                                "MasterUserName" : "mockuser",
+                                "CharacterLength" : 20
+                            },
+                            "Size" : 20,
+                            "azure:SecretSettings": {
+                                "Prefix": "MOCK"
                             }
                         },
-                        "mysqldb" : {
-                            "db" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-mysqldb" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "mysqltest" ]
-                                },
-                                "DatabaseName" : "mockdb",
-                                "Engine" : "mysql",
-                                "EngineVersion" : "5.7",
-                                "Port" : "mysql",
-                                "GenerateCredentials" : {
-                                    "Enabled" : true,
-                                    "MasterUserName" : "mockuser",
-                                    "CharacterLength" : 20
-                                },
-                                "Size" : 20,
-                                "azure:SecretSettings": {
-                                    "Prefix": "MOCK"
-                                }
+                        "dbbase_mysql" : {
+                            "Type": "db",
+                            "deployment:Unit": "azure-db",
+                            "Profiles" : {
+                                "Testing" : [ "dbbase_mysql" ]
+                            },
+                            "DatabaseName" : "mockdb",
+                            "Engine" : "mysql",
+                            "EngineVersion" : "5.7",
+                            "Port" : "mysql",
+                            "GenerateCredentials" : {
+                                "Enabled" : true,
+                                "MasterUserName" : "mockuser",
+                                "CharacterLength" : 20
+                            },
+                            "Size" : 20,
+                            "azure:SecretSettings": {
+                                "Prefix": "MOCK"
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basedbtemplate" : {
+                "dbbase_postgres" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "DatabaseID" : {
-                                    "Path" : "outputs.postgresserverXdbXdatabaseXurl.value",
-                                    "Value" : "https://mock.local/postgresserverXdbXdatabaseXurl"
+                                    "Path" : "outputs.postgresserverXdbXdbbaseXpostgresXurl.value",
+                                    "Value" : "[reference(resourceId('Microsoft.DBforPostgreSQL/servers', 'postgresserver-db-dbbase_postgres-568132487'), '2017-12-01', 'Full').properties.fullyQualifiedDomainName]"
                                 }
                             }
                         }
                     }
                 },
-                "mysqldbtemplate" : {
+                "dbbase_mysql" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "DatabaseID" : {
-                                    "Path" : "outputs.mysqlserverXdbXmysqldbXurl.value",
-                                    "Value" : "https://mock.local/mysqlserverXdbXmysqldbXurl"
+                                    "Path" : "outputs.mysqlserverXdbXdbbaseXmysqlXurl.value",
+                                    "Value" : "[reference(resourceId('Microsoft.DBforMySQL/servers', 'mysqlserver-db-dbbase_mysql-568132487'), '2017-12-01', 'Full').properties.fullyQualifiedDomainName]"
                                 }
                             }
                         }
@@ -97,14 +87,14 @@
                 }
             },
             "TestProfiles" : {
-                "postgrestest" : {
+                "dbbase_postgres" : {
                     "db" : {
-                        "TestCases" : [ "basedbtemplate" ]
+                        "TestCases" : [ "dbbase_postgres" ]
                     }
                 },
-                "mysqltest" : {
+                "dbbase_mysql" : {
                     "db" : {
-                        "TestCases" : [ "mysqldbtemplate" ]
+                        "TestCases" : [ "dbbase_mysql" ]
                     }
                 }
             }

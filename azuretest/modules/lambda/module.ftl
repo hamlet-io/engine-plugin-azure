@@ -15,7 +15,7 @@
             {
                 "Type" : "Builds",
                 "Scope" : "Products",
-                "Namespace" : "mockedup-integration-app-lambda-api",
+                "Namespace" : "mockedup-integration-app-lambda",
                 "Settings" : {
                     "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["lambda"]
@@ -26,18 +26,16 @@
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "lambda" : {
+                        "lambdabase" : {
                             "Type" : "lambda",
-                            "deployment:Unit" : "application-az-lambda-base",
+                            "deployment:Unit" : "azure-lambda",
                             "Profiles" : {
-                                "Testing" : [ "baselambdatemplate" ]
+                                "Testing" : [ "lambdabase" ]
                             },
                             "Functions" : {
                                 "api" : {
                                     "Handler" : "src/handler.api",
-                                    "RunTime" : "nodejs14.x",
-                                    "Extensions" : [ "_mockext" ],
-                                    "Links" : {}
+                                    "RunTime" : "nodejs14.x"
                                 }
                             }
                         }
@@ -45,14 +43,14 @@
                 }
             },
             "TestCases" : {
-                "baselambdatemplate" : {
+                "lambdabase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "AppServicePlanID" : {
-                                    "Path" : "outputs.sitesXappXlambdaXapi.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.sitesXappXlambdabaseXapi.value",
+                                    "Value" : "[resourceId('Microsoft.Web/sites', 'mockedup-int-app-lambdabase-api-568132487')]"
                                 }
                             }
                         }
@@ -60,9 +58,9 @@
                 }
             },
             "TestProfiles" : {
-                "baselambdatemplate" : {
-                    "lambda" : {
-                        "TestCases" : [ "baselambdatemplate" ]
+                "lambdabase" : {
+                    "function" : {
+                        "TestCases" : [ "lambdabase" ]
                     }
                 }
             }

@@ -16,32 +16,27 @@
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "bastion" : {
-                            "bastion" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "segment-az-bastion-base" ]
-                                    }
-                                },
-                                "Enabled" : true,
-                                "MultiAZ": false,
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                }
+                        "bastionbase" : {
+                            "Type": "bastion",
+                            "deployment:Unit": "azure-bastion",
+                            "Active" : true,
+                            "MultiAZ": false,
+                            "Profiles" : {
+                                "Testing" : [ "bastionbase" ]
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basebastiontemplate" : {
+                "bastionbase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "ScaleSetID" : {
-                                    "Path" : "outputs.vmssXmanagementXbastionXbastion.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.vmssXmanagementXbastionbaseXbastion.value",
+                                    "Value" : "[resourceId('Microsoft.Compute/virtualMachineScaleSets', 'vmss-management-bastionbase-bastion')]"
                                 }
                             }
                         }
@@ -49,9 +44,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "bastionbase" : {
                     "bastion" : {
-                        "TestCases" : [ "basebastiontemplate" ]
+                        "TestCases" : [ "bastionbase" ]
                     }
                 }
             }

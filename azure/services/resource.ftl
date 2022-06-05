@@ -160,7 +160,11 @@
     [#if ! ((profile!{})?has_content)]
         [@fatal
             message="Could not find the resource type."
-            context={"Id" : id, "Profiles" : azureResourceProfiles}
+            context={
+                "Id" : id,
+                "name": name,
+                "attributeType": attributeType
+            }
         /]
         [#return ""]
     [/#if]

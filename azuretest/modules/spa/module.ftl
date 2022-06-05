@@ -14,7 +14,7 @@
             {
                 "Type" : "Builds",
                 "Scope" : "Products",
-                "Namespace" : "mockedup-integration-application-az-spa-base",
+                "Namespace" : "mockedup-integration-app-spabase",
                 "Settings" : {
                     "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["spa"]
@@ -25,23 +25,18 @@
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "spa" : {
-                            "spa" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "application-az-spa-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                }
+                        "spabase" : {
+                            "Type": "spa",
+                            "deployment:Unit": "azure-spa",
+                            "Profiles" : {
+                                "Testing" : [ "spabase" ]
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basespatemplate" : {
+                "spabase" : {
                     "OutputSuffix" : "config.json",
                     "Structural" : {
                         "JSON" : {
@@ -53,9 +48,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "spabase" : {
                     "spa" : {
-                        "TestCases" : [ "basespatemplate" ]
+                        "TestCases" : [ "spabase" ]
                     }
                 }
             }

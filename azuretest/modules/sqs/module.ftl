@@ -9,29 +9,20 @@
 
 [#macro azuretest_module_sqs ]
 
+    [#--TODO(roleyfoley): add tests for bash script --]
     [@loadModule
         settingSets=[]
         blueprint={
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "sqs" : {
-                            "sqs" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-sqs-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                }
-                            }
+                        "sqsbase" : {
+                            "Type": "sqs",
+                            "deployment:Unit": "azure-sqs"
                         }
                     }
                 }
-            },
-            "TestCases" : {},
-            "TestProfiles" : {}
+            }
         }
         stackOutputs=[]
         commandLineOption={}

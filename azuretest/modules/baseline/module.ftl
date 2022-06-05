@@ -10,36 +10,30 @@
 [#macro azuretest_module_baseline ]
 
     [@loadModule
-        settingSets=[]
         blueprint={
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
                         "baseline" : {
-                            "baseline" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "segment-az-baseline-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "azure:AdministratorGroups" : [ "1234567890-1234567890-1234567890-1234567890" ]
-                            }
+                            "Type": "baseline",
+                            "deployment:Unit": "baseline",
+                            "Profiles" : {
+                                "Testing" : [ "baseline" ]
+                            },
+                            "azure:AdministratorGroups" : [ "1234567890-1234567890-1234567890-1234567890" ]
                         }
                     }
                 }
             },
             "TestCases" : {
-                "basebaselinetemplate" : {
+                "baseline" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "BaselineStorageID" : {
                                     "Path" : "outputs.storageXmgmtXbaseline.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Value" : "[resourceId('Microsoft.Storage/storageAccounts', 'mgmtbaseline568132487568')]"
                                 }
                             }
                         }
@@ -47,15 +41,13 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "baseline" : {
                     "baseline" : {
-                        "TestCases" : [ "basebaselinetemplate" ]
+                        "TestCases" : [ "baseline" ]
                     }
                 }
             }
         }
-        stackOutputs=[]
-        commandLineOption={}
     /]
 
 [/#macro]
