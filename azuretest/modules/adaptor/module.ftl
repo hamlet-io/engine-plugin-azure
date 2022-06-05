@@ -14,7 +14,7 @@
             {
                 "Type" : "Builds",
                 "Scope" : "Products",
-                "Namespace" : "mockedup-integration-azure-adaptor-base",
+                "Namespace" : "mockedup-integration-mgmt-adaptorbase",
                 "Settings" : {
                     "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
                     "FORMATS" : ["lambda"]
@@ -25,27 +25,40 @@
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "adaptortest" : {
-                            "adaptor" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "azure-adaptor-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "Extensions" : [ "MockFragment" ]
+                        "adaptorbase" : {
+                            "Type": "adaptor",
+                            "deployment:Unit": "azure-adaptor",
+                            "Profiles" : {
+                                "Testing" : "adaptorbase"
+                            },
+                            "Extensions" : [ "_azure_adaptorbase" ]
+                        }
+                    }
+                }
+            },
+            "TestCases" : {
+                "adaptorbase": {
+                    "OutputSuffix" : "config.json",
+                    "Structural" : {
+                        "JSON" : {
+                            "Match" : {
+                                "Name" : {
+                                    "Path" : "NAME",
+                                    "Value" : "mockedup-integration-management-adaptorbase"
+                                }
                             }
                         }
                     }
                 }
             },
-            "TestCases" : {},
-            "TestProfiles" : {}
+            "TestProfiles" : {
+                "adaptorbase": {
+                    "adaptor": {
+                        "TestCases": [ "adaptorbase"]
+                    }
+                }
+            }
         }
-        stackOutputs=[]
-        commandLineOption={}
     /]
 
 [/#macro]

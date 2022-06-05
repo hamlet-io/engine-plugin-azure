@@ -15,38 +15,33 @@
             "Tiers" : {
                 "app" : {
                     "Components" : {
-                        "stage" : {
-                            "S3" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-s3-base" ]
-                                    }
-                                },
-                                "Lifecycle" : {
-                                    "Versioning" : true
-                                },
-                                "PublicAccess" : {
-                                    "default" : {
-                                        "IPAddressGroups" : [ "_localnet" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
+                        "s3base" : {
+                            "Type": "s3",
+                            "deployment:Unit": "azure-s3",
+                            "Lifecycle" : {
+                                "Versioning" : true
+                            },
+                            "PublicAccess" : {
+                                "default" : {
+                                    "IPAddressGroups" : [ "_localnet" ]
                                 }
+                            },
+                            "Profiles" : {
+                                "Testing" : [ "s3base" ]
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "bases3template" : {
+                "s3base" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "StorageID" : {
-                                    "Path" : "outputs.storageXappXstage.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.storageXappXs3base.value",
+                                    "Value" : "[resourceId('Microsoft.Storage/storageAccounts', 'apps3base568132487')]"
                                 }
                             }
                         }
@@ -54,9 +49,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "s3base" : {
                     "s3" : {
-                        "TestCases" : [ "bases3template" ]
+                        "TestCases" : [ "s3base" ]
                     }
                 }
             }

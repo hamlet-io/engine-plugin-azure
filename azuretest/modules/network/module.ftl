@@ -15,65 +15,60 @@
             "Tiers" : {
                 "mgmt" : {
                     "Components" : {
-                        "vnet" : {
-                            "network" : {
-                                "Instances" : {
+                        "networkbase" : {
+                            "Type": "network",
+                            "deployment:Unit": "azure-network",
+                            "Profiles" : {
+                                "Testing" : [ "networkbase" ]
+                            },
+                            "RouteTables": {
+                                "internal": {},
+                                "external": {
+                                    "Public": true
+                                }
+                            },
+                            "Logging" : {
+                                "FlowLogs" : {
                                     "default" : {
-                                        "DeploymentUnits" : [ "segment-az-network-base" ]
+                                        "Action" : "accept",
+                                        "Enabled" : true
                                     }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "RouteTables": {
-                                    "internal": {},
-                                    "external": {
-                                        "Public": true
-                                    }
-                                },
-                                "Logging" : {
-                                    "FlowLogs" : {
-                                        "default" : {
-                                            "Action" : "accept",
-                                            "Enabled" : true
-                                        }
-                                    }
-                                },
-                                "NetworkACLs": {
-                                    "open": {
-                                        "Rules": {
-                                            "in": {
-                                                "Priority": 200,
-                                                "Action": "allow",
-                                                "Source": {
-                                                    "IPAddressGroups": [
-                                                        "_global"
-                                                    ]
-                                                },
-                                                "Destination": {
-                                                    "IPAddressGroups": [
-                                                        "_localnet"
-                                                    ],
-                                                    "Port": "any"
-                                                },
-                                                "ReturnTraffic": false
+                                }
+                            },
+                            "NetworkACLs": {
+                                "open": {
+                                    "Rules": {
+                                        "in": {
+                                            "Priority": 200,
+                                            "Action": "allow",
+                                            "Source": {
+                                                "IPAddressGroups": [
+                                                    "_global"
+                                                ]
                                             },
-                                            "out": {
-                                                "Priority": 200,
-                                                "Action": "allow",
-                                                "Source": {
-                                                    "IPAddressGroups": [
-                                                        "_localnet"
-                                                    ]
-                                                },
-                                                "Destination": {
-                                                    "IPAddressGroups": [
-                                                        "_global"
-                                                    ],
-                                                    "Port": "any"
-                                                },
-                                                "ReturnTraffic": false
-                                            }
+                                            "Destination": {
+                                                "IPAddressGroups": [
+                                                    "_localnet"
+                                                ],
+                                                "Port": "any"
+                                            },
+                                            "ReturnTraffic": false
+                                        },
+                                        "out": {
+                                            "Priority": 200,
+                                            "Action": "allow",
+                                            "Source": {
+                                                "IPAddressGroups": [
+                                                    "_localnet"
+                                                ]
+                                            },
+                                            "Destination": {
+                                                "IPAddressGroups": [
+                                                    "_global"
+                                                ],
+                                                "Port": "any"
+                                            },
+                                            "ReturnTraffic": false
                                         }
                                     }
                                 }
@@ -83,14 +78,14 @@
                 }
             },
             "TestCases" : {
-                "basenetworktemplate" : {
+                "networkbase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "VNetID" : {
-                                    "Path" : "outputs.vnetXmgmtXvnet.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.vnetXmgmtXnetworkbase.value",
+                                    "Value" : "[resourceId('Microsoft.Network/virtualNetworks', 'mockedup-int-mgmt-networkbase-network')]"
                                 }
                             }
                         }
@@ -98,9 +93,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "networkbase" : {
                     "network" : {
-                        "TestCases" : [ "basenetworktemplate" ]
+                        "TestCases" : [ "networkbase" ]
                     }
                 }
             }

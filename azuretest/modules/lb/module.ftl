@@ -15,36 +15,29 @@
             "Tiers" : {
                 "elb" : {
                     "Components" : {
-                        "lb" : {
-                            "lb" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "solution-az-lb-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "Engine" : "application",
-                                "Ports" : {
-                                    "testport" : {
-                                        "Enabled" : true
-                                    }
-                                }
+                        "lbbase" : {
+                            "Type": "lb",
+                            "deployment:Unit": "azure-lb",
+                            "Profiles" : {
+                                "Testing" : [ "lbbase" ]
+                            },
+                            "Engine" : "application",
+                            "Ports" : {
+                                "testport" : {}
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "baselbtemplate" : {
+                "lbbase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "AppGatewayID" : {
-                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlb.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.appGatewayXmockedupXintegrationXelbXlbbase.value",
+                                    "Value" : "[resourceId('Microsoft.Network/applicationGateways', 'appGateway-mockedup-integration-elb-lbbase')]"
                                 }
                             }
                         }
@@ -52,9 +45,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "lbbase" : {
                     "lb" : {
-                        "TestCases" : [ "baselbtemplate" ]
+                        "TestCases" : [ "lbbase" ]
                     }
                 }
             }

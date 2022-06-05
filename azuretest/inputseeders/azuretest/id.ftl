@@ -23,6 +23,10 @@
                 },
                 "Product" : {
                     "Modules" : {
+                        "segment": {
+                            "Provider": "azuretest",
+                            "Name": "segment"
+                        },
                         "adaptor" : {
                             "Provider" : "azuretest",
                             "Name" : "adaptor"

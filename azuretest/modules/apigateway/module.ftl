@@ -11,7 +11,7 @@
 
     [@loadModule
         definitions={
-            "appXapigateway" : {
+            "apiXapigatewaybase" : {
                 "openapi": "3.0.0",
                 "info": {
                     "version": "1.0.0",
@@ -32,23 +32,11 @@
                 }
             }
         }
-    /]
-
-    [@loadModule
         settingSets=[
-            {
-                "Type" : "Builds",
-                "Scope" : "Products",
-                "Namespace" : "mockedup-integration-application-az-apigateway-base",
-                "Settings" : {
-                    "COMMIT" : AZURE_BUILD_COMMIT_MOCK_VALUE,
-                    "FORMATS" : ["openapi"]
-                }
-            },
             {
                 "Type" : "Settings",
                 "Scope" : "Products",
-                "Namespace" : "mockedup-integration-application-az-apigateway-base",
+                "Namespace" : "mockedup-integration-api-apigatewaybase",
                 "Settings" : {
                     "apigw": {
                         "Internal": true,
@@ -67,42 +55,37 @@
             "Tiers" : {
                 "api" : {
                     "Components" : {
-                        "apigateway" : {
-                            "apigateway" : {
-                                "Instances" : {
-                                    "default" : {
-                                        "DeploymentUnits" : [ "application-az-apigateway-base" ]
-                                    }
-                                },
-                                "Profiles" : {
-                                    "Testing" : [ "Component" ]
-                                },
-                                "Image" : {
-                                    "Source" : "none"
-                                },
-                                "Certificate": {
-                                    "Enabled" : false
-                                },
-                                "Links" : {},
-                                "BasePathBehaviour" : "ignore",
-                                "azure:Contact": {
-                                    "Name" : "Mock Ock",
-                                    "Email": "m.ock@example.com"
-                                }
+                        "apigatewaybase" : {
+                            "Type": "apigateway",
+                            "deployment:Unit": "azure-apigateway",
+                            "Profiles" : {
+                                "Testing" : [ "apigatewaybase" ]
+                            },
+                            "Image" : {
+                                "Source" : "none"
+                            },
+                            "Certificate": {
+                                "Enabled" : false
+                            },
+                            "Links" : {},
+                            "BasePathBehaviour" : "ignore",
+                            "azure:Contact": {
+                                "Name" : "Mock Ock",
+                                "Email": "m.ock@example.com"
                             }
                         }
                     }
                 }
             },
             "TestCases" : {
-                "baseapigatewaytemplate" : {
+                "apigatewaybase" : {
                     "OutputSuffix" : "template.json",
                     "Structural" : {
                         "JSON" : {
                             "Match" : {
                                 "APIMID" : {
-                                    "Path" : "outputs.serviceXmockedupXintegrationXapiXapigateway.value",
-                                    "Value" : AZURE_RESOURCE_ID_MOCK_VALUE
+                                    "Path" : "outputs.serviceXmockedupXintegrationXapiXapigatewaybase.value",
+                                    "Value" : "[resourceId('Microsoft.ApiManagement/service', 'mockedup-integration-api-apigatewaybase-568132487')]"
                                 }
                             }
                         }
@@ -110,9 +93,9 @@
                 }
             },
             "TestProfiles" : {
-                "Component" : {
+                "apigatewaybase" : {
                     "apigateway" : {
-                        "TestCases" : [ "baseapigatewaytemplate" ]
+                        "TestCases" : [ "apigatewaybase" ]
                     }
                 }
             }
