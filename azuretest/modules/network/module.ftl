@@ -36,8 +36,7 @@
                                             "Link" : {
                                                 "Tier": "mgmt",
                                                 "Component": "baseline",
-                                                "SubComponent": "opsdata",
-                                                "Type": "baselinedata"
+                                                "Type": "baseline"
                                             }
                                         }
                                     }

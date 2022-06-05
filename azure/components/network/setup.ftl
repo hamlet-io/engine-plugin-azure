@@ -241,7 +241,7 @@
 
             [#switch (storageLink.Core.Type)!"" ]
               [#case S3_COMPONENT_TYPE]
-              [#case BASELINE_DATA_COMPONENT_TYPE]
+              [#case BASELINE_COMPONENT_TYPE]
                 [#break]
 
               [#default]
@@ -259,7 +259,7 @@
               id=flowlog.Id
               name=flowlog.Name
               targetResourceId=nsg.Reference
-              storageId=getReference((storageLink.State.Resources.container)!{})
+              storageId=getReference((storageLink.State.Resources.storageAccount)!{})
               trafficAnalyticsInterval="0"
               retentionPolicyEnabled=true
               retentionDays="7"
