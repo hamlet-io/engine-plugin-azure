@@ -1,12 +1,23 @@
 # Changelog
 
-## Unreleased (2022-05-26)
+## latest (2022-06-06)
 
+#### Fixes
+
+* (network): usestorage account instead of container in logs
+* (network): flow log configuration
+* (apigateway): handle different registry types
+#### Refactorings
+
+* remove mock output service from testing
+* use shared changelog action ([#301](https://github.com/hamlet-io/engine-plugin-azure/issues/301))
+* enabled handling for suboccurrences
 #### Others
 
 * changelog bump
+* changelog bump
 
-Full set of changes: [`8.6.0...dd29206`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.0...dd29206)
+Full set of changes: [`8.6.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.0...latest)
 
 ## 8.6.0 (2022-04-15)
 
