@@ -1,6 +1,14 @@
 # Changelog
 
-## latest (2022-06-06)
+## latest (2022-06-10)
+
+#### Fixes
+
+* (lb): standard error for invalid port mapping
+
+Full set of changes: [`8.6.2...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.2...latest)
+
+## 8.6.2 (2022-06-07)
 
 #### Fixes
 
@@ -14,10 +22,11 @@
 * enabled handling for suboccurrences
 #### Others
 
+* update changelog ([#298](https://github.com/hamlet-io/engine-plugin-azure/issues/298))
 * changelog bump
 * changelog bump
 
-Full set of changes: [`8.6.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.0...latest)
+Full set of changes: [`8.6.0...8.6.2`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.0...8.6.2)
 
 ## 8.6.0 (2022-04-15)
 
