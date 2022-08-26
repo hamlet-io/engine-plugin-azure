@@ -820,12 +820,48 @@
   ipsecEncryption
   ipsecIntegrity
   saLifeTimeSeconds
-  pfsGroup=""
   saDataSizeKilobytes=""]
 
-  [#if dhGroup?is_number ]
-    [#local dhGroup = "DHGroup${dhGroup}" ]
-  [/#if]
+  [#local pfsGroup=""]
+  [#switch dhGroup ]
+    [#case 1]
+      [#local dhGroup = "DHGroup1"]
+      [#local pfsGroup = "PFS1"]
+      [#break]
+
+    [#case 2]
+      [#local dhGroup = "DHGroup2"]
+      [#local pfsGroup = "PFS2"]
+      [#break]
+
+    [#case 14]
+      [#local dhGroup = "DHGroup14"]
+      [#break]
+
+    [#case 19]
+      [#local dhGroup = "ECP256"]
+      [#local pfsGroup = "ECP256"]
+      [#break]
+
+    [#case 20]
+      [#local dhGroup = "ECP384"]
+      [#local pfsGroup = "ECP384"]
+      [#break]
+
+    [#case 24]
+      [#local dhGroup = "DHGroup24"]
+      [#local pfsGroup = "PFS24"]
+      [#break]
+
+    [#default]
+      [@fatal
+        message="Unsupported DH Group for IPSec Policy"
+        context={
+          "SupportedGroups" : [ 1, 2, 14, 19, 20, 21, 24]
+        }
+
+      /]
+  [/#switch]
 
   [#return
       {
