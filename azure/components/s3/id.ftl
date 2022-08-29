@@ -20,7 +20,7 @@
             },
             {
                 "Names" : "Certificate",
-                "Children" : certificateChildConfiguration                
+                "AttributeSet" : CERTIFICATE_ATTRIBUTESET_TYPE
             },
             {
                 "Names" : "Access",
