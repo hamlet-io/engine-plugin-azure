@@ -1,12 +1,26 @@
 # Changelog
 
-## latest (2022-06-10)
+## latest (2022-08-31)
+
+#### New Features
+
+* (network): manage vpn cipher configuration
+#### Refactorings
+
+* use base level attribute sets ([#307](https://github.com/hamlet-io/engine-plugin-azure/issues/307))
+
+Full set of changes: [`8.7.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.7.0...latest)
+
+## 8.7.0 (2022-08-23)
 
 #### Fixes
 
 * (lb): standard error for invalid port mapping
+#### Others
 
-Full set of changes: [`8.6.2...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.2...latest)
+* update changelog ([#303](https://github.com/hamlet-io/engine-plugin-azure/issues/303))
+
+Full set of changes: [`8.6.2...8.7.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.6.2...8.7.0)
 
 ## 8.6.2 (2022-06-07)
 
