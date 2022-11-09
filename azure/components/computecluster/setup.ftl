@@ -45,7 +45,7 @@
                 "Id" : storageAccountId,
                 "Name" : storageName
             },
-            "Container" : getRegistryPrefix("scripts", occurrence)?remove_ending("/"),
+            "Container" : getOccurrenceSettingValue(occurrence, ["Registries", "scripts", "Prefix"], true)?remove_ending("/"),
             "BlobName" : core.ShortName + ".zip",
             "BlobPath" : formatRelativePath(
                             productName,

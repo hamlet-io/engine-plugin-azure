@@ -14,14 +14,6 @@
     [#-- Baseline component lookup --]
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData", "AppData" ] )]
 
-    [#local codeSrcBucket = getRegistryEndPoint("scripts", occurrence)]
-    [#local codeSrcPrefix = formatRelativePath(
-                                getRegistryPrefix("scripts", occurrence),
-                                    productName,
-                                    getOccurrenceBuildScopeExtension(occurrence),
-                                    getOccurrenceBuildUnit(occurrence),
-                                    getOccurrenceBuildReference(occurrence))]
-
     [#local buildSettings = occurrence.Configuration.Settings.Build]
     [#local buildRegistry = buildSettings["BUILD_FORMATS"].Value[0]]
 
