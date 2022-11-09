@@ -254,8 +254,8 @@
     [#local baselineLinks = getBaselineLinks(occurrence, [ "OpsData"], false, false)]
     [#local storageAccount = baselineLinks["OpsData"].State.Attributes["ACCOUNT_NAME"]]
 
-    [#local container = getRegistryPrefix(registry, occurrence)?remove_ending("/")]
-    [#local fileName = getRegistryPrefix(registry, occurrence)?remove_ending("/")?ensure_ends_with(".zip") ]
+    [#local container = getOccurrenceSettingValue(occurrence, ["Registries", registry, "Prefix"], true)?remove_ending("/")]
+    [#local fileName = getOccurrenceSettingValue(occurrence, ["Registries", registry, "Prefix"], true)?remove_ending("/")?ensure_ends_with(".zip") ]
     [#local path = formatRelativePath(
         product,
         getOccurrenceBuildScopeExtension(occurrence),
