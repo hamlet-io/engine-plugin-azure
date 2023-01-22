@@ -1,6 +1,17 @@
 # Changelog
 
-## latest (2022-08-31)
+## latest (2023-01-22)
+
+#### Fixes
+
+* remove use of getRegistryPrefix and EndPoint ([#310](https://github.com/hamlet-io/engine-plugin-azure/issues/310))
+#### Refactorings
+
+* standardise github workflows ([#309](https://github.com/hamlet-io/engine-plugin-azure/issues/309))
+
+Full set of changes: [`8.8.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.8.0...latest)
+
+## 8.8.0 (2022-10-13)
 
 #### New Features
 
@@ -8,8 +19,11 @@
 #### Refactorings
 
 * use base level attribute sets ([#307](https://github.com/hamlet-io/engine-plugin-azure/issues/307))
+#### Others
 
-Full set of changes: [`8.7.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.7.0...latest)
+* update changelog ([#305](https://github.com/hamlet-io/engine-plugin-azure/issues/305))
+
+Full set of changes: [`8.7.0...8.8.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.7.0...8.8.0)
 
 ## 8.7.0 (2022-08-23)
 
