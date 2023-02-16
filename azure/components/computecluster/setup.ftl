@@ -388,6 +388,7 @@
     [#local extProtectedSettings = {}]
     [#local commandsToExecute = []]
     [#local bootstrapProfile = getBootstrapProfile(occurrence, core.Type)]
+    [#local bootstraps = getReferenceData(BOOTSTRAP_REFERENCE_TYPE, true) ]
 
     [#if (bootstrapProfile.Bootstraps)??]
 
