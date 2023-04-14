@@ -195,7 +195,7 @@
     [#assign CORSRules = []]
     [#if CORSBehaviours?has_content]
         [#list asArray(CORSBehaviours) as behaviour]
-            [#assign CORSBehaviour = CORSPrgetReferenceData(CORSPROFILE_REFERENCE_TYPE)ofiles[behaviour]]
+            [#assign CORSBehaviour = getReferenceData(CORSPROFILE_REFERENCE_TYPE)[behaviour]]
             [#if CORSBehaviour?has_content]
                 [#assign CORSRules += [
                     {
