@@ -143,7 +143,7 @@
           [#break]
 
         [#case "CORS"]
-          [#local result += attributeIfContent(name, CORSProfiles[value]!{})]
+          [#local result += attributeIfContent(name, getReferenceData(CORSPROFILE_REFERENCE_TYPE)[value]!{})]
           [#break]
 
         [#case "LogFile"]
@@ -159,7 +159,7 @@
           [#break]
 
         [#case "Baseline"]
-          [#local result += attributeIfContent(name, baselineProfiles[value]!{})]
+          [#local result += attributeIfContent(name, getReferenceData(BASELINEPROFILE_REFERENCE_TYPE)[value]!{})]
           [#break]
 
         [#-- Azure Specific --]
