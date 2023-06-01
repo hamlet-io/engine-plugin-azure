@@ -1,13 +1,20 @@
 # Changelog
 
-## latest (2023-01-22)
+## latest (2023-06-01)
 
 #### Fixes
 
+* syntax error
+* (ci): update to latest shared workflows ([#313](https://github.com/hamlet-io/engine-plugin-azure/issues/313))
+* (computecluster): bootstraps lookup from global
 * remove use of getRegistryPrefix and EndPoint ([#310](https://github.com/hamlet-io/engine-plugin-azure/issues/310))
 #### Refactorings
 
+* replace reference lookups with function
 * standardise github workflows ([#309](https://github.com/hamlet-io/engine-plugin-azure/issues/309))
+#### Others
+
+* update changelog ([#308](https://github.com/hamlet-io/engine-plugin-azure/issues/308))
 
 Full set of changes: [`8.8.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.8.0...latest)
 
