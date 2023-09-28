@@ -1,6 +1,6 @@
 # Changelog
 
-## latest (2023-06-01)
+## latest (2023-06-16)
 
 #### Fixes
 
@@ -14,6 +14,7 @@
 * standardise github workflows ([#309](https://github.com/hamlet-io/engine-plugin-azure/issues/309))
 #### Others
 
+* update changelog ([#311](https://github.com/hamlet-io/engine-plugin-azure/issues/311))
 * update changelog ([#308](https://github.com/hamlet-io/engine-plugin-azure/issues/308))
 
 Full set of changes: [`8.8.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.8.0...latest)
