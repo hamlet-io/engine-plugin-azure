@@ -1,9 +1,10 @@
 # Changelog
 
-## latest (2024-03-25)
+## latest (2024-03-27)
 
 #### Others
 
+* update changelog ([#316](https://github.com/hamlet-io/engine-plugin-azure/issues/316))
 * update shared pipeline processes ([#317](https://github.com/hamlet-io/engine-plugin-azure/issues/317))
 * update changelog ([#315](https://github.com/hamlet-io/engine-plugin-azure/issues/315))
 
