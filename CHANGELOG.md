@@ -1,6 +1,15 @@
 # Changelog
 
-## latest (2023-06-16)
+## latest (2024-03-25)
+
+#### Others
+
+* update shared pipeline processes ([#317](https://github.com/hamlet-io/engine-plugin-azure/issues/317))
+* update changelog ([#315](https://github.com/hamlet-io/engine-plugin-azure/issues/315))
+
+Full set of changes: [`8.9.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.9.0...latest)
+
+## 8.9.0 (2023-06-16)
 
 #### Fixes
 
@@ -17,7 +26,7 @@
 * update changelog ([#311](https://github.com/hamlet-io/engine-plugin-azure/issues/311))
 * update changelog ([#308](https://github.com/hamlet-io/engine-plugin-azure/issues/308))
 
-Full set of changes: [`8.8.0...latest`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.8.0...latest)
+Full set of changes: [`8.8.0...8.9.0`](https://github.com/hamlet-io/engine-plugin-azure/compare/8.8.0...8.9.0)
 
 ## 8.8.0 (2022-10-13)
 
